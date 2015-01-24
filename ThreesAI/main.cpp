@@ -10,7 +10,7 @@
 #include "ThreesBoard.h"
 
 int main(int argc, const char * argv[]) {
-    ThreesBoard startBoard = ThreesBoard();
-    std::cout << startBoard;
+    ThreesBoard board;
+    std::cout << board;
     return 0;
 }

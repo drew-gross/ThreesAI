@@ -15,9 +15,11 @@
 class ThreesBoard {
 public:
     ThreesBoard();
-    std::ostream& operator<<(std::ostream &os);
+    friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
 private:
     std::array<std::array<unsigned int, 4>, 4> board;
 };
+
+
 
 #endif /* defined(__ThreesAI__ThreesBoard__) */

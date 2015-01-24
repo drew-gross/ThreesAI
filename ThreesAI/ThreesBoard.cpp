@@ -13,7 +13,7 @@ ThreesBoard::ThreesBoard() {
     this->board = std::array<std::array<unsigned int, 4>, 4>();
 }
 
-std::ostream& ThreesBoard::operator<<(std::ostream &os){
+std::ostream& operator<<(std::ostream &os, ThreesBoard board){
     os << "---";
     return os;
 }
