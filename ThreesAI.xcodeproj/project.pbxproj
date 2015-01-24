@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7944F88F1A732BC300ED690E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F88E1A732BC300ED690E /* main.cpp */; };
+		7944F8971A732C1200ED690E /* ThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F8951A732C1200ED690E /* ThreesBoard.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,8 @@
 /* Begin PBXFileReference section */
 		7944F88B1A732BC300ED690E /* ThreesAI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ThreesAI; sourceTree = BUILT_PRODUCTS_DIR; };
 		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		7944F8951A732C1200ED690E /* ThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreesBoard.cpp; sourceTree = "<group>"; };
+		7944F8961A732C1200ED690E /* ThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreesBoard.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +61,8 @@
 			isa = PBXGroup;
 			children = (
 				7944F88E1A732BC300ED690E /* main.cpp */,
+				7944F8951A732C1200ED690E /* ThreesBoard.cpp */,
+				7944F8961A732C1200ED690E /* ThreesBoard.h */,
 			);
 			path = ThreesAI;
 			sourceTree = "<group>";
@@ -119,6 +124,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
+				7944F8971A732C1200ED690E /* ThreesBoard.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
