@@ -12,5 +12,11 @@
 int main(int argc, const char * argv[]) {
     ThreesBoard board;
     std::cout << board;
+    board.processInputDirection(RIGHT);
+    std::cout << board;
+    board.processInputDirection(RIGHT);
+    std::cout << board;
+    board.processInputDirection(RIGHT);
+    std::cout << board;
     return 0;
 }
