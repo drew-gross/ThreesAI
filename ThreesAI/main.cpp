@@ -12,11 +12,31 @@
 int main(int argc, const char * argv[]) {
     ThreesBoard board;
     std::cout << board;
-    board.processInputDirection(RIGHT);
-    std::cout << board;
-    board.processInputDirection(RIGHT);
-    std::cout << board;
-    board.processInputDirection(RIGHT);
-    std::cout << board;
+    while (true) {
+        switch (getchar()) {
+            case 'w':
+                board.processInputDirection(UP);
+                std::cout << board;
+                break;
+                
+            case 'a':
+                board.processInputDirection(LEFT);
+                std::cout << board;
+                break;
+                
+            case 's':
+                board.processInputDirection(DOWN);
+                std::cout << board;
+                break;
+                
+            case 'd':
+                board.processInputDirection(RIGHT);
+                std::cout << board;
+                break;
+                
+            default:
+                break;
+        }
+    }
     return 0;
 }
