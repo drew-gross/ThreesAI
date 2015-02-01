@@ -8,7 +8,7 @@
 
 #include "ThreesBoard.h"
 #include <iostream>
-#include <random>
+#include <iomanip>
 
 ThreesBoard::ThreesBoard() {
     std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
@@ -20,6 +20,8 @@ ThreesBoard::ThreesBoard() {
         this->board[i/4][i%4] = initialTiles[i];
     }
 }
+
+std::default_random_engine ThreesBoard::randomGenerator = std::default_random_engine();
 
 unsigned int* ThreesBoard::at(unsigned int x, unsigned int y) {
     return &this->board[y][x];
@@ -119,9 +121,7 @@ void ThreesBoard::addTile(Direction d) {
         default:
             break;
     }
-    std::random_device randomDevice;
-    //auto randomGenerator = std::default_random_engine(randomDevice);
-    //std::shuffle(indicies.begin(), indicies.end(), randomGenerator);
+    std::shuffle(indicies.begin(), indicies.end(), this->randomGenerator);
     for (auto it = indicies.begin(); it != indicies.end(); it++) {
         if (*this->at(*it) == 0) {
             *this->at(*it) = this->getNextTile();
@@ -131,11 +131,11 @@ void ThreesBoard::addTile(Direction d) {
 }
 
 std::ostream& operator<<(std::ostream &os, ThreesBoard board){
-    os << "---" << std::endl;
-    os << "|" << *board.at(0,0) << "|" << *board.at(1,0) << "|" << *board.at(2,0) << "|" << *board.at(3,0) << "|" << std::endl;
-    os << "|" << *board.at(0,1) << "|" << *board.at(1,1) << "|" << *board.at(2,1) << "|" << *board.at(3,1) << "|" << std::endl;
-    os << "|" << *board.at(0,2) << "|" << *board.at(1,2) << "|" << *board.at(2,2) << "|" << *board.at(3,2) << "|" << std::endl;
-    os << "|" << *board.at(0,3) << "|" << *board.at(1,3) << "|" << *board.at(2,3) << "|" << *board.at(3,3) << "|" << std::endl;
-    os << "---" << std::endl;
+    os << "---------------------" << std::endl;
+    os << "|" << std::setw(4) << *board.at(0,0) << "|" << std::setw(4) << *board.at(1,0) << "|" << std::setw(4) << *board.at(2,0) << "|" << std::setw(4) << *board.at(3,0) << "|" << std::endl;
+    os << "|" << std::setw(4) << *board.at(0,1) << "|" << std::setw(4) << *board.at(1,1) << "|" << std::setw(4) << *board.at(2,1) << "|" << std::setw(4) << *board.at(3,1) << "|" << std::endl;
+    os << "|" << std::setw(4) << *board.at(0,2) << "|" << std::setw(4) << *board.at(1,2) << "|" << std::setw(4) << *board.at(2,2) << "|" << std::setw(4) << *board.at(3,2) << "|" << std::endl;
+    os << "|" << std::setw(4) << *board.at(0,3) << "|" << std::setw(4) << *board.at(1,3) << "|" << std::setw(4) << *board.at(2,3) << "|" << std::setw(4) << *board.at(3,3) << "|" << std::endl;
+    os << "---------------------" << std::endl;
     return os;
 }

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <array>
 #include <vector>
+#include <random>
 
 typedef enum Direction {
     UP,
@@ -32,6 +33,7 @@ private:
     void addTile(Direction d);
     bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     unsigned int getNextTile();
+    static std::default_random_engine randomGenerator;
 };
 
 
