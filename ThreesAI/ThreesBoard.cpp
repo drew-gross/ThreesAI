@@ -13,8 +13,6 @@
 ThreesBoard::ThreesBoard() {
     std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     std::random_device randomDevice;
-    //auto randomGenerator = std::default_random_engine(randomDevice);
-    //std::shuffle(initialTiles.begin(), initialTiles.end(), randomGenerator);
     this->board = std::array<std::array<unsigned int, 4>, 4>();
     for (unsigned i = 0; i < initialTiles.size(); i++) {
         this->board[i/4][i%4] = initialTiles[i];
@@ -22,6 +20,7 @@ ThreesBoard::ThreesBoard() {
 }
 
 std::default_random_engine ThreesBoard::randomGenerator = std::default_random_engine();
+std::array<unsigned int, 12> ThreesBoard::baseStack = {1,1,1,1,2,2,2,2,3,3,3,3};
 
 unsigned int* ThreesBoard::at(unsigned int x, unsigned int y) {
     return &this->board[y][x];
@@ -100,7 +99,15 @@ void ThreesBoard::processInputDirection(Direction d) {
 }
 
 unsigned int ThreesBoard::getNextTile() {
-    return 3;
+    if (this->tileStack.empty()) {
+        std::shuffle(baseStack.begin(), baseStack.end(), this->randomGenerator);
+        for (unsigned int tile : this->baseStack) {
+            this->tileStack.push(tile);
+        }
+    }
+    unsigned int nextTile = this->tileStack.top();
+    this->tileStack.pop();
+    return nextTile;
 }
 
 void ThreesBoard::addTile(Direction d) {
