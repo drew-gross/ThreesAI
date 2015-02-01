@@ -30,6 +30,9 @@ unsigned int* ThreesBoard::at(std::pair<unsigned, unsigned> p){
 }
 
 bool ThreesBoard::tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY) {
+    if (*this->at(otherX, otherY) == 0) {
+        return false;
+    }
     if (*this->at(targetX,targetY) == *this->at(otherX,otherY) && *this->at(targetX, targetY) != 1 && *this->at(otherX, otherY) != 2) {
         *this->at(targetX,targetY) *= 2;
         *this->at(otherX,otherY) = 0;
