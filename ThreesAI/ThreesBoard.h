@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <array>
+#include <vector>
 
 typedef enum Direction {
     UP,
@@ -24,10 +25,13 @@ public:
     ThreesBoard();
     void processInputDirection(Direction d);
     unsigned int* at(unsigned x, unsigned y);
+    unsigned int* at(std::pair<unsigned, unsigned>);
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
 private:
     std::array<std::array<unsigned int, 4>, 4> board;
-    void tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
+    void addTile(Direction d);
+    bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
+    unsigned int getNextTile();
 };
 
 
