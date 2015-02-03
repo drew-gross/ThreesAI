@@ -24,6 +24,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7927DD811A8068570049E9BB /* Logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		7944F88B1A732BC300ED690E /* ThreesAI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ThreesAI; sourceTree = BUILT_PRODUCTS_DIR; };
 		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		7944F8951A732C1200ED690E /* ThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreesBoard.cpp; sourceTree = "<group>"; };
@@ -63,6 +64,7 @@
 				7944F88E1A732BC300ED690E /* main.cpp */,
 				7944F8951A732C1200ED690E /* ThreesBoard.cpp */,
 				7944F8961A732C1200ED690E /* ThreesBoard.h */,
+				7927DD811A8068570049E9BB /* Logging.h */,
 			);
 			path = ThreesAI;
 			sourceTree = "<group>";
@@ -238,6 +240,7 @@
 				7944F8941A732BC300ED690E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

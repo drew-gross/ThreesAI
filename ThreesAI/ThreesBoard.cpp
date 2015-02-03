@@ -10,9 +10,11 @@
 #include <iostream>
 #include <iomanip>
 
+#include "Logging.h"
+
 ThreesBoard::ThreesBoard() {
     std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
-    std::random_device randomDevice;
+    std::shuffle(initialTiles.begin(), initialTiles.end(), ThreesBoard::randomGenerator);
     this->board = std::array<std::array<unsigned int, 4>, 4>();
     for (unsigned i = 0; i < initialTiles.size(); i++) {
         this->board[i/4][i%4] = initialTiles[i];
@@ -20,7 +22,6 @@ ThreesBoard::ThreesBoard() {
 }
 
 std::default_random_engine ThreesBoard::randomGenerator = std::default_random_engine();
-std::array<unsigned int, 12> ThreesBoard::baseStack = {1,1,1,1,2,2,2,2,3,3,3,3};
 
 unsigned int* ThreesBoard::at(unsigned int x, unsigned int y) {
     return &this->board[y][x];
@@ -98,16 +99,48 @@ void ThreesBoard::processInputDirection(Direction d) {
     }
 }
 
+std::array<unsigned int, 12> ThreesBoard::baseStack = {1,1,1,1,2,2,2,2,3,3,3,3};
+
 unsigned int ThreesBoard::getNextTile() {
+    std::uniform_int_distribution<> bonusChance(1,21);
+    if (this->canGiveBonusTile() && bonusChance(this->randomGenerator) == 21) {
+        unsigned int nextTile = this->getBonusTile();
+        MYLOG(nextTile);
+        return nextTile;
+    }
     if (this->tileStack.empty()) {
-        std::shuffle(baseStack.begin(), baseStack.end(), this->randomGenerator);
+        std::shuffle(baseStack.begin(), baseStack.end(), ThreesBoard::randomGenerator);
         for (unsigned int tile : this->baseStack) {
             this->tileStack.push(tile);
         }
     }
     unsigned int nextTile = this->tileStack.top();
+    MYLOG(nextTile);
     this->tileStack.pop();
     return nextTile;
+}
+
+unsigned int ThreesBoard::getMaxTile() {
+    unsigned int maxTile = 0;
+    for (std::array<unsigned int, 4> row : this->board) {
+        maxTile = std::max(maxTile, *std::max_element(row.begin(), row.end()));
+    }
+    return maxTile;
+}
+
+bool ThreesBoard::canGiveBonusTile(){
+    return this->getMaxTile() >= 48;
+}
+
+unsigned int ThreesBoard::getBonusTile() {
+    unsigned int maxBonus = this->getMaxTile()/8;
+    std::vector<unsigned int> possibleBonuses;
+    while (maxBonus > 3) {
+        possibleBonuses.push_back(maxBonus);
+        maxBonus /= 2;
+    }
+    std::shuffle(possibleBonuses.begin(), possibleBonuses.end(), ThreesBoard::randomGenerator);
+    return possibleBonuses[0];
 }
 
 void ThreesBoard::addTile(Direction d) {

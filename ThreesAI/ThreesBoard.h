@@ -35,6 +35,9 @@ private:
     void addTile(Direction d);
     bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     unsigned int getNextTile();
+    unsigned int getBonusTile();
+    unsigned int getMaxTile();
+    bool canGiveBonusTile();
     
     static std::default_random_engine randomGenerator;
     static std::array<unsigned int, 12> baseStack;
