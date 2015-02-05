@@ -19,6 +19,7 @@ ThreesBoard::ThreesBoard() {
     for (unsigned i = 0; i < initialTiles.size(); i++) {
         this->board[i/4][i%4] = initialTiles[i];
     }
+    this->upcomingTile  = getNextTile(); // Get the very first tile
 }
 
 std::default_random_engine ThreesBoard::randomGenerator = std::default_random_engine();
@@ -99,25 +100,77 @@ void ThreesBoard::processInputDirection(Direction d) {
     }
 }
 
-std::array<unsigned int, 12> ThreesBoard::baseStack = {1,1,1,1,2,2,2,2,3,3,3,3};
-
-unsigned int ThreesBoard::getNextTile() {
-    std::uniform_int_distribution<> bonusChance(1,21);
-    if (this->canGiveBonusTile() && bonusChance(this->randomGenerator) == 21) {
-        unsigned int nextTile = this->getBonusTile();
-        MYLOG(nextTile);
-        return nextTile;
-    }
+void ThreesBoard::rebuildTileStackIfNecessary() {
     if (this->tileStack.empty()) {
         std::shuffle(baseStack.begin(), baseStack.end(), ThreesBoard::randomGenerator);
         for (unsigned int tile : this->baseStack) {
             this->tileStack.push(tile);
         }
     }
-    unsigned int nextTile = this->tileStack.top();
-    MYLOG(nextTile);
-    this->tileStack.pop();
-    return nextTile;
+}
+
+std::array<unsigned int, 12> ThreesBoard::baseStack = {1,1,1,1,2,2,2,2,3,3,3,3};
+
+std::deque<unsigned int> ThreesBoard::possibleUpcomingTiles() {
+    std::deque<unsigned int> inRangeTiles;
+    if (this->upcomingTile <= 3) {
+        inRangeTiles.push_back(this->upcomingTile);
+    } else {
+        //bonus tile
+        
+        //add possible values to the list
+        if (this->upcomingTile / 4 >= 6) {
+            inRangeTiles.push_back(this->upcomingTile/4);
+        }
+        if (this->upcomingTile / 2 >= 6) {
+            inRangeTiles.push_back(this->upcomingTile/2);
+        }
+        inRangeTiles.push_back(this->upcomingTile);
+        if (this->upcomingTile * 2 <= maxBonusTile()) {
+            inRangeTiles.push_back(this->upcomingTile*2);
+        }
+        if (this->upcomingTile * 4 <= maxBonusTile()) {
+            inRangeTiles.push_back(this->upcomingTile*2);
+        }
+        
+        //trim the list down to size
+        if (inRangeTiles.size() <= 3) {
+            return inRangeTiles;
+        }
+        if (inRangeTiles.size() == 4) {
+            if (std::uniform_int_distribution<>(0,1)(this->randomGenerator) == 1) {
+                inRangeTiles.pop_back();
+            } else {
+                inRangeTiles.pop_front();
+            }
+        } else {
+            int rand = std::uniform_int_distribution<>(0,2)(this->randomGenerator);
+            if (rand == 0) {
+                inRangeTiles.pop_back();
+                inRangeTiles.pop_back();
+            } else if (rand == 1) {
+                inRangeTiles.pop_back();
+                inRangeTiles.pop_front();
+            } else {
+                inRangeTiles.pop_front();
+                inRangeTiles.pop_front();
+            }
+        }
+    }
+    return inRangeTiles;
+}
+
+unsigned int ThreesBoard::getNextTile() {
+    unsigned int theTile = this->upcomingTile;
+    std::uniform_int_distribution<> bonusChance(1,21);
+    if (this->canGiveBonusTile() && bonusChance(this->randomGenerator) == 21) {
+        this->upcomingTile = this->getBonusTile();
+    } else {
+        this->rebuildTileStackIfNecessary();
+        this->upcomingTile = this->tileStack.top();
+        this->tileStack.pop();
+    }
+    return theTile;
 }
 
 unsigned int ThreesBoard::getMaxTile() {
@@ -132,8 +185,12 @@ bool ThreesBoard::canGiveBonusTile(){
     return this->getMaxTile() >= 48;
 }
 
+unsigned int ThreesBoard::maxBonusTile() {
+    return this->getMaxTile()/8;
+}
+
 unsigned int ThreesBoard::getBonusTile() {
-    unsigned int maxBonus = this->getMaxTile()/8;
+    unsigned int maxBonus = this->maxBonusTile();
     std::vector<unsigned int> possibleBonuses;
     while (maxBonus > 3) {
         possibleBonuses.push_back(maxBonus);
@@ -170,7 +227,20 @@ void ThreesBoard::addTile(Direction d) {
     }
 }
 
+template < class T >
+std::ostream& operator << (std::ostream& os, const std::deque<T>& v)
+{
+    os << "[";
+    for (typename std::deque<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
+    {
+        os << " " << *ii;
+    }
+    os << "]";
+    return os;
+}
+
 std::ostream& operator<<(std::ostream &os, ThreesBoard board){
+    os << board.possibleUpcomingTiles() << std::endl;
     os << "---------------------" << std::endl;
     os << "|" << std::setw(4) << *board.at(0,0) << "|" << std::setw(4) << *board.at(1,0) << "|" << std::setw(4) << *board.at(2,0) << "|" << std::setw(4) << *board.at(3,0) << "|" << std::endl;
     os << "|" << std::setw(4) << *board.at(0,1) << "|" << std::setw(4) << *board.at(1,1) << "|" << std::setw(4) << *board.at(2,1) << "|" << std::setw(4) << *board.at(3,1) << "|" << std::endl;
