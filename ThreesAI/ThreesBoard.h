@@ -29,13 +29,13 @@ public:
     unsigned int* at(unsigned x, unsigned y);
     unsigned int* at(std::pair<unsigned, unsigned>);
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
-    std::stack<unsigned int> tileStack;
     std::deque<unsigned int> possibleUpcomingTiles();
     unsigned int score();
     
+    std::stack<unsigned int> tileStack;
+    
     static unsigned int tileScore(unsigned int tileValue);
 private:
-    std::array<std::array<unsigned int, 4>, 4> board;
     void addTile(Direction d);
     bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     void rebuildTileStackIfNecessary();
@@ -45,6 +45,8 @@ private:
     unsigned int getMaxTile();
     unsigned int maxBonusTile();
     bool canGiveBonusTile();
+    
+    std::array<std::array<unsigned int, 4>, 4> board;
     unsigned int upcomingTile;
     
     static std::default_random_engine randomGenerator;

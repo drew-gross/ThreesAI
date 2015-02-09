@@ -253,7 +253,7 @@ unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
         {768,19683},
         {1536,59049},
         {3072,177147},
-        {6144,531441}        
+        {6144,531441}
     })[tileValue];
 }
 
