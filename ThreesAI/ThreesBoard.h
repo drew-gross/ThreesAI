@@ -31,6 +31,9 @@ public:
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
     std::stack<unsigned int> tileStack;
     std::deque<unsigned int> possibleUpcomingTiles();
+    unsigned int score();
+    
+    static unsigned int tileScore(unsigned int tileValue);
 private:
     std::array<std::array<unsigned int, 4>, 4> board;
     void addTile(Direction d);

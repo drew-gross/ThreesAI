@@ -9,6 +9,8 @@
 #include "ThreesBoard.h"
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
+#include <unordered_map>
 
 #include "Logging.h"
 
@@ -225,6 +227,34 @@ void ThreesBoard::addTile(Direction d) {
             return;
         }
     }
+}
+
+unsigned int ThreesBoard::score() {
+    return std::accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc1, std::array<unsigned int, 4> row){
+        return std::accumulate(row.begin(), row.end(), acc1, [](unsigned int acc2, unsigned int tile){
+            return acc2 + ThreesBoard::tileScore(tile);
+        });
+    });
+}
+
+unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
+    return std::unordered_map<unsigned int, unsigned int>({
+        {0,0},
+        {1,0},
+        {2,0},
+        {3,3},
+        {6,9},
+        {12,27},
+        {24,81},
+        {48,243},
+        {96,729},
+        {192,2187},
+        {384,6561},
+        {768,19683},
+        {1536,59049},
+        {3072,177147},
+        {6144,531441}        
+    })[tileValue];
 }
 
 template < class T >

@@ -13,6 +13,7 @@ int main(int argc, const char * argv[]) {
     ThreesBoard board;
     std::cout << board;
     while (true) {
+        std::cout << board.score() << std::endl;
         switch (getchar()) {
             case 'w':
                 board.processInputDirection(UP);
