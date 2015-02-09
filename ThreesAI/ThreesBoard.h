@@ -33,6 +33,7 @@ public:
     std::deque<unsigned int> possibleUpcomingTiles();
     unsigned int score();
     std::vector<Direction> validMoves();
+    bool isGameOver();
     
     std::stack<unsigned int> tileStack;
     

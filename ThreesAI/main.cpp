@@ -11,8 +11,10 @@
 #include "RandomAI.h"
 
 int main(int argc, const char * argv[]) {
+    std::random_device rd;
+    ThreesBoard::randomGenerator.seed(rd());
     RandomAI ai;
-    while (true) {
+    while (!ai.board.isGameOver()) {
         ai.playTurn();
         std::cout << ai.board << std::endl;
     }

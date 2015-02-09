@@ -342,6 +342,10 @@ std::vector<Direction> ThreesBoard::validMoves(){
     return result;
 }
 
+bool ThreesBoard::isGameOver() {
+    return this->validMoves().empty();
+}
+
 template < class T >
 std::ostream& operator << (std::ostream& os, const std::deque<T>& v)
 {
