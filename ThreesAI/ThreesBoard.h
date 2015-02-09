@@ -35,11 +35,11 @@ public:
     std::stack<unsigned int> tileStack;
     
     static unsigned int tileScore(unsigned int tileValue);
+    static std::default_random_engine randomGenerator; //TODO: this should probably be stored somewhere else?
 private:
     void addTile(Direction d);
     bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     void rebuildTileStackIfNecessary();
-    
     unsigned int getNextTile();
     unsigned int getBonusTile();
     unsigned int getMaxTile();
@@ -49,7 +49,6 @@ private:
     std::array<std::array<unsigned int, 4>, 4> board;
     unsigned int upcomingTile;
     
-    static std::default_random_engine randomGenerator;
     static std::array<unsigned int, 12> baseStack;
 };
 

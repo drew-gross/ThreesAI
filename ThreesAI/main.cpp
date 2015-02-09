@@ -8,36 +8,13 @@
 
 #include <iostream>
 #include "ThreesBoard.h"
+#include "RandomAI.h"
 
 int main(int argc, const char * argv[]) {
-    ThreesBoard board;
-    std::cout << board;
+    RandomAI ai;
     while (true) {
-        std::cout << board.score() << std::endl;
-        switch (getchar()) {
-            case 'w':
-                board.processInputDirection(UP);
-                std::cout << board;
-                break;
-                
-            case 'a':
-                board.processInputDirection(LEFT);
-                std::cout << board;
-                break;
-                
-            case 's':
-                board.processInputDirection(DOWN);
-                std::cout << board;
-                break;
-                
-            case 'd':
-                board.processInputDirection(RIGHT);
-                std::cout << board;
-                break;
-                
-            default:
-                break;
-        }
+        ai.playTurn();
+        std::cout << ai.board << std::endl;
     }
     return 0;
 }

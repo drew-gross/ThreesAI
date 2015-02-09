@@ -21,7 +21,7 @@ ThreesBoard::ThreesBoard() {
     for (unsigned i = 0; i < initialTiles.size(); i++) {
         this->board[i/4][i%4] = initialTiles[i];
     }
-    this->upcomingTile  = getNextTile(); // Get the very first tile
+    this->getNextTile(); // Put the first tile into this->upcomingTile, and ignore the first returned tile
 }
 
 std::default_random_engine ThreesBoard::randomGenerator = std::default_random_engine();
@@ -271,7 +271,7 @@ std::ostream& operator << (std::ostream& os, const std::deque<T>& v)
 
 std::ostream& operator<<(std::ostream &os, ThreesBoard board){
     os << board.possibleUpcomingTiles() << std::endl;
-    os << "---------------------" << std::endl;
+    os << "---------------------  Current Score: " <<  board.score() << std::endl;
     os << "|" << std::setw(4) << *board.at(0,0) << "|" << std::setw(4) << *board.at(1,0) << "|" << std::setw(4) << *board.at(2,0) << "|" << std::setw(4) << *board.at(3,0) << "|" << std::endl;
     os << "|" << std::setw(4) << *board.at(0,1) << "|" << std::setw(4) << *board.at(1,1) << "|" << std::setw(4) << *board.at(2,1) << "|" << std::setw(4) << *board.at(3,1) << "|" << std::endl;
     os << "|" << std::setw(4) << *board.at(0,2) << "|" << std::setw(4) << *board.at(1,2) << "|" << std::setw(4) << *board.at(2,2) << "|" << std::setw(4) << *board.at(3,2) << "|" << std::endl;

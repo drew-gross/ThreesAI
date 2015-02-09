@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		7944F88F1A732BC300ED690E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F88E1A732BC300ED690E /* main.cpp */; };
 		7944F8971A732C1200ED690E /* ThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F8951A732C1200ED690E /* ThreesBoard.cpp */; };
+		7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4421A883278000622BC /* ThreesAIBase.cpp */; };
+		7960E4471A88333B000622BC /* RandomAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4451A88333B000622BC /* RandomAI.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,6 +31,10 @@
 		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		7944F8951A732C1200ED690E /* ThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreesBoard.cpp; sourceTree = "<group>"; };
 		7944F8961A732C1200ED690E /* ThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreesBoard.h; sourceTree = "<group>"; };
+		7960E4421A883278000622BC /* ThreesAIBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreesAIBase.cpp; sourceTree = "<group>"; };
+		7960E4431A883278000622BC /* ThreesAIBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreesAIBase.h; sourceTree = "<group>"; };
+		7960E4451A88333B000622BC /* RandomAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomAI.cpp; sourceTree = "<group>"; };
+		7960E4461A88333B000622BC /* RandomAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandomAI.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +71,10 @@
 				7944F8951A732C1200ED690E /* ThreesBoard.cpp */,
 				7944F8961A732C1200ED690E /* ThreesBoard.h */,
 				7927DD811A8068570049E9BB /* Logging.h */,
+				7960E4421A883278000622BC /* ThreesAIBase.cpp */,
+				7960E4431A883278000622BC /* ThreesAIBase.h */,
+				7960E4451A88333B000622BC /* RandomAI.cpp */,
+				7960E4461A88333B000622BC /* RandomAI.h */,
 			);
 			path = ThreesAI;
 			sourceTree = "<group>";
@@ -125,8 +135,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7960E4471A88333B000622BC /* RandomAI.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
 				7944F8971A732C1200ED690E /* ThreesBoard.cpp in Sources */,
+				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
