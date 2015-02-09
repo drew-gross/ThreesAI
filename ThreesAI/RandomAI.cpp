@@ -13,6 +13,10 @@ RandomAI::RandomAI() : ThreesAIBase() {
 }
 
 void RandomAI::playTurn() {
-    Direction d = static_cast<Direction>(std::uniform_int_distribution<>(0,3)(ThreesBoard::randomGenerator));
-    this->board.processInputDirection(d);
+    std::vector<Direction> moves = this->board.validMoves();
+    std::shuffle(moves.begin(), moves.end(), ThreesBoard::randomGenerator);
+    if (moves.empty()) {
+        return;
+    }
+    this->board.tryMove(moves[0]);
 }

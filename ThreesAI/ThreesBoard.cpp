@@ -21,7 +21,7 @@ ThreesBoard::ThreesBoard() {
     for (unsigned i = 0; i < initialTiles.size(); i++) {
         this->board[i/4][i%4] = initialTiles[i];
     }
-    this->getNextTile(); // Put the first tile into this->upcomingTile, and ignore the first returned tile
+    this->getNextTile(); // Put the (true) first tile into this->upcomingTile, and ignore the first (garbage) returned tile
 }
 
 std::default_random_engine ThreesBoard::randomGenerator = std::default_random_engine();
@@ -34,27 +34,94 @@ unsigned int* ThreesBoard::at(std::pair<unsigned, unsigned> p){
     return &this->board[p.second][p.first];
 }
 
-bool ThreesBoard::tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY) {
+bool ThreesBoard::canMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY) {
     if (*this->at(otherX, otherY) == 0) {
         return false;
     }
     if (*this->at(targetX,targetY) == *this->at(otherX,otherY) && *this->at(targetX, targetY) != 1 && *this->at(otherX, otherY) != 2) {
-        *this->at(targetX,targetY) *= 2;
-        *this->at(otherX,otherY) = 0;
         return true;
-    } else if ((*this->at(targetX,targetY) == 1 and *this->at(otherX,otherY) == 2) or (*this->at(targetX,targetY) == 2 and *this->at(otherX,otherY) == 1)) {
-        *this->at(targetX,targetY) = 3;
-        *this->at(otherX,otherY) = 0;
+    }
+    if ((*this->at(targetX,targetY) == 1 and *this->at(otherX,otherY) == 2) or (*this->at(targetX,targetY) == 2 and *this->at(otherX,otherY) == 1)) {
         return true;
-    } else if (*this->at(targetX, targetY) == 0 and *this->at(otherX, otherY) != 0) {
-        *this->at(targetX, targetY) = *this->at(otherX, otherY);
-        *this->at(otherX, otherY) = 0;
+    }
+    if (*this->at(targetX, targetY) == 0 and *this->at(otherX, otherY) != 0) {
         return true;
     }
     return false;
 }
 
-void ThreesBoard::processInputDirection(Direction d) {
+bool ThreesBoard::tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY) {
+    if (this->canMerge(targetX, targetY, otherX, otherY)) {
+        *this->at(targetX, targetY) += *this->at(otherX, otherY);
+        *this->at(otherX, otherY) = 0;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool ThreesBoard::canMove(Direction d) {
+    switch (d) {
+        case UP:
+            for (unsigned i = 0; i < 4; i++) {
+                if (this->canMerge(i, 0, i, 1)) {
+                    return true;
+                }
+                if (this->canMerge(i, 1, i, 2)) {
+                    return true;
+                }
+                if (this->canMerge(i, 2, i, 3)) {
+                    return true;
+                }
+            }
+            break;
+        case DOWN:
+            for (unsigned i = 0; i < 4; i++) {
+                if (this->canMerge(i, 3, i, 2)) {
+                    return true;
+                }
+                if (this->canMerge(i, 2, i, 1)) {
+                    return true;
+                }
+                if (this->canMerge(i, 1, i, 0)) {
+                    return true;
+                }
+            }
+            break;
+        case LEFT:
+            for (unsigned i = 0; i < 4; i++) {
+                if (this->canMerge(0,i,1,i)) {
+                    return true;
+                }
+                if (this->canMerge(1,i,2,i)) {
+                    return true;
+                }
+                if (this->canMerge(2,i,3,i)) {
+                    return true;
+                }
+            }
+            break;
+        case RIGHT:
+            for (unsigned i = 0; i < 4; i++) {
+                if (this->canMerge(3,i,2,i)) {
+                    return true;
+                }
+                if (this->canMerge(2,i,1,i)) {
+                    return true;
+                }
+                if (this->canMerge(1,i,0,i)) {
+                    return true;
+                }
+            }
+            break;
+            
+        default:
+            break;
+    }
+    return false;
+}
+
+bool ThreesBoard::tryMove(Direction d) {
     bool successfulMerge = false;
     switch (d) {
         case UP:
@@ -100,6 +167,7 @@ void ThreesBoard::processInputDirection(Direction d) {
         default:
             break;
     }
+    return successfulMerge;
 }
 
 void ThreesBoard::rebuildTileStackIfNecessary() {
@@ -255,6 +323,23 @@ unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
         {3072,177147},
         {6144,531441}
     })[tileValue];
+}
+
+std::vector<Direction> ThreesBoard::validMoves(){
+    std::vector<Direction> result;
+    if (this->canMove(DOWN)) {
+        result.push_back(DOWN);
+    }
+    if (this->canMove(UP)) {
+        result.push_back(UP);
+    }
+    if (this->canMove(LEFT)) {
+        result.push_back(LEFT);
+    }
+    if (this->canMove(RIGHT)) {
+        result.push_back(RIGHT);
+    }
+    return result;
 }
 
 template < class T >

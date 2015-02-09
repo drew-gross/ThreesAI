@@ -25,12 +25,14 @@ typedef enum Direction {
 class ThreesBoard {
 public:
     ThreesBoard();
-    void processInputDirection(Direction d);
+    bool tryMove(Direction d);
+    bool canMove(Direction d);
     unsigned int* at(unsigned x, unsigned y);
     unsigned int* at(std::pair<unsigned, unsigned>);
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
     std::deque<unsigned int> possibleUpcomingTiles();
     unsigned int score();
+    std::vector<Direction> validMoves();
     
     std::stack<unsigned int> tileStack;
     
@@ -38,6 +40,7 @@ public:
     static std::default_random_engine randomGenerator; //TODO: this should probably be stored somewhere else?
 private:
     void addTile(Direction d);
+    bool canMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     void rebuildTileStackIfNecessary();
     unsigned int getNextTile();
