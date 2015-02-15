@@ -11,12 +11,11 @@
 
 #include "ThreesAIBase.h"
 
-class RandomAI : ThreesAIBase {
+class RandomAI : public ThreesAIBase {
 public:
     RandomAI();
     void playTurn();
-    
-    ThreesBoard board;
+
 private:
 };
 
