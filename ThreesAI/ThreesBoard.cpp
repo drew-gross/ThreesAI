@@ -11,8 +11,14 @@
 #include <iomanip>
 #include <algorithm>
 #include <unordered_map>
+#include <exception>
 
 #include "Logging.h"
+
+class InvalidTileAdditionException : public std::runtime_error {
+public:
+    InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
+};
 
 ThreesBoard::ThreesBoard() {
     std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
@@ -121,7 +127,7 @@ bool ThreesBoard::canMove(Direction d) {
     return false;
 }
 
-bool ThreesBoard::tryMove(Direction d) {
+std::pair<unsigned int, std::pair<unsigned int, unsigned int>> ThreesBoard::move(Direction d) {
     bool successfulMerge = false;
     switch (d) {
         case UP:
@@ -131,7 +137,7 @@ bool ThreesBoard::tryMove(Direction d) {
                 successfulMerge |= this->tryMerge(i,2,i,3);
             }
             if (successfulMerge) {
-                this->addTile(DOWN);
+                return this->addTile(DOWN);
             }
             break;
         case DOWN:
@@ -141,7 +147,7 @@ bool ThreesBoard::tryMove(Direction d) {
                 successfulMerge |= this->tryMerge(i,1,i,0);
             }
             if (successfulMerge) {
-                this->addTile(UP);
+                return this->addTile(UP);
             }
             break;
         case LEFT:
@@ -151,7 +157,7 @@ bool ThreesBoard::tryMove(Direction d) {
                 successfulMerge |= this->tryMerge(2,i,3,i);
             }
             if (successfulMerge) {
-                this->addTile(RIGHT);
+                return this->addTile(RIGHT);
             }
             break;
         case RIGHT:
@@ -161,13 +167,13 @@ bool ThreesBoard::tryMove(Direction d) {
                 successfulMerge |= this->tryMerge(1,i,0,i);
             }
             if (successfulMerge) {
-                this->addTile(LEFT);
+                return this->addTile(LEFT);
             }
             break;
         default:
             break;
     }
-    return successfulMerge;
+    throw InvalidMoveException();
 }
 
 void ThreesBoard::rebuildTileStackIfNecessary() {
@@ -270,7 +276,8 @@ unsigned int ThreesBoard::getBonusTile() {
     return possibleBonuses[0];
 }
 
-void ThreesBoard::addTile(Direction d) {
+
+std::pair<unsigned int, std::pair<unsigned int, unsigned int>> ThreesBoard::addTile(Direction d) {
     std::array<std::pair<unsigned, unsigned>, 4> indicies;
     switch (d) {
         case LEFT:
@@ -291,10 +298,12 @@ void ThreesBoard::addTile(Direction d) {
     std::shuffle(indicies.begin(), indicies.end(), this->randomGenerator);
     for (auto it = indicies.begin(); it != indicies.end(); it++) {
         if (*this->at(*it) == 0) {
-            *this->at(*it) = this->getNextTile();
-            return;
+            unsigned int nextTileValue = this->getNextTile();
+            *this->at(*it) = nextTileValue;
+            return {nextTileValue, *it};
         }
     }
+    throw InvalidTileAdditionException();
 }
 
 unsigned int ThreesBoard::score() {

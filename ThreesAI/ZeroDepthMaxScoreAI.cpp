@@ -16,29 +16,41 @@ ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI() : ThreesAIBase() {
 void ZeroDepthMaxScoreAI::playTurn() {
     std::vector<std::pair<Direction, unsigned int>> scoresForMoves;
     
-    ThreesBoard leftBoard(this->board);
-    if (leftBoard.tryMove(LEFT)) {
+    try {
+        ThreesBoard leftBoard(this->board);
+        leftBoard.move(LEFT);
         scoresForMoves.push_back({LEFT, leftBoard.score()});
+    } catch (InvalidMoveException) {
+        //Carry on trying the others
     }
     
-    ThreesBoard rightBoard(this->board);
-    if (rightBoard.tryMove(RIGHT)) {
+    try {
+        ThreesBoard rightBoard(this->board);
+        rightBoard.move(RIGHT);
         scoresForMoves.push_back({RIGHT, rightBoard.score()});
+    } catch (InvalidMoveException &e) {
+        //Carry on with the others
     }
     
-    ThreesBoard upBoard(this->board);
-    if (upBoard.tryMove(UP)) {
+    try {
+        ThreesBoard upBoard(this->board);
+        upBoard.move(UP);
         scoresForMoves.push_back({UP, upBoard.score()});
+    } catch (InvalidMoveException &e) {
+        //Carry on with the others
     }
     
-    ThreesBoard downBoard(this->board);
-    if (downBoard.tryMove(DOWN)) {
+    try {
+        ThreesBoard downBoard(this->board);
+        downBoard.move(DOWN);
         scoresForMoves.push_back({DOWN, downBoard.score()});
+    } catch (InvalidMoveException &e) {
+        //Carry on with the others
     }
     
     Direction d = std::max_element(scoresForMoves.begin(), scoresForMoves.end(), [](std::pair<Direction, unsigned int> left, std::pair<Direction, unsigned int> right){
         return left.second < right.second;
     })->first;
     
-    this->board.tryMove(d);
+    this->board.move(d);
 }

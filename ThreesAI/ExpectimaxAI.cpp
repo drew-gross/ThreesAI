@@ -22,15 +22,23 @@ unsigned int ExpectimaxMoveNode::value() {
 }
 
 unsigned int ExpectimaxChanceNode::value() {
-    float value = std::accumulate(this->children.begin(), this->children.end(), 0, [](float acc, std::pair<float, ExpectimaxMoveNode> next){
-        return acc + next.first*next.second.value();
+    float value = std::accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, std::pair<std::pair<unsigned int, std::pair<unsigned int, unsigned int>>, ExpectimaxMoveNode> next){
+        return acc + this->probability*next.second.value();
     });
     return floor(value);
 }
 
+ExpectimaxChanceNode ExpectimaxMoveNode::child(Direction d) {
+    return this->children[d];
+}
+
+ExpectimaxMoveNode ExpectimaxChanceNode::child(std::pair<unsigned int, std::pair<unsigned int, unsigned int>> t) {
+    return this->children[t];
+}
+
 void ExpectimaxAI::playTurn() {
     Direction d = this->currentBoard.maxChild().first;
-    std::pair<unsigned int, std::pair<unsigned int, unsigned int>> addedTileInfo = this->board.tryMove(d);
+    std::pair<unsigned int, std::pair<unsigned int, unsigned int>> addedTileInfo = this->board.move(d);
     ExpectimaxChanceNode afterMoveBoard = this->currentBoard.child(d);
     ExpectimaxMoveNode afterAddingTileBoard = afterMoveBoard.child(addedTileInfo);
 }

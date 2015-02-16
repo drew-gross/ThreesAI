@@ -18,5 +18,5 @@ void RandomAI::playTurn() {
     if (moves.empty()) {
         return;
     }
-    this->board.tryMove(moves[0]);
+    this->board.move(moves[0]);
 }

@@ -14,6 +14,7 @@
 #include <vector>
 #include <random>
 #include <stack>
+#include <exception>
 
 typedef enum Direction {
     UP,
@@ -22,10 +23,16 @@ typedef enum Direction {
     RIGHT
 } Direction;
 
+class InvalidMoveException : public std::logic_error {
+public:
+    InvalidMoveException() : logic_error("That move cannot be made"){};
+};
+
 class ThreesBoard {
 public:
     ThreesBoard();
-    bool tryMove(Direction d);
+    //Throws if move is invalid. Returns location and value of new tile if not.
+    std::pair<unsigned int, std::pair<unsigned int, unsigned int>> move(Direction d);
     bool canMove(Direction d);
     unsigned int* at(unsigned x, unsigned y);
     unsigned int* at(std::pair<unsigned, unsigned>);
@@ -40,7 +47,8 @@ public:
     static unsigned int tileScore(unsigned int tileValue);
     static std::default_random_engine randomGenerator; //TODO: this should probably be stored somewhere else?
 private:
-    void addTile(Direction d);
+    //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
+    std::pair<unsigned int, std::pair<unsigned int, unsigned int>> addTile(Direction d);
     bool canMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     void rebuildTileStackIfNecessary();
