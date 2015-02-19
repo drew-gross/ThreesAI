@@ -41,6 +41,7 @@ public:
     unsigned int score();
     std::vector<Direction> validMoves();
     bool isGameOver();
+    std::vector<std::pair<unsigned int, unsigned int>> validIndicesForNewTile(Direction d);
     
     std::stack<unsigned int> tileStack;
     

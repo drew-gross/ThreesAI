@@ -276,8 +276,7 @@ unsigned int ThreesBoard::getBonusTile() {
     return possibleBonuses[0];
 }
 
-
-std::pair<unsigned int, std::pair<unsigned int, unsigned int>> ThreesBoard::addTile(Direction d) {
+std::vector<std::pair<unsigned int, unsigned int>> ThreesBoard::validIndicesForNewTile(Direction d) {
     std::array<std::pair<unsigned, unsigned>, 4> indicies;
     switch (d) {
         case LEFT:
@@ -295,15 +294,17 @@ std::pair<unsigned int, std::pair<unsigned int, unsigned int>> ThreesBoard::addT
         default:
             break;
     }
-    std::shuffle(indicies.begin(), indicies.end(), this->randomGenerator);
-    for (auto it = indicies.begin(); it != indicies.end(); it++) {
-        if (*this->at(*it) == 0) {
-            unsigned int nextTileValue = this->getNextTile();
-            *this->at(*it) = nextTileValue;
-            return {nextTileValue, *it};
-        }
-    }
-    throw InvalidTileAdditionException();
+    auto endIterator = std::remove_if(indicies.begin(), indicies.end(), [this](std::pair<unsigned int, unsigned int> tile) {
+        return *this->at(tile) != 0;
+    });
+    return std::vector<std::pair<unsigned int, unsigned int>>(indicies.begin(), endIterator);
+}
+
+std::pair<unsigned int, std::pair<unsigned int, unsigned int>> ThreesBoard::addTile(Direction d) {
+    auto indices = this->validIndicesForNewTile(d);
+    std::shuffle(indices.begin(), indices.end(), this->randomGenerator);
+    unsigned int nextTileValue = this->getNextTile();
+    return {nextTileValue, *indices.begin()};
 }
 
 unsigned int ThreesBoard::score() {

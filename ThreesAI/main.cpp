@@ -10,11 +10,12 @@
 #include "ThreesBoard.h"
 #include "RandomAI.h"
 #include "ZeroDepthMaxScoreAI.h"
+#include "ExpectimaxAI.h"
 
 int main(int argc, const char * argv[]) {
     std::random_device rd;
     ThreesBoard::randomGenerator.seed(rd());
-    ZeroDepthMaxScoreAI ai;
+    ExpectimaxAI ai;
     while (!ai.board.isGameOver()) {
         ai.playTurn();
         std::cout << ai.board << std::endl;

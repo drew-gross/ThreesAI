@@ -20,17 +20,26 @@ class ExpectimaxMoveNode {
 public:
     unsigned int value();
     ExpectimaxChanceNode child(Direction d);
+    bool childrenAreFilledIn();
     
 private:
     std::map<Direction, ExpectimaxChanceNode> children;
     std::pair<Direction, ExpectimaxChanceNode> maxChild();
+    void fillInChildren();
     ThreesBoard board;
 };
 
 class ExpectimaxChanceNode {
 public:
+    ExpectimaxChanceNode(ThreesBoard const& board);
+    ExpectimaxChanceNode(){}
+    
     unsigned int value();
     ExpectimaxMoveNode child(std::pair<unsigned int, std::pair<unsigned int, unsigned int>>);
+    ThreesBoard board;
+    void fillInChildren(Direction d);
+    bool childrenAreFilledIn();
+    
 private:
     std::map<std::pair<unsigned int, std::pair<unsigned int, unsigned int>>, ExpectimaxMoveNode> children;
     float probability;
@@ -41,6 +50,7 @@ private:
     ExpectimaxMoveNode currentBoard;
     
 public:
+    ExpectimaxAI();
     
     void playTurn();
     
