@@ -31,11 +31,14 @@ public:
 class ThreesBoard {
 public:
     ThreesBoard();
+    
+    typedef std::pair<unsigned int, unsigned int> BoardIndex;
+    
     //Throws if move is invalid. Returns location and value of new tile if not.
-    std::pair<unsigned int, std::pair<unsigned int, unsigned int>> move(Direction d);
+    std::pair<unsigned int, BoardIndex> move(Direction d);
     bool canMove(Direction d);
     unsigned int* at(unsigned x, unsigned y);
-    unsigned int* at(std::pair<unsigned, unsigned>);
+    unsigned int* at(BoardIndex i);
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
     std::deque<unsigned int> possibleUpcomingTiles();
     
@@ -44,7 +47,7 @@ public:
     unsigned int score();
     std::vector<Direction> validMoves();
     bool isGameOver();
-    std::vector<std::pair<unsigned int, unsigned int>> validIndicesForNewTile(Direction d);
+    std::vector<BoardIndex> validIndicesForNewTile(Direction d);
     
     std::deque<unsigned int> tileStack;
     
@@ -52,7 +55,7 @@ public:
     static std::default_random_engine randomGenerator; //TODO: this should probably be stored somewhere else?
 private:
     //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
-    std::pair<unsigned int, std::pair<unsigned int, unsigned int>> addTile(Direction d);
+    std::pair<unsigned int, BoardIndex> addTile(Direction d);
     bool canMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
     void rebuildTileStackIfNecessary();

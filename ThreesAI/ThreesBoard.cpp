@@ -36,7 +36,7 @@ unsigned int* ThreesBoard::at(unsigned int x, unsigned int y) {
     return &this->board[y][x];
 }
 
-unsigned int* ThreesBoard::at(std::pair<unsigned, unsigned> p){
+unsigned int* ThreesBoard::at(BoardIndex p){
     return &this->board[p.second][p.first];
 }
 
@@ -127,7 +127,7 @@ bool ThreesBoard::canMove(Direction d) {
     return false;
 }
 
-std::pair<unsigned int, std::pair<unsigned int, unsigned int>> ThreesBoard::move(Direction d) {
+std::pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
     bool successfulMerge = false;
     switch (d) {
         case UP:
@@ -341,7 +341,7 @@ std::vector<std::tuple<float, ThreesBoard>> ThreesBoard::possibleNextBoardStates
     return result;
 }
 
-std::vector<std::pair<unsigned int, unsigned int>> ThreesBoard::validIndicesForNewTile(Direction d) {
+std::vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction d) {
     std::array<std::pair<unsigned, unsigned>, 4> indicies;
     switch (d) {
         case LEFT:
@@ -359,13 +359,13 @@ std::vector<std::pair<unsigned int, unsigned int>> ThreesBoard::validIndicesForN
         default:
             break;
     }
-    auto endIterator = std::remove_if(indicies.begin(), indicies.end(), [this](std::pair<unsigned int, unsigned int> tile) {
+    auto endIterator = std::remove_if(indicies.begin(), indicies.end(), [this](ThreesBoard::BoardIndex tile) {
         return *this->at(tile) != 0;
     });
-    return std::vector<std::pair<unsigned int, unsigned int>>(indicies.begin(), endIterator);
+    return std::vector<ThreesBoard::BoardIndex>(indicies.begin(), endIterator);
 }
 
-std::pair<unsigned int, std::pair<unsigned int, unsigned int>> ThreesBoard::addTile(Direction d) {
+std::pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
     auto indices = this->validIndicesForNewTile(d);
     std::shuffle(indices.begin(), indices.end(), this->randomGenerator);
     unsigned int nextTileValue = this->getNextTile();

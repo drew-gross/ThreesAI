@@ -60,11 +60,11 @@ void ExpectimaxChanceNode::fillInChildren(std::list<ExpectimaxNode*>& unfilledLi
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     std::for_each(possibleNextTiles.begin(), possibleNextTiles.end(), [&](unsigned int possibleTile){
-        std::for_each(possibleNextLocations.begin(), possibleNextLocations.end(), [&](std::pair<unsigned int, unsigned int> boardIndex){
+        std::for_each(possibleNextLocations.begin(), possibleNextLocations.end(), [&](ThreesBoard::BoardIndex boardIndex){
             std::for_each(possibleNextBoardStates.begin(), possibleNextBoardStates.end(), [&](std::tuple<float, ThreesBoard> state){
                 float stateProbability = tileProbability*locationProbability*std::get<0>(state);
                 
-                std::pair<unsigned int, std::pair<unsigned int, unsigned int>> childIndex = {possibleTile, boardIndex};
+                std::pair<unsigned int, ThreesBoard::BoardIndex> childIndex = {possibleTile, boardIndex};
                 ThreesBoard childState = std::get<1>(state);
                 this->children.insert({childIndex, {stateProbability, childState}});
                 *this->child({possibleTile, boardIndex}).second.board.at(boardIndex) = possibleTile;
@@ -85,7 +85,7 @@ unsigned int ExpectimaxMoveNode::value() {
 }
 
 unsigned int ExpectimaxChanceNode::value() {
-    float value = std::accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, std::pair<std::pair<unsigned int, std::pair<unsigned int, unsigned int>>, std::pair<float,ExpectimaxMoveNode>> next){
+    float value = std::accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, std::pair<std::pair<unsigned int, ThreesBoard::BoardIndex>, std::pair<float,ExpectimaxMoveNode>> next){
         return acc + next.second.first*next.second.second.value();
     });
     return floor(value);
@@ -95,7 +95,7 @@ ExpectimaxChanceNode& ExpectimaxMoveNode::child(Direction d) {
     return this->children[d];
 }
 
-std::pair<float, ExpectimaxMoveNode>& ExpectimaxChanceNode::child(std::pair<unsigned int, std::pair<unsigned int, unsigned int>> t) {
+std::pair<float, ExpectimaxMoveNode>& ExpectimaxChanceNode::child(std::pair<unsigned int, ThreesBoard::BoardIndex> t) {
     return this->children[t];
 }
 
@@ -119,7 +119,7 @@ void ExpectimaxAI::playTurn() {
     }
     
     Direction d = this->currentBoard.maxChild().first;
-    std::pair<unsigned int, std::pair<unsigned int, unsigned int>> addedTileInfo = this->board.move(d);
+    std::pair<unsigned int, ThreesBoard::BoardIndex> addedTileInfo = this->board.move(d);
     ExpectimaxChanceNode afterMoveBoard = this->currentBoard.child(d);
     ExpectimaxMoveNode afterAddingTileBoard = afterMoveBoard.child(addedTileInfo).second;
     this->currentBoard = afterAddingTileBoard;
