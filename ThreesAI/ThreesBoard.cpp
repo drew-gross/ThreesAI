@@ -180,7 +180,7 @@ void ThreesBoard::rebuildTileStackIfNecessary() {
     if (this->tileStack.empty()) {
         std::shuffle(baseStack.begin(), baseStack.end(), ThreesBoard::randomGenerator);
         for (unsigned int tile : this->baseStack) {
-            this->tileStack.push(tile);
+            this->tileStack.push_back(tile);
         }
     }
 }
@@ -243,8 +243,8 @@ unsigned int ThreesBoard::getNextTile() {
         this->upcomingTile = this->getBonusTile();
     } else {
         this->rebuildTileStackIfNecessary();
-        this->upcomingTile = this->tileStack.top();
-        this->tileStack.pop();
+        this->upcomingTile = *this->tileStack.rbegin();
+        this->tileStack.pop_back();
     }
     return theTile;
 }
@@ -274,6 +274,71 @@ unsigned int ThreesBoard::getBonusTile() {
     }
     std::shuffle(possibleBonuses.begin(), possibleBonuses.end(), ThreesBoard::randomGenerator);
     return possibleBonuses[0];
+}
+
+std::vector<std::tuple<float, ThreesBoard>> ThreesBoard::possibleNextBoardStates() {
+    //TODO: convert this to use number of each type of tile remaining
+    std::vector<std::tuple<float, ThreesBoard>> result;
+    float num_ones = std::count(this->tileStack.begin(), this->tileStack.end(), 1);
+    float num_twos = std::count(this->tileStack.begin(), this->tileStack.end(), 2);
+    float num_threes = std::count(this->tileStack.begin(), this->tileStack.end(), 3);
+    float num_elems = this->tileStack.size();
+    
+    if (num_ones > 0) {
+        std::deque<unsigned int> nextStack;
+        for (int i = 0; i < num_ones - 1; ++i) {
+            nextStack.push_back(1);
+        }
+        for (int i = 0; i < num_twos; ++i) {
+            nextStack.push_back(2);
+        }
+        for (int i = 0; i < num_threes; ++i) {
+            nextStack.push_back(3);
+        }
+        
+        ThreesBoard nextBoard = ThreesBoard(*this);
+        nextBoard.tileStack = nextStack;
+        nextBoard.upcomingTile = 1;
+        result.push_back({num_ones/num_elems, nextBoard});
+    }
+    
+    if (num_twos > 0) {
+        std::deque<unsigned int> nextStack;
+        for (int i = 0; i < num_ones; ++i) {
+            nextStack.push_back(1);
+        }
+        for (int i = 0; i < num_twos - 1; ++i) {
+            nextStack.push_back(2);
+        }
+        for (int i = 0; i < num_threes; ++i) {
+            nextStack.push_back(3);
+        }
+        
+        ThreesBoard nextBoard = ThreesBoard(*this);
+        nextBoard.tileStack = nextStack;
+        nextBoard.upcomingTile = 2;
+        result.push_back({num_twos/num_elems, nextBoard});
+    }
+    
+    if (num_threes > 0) {
+        std::deque<unsigned int> nextStack;
+        for (int i = 0; i < num_ones; ++i) {
+            nextStack.push_back(1);
+        }
+        for (int i = 0; i < num_twos; ++i) {
+            nextStack.push_back(2);
+        }
+        for (int i = 0; i < num_threes - 1; ++i) {
+            nextStack.push_back(3);
+        }
+        
+        ThreesBoard nextBoard = ThreesBoard(*this);
+        nextBoard.tileStack = nextStack;
+        nextBoard.upcomingTile = 3;
+        result.push_back({num_twos/num_elems, nextBoard});
+    }
+    
+    return result;
 }
 
 std::vector<std::pair<unsigned int, unsigned int>> ThreesBoard::validIndicesForNewTile(Direction d) {

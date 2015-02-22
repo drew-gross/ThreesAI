@@ -12,42 +12,56 @@
 #include "ThreesAIBase.h"
 
 #include <map>
+#include <list>
+
+class ExpectimaxNode {
+public:
+    virtual void fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d) = 0;
+};
 
 class ExpectimaxChanceNode;
 
-class ExpectimaxMoveNode {
+class ExpectimaxMoveNode : ExpectimaxNode {
     friend class ExpectimaxAI;
+    friend class ExpectimaxChanceNode;
 public:
+    ExpectimaxMoveNode(ThreesBoard const& board);
+    ExpectimaxMoveNode();
+    
     unsigned int value();
-    ExpectimaxChanceNode child(Direction d);
+    ExpectimaxChanceNode& child(Direction d);
     bool childrenAreFilledIn();
     
 private:
     std::map<Direction, ExpectimaxChanceNode> children;
     std::pair<Direction, ExpectimaxChanceNode> maxChild();
-    void fillInChildren();
+    void fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d);
     ThreesBoard board;
 };
 
-class ExpectimaxChanceNode {
+class ExpectimaxChanceNode : ExpectimaxNode {
 public:
     ExpectimaxChanceNode(ThreesBoard const& board);
     ExpectimaxChanceNode(){}
     
     unsigned int value();
-    ExpectimaxMoveNode child(std::pair<unsigned int, std::pair<unsigned int, unsigned int>>);
+    std::pair<float, ExpectimaxMoveNode>& child(std::pair<unsigned int, std::pair<unsigned int, unsigned int>>);
     ThreesBoard board;
-    void fillInChildren(Direction d);
+    void fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d);
     bool childrenAreFilledIn();
     
 private:
-    std::map<std::pair<unsigned int, std::pair<unsigned int, unsigned int>>, ExpectimaxMoveNode> children;
+    std::map<std::pair<unsigned int, std::pair<unsigned int, unsigned int>>, std::pair<float, ExpectimaxMoveNode>> children;
     float probability;
 };
 
 class ExpectimaxAI : public ThreesAIBase {
 private:
     ExpectimaxMoveNode currentBoard;
+    
+    std::list<ExpectimaxNode*> unfilledChildren;
+    
+    void fillInChild();
     
 public:
     ExpectimaxAI();

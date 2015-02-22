@@ -38,12 +38,15 @@ public:
     unsigned int* at(std::pair<unsigned, unsigned>);
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
     std::deque<unsigned int> possibleUpcomingTiles();
+    
+    //returns a set of boards with the upcomingTile and tileStack updated, but no new tiles added to the board.
+    std::vector<std::tuple<float, ThreesBoard>> possibleNextBoardStates();
     unsigned int score();
     std::vector<Direction> validMoves();
     bool isGameOver();
     std::vector<std::pair<unsigned int, unsigned int>> validIndicesForNewTile(Direction d);
     
-    std::stack<unsigned int> tileStack;
+    std::deque<unsigned int> tileStack;
     
     static unsigned int tileScore(unsigned int tileValue);
     static std::default_random_engine randomGenerator; //TODO: this should probably be stored somewhere else?
