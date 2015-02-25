@@ -276,9 +276,9 @@ unsigned int ThreesBoard::getBonusTile() {
     return possibleBonuses[0];
 }
 
-std::vector<std::tuple<float, ThreesBoard>> ThreesBoard::possibleNextBoardStates() {
+std::vector<std::tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardStates() {
     //TODO: convert this to use number of each type of tile remaining
-    std::vector<std::tuple<float, ThreesBoard>> result;
+    std::vector<std::tuple<float, ThreesBoard, unsigned int>> result;
     float num_ones = std::count(this->tileStack.begin(), this->tileStack.end(), 1);
     float num_twos = std::count(this->tileStack.begin(), this->tileStack.end(), 2);
     float num_threes = std::count(this->tileStack.begin(), this->tileStack.end(), 3);
@@ -299,7 +299,7 @@ std::vector<std::tuple<float, ThreesBoard>> ThreesBoard::possibleNextBoardStates
         ThreesBoard nextBoard = ThreesBoard(*this);
         nextBoard.tileStack = nextStack;
         nextBoard.upcomingTile = 1;
-        result.push_back({num_ones/num_elems, nextBoard});
+        result.push_back({num_ones/num_elems, nextBoard, 1});
     }
     
     if (num_twos > 0) {
@@ -317,7 +317,7 @@ std::vector<std::tuple<float, ThreesBoard>> ThreesBoard::possibleNextBoardStates
         ThreesBoard nextBoard = ThreesBoard(*this);
         nextBoard.tileStack = nextStack;
         nextBoard.upcomingTile = 2;
-        result.push_back({num_twos/num_elems, nextBoard});
+        result.push_back({num_twos/num_elems, nextBoard, 2});
     }
     
     if (num_threes > 0) {
@@ -335,7 +335,7 @@ std::vector<std::tuple<float, ThreesBoard>> ThreesBoard::possibleNextBoardStates
         ThreesBoard nextBoard = ThreesBoard(*this);
         nextBoard.tileStack = nextStack;
         nextBoard.upcomingTile = 3;
-        result.push_back({num_twos/num_elems, nextBoard});
+        result.push_back({num_twos/num_elems, nextBoard, 3});
     }
     
     return result;
@@ -362,7 +362,8 @@ std::vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Directi
     auto endIterator = std::remove_if(indicies.begin(), indicies.end(), [this](ThreesBoard::BoardIndex tile) {
         return *this->at(tile) != 0;
     });
-    return std::vector<ThreesBoard::BoardIndex>(indicies.begin(), endIterator);
+    std::vector<ThreesBoard::BoardIndex> result(indicies.begin(), endIterator);
+    return result;
 }
 
 std::pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {

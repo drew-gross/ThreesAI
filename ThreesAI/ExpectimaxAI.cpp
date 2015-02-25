@@ -54,21 +54,21 @@ bool ExpectimaxChanceNode::childrenAreFilledIn() {
 void ExpectimaxChanceNode::fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d) {
     auto possibleNextTiles = this->board.possibleUpcomingTiles();
     auto possibleNextLocations = this->board.validIndicesForNewTile(d);
-    std::vector<std::tuple<float, ThreesBoard>> possibleNextBoardStates = this->board.possibleNextBoardStates();
+    std::vector<std::tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates = this->board.possibleNextBoardStates();
     
     float tileProbability = 1.0f/possibleNextLocations.size();
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     std::for_each(possibleNextTiles.begin(), possibleNextTiles.end(), [&](unsigned int possibleTile){
         std::for_each(possibleNextLocations.begin(), possibleNextLocations.end(), [&](ThreesBoard::BoardIndex boardIndex){
-            std::for_each(possibleNextBoardStates.begin(), possibleNextBoardStates.end(), [&](std::tuple<float, ThreesBoard> state){
+            std::for_each(possibleNextBoardStates.begin(), possibleNextBoardStates.end(), [&](std::tuple<float, ThreesBoard, unsigned int> state){
                 float stateProbability = tileProbability*locationProbability*std::get<0>(state);
-                
-                std::pair<unsigned int, ThreesBoard::BoardIndex> childIndex = {possibleTile, boardIndex};
                 ThreesBoard childState = std::get<1>(state);
+                unsigned int upcomingTile = std::get<2>(state);
+                std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> childIndex = {possibleTile, boardIndex, upcomingTile};
                 this->children.insert({childIndex, {stateProbability, childState}});
-                *this->child({possibleTile, boardIndex}).second.board.at(boardIndex) = possibleTile;
-                unfilledList.push_back(&this->child({possibleTile, boardIndex}).second);
+                *this->child(childIndex).second.board.at(boardIndex) = possibleTile;
+                unfilledList.push_back(&this->child(childIndex).second);
             });
         });
     });
@@ -85,7 +85,7 @@ unsigned int ExpectimaxMoveNode::value() {
 }
 
 unsigned int ExpectimaxChanceNode::value() {
-    float value = std::accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, std::pair<std::pair<unsigned int, ThreesBoard::BoardIndex>, std::pair<float,ExpectimaxMoveNode>> next){
+    float value = std::accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, std::pair<std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, std::pair<float,ExpectimaxMoveNode>> next){
         return acc + next.second.first*next.second.second.value();
     });
     return floor(value);
@@ -95,11 +95,12 @@ ExpectimaxChanceNode& ExpectimaxMoveNode::child(Direction d) {
     return this->children[d];
 }
 
-std::pair<float, ExpectimaxMoveNode>& ExpectimaxChanceNode::child(std::pair<unsigned int, ThreesBoard::BoardIndex> t) {
+std::pair<float, ExpectimaxMoveNode>& ExpectimaxChanceNode::child(std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> t) {
     return this->children[t];
 }
 
-ExpectimaxAI::ExpectimaxAI() : ThreesAIBase() , currentBoard(board) {
+ExpectimaxAI::ExpectimaxAI() : ThreesAIBase() {
+    this->currentBoard = ExpectimaxMoveNode(this->board);
     this->unfilledChildren.push_back(&this->currentBoard);
 }
 
@@ -120,7 +121,9 @@ void ExpectimaxAI::playTurn() {
     
     Direction d = this->currentBoard.maxChild().first;
     std::pair<unsigned int, ThreesBoard::BoardIndex> addedTileInfo = this->board.move(d);
+    unsigned int addedTileValue = addedTileInfo.first;
+    ThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
     ExpectimaxChanceNode afterMoveBoard = this->currentBoard.child(d);
-    ExpectimaxMoveNode afterAddingTileBoard = afterMoveBoard.child(addedTileInfo).second;
+    ExpectimaxMoveNode afterAddingTileBoard = afterMoveBoard.child({addedTileValue, addedTileLocation, afterMoveBoard.board.possibleUpcomingTiles().front()}).second;
     this->currentBoard = afterAddingTileBoard;
 }

@@ -43,7 +43,7 @@ public:
     std::deque<unsigned int> possibleUpcomingTiles();
     
     //returns a set of boards with the upcomingTile and tileStack updated, but no new tiles added to the board.
-    std::vector<std::tuple<float, ThreesBoard>> possibleNextBoardStates();
+    std::vector<std::tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates(); //that unsigned int should be [unsigned int] in order to take into account possibility of a bonus tile.
     unsigned int score();
     std::vector<Direction> validMoves();
     bool isGameOver();

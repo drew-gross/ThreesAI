@@ -45,13 +45,13 @@ public:
     ExpectimaxChanceNode(){}
     
     unsigned int value();
-    std::pair<float, ExpectimaxMoveNode>& child(std::pair<unsigned int, ThreesBoard::BoardIndex>);
+    std::pair<float, ExpectimaxMoveNode>& child(std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>);
     ThreesBoard board;
     void fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d);
     bool childrenAreFilledIn();
     
 private:
-    std::map<std::pair<unsigned int, ThreesBoard::BoardIndex>, std::pair<float, ExpectimaxMoveNode>> children;
+    std::map<std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, std::pair<float, ExpectimaxMoveNode>> children;
     float probability;
 };
 
