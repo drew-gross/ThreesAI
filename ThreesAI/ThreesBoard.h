@@ -37,7 +37,6 @@ public:
     //Throws if move is invalid. Returns location and value of new tile if not.
     std::pair<unsigned int, BoardIndex> move(Direction d);
     bool canMove(Direction d);
-    unsigned int* at(unsigned x, unsigned y);
     unsigned int* at(BoardIndex i);
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
     std::deque<unsigned int> possibleUpcomingTiles();
