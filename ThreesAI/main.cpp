@@ -12,8 +12,10 @@
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
 
+using namespace std;
+
 int main(int argc, const char * argv[]) {
-    std::random_device rd;
+    random_device rd;
     ThreesBoard::randomGenerator.seed(rd());
     ExpectimaxAI ai;
     while (!ai.board.isGameOver()) {

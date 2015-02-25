@@ -9,12 +9,14 @@
 #include "ZeroDepthMaxScoreAI.h"
 #include "ThreesBoard.h"
 
+using namespace std;
+
 ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI() : ThreesAIBase() {
     
 }
 
 void ZeroDepthMaxScoreAI::playTurn() {
-    std::vector<std::pair<Direction, unsigned int>> scoresForMoves;
+    vector<pair<Direction, unsigned int>> scoresForMoves;
     
     try {
         ThreesBoard leftBoard(this->board);
@@ -48,7 +50,7 @@ void ZeroDepthMaxScoreAI::playTurn() {
         //Carry on with the others
     }
     
-    Direction d = std::max_element(scoresForMoves.begin(), scoresForMoves.end(), [](std::pair<Direction, unsigned int> left, std::pair<Direction, unsigned int> right){
+    Direction d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){
         return left.second < right.second;
     })->first;
     

@@ -15,22 +15,24 @@
 
 #include "Logging.h"
 
-class InvalidTileAdditionException : public std::runtime_error {
+using namespace std;
+
+class InvalidTileAdditionException : public runtime_error {
 public:
     InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
 };
 
 ThreesBoard::ThreesBoard() {
-    std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
-    std::shuffle(initialTiles.begin(), initialTiles.end(), ThreesBoard::randomGenerator);
-    this->board = std::array<std::array<unsigned int, 4>, 4>();
+    array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
+    shuffle(initialTiles.begin(), initialTiles.end(), ThreesBoard::randomGenerator);
+    this->board = array<array<unsigned int, 4>, 4>();
     for (unsigned i = 0; i < initialTiles.size(); i++) {
         this->board[i/4][i%4] = initialTiles[i];
     }
     this->getNextTile(); // Put the (true) first tile into this->upcomingTile, and ignore the first (garbage) returned tile
 }
 
-std::default_random_engine ThreesBoard::randomGenerator = std::default_random_engine();
+default_random_engine ThreesBoard::randomGenerator = default_random_engine();
 
 unsigned int* ThreesBoard::at(unsigned int x, unsigned int y) {
     return &this->board[y][x];
@@ -127,7 +129,7 @@ bool ThreesBoard::canMove(Direction d) {
     return false;
 }
 
-std::pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
+pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
     bool successfulMerge = false;
     switch (d) {
         case UP:
@@ -178,17 +180,17 @@ std::pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) 
 
 void ThreesBoard::rebuildTileStackIfNecessary() {
     if (this->tileStack.empty()) {
-        std::shuffle(baseStack.begin(), baseStack.end(), ThreesBoard::randomGenerator);
+        shuffle(baseStack.begin(), baseStack.end(), ThreesBoard::randomGenerator);
         for (unsigned int tile : this->baseStack) {
             this->tileStack.push_back(tile);
         }
     }
 }
 
-std::array<unsigned int, 12> ThreesBoard::baseStack = {1,1,1,1,2,2,2,2,3,3,3,3};
+array<unsigned int, 12> ThreesBoard::baseStack = {1,1,1,1,2,2,2,2,3,3,3,3};
 
-std::deque<unsigned int> ThreesBoard::possibleUpcomingTiles() {
-    std::deque<unsigned int> inRangeTiles;
+deque<unsigned int> ThreesBoard::possibleUpcomingTiles() {
+    deque<unsigned int> inRangeTiles;
     if (this->upcomingTile <= 3) {
         inRangeTiles.push_back(this->upcomingTile);
     } else {
@@ -214,13 +216,13 @@ std::deque<unsigned int> ThreesBoard::possibleUpcomingTiles() {
             return inRangeTiles;
         }
         if (inRangeTiles.size() == 4) {
-            if (std::uniform_int_distribution<>(0,1)(this->randomGenerator) == 1) {
+            if (uniform_int_distribution<>(0,1)(this->randomGenerator) == 1) {
                 inRangeTiles.pop_back();
             } else {
                 inRangeTiles.pop_front();
             }
         } else {
-            int rand = std::uniform_int_distribution<>(0,2)(this->randomGenerator);
+            int rand = uniform_int_distribution<>(0,2)(this->randomGenerator);
             if (rand == 0) {
                 inRangeTiles.pop_back();
                 inRangeTiles.pop_back();
@@ -238,7 +240,7 @@ std::deque<unsigned int> ThreesBoard::possibleUpcomingTiles() {
 
 unsigned int ThreesBoard::getNextTile() {
     unsigned int theTile = this->upcomingTile;
-    std::uniform_int_distribution<> bonusChance(1,21);
+    uniform_int_distribution<> bonusChance(1,21);
     if (this->canGiveBonusTile() && bonusChance(this->randomGenerator) == 21) {
         this->upcomingTile = this->getBonusTile();
     } else {
@@ -251,8 +253,8 @@ unsigned int ThreesBoard::getNextTile() {
 
 unsigned int ThreesBoard::getMaxTile() {
     unsigned int maxTile = 0;
-    for (std::array<unsigned int, 4> row : this->board) {
-        maxTile = std::max(maxTile, *std::max_element(row.begin(), row.end()));
+    for (array<unsigned int, 4> row : this->board) {
+        maxTile = max(maxTile, *max_element(row.begin(), row.end()));
     }
     return maxTile;
 }
@@ -267,25 +269,25 @@ unsigned int ThreesBoard::maxBonusTile() {
 
 unsigned int ThreesBoard::getBonusTile() {
     unsigned int maxBonus = this->maxBonusTile();
-    std::vector<unsigned int> possibleBonuses;
+    vector<unsigned int> possibleBonuses;
     while (maxBonus > 3) {
         possibleBonuses.push_back(maxBonus);
         maxBonus /= 2;
     }
-    std::shuffle(possibleBonuses.begin(), possibleBonuses.end(), ThreesBoard::randomGenerator);
+    shuffle(possibleBonuses.begin(), possibleBonuses.end(), ThreesBoard::randomGenerator);
     return possibleBonuses[0];
 }
 
-std::vector<std::tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardStates() {
+vector<tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardStates() {
     //TODO: convert this to use number of each type of tile remaining
-    std::vector<std::tuple<float, ThreesBoard, unsigned int>> result;
-    float num_ones = std::count(this->tileStack.begin(), this->tileStack.end(), 1);
-    float num_twos = std::count(this->tileStack.begin(), this->tileStack.end(), 2);
-    float num_threes = std::count(this->tileStack.begin(), this->tileStack.end(), 3);
+    vector<tuple<float, ThreesBoard, unsigned int>> result;
+    float num_ones = count(this->tileStack.begin(), this->tileStack.end(), 1);
+    float num_twos = count(this->tileStack.begin(), this->tileStack.end(), 2);
+    float num_threes = count(this->tileStack.begin(), this->tileStack.end(), 3);
     float num_elems = this->tileStack.size();
     
     if (num_ones > 0) {
-        std::deque<unsigned int> nextStack;
+        deque<unsigned int> nextStack;
         for (int i = 0; i < num_ones - 1; ++i) {
             nextStack.push_back(1);
         }
@@ -303,7 +305,7 @@ std::vector<std::tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleN
     }
     
     if (num_twos > 0) {
-        std::deque<unsigned int> nextStack;
+        deque<unsigned int> nextStack;
         for (int i = 0; i < num_ones; ++i) {
             nextStack.push_back(1);
         }
@@ -321,7 +323,7 @@ std::vector<std::tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleN
     }
     
     if (num_threes > 0) {
-        std::deque<unsigned int> nextStack;
+        deque<unsigned int> nextStack;
         for (int i = 0; i < num_ones; ++i) {
             nextStack.push_back(1);
         }
@@ -341,48 +343,48 @@ std::vector<std::tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleN
     return result;
 }
 
-std::vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction d) {
-    std::array<std::pair<unsigned, unsigned>, 4> indicies;
+vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction d) {
+    array<pair<unsigned, unsigned>, 4> indicies;
     switch (d) {
         case LEFT:
-            indicies = {std::pair<unsigned, unsigned>(0,0),std::pair<unsigned, unsigned>(0,1),std::pair<unsigned, unsigned>(0,2),std::pair<unsigned, unsigned>(0,3)};
+            indicies = {pair<unsigned, unsigned>(0,0),pair<unsigned, unsigned>(0,1),pair<unsigned, unsigned>(0,2),pair<unsigned, unsigned>(0,3)};
             break;
         case RIGHT:
-            indicies = {std::pair<unsigned, unsigned>(3,0),std::pair<unsigned, unsigned>(3,1),std::pair<unsigned, unsigned>(3,2),std::pair<unsigned, unsigned>(3,3)};
+            indicies = {pair<unsigned, unsigned>(3,0),pair<unsigned, unsigned>(3,1),pair<unsigned, unsigned>(3,2),pair<unsigned, unsigned>(3,3)};
             break;
         case UP:
-            indicies = {std::pair<unsigned, unsigned>(0,0),std::pair<unsigned, unsigned>(1,0),std::pair<unsigned, unsigned>(2,0),std::pair<unsigned, unsigned>(3,0)};
+            indicies = {pair<unsigned, unsigned>(0,0),pair<unsigned, unsigned>(1,0),pair<unsigned, unsigned>(2,0),pair<unsigned, unsigned>(3,0)};
             break;
         case DOWN:
-            indicies = {std::pair<unsigned, unsigned>(0,3),std::pair<unsigned, unsigned>(1,3),std::pair<unsigned, unsigned>(2,3),std::pair<unsigned, unsigned>(3,3)};
+            indicies = {pair<unsigned, unsigned>(0,3),pair<unsigned, unsigned>(1,3),pair<unsigned, unsigned>(2,3),pair<unsigned, unsigned>(3,3)};
             break;
         default:
             break;
     }
-    auto endIterator = std::remove_if(indicies.begin(), indicies.end(), [this](ThreesBoard::BoardIndex tile) {
+    auto endIterator = remove_if(indicies.begin(), indicies.end(), [this](ThreesBoard::BoardIndex tile) {
         return *this->at(tile) != 0;
     });
-    std::vector<ThreesBoard::BoardIndex> result(indicies.begin(), endIterator);
+    vector<ThreesBoard::BoardIndex> result(indicies.begin(), endIterator);
     return result;
 }
 
-std::pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
+pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
     auto indices = this->validIndicesForNewTile(d);
-    std::shuffle(indices.begin(), indices.end(), this->randomGenerator);
+    shuffle(indices.begin(), indices.end(), this->randomGenerator);
     unsigned int nextTileValue = this->getNextTile();
     return {nextTileValue, *indices.begin()};
 }
 
 unsigned int ThreesBoard::score() {
-    return std::accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc1, std::array<unsigned int, 4> row){
-        return std::accumulate(row.begin(), row.end(), acc1, [](unsigned int acc2, unsigned int tile){
+    return accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc1, array<unsigned int, 4> row){
+        return accumulate(row.begin(), row.end(), acc1, [](unsigned int acc2, unsigned int tile){
             return acc2 + ThreesBoard::tileScore(tile);
         });
     });
 }
 
 unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
-    return std::unordered_map<unsigned int, unsigned int>({
+    return unordered_map<unsigned int, unsigned int>({
         {0,0},
         {1,0},
         {2,0},
@@ -401,8 +403,8 @@ unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
     })[tileValue];
 }
 
-std::vector<Direction> ThreesBoard::validMoves(){
-    std::vector<Direction> result;
+vector<Direction> ThreesBoard::validMoves(){
+    vector<Direction> result;
     if (this->canMove(DOWN)) {
         result.push_back(DOWN);
     }
@@ -423,10 +425,10 @@ bool ThreesBoard::isGameOver() {
 }
 
 template < class T >
-std::ostream& operator << (std::ostream& os, const std::deque<T>& v)
+ostream& operator << (ostream& os, const deque<T>& v)
 {
     os << "[";
-    for (typename std::deque<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
+    for (typename deque<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
     {
         os << " " << *ii;
     }
@@ -434,13 +436,13 @@ std::ostream& operator << (std::ostream& os, const std::deque<T>& v)
     return os;
 }
 
-std::ostream& operator<<(std::ostream &os, ThreesBoard board){
-    os << board.possibleUpcomingTiles() << std::endl;
-    os << "---------------------  Current Score: " <<  board.score() << std::endl;
-    os << "|" << std::setw(4) << *board.at(0,0) << "|" << std::setw(4) << *board.at(1,0) << "|" << std::setw(4) << *board.at(2,0) << "|" << std::setw(4) << *board.at(3,0) << "|" << std::endl;
-    os << "|" << std::setw(4) << *board.at(0,1) << "|" << std::setw(4) << *board.at(1,1) << "|" << std::setw(4) << *board.at(2,1) << "|" << std::setw(4) << *board.at(3,1) << "|" << std::endl;
-    os << "|" << std::setw(4) << *board.at(0,2) << "|" << std::setw(4) << *board.at(1,2) << "|" << std::setw(4) << *board.at(2,2) << "|" << std::setw(4) << *board.at(3,2) << "|" << std::endl;
-    os << "|" << std::setw(4) << *board.at(0,3) << "|" << std::setw(4) << *board.at(1,3) << "|" << std::setw(4) << *board.at(2,3) << "|" << std::setw(4) << *board.at(3,3) << "|" << std::endl;
-    os << "---------------------" << std::endl;
+ostream& operator<<(ostream &os, ThreesBoard board){
+    os << board.possibleUpcomingTiles() << endl;
+    os << "---------------------  Current Score: " <<  board.score() << endl;
+    os << "|" << setw(4) << *board.at(0,0) << "|" << setw(4) << *board.at(1,0) << "|" << setw(4) << *board.at(2,0) << "|" << setw(4) << *board.at(3,0) << "|" << endl;
+    os << "|" << setw(4) << *board.at(0,1) << "|" << setw(4) << *board.at(1,1) << "|" << setw(4) << *board.at(2,1) << "|" << setw(4) << *board.at(3,1) << "|" << endl;
+    os << "|" << setw(4) << *board.at(0,2) << "|" << setw(4) << *board.at(1,2) << "|" << setw(4) << *board.at(2,2) << "|" << setw(4) << *board.at(3,2) << "|" << endl;
+    os << "|" << setw(4) << *board.at(0,3) << "|" << setw(4) << *board.at(1,3) << "|" << setw(4) << *board.at(2,3) << "|" << setw(4) << *board.at(3,3) << "|" << endl;
+    os << "---------------------" << endl;
     return os;
 }

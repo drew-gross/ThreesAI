@@ -8,13 +8,15 @@
 
 #include "RandomAI.h"
 
+using namespace std;
+
 RandomAI::RandomAI() : ThreesAIBase() {
     
 }
 
 void RandomAI::playTurn() {
-    std::vector<Direction> moves = this->board.validMoves();
-    std::shuffle(moves.begin(), moves.end(), ThreesBoard::randomGenerator);
+    vector<Direction> moves = this->board.validMoves();
+    shuffle(moves.begin(), moves.end(), ThreesBoard::randomGenerator);
     if (moves.empty()) {
         return;
     }

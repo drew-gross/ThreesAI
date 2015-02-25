@@ -10,6 +10,8 @@
 
 #include <time.h>
 
+using namespace std;
+
 ExpectimaxMoveNode::ExpectimaxMoveNode() {
     
 }
@@ -22,11 +24,11 @@ ExpectimaxMoveNode::ExpectimaxMoveNode(ThreesBoard const& board): board(board) {
     
 }
 
-std::pair<Direction, ExpectimaxChanceNode> ExpectimaxMoveNode::maxChild() {
+pair<Direction, ExpectimaxChanceNode> ExpectimaxMoveNode::maxChild() {
     if (!this->childrenAreFilledIn()) {
         return {};
     }
-    return *std::max_element(this->children.begin(), this->children.end(), [](std::pair<Direction, ExpectimaxChanceNode> left, std::pair<Direction,ExpectimaxChanceNode> right){
+    return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, ExpectimaxChanceNode> left, pair<Direction,ExpectimaxChanceNode> right){
         return left.second.value() < right.second.value();
     });
 }
@@ -35,12 +37,12 @@ bool ExpectimaxMoveNode::childrenAreFilledIn() {
     return !this->children.empty();
 }
 
-void ExpectimaxMoveNode::fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d){
+void ExpectimaxMoveNode::fillInChildren(list<ExpectimaxNode*>& unfilledList, Direction d){
     if (this->childrenAreFilledIn()) {
         return;
     }
-    std::vector<Direction> validMoves = this->board.validMoves();
-    std::for_each(validMoves.begin(), validMoves.end(), [this, &unfilledList](Direction d){
+    vector<Direction> validMoves = this->board.validMoves();
+    for_each(validMoves.begin(), validMoves.end(), [this, &unfilledList](Direction d){
         this->children.emplace(d, this->board);
         this->children[d].board.move(d);
         this->children[d].fillInChildren(unfilledList, d);
@@ -51,21 +53,21 @@ bool ExpectimaxChanceNode::childrenAreFilledIn() {
     return this->children.empty();
 }
 
-void ExpectimaxChanceNode::fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d) {
+void ExpectimaxChanceNode::fillInChildren(list<ExpectimaxNode*>& unfilledList, Direction d) {
     auto possibleNextTiles = this->board.possibleUpcomingTiles();
     auto possibleNextLocations = this->board.validIndicesForNewTile(d);
-    std::vector<std::tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates = this->board.possibleNextBoardStates();
+    vector<tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates = this->board.possibleNextBoardStates();
     
     float tileProbability = 1.0f/possibleNextLocations.size();
     float locationProbability = 1.0f/possibleNextLocations.size();
     
-    std::for_each(possibleNextTiles.begin(), possibleNextTiles.end(), [&](unsigned int possibleTile){
-        std::for_each(possibleNextLocations.begin(), possibleNextLocations.end(), [&](ThreesBoard::BoardIndex boardIndex){
-            std::for_each(possibleNextBoardStates.begin(), possibleNextBoardStates.end(), [&](std::tuple<float, ThreesBoard, unsigned int> state){
-                float stateProbability = tileProbability*locationProbability*std::get<0>(state);
-                ThreesBoard childState = std::get<1>(state);
-                unsigned int upcomingTile = std::get<2>(state);
-                std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> childIndex = {possibleTile, boardIndex, upcomingTile};
+    for_each(possibleNextTiles.begin(), possibleNextTiles.end(), [&](unsigned int possibleTile){
+        for_each(possibleNextLocations.begin(), possibleNextLocations.end(), [&](ThreesBoard::BoardIndex boardIndex){
+            for_each(possibleNextBoardStates.begin(), possibleNextBoardStates.end(), [&](tuple<float, ThreesBoard, unsigned int> state){
+                float stateProbability = tileProbability*locationProbability*get<0>(state);
+                ThreesBoard childState = get<1>(state);
+                unsigned int upcomingTile = get<2>(state);
+                tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> childIndex = {possibleTile, boardIndex, upcomingTile};
                 this->children.insert({childIndex, {stateProbability, childState}});
                 *this->child(childIndex).second.board.at(boardIndex) = possibleTile;
                 unfilledList.push_back(&this->child(childIndex).second);
@@ -85,7 +87,7 @@ unsigned int ExpectimaxMoveNode::value() {
 }
 
 unsigned int ExpectimaxChanceNode::value() {
-    float value = std::accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, std::pair<std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, std::pair<float,ExpectimaxMoveNode>> next){
+    float value = accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, pair<tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, pair<float,ExpectimaxMoveNode>> next){
         return acc + next.second.first*next.second.second.value();
     });
     return floor(value);
@@ -95,7 +97,7 @@ ExpectimaxChanceNode& ExpectimaxMoveNode::child(Direction d) {
     return this->children[d];
 }
 
-std::pair<float, ExpectimaxMoveNode>& ExpectimaxChanceNode::child(std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> t) {
+pair<float, ExpectimaxMoveNode>& ExpectimaxChanceNode::child(tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> t) {
     return this->children[t];
 }
 
@@ -120,7 +122,7 @@ void ExpectimaxAI::playTurn() {
     }
     
     Direction d = this->currentBoard.maxChild().first;
-    std::pair<unsigned int, ThreesBoard::BoardIndex> addedTileInfo = this->board.move(d);
+    pair<unsigned int, ThreesBoard::BoardIndex> addedTileInfo = this->board.move(d);
     unsigned int addedTileValue = addedTileInfo.first;
     ThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
     ExpectimaxChanceNode afterMoveBoard = this->currentBoard.child(d);
