@@ -42,11 +42,11 @@ void ExpectimaxMoveNode::fillInChildren(list<ExpectimaxNode*>& unfilledList, Dir
         return;
     }
     vector<Direction> validMoves = this->board.validMoves();
-    for_each(validMoves.begin(), validMoves.end(), [this, &unfilledList](Direction d){
+    for (auto&& d : validMoves) {
         this->children.emplace(d, this->board);
         this->children[d].board.move(d);
         this->children[d].fillInChildren(unfilledList, d);
-    });
+    }
 }
 
 bool ExpectimaxChanceNode::childrenAreFilledIn() {
@@ -61,9 +61,9 @@ void ExpectimaxChanceNode::fillInChildren(list<ExpectimaxNode*>& unfilledList, D
     float tileProbability = 1.0f/possibleNextLocations.size();
     float locationProbability = 1.0f/possibleNextLocations.size();
     
-    for_each(possibleNextTiles.begin(), possibleNextTiles.end(), [&](unsigned int possibleTile){
-        for_each(possibleNextLocations.begin(), possibleNextLocations.end(), [&](ThreesBoard::BoardIndex boardIndex){
-            for_each(possibleNextBoardStates.begin(), possibleNextBoardStates.end(), [&](tuple<float, ThreesBoard, unsigned int> state){
+    for (auto&& possibleTile : possibleNextTiles) {
+        for (auto&& boardIndex : possibleNextLocations) {
+            for (auto&& state : possibleNextBoardStates) {
                 float stateProbability = tileProbability*locationProbability*get<0>(state);
                 ThreesBoard childState = get<1>(state);
                 unsigned int upcomingTile = get<2>(state);
@@ -71,9 +71,9 @@ void ExpectimaxChanceNode::fillInChildren(list<ExpectimaxNode*>& unfilledList, D
                 this->children.insert({childIndex, {stateProbability, childState}});
                 *this->child(childIndex).second.board.at(boardIndex) = possibleTile;
                 unfilledList.push_back(&this->child(childIndex).second);
-            });
-        });
-    });
+            }
+        }
+    }
 }
 
 unsigned int ExpectimaxMoveNode::value() {
