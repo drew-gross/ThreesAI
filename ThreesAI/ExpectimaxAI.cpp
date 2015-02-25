@@ -69,7 +69,7 @@ void ExpectimaxChanceNode::fillInChildren(list<ExpectimaxNode*>& unfilledList, D
                 unsigned int upcomingTile = get<2>(state);
                 tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> childIndex = {possibleTile, boardIndex, upcomingTile};
                 this->children.insert({childIndex, {stateProbability, childState}});
-                *this->child(childIndex).second.board.at(boardIndex) = possibleTile;
+                this->child(childIndex).second.board.set(boardIndex, possibleTile);
                 unfilledList.push_back(&this->child(childIndex).second);
             }
         }
@@ -108,16 +108,16 @@ ExpectimaxAI::ExpectimaxAI() : ThreesAIBase() {
 
 void ExpectimaxAI::fillInChild() {
     ExpectimaxNode *child = this->unfilledChildren.front();
-    this->unfilledChildren.pop_front();
     child->fillInChildren(this->unfilledChildren, UP);
+    this->unfilledChildren.pop_front();
 }
 
 void ExpectimaxAI::playTurn() {
     clock_t analysisStartTime = clock();
     
-    bool keepCalculating = true;
-    while (keepCalculating) {
-        keepCalculating = float(clock() - analysisStartTime)/CLOCKS_PER_SEC < 1;
+    float keepCalculating;
+    while (keepCalculating < .0001) {
+        keepCalculating = float(clock() - analysisStartTime)/CLOCKS_PER_SEC;
         this->fillInChild();
     }
     

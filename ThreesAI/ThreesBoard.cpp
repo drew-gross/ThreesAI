@@ -34,21 +34,25 @@ ThreesBoard::ThreesBoard() {
 
 default_random_engine ThreesBoard::randomGenerator = default_random_engine();
 
-unsigned int* ThreesBoard::at(BoardIndex p){
-    return &this->board[p.second][p.first];
+void ThreesBoard::set(BoardIndex p, unsigned int t){
+    this->board[p.second][p.first] = t;
+}
+
+unsigned int ThreesBoard::at(BoardIndex p) {
+    return this->board[p.second][p.first];
 }
 
 bool ThreesBoard::canMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY) {
-    if (*this->at({otherX, otherY}) == 0) {
+    if (this->at({otherX, otherY}) == 0) {
         return false;
     }
-    if (*this->at({targetX,targetY}) == *this->at({otherX,otherY}) && *this->at({targetX, targetY}) != 1 && *this->at({otherX, otherY}) != 2) {
+    if (this->at({targetX,targetY}) == this->at({otherX,otherY}) && this->at({targetX, targetY}) != 1 && this->at({otherX, otherY}) != 2) {
         return true;
     }
-    if ((*this->at({targetX,targetY}) == 1 and *this->at({otherX,otherY}) == 2) or (*this->at({targetX,targetY}) == 2 and *this->at({otherX,otherY}) == 1)) {
+    if ((this->at({targetX,targetY}) == 1 and this->at({otherX,otherY}) == 2) or (this->at({targetX,targetY}) == 2 and this->at({otherX,otherY}) == 1)) {
         return true;
     }
-    if (*this->at({targetX, targetY}) == 0 and *this->at({otherX,otherY}) != 0) {
+    if (this->at({targetX, targetY}) == 0 and this->at({otherX,otherY}) != 0) {
         return true;
     }
     return false;
@@ -56,8 +60,8 @@ bool ThreesBoard::canMerge(unsigned targetX, unsigned targetY, unsigned otherX, 
 
 bool ThreesBoard::tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY) {
     if (this->canMerge(targetX, targetY, otherX, otherY)) {
-        *this->at({targetX, targetY}) += *this->at({otherX, otherY});
-        *this->at({otherX, otherY}) = 0;
+        this->set({targetX, targetY}, this->at({targetX, targetY}) + this->at({otherX, otherY}));
+        this->set({otherX, otherY}, 0);
         return true;
     } else {
         return false;
@@ -358,7 +362,7 @@ vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction d)
             break;
     }
     auto endIterator = remove_if(indicies.begin(), indicies.end(), [this](ThreesBoard::BoardIndex tile) {
-        return *this->at(tile) != 0;
+        return this->at(tile) != 0;
     });
     vector<ThreesBoard::BoardIndex> result(indicies.begin(), endIterator);
     return result;
@@ -435,10 +439,10 @@ ostream& operator << (ostream& os, const deque<T>& v)
 ostream& operator<<(ostream &os, ThreesBoard board){
     os << board.possibleUpcomingTiles() << endl;
     os << "---------------------  Current Score: " <<  board.score() << endl;
-    os << "|" << setw(4) << *board.at({0,0}) << "|" << setw(4) << *board.at({1,0}) << "|" << setw(4) << *board.at({2,0}) << "|" << setw(4) << *board.at({3,0}) << "|" << endl;
-    os << "|" << setw(4) << *board.at({0,1}) << "|" << setw(4) << *board.at({1,1}) << "|" << setw(4) << *board.at({2,1}) << "|" << setw(4) << *board.at({3,1}) << "|" << endl;
-    os << "|" << setw(4) << *board.at({0,2}) << "|" << setw(4) << *board.at({1,2}) << "|" << setw(4) << *board.at({2,2}) << "|" << setw(4) << *board.at({3,2}) << "|" << endl;
-    os << "|" << setw(4) << *board.at({0,3}) << "|" << setw(4) << *board.at({1,3}) << "|" << setw(4) << *board.at({2,3}) << "|" << setw(4) << *board.at({3,3}) << "|" << endl;
+    os << "|" << setw(4) << board.at({0,0}) << "|" << setw(4) << board.at({1,0}) << "|" << setw(4) << board.at({2,0}) << "|" << setw(4) << board.at({3,0}) << "|" << endl;
+    os << "|" << setw(4) << board.at({0,1}) << "|" << setw(4) << board.at({1,1}) << "|" << setw(4) << board.at({2,1}) << "|" << setw(4) << board.at({3,1}) << "|" << endl;
+    os << "|" << setw(4) << board.at({0,2}) << "|" << setw(4) << board.at({1,2}) << "|" << setw(4) << board.at({2,2}) << "|" << setw(4) << board.at({3,2}) << "|" << endl;
+    os << "|" << setw(4) << board.at({0,3}) << "|" << setw(4) << board.at({1,3}) << "|" << setw(4) << board.at({2,3}) << "|" << setw(4) << board.at({3,3}) << "|" << endl;
     os << "---------------------" << endl;
     return os;
 }
