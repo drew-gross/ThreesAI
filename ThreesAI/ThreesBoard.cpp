@@ -24,15 +24,12 @@ public:
 
 ThreesBoard::ThreesBoard() {
     array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
-    shuffle(initialTiles.begin(), initialTiles.end(), ThreesBoard::randomGenerator);
+    shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
     this->board = array<array<unsigned int, 4>, 4>();
     for (unsigned i = 0; i < initialTiles.size(); i++) {
         this->board[i/4][i%4] = initialTiles[i];
     }
-    this->getNextTile(); // Put the (true) first tile into this->upcomingTile, and ignore the first (garbage) returned tile
 }
-
-default_random_engine ThreesBoard::randomGenerator = default_random_engine();
 
 void ThreesBoard::set(BoardIndex p, unsigned int t){
     this->board[p.second][p.first] = t;
@@ -180,78 +177,11 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
 
 void ThreesBoard::rebuildTileStackIfNecessary() {
     if (this->tileStack.empty()) {
-        shuffle(baseStack.begin(), baseStack.end(), ThreesBoard::randomGenerator);
-        for (unsigned int tile : this->baseStack) {
-            this->tileStack.push_back(tile);
-        }
+        this->tileStack = TileStack();
     }
 }
 
-array<unsigned int, 12> ThreesBoard::baseStack = {1,1,1,1,2,2,2,2,3,3,3,3};
-
-deque<unsigned int> ThreesBoard::possibleUpcomingTiles() {
-    deque<unsigned int> inRangeTiles;
-    if (this->upcomingTile <= 3) {
-        inRangeTiles.push_back(this->upcomingTile);
-    } else {
-        //bonus tile
-        
-        //add possible values to the list
-        if (this->upcomingTile / 4 >= 6) {
-            inRangeTiles.push_back(this->upcomingTile/4);
-        }
-        if (this->upcomingTile / 2 >= 6) {
-            inRangeTiles.push_back(this->upcomingTile/2);
-        }
-        inRangeTiles.push_back(this->upcomingTile);
-        if (this->upcomingTile * 2 <= maxBonusTile()) {
-            inRangeTiles.push_back(this->upcomingTile*2);
-        }
-        if (this->upcomingTile * 4 <= maxBonusTile()) {
-            inRangeTiles.push_back(this->upcomingTile*2);
-        }
-        
-        //trim the list down to size
-        if (inRangeTiles.size() <= 3) {
-            return inRangeTiles;
-        }
-        if (inRangeTiles.size() == 4) {
-            if (uniform_int_distribution<>(0,1)(this->randomGenerator) == 1) {
-                inRangeTiles.pop_back();
-            } else {
-                inRangeTiles.pop_front();
-            }
-        } else {
-            int rand = uniform_int_distribution<>(0,2)(this->randomGenerator);
-            if (rand == 0) {
-                inRangeTiles.pop_back();
-                inRangeTiles.pop_back();
-            } else if (rand == 1) {
-                inRangeTiles.pop_back();
-                inRangeTiles.pop_front();
-            } else {
-                inRangeTiles.pop_front();
-                inRangeTiles.pop_front();
-            }
-        }
-    }
-    return inRangeTiles;
-}
-
-unsigned int ThreesBoard::getNextTile() {
-    unsigned int theTile = this->upcomingTile;
-    uniform_int_distribution<> bonusChance(1,21);
-    if (this->canGiveBonusTile() && bonusChance(this->randomGenerator) == 21) {
-        this->upcomingTile = this->getBonusTile();
-    } else {
-        this->rebuildTileStackIfNecessary();
-        this->upcomingTile = *this->tileStack.rbegin();
-        this->tileStack.pop_back();
-    }
-    return theTile;
-}
-
-unsigned int ThreesBoard::getMaxTile() {
+unsigned int ThreesBoard::maxTile() {
     unsigned int maxTile = 0;
     for (array<unsigned int, 4> row : this->board) {
         maxTile = max(maxTile, *max_element(row.begin(), row.end()));
@@ -259,84 +189,29 @@ unsigned int ThreesBoard::getMaxTile() {
     return maxTile;
 }
 
-bool ThreesBoard::canGiveBonusTile(){
-    return this->getMaxTile() >= 48;
-}
-
-unsigned int ThreesBoard::maxBonusTile() {
-    return this->getMaxTile()/8;
-}
-
-unsigned int ThreesBoard::getBonusTile() {
-    unsigned int maxBonus = this->maxBonusTile();
-    vector<unsigned int> possibleBonuses;
-    while (maxBonus > 3) {
-        possibleBonuses.push_back(maxBonus);
-        maxBonus /= 2;
-    }
-    shuffle(possibleBonuses.begin(), possibleBonuses.end(), ThreesBoard::randomGenerator);
-    return possibleBonuses[0];
-}
-
 vector<tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardStates() {
     //TODO: convert this to use number of each type of tile remaining
     vector<tuple<float, ThreesBoard, unsigned int>> result;
-    float num_ones = count(this->tileStack.begin(), this->tileStack.end(), 1);
-    float num_twos = count(this->tileStack.begin(), this->tileStack.end(), 2);
-    float num_threes = count(this->tileStack.begin(), this->tileStack.end(), 3);
+    float num_ones = this->tileStack.ones;
+    float num_twos = this->tileStack.twos;
+    float num_threes = this->tileStack.threes;
     float num_elems = this->tileStack.size();
     
     if (num_ones > 0) {
-        deque<unsigned int> nextStack;
-        for (int i = 0; i < num_ones - 1; ++i) {
-            nextStack.push_back(1);
-        }
-        for (int i = 0; i < num_twos; ++i) {
-            nextStack.push_back(2);
-        }
-        for (int i = 0; i < num_threes; ++i) {
-            nextStack.push_back(3);
-        }
-        
         ThreesBoard nextBoard = ThreesBoard(*this);
-        nextBoard.tileStack = nextStack;
-        nextBoard.upcomingTile = 1;
+        nextBoard.tileStack = TileStack(num_ones - 1, num_twos, num_threes, 1);
         result.push_back({num_ones/num_elems, nextBoard, 1});
     }
     
     if (num_twos > 0) {
-        deque<unsigned int> nextStack;
-        for (int i = 0; i < num_ones; ++i) {
-            nextStack.push_back(1);
-        }
-        for (int i = 0; i < num_twos - 1; ++i) {
-            nextStack.push_back(2);
-        }
-        for (int i = 0; i < num_threes; ++i) {
-            nextStack.push_back(3);
-        }
-        
         ThreesBoard nextBoard = ThreesBoard(*this);
-        nextBoard.tileStack = nextStack;
-        nextBoard.upcomingTile = 2;
+        nextBoard.tileStack = TileStack(num_ones, num_twos - 1, num_threes, 2);
         result.push_back({num_twos/num_elems, nextBoard, 2});
     }
     
     if (num_threes > 0) {
-        deque<unsigned int> nextStack;
-        for (int i = 0; i < num_ones; ++i) {
-            nextStack.push_back(1);
-        }
-        for (int i = 0; i < num_twos; ++i) {
-            nextStack.push_back(2);
-        }
-        for (int i = 0; i < num_threes - 1; ++i) {
-            nextStack.push_back(3);
-        }
-        
         ThreesBoard nextBoard = ThreesBoard(*this);
-        nextBoard.tileStack = nextStack;
-        nextBoard.upcomingTile = 3;
+        nextBoard.tileStack = TileStack(num_ones, num_twos, num_threes - 1, 3);
         result.push_back({num_twos/num_elems, nextBoard, 3});
     }
     
@@ -370,8 +245,8 @@ vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction d)
 
 pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
     auto indices = this->validIndicesForNewTile(d);
-    shuffle(indices.begin(), indices.end(), this->randomGenerator);
-    unsigned int nextTileValue = this->getNextTile();
+    shuffle(indices.begin(), indices.end(), TileStack::randomGenerator);
+    unsigned int nextTileValue = this->tileStack.getNextTile(this->maxTile());
     return {nextTileValue, *indices.begin()};
 }
 
@@ -437,7 +312,7 @@ ostream& operator << (ostream& os, const deque<T>& v)
 }
 
 ostream& operator<<(ostream &os, ThreesBoard board){
-    os << board.possibleUpcomingTiles() << endl;
+    os << board.tileStack.possibleUpcomingTiles(board.maxTile()) << endl;
     os << "---------------------  Current Score: " <<  board.score() << endl;
     os << "|" << setw(4) << board.at({0,0}) << "|" << setw(4) << board.at({1,0}) << "|" << setw(4) << board.at({2,0}) << "|" << setw(4) << board.at({3,0}) << "|" << endl;
     os << "|" << setw(4) << board.at({0,1}) << "|" << setw(4) << board.at({1,1}) << "|" << setw(4) << board.at({2,1}) << "|" << setw(4) << board.at({3,1}) << "|" << endl;

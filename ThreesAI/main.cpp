@@ -16,7 +16,7 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
     random_device rd;
-    ThreesBoard::randomGenerator.seed(rd());
+    TileStack::randomGenerator.seed(rd());
     ExpectimaxAI ai;
     while (!ai.board.isGameOver()) {
         ai.playTurn();

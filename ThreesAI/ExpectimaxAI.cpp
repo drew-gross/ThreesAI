@@ -54,7 +54,7 @@ bool ExpectimaxChanceNode::childrenAreFilledIn() {
 }
 
 void ExpectimaxChanceNode::fillInChildren(list<ExpectimaxNode*>& unfilledList, Direction d) {
-    auto possibleNextTiles = this->board.possibleUpcomingTiles();
+    auto possibleNextTiles = this->board.tileStack.possibleUpcomingTiles(this->board.maxTile());
     auto possibleNextLocations = this->board.validIndicesForNewTile(d);
     vector<tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates = this->board.possibleNextBoardStates();
     
@@ -126,6 +126,6 @@ void ExpectimaxAI::playTurn() {
     unsigned int addedTileValue = addedTileInfo.first;
     ThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
     ExpectimaxChanceNode afterMoveBoard = this->currentBoard.child(d);
-    ExpectimaxMoveNode afterAddingTileBoard = afterMoveBoard.child({addedTileValue, addedTileLocation, afterMoveBoard.board.possibleUpcomingTiles().front()}).second;
+    ExpectimaxMoveNode afterAddingTileBoard = afterMoveBoard.child({addedTileValue, addedTileLocation, afterMoveBoard.board.tileStack.possibleUpcomingTiles(afterMoveBoard.board.maxTile()).front()}).second;
     this->currentBoard = afterAddingTileBoard;
 }
