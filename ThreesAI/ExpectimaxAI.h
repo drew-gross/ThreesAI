@@ -9,57 +9,19 @@
 #ifndef __ThreesAI__ExpectimaxAI__
 #define __ThreesAI__ExpectimaxAI__
 
-#include "ThreesAIBase.h"
-
 #include <map>
 #include <list>
 
-class ExpectimaxNode {
-public:
-    virtual void fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d) = 0;
-};
-
-class ExpectimaxChanceNode;
-
-class ExpectimaxMoveNode : ExpectimaxNode {
-    friend class ExpectimaxAI;
-    friend class ExpectimaxChanceNode;
-public:
-    ExpectimaxMoveNode(ThreesBoard const& board);
-    ExpectimaxMoveNode();
-    
-    unsigned int value();
-    ExpectimaxChanceNode& child(Direction d);
-    bool childrenAreFilledIn();
-    
-private:
-    std::map<Direction, ExpectimaxChanceNode> children;
-    std::pair<Direction, ExpectimaxChanceNode> maxChild();
-    void fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d);
-    ThreesBoard board;
-};
-
-class ExpectimaxChanceNode : ExpectimaxNode {
-public:
-    ExpectimaxChanceNode(ThreesBoard const& board);
-    ExpectimaxChanceNode(){}
-    
-    unsigned int value();
-    std::pair<float, ExpectimaxMoveNode>& child(std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>);
-    ThreesBoard board;
-    void fillInChildren(std::list<ExpectimaxNode*>& unfilledList, Direction d);
-    bool childrenAreFilledIn();
-    
-private:
-    std::map<std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, std::pair<float, ExpectimaxMoveNode>> children;
-    float probability;
-};
+#include "ThreesAIBase.h"
+#include "ExpectimaxNode.h"
+#include "ExpextimaxChanceNode.h"
+#include "ExpectimaxMoveNode.h"
 
 class ExpectimaxAI : public ThreesAIBase {
 private:
-    ExpectimaxMoveNode currentBoard;
+    std::shared_ptr<ExpectimaxMoveNode> currentBoard;
     
-    std::list<ExpectimaxNode*> unfilledChildren;
+    std::list<std::shared_ptr<ExpectimaxNode>> unfilledChildren;
     
     void fillInChild();
     
