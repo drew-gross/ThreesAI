@@ -247,6 +247,7 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
     auto indices = this->validIndicesForNewTile(d);
     shuffle(indices.begin(), indices.end(), TileStack::randomGenerator);
     unsigned int nextTileValue = this->tileStack.getNextTile(this->maxTile());
+    this->set(*indices.begin(), nextTileValue);
     return {nextTileValue, *indices.begin()};
 }
 
