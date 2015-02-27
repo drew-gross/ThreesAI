@@ -42,26 +42,26 @@ unsigned int ThreesBoard::at(BoardIndex p) {
     return this->board[p.second][p.first];
 }
 
-bool ThreesBoard::canMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY) {
-    if (this->at({otherX, otherY}) == 0) {
+bool ThreesBoard::canMerge(BoardIndex target, BoardIndex other) {
+    if (this->at(other) == 0) {
         return false;
     }
-    if (this->at({targetX,targetY}) == this->at({otherX,otherY}) && this->at({targetX, targetY}) != 1 && this->at({otherX, otherY}) != 2) {
+    if (this->at(target) == this->at(other) && this->at(target) != 1 && this->at(target) != 2) {
         return true;
     }
-    if ((this->at({targetX,targetY}) == 1 and this->at({otherX,otherY}) == 2) or (this->at({targetX,targetY}) == 2 and this->at({otherX,otherY}) == 1)) {
+    if ((this->at(target) == 1 and this->at(other) == 2) or (this->at(target) == 2 and this->at(other) == 1)) {
         return true;
     }
-    if (this->at({targetX, targetY}) == 0 and this->at({otherX,otherY}) != 0) {
+    if (this->at(target) == 0 and this->at(other) != 0) {
         return true;
     }
     return false;
 }
 
-bool ThreesBoard::tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY) {
-    if (this->canMerge(targetX, targetY, otherX, otherY)) {
-        this->set({targetX, targetY}, this->at({targetX, targetY}) + this->at({otherX, otherY}));
-        this->set({otherX, otherY}, 0);
+bool ThreesBoard::tryMerge(BoardIndex target, BoardIndex other) {
+    if (this->canMerge(target, other)) {
+        this->set(target, this->at(target) + this->at(other));
+        this->set(other, 0);
         return true;
     } else {
         return false;
@@ -72,52 +72,52 @@ bool ThreesBoard::canMove(Direction d) {
     switch (d) {
         case UP:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge(i, 0, i, 1)) {
+                if (this->canMerge({i, 0}, {i, 1})) {
                     return true;
                 }
-                if (this->canMerge(i, 1, i, 2)) {
+                if (this->canMerge({i, 1}, {i, 2})) {
                     return true;
                 }
-                if (this->canMerge(i, 2, i, 3)) {
+                if (this->canMerge({i, 2}, {i, 3})) {
                     return true;
                 }
             }
             break;
         case DOWN:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge(i, 3, i, 2)) {
+                if (this->canMerge({i, 3}, {i, 2})) {
                     return true;
                 }
-                if (this->canMerge(i, 2, i, 1)) {
+                if (this->canMerge({i, 2}, {i, 1})) {
                     return true;
                 }
-                if (this->canMerge(i, 1, i, 0)) {
+                if (this->canMerge({i, 1}, {i, 0})) {
                     return true;
                 }
             }
             break;
         case LEFT:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge(0,i,1,i)) {
+                if (this->canMerge({0, i}, {1, i})) {
                     return true;
                 }
-                if (this->canMerge(1,i,2,i)) {
+                if (this->canMerge({1, i}, {2, i})) {
                     return true;
                 }
-                if (this->canMerge(2,i,3,i)) {
+                if (this->canMerge({2, i}, {3, i})) {
                     return true;
                 }
             }
             break;
         case RIGHT:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge(3,i,2,i)) {
+                if (this->canMerge({3, i}, {2, i})) {
                     return true;
                 }
-                if (this->canMerge(2,i,1,i)) {
+                if (this->canMerge({2, i}, {1, i})) {
                     return true;
                 }
-                if (this->canMerge(1,i,0,i)) {
+                if (this->canMerge({1, i}, {0, i})) {
                     return true;
                 }
             }
@@ -134,9 +134,9 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
     switch (d) {
         case UP:
             for (unsigned i = 0; i < 4; i++) {
-                successfulMerge |= this->tryMerge(i,0,i,1);
-                successfulMerge |= this->tryMerge(i,1,i,2);
-                successfulMerge |= this->tryMerge(i,2,i,3);
+                successfulMerge |= this->tryMerge({i, 0}, {i, 1});
+                successfulMerge |= this->tryMerge({i, 1}, {i, 2});
+                successfulMerge |= this->tryMerge({i, 2}, {i, 3});
             }
             if (successfulMerge) {
                 return this->addTile(DOWN);
@@ -144,9 +144,9 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
             break;
         case DOWN:
             for (unsigned i = 0; i < 4; i++) {
-                successfulMerge |= this->tryMerge(i,3,i,2);
-                successfulMerge |= this->tryMerge(i,2,i,1);
-                successfulMerge |= this->tryMerge(i,1,i,0);
+                successfulMerge |= this->tryMerge({i, 3}, {i, 2});
+                successfulMerge |= this->tryMerge({i, 2}, {i, 1});
+                successfulMerge |= this->tryMerge({i, 1}, {i, 0});
             }
             if (successfulMerge) {
                 return this->addTile(UP);
@@ -154,9 +154,9 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
             break;
         case LEFT:
             for (unsigned i = 0; i < 4; i++) {
-                successfulMerge |= this->tryMerge(0,i,1,i);
-                successfulMerge |= this->tryMerge(1,i,2,i);
-                successfulMerge |= this->tryMerge(2,i,3,i);
+                successfulMerge |= this->tryMerge({0, i}, {1, i});
+                successfulMerge |= this->tryMerge({1, i}, {2, i});
+                successfulMerge |= this->tryMerge({2, i}, {3, i});
             }
             if (successfulMerge) {
                 return this->addTile(RIGHT);
@@ -164,9 +164,9 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
             break;
         case RIGHT:
             for (unsigned i = 0; i < 4; i++) {
-                successfulMerge |= this->tryMerge(3,i,2,i);
-                successfulMerge |= this->tryMerge(2,i,1,i);
-                successfulMerge |= this->tryMerge(1,i,0,i);
+                successfulMerge |= this->tryMerge({3, i}, {2, i});
+                successfulMerge |= this->tryMerge({2, i}, {1, i});
+                successfulMerge |= this->tryMerge({1, i}, {0, i});
             }
             if (successfulMerge) {
                 return this->addTile(LEFT);

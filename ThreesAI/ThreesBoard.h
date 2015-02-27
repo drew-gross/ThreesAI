@@ -56,8 +56,8 @@ public:
 private:
     //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
     std::pair<unsigned int, BoardIndex> addTile(Direction d);
-    bool canMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
-    bool tryMerge(unsigned targetX, unsigned targetY, unsigned otherX, unsigned otherY);
+    bool canMerge(BoardIndex target, BoardIndex other);
+    bool tryMerge(BoardIndex target, BoardIndex other);
     void rebuildTileStackIfNecessary();
     unsigned int getNextTile();
     unsigned int getBonusTile();
