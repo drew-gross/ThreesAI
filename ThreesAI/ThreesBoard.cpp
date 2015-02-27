@@ -219,19 +219,19 @@ vector<tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardSt
 }
 
 vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction d) {
-    array<pair<unsigned, unsigned>, 4> indicies;
+    array<BoardIndex, 4> indicies;
     switch (d) {
         case LEFT:
-            indicies = {pair<unsigned, unsigned>(0,0),pair<unsigned, unsigned>(0,1),pair<unsigned, unsigned>(0,2),pair<unsigned, unsigned>(0,3)};
+            indicies = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
             break;
         case RIGHT:
-            indicies = {pair<unsigned, unsigned>(3,0),pair<unsigned, unsigned>(3,1),pair<unsigned, unsigned>(3,2),pair<unsigned, unsigned>(3,3)};
+            indicies = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
             break;
         case UP:
-            indicies = {pair<unsigned, unsigned>(0,0),pair<unsigned, unsigned>(1,0),pair<unsigned, unsigned>(2,0),pair<unsigned, unsigned>(3,0)};
+            indicies = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
             break;
         case DOWN:
-            indicies = {pair<unsigned, unsigned>(0,3),pair<unsigned, unsigned>(1,3),pair<unsigned, unsigned>(2,3),pair<unsigned, unsigned>(3,3)};
+            indicies = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
             break;
         default:
             break;

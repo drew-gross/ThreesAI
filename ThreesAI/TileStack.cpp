@@ -73,7 +73,7 @@ deque<unsigned int> TileStack::possibleUpcomingTiles(unsigned int maxTile) {
             inRangeTiles.push_back(this->upcomingTile*2);
         }
         if (this->upcomingTile * 4 <= this->maxBonusTile(maxTile)) {
-            inRangeTiles.push_back(this->upcomingTile*2);
+            inRangeTiles.push_back(this->upcomingTile*4);
         }
         
         //trim the list down to size

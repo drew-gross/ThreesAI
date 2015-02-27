@@ -18,10 +18,10 @@ using namespace std;
 int main(int argc, const char * argv[]) {
     random_device rd;
     TileStack::randomGenerator.seed(rd());
-    HumanAI ai;
+    ExpectimaxAI ai;
     while (!ai.board.isGameOver()) {
         ai.playTurn();
-        std::cout << ai.board << std::endl;
+        cout << ai.board << endl;
     }
     return 0;
 }
