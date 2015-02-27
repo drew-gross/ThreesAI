@@ -59,9 +59,6 @@ private:
     std::pair<unsigned int, BoardIndex> addTile(Direction d);
     bool canMerge(BoardIndex target, BoardIndex other);
     bool tryMerge(BoardIndex target, BoardIndex other);
-    void rebuildTileStackIfNecessary();
-    unsigned int getBonusTile();
-    bool canGiveBonusTile();
     
     std::array<std::array<unsigned int, 4>, 4> board;
 };

@@ -175,12 +175,6 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
     throw InvalidMoveException();
 }
 
-void ThreesBoard::rebuildTileStackIfNecessary() {
-    if (this->tileStack.empty()) {
-        this->tileStack = TileStack();
-    }
-}
-
 unsigned int ThreesBoard::maxTile() {
     unsigned int maxTile = 0;
     for (array<unsigned int, 4> row : this->board) {
