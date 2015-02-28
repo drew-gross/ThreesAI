@@ -12,7 +12,7 @@
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board) : ExpectimaxNode(board){
+ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board) : ExpectimaxNode<std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>>(board){
     
 }
 
@@ -20,18 +20,20 @@ bool ExpectimaxChanceNode::childrenAreFilledIn() {
     return this->children.empty();
 }
 
-pair<float, std::shared_ptr<ExpectimaxNode>> ExpectimaxChanceNode::child(tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> t) {
+shared_ptr<ExpectimaxNodeBase> ExpectimaxChanceNode::child(tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> t) {
     return this->children[t];
 }
 
 unsigned int ExpectimaxChanceNode::value() {
-    float value = accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, pair<tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, pair<float,shared_ptr<ExpectimaxNode>>> next){
-        return acc + next.second.first*next.second.second->value();
+    float value = accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, pair<tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, shared_ptr<ExpectimaxNodeBase>> next){
+        tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> edge = next.first;
+        shared_ptr<ExpectimaxNodeBase> node = next.second;
+        return acc + this->childrenProbabilities[edge] * node->value();
     });
     return floor(value);
 }
 
-void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNode>> unfilledList, Direction d) {
+void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> unfilledList, Direction d) {
     auto possibleNextTiles = this->board.tileStack.possibleUpcomingTiles(this->board.maxTile());
     auto possibleNextLocations = this->board.validIndicesForNewTile(d);
     vector<tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates = this->board.possibleNextBoardStates();
@@ -43,12 +45,13 @@ void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNode>> unfil
         for (auto&& boardIndex : possibleNextLocations) {
             for (auto&& state : possibleNextBoardStates) {
                 float stateProbability = tileProbability*locationProbability*get<0>(state);
-                shared_ptr<ExpectimaxNode> childState = make_shared<ExpectimaxMoveNode>(get<1>(state));
+                this->childrenProbabilities[stateProbability] = stateProbability;
+                shared_ptr<ExpectimaxMoveNode> childState = make_shared<ExpectimaxMoveNode>(get<1>(state));
                 unsigned int upcomingTile = get<2>(state);
                 tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int> childIndex = {possibleTile, boardIndex, upcomingTile};
-                this->children.insert({childIndex, {stateProbability, childState}});
-                this->child(childIndex).second->board.set(boardIndex, possibleTile);
-                unfilledList.push_back(this->child(childIndex).second);
+                this->children.emplace(childIndex, childState);
+                this->child(childIndex)->board.set(boardIndex, possibleTile);
+                unfilledList.push_back(this->child(childIndex));
             }
         }
     }

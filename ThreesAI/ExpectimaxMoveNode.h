@@ -15,22 +15,19 @@
 
 class ExpectimaxChanceNode;
 
-class ExpectimaxMoveNode : public ExpectimaxNode {
+class ExpectimaxMoveNode : public ExpectimaxNode<Direction> {
 public:
     ExpectimaxMoveNode(ThreesBoard const& board);
-    ExpectimaxMoveNode();
-    
-    std::shared_ptr<ExpectimaxNode> child(Direction d);
-    bool childrenAreFilledIn();
-    
     unsigned int value();
     
-    std::pair<Direction, std::shared_ptr<ExpectimaxNode>> maxChild();
+    std::shared_ptr<ExpectimaxNodeBase> child(Direction d);
+    bool childrenAreFilledIn();
     
     
+    std::pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> maxChild();
+    
+    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> unfilledList, Direction d);
 private:
-    std::map<Direction, std::shared_ptr<ExpectimaxNode>> children;
-    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNode>> unfilledList, Direction d);
 };
 
 

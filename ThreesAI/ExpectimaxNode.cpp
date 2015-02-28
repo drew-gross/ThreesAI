@@ -8,6 +8,6 @@
 
 #include "ExpectimaxNode.h"
 
-ExpectimaxNode::ExpectimaxNode(const ThreesBoard& board) : board(board) {
+ExpectimaxNodeBase::ExpectimaxNodeBase(ThreesBoard const& board) : board(board) {
     
 }

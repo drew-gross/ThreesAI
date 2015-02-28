@@ -18,7 +18,7 @@ ExpectimaxAI::ExpectimaxAI() : ThreesAIBase() {
 }
 
 void ExpectimaxAI::fillInChild() {
-    shared_ptr<ExpectimaxNode> child = this->unfilledChildren.front();
+    shared_ptr<ExpectimaxNodeBase> child = this->unfilledChildren.front();
     child->fillInChildren(this->unfilledChildren, UP);
     this->unfilledChildren.pop_front();
 }
@@ -37,6 +37,6 @@ void ExpectimaxAI::playTurn() {
     unsigned int addedTileValue = addedTileInfo.first;
     ThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
     shared_ptr<ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<ExpectimaxChanceNode>(this->currentBoard->child(d));
-    shared_ptr<ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<ExpectimaxMoveNode>(afterMoveBoard->child({addedTileValue, addedTileLocation, afterMoveBoard->board.tileStack.possibleUpcomingTiles(afterMoveBoard->board.maxTile()).front()}).second);
+    shared_ptr<ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<ExpectimaxMoveNode>(afterMoveBoard->child({addedTileValue, addedTileLocation, afterMoveBoard->board.tileStack.possibleUpcomingTiles(afterMoveBoard->board.maxTile()).front()}));
     this->currentBoard = afterAddingTileBoard;
 }

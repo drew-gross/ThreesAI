@@ -13,19 +13,18 @@
 
 #include "ExpectimaxNode.h"
 
-class ExpectimaxChanceNode : public ExpectimaxNode {
+class ExpectimaxMoveNode;
+
+class ExpectimaxChanceNode : public ExpectimaxNode<std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>> {
 public:
     ExpectimaxChanceNode(ThreesBoard const& board);
-    
     unsigned int value();
     
-    std::pair<float, std::shared_ptr<ExpectimaxNode>> child(std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>);
-    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNode>> unfilledList, Direction d);
+    std::shared_ptr<ExpectimaxNodeBase> child(std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>);
+    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> unfilledList, Direction d);
     bool childrenAreFilledIn();
     
-private:
-    std::map<std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, std::pair<float, std::shared_ptr<ExpectimaxNode>>> children;
-    float probability;
+    std::map<std::tuple<unsigned int, ThreesBoard::BoardIndex, unsigned int>, float> childrenProbabilities;
 };
 
 

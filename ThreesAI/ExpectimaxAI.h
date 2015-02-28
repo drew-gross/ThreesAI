@@ -21,7 +21,7 @@ class ExpectimaxAI : public ThreesAIBase {
 private:
     std::shared_ptr<ExpectimaxMoveNode> currentBoard;
     
-    std::list<std::shared_ptr<ExpectimaxNode>> unfilledChildren;
+    std::list<std::shared_ptr<ExpectimaxNodeBase>> unfilledChildren;
     
     void fillInChild();
     
