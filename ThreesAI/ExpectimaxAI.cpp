@@ -26,7 +26,7 @@ void ExpectimaxAI::fillInChild() {
 void ExpectimaxAI::playTurn() {
     clock_t analysisStartTime = clock();
     
-    while (float(clock() - analysisStartTime)/CLOCKS_PER_SEC < .0001) {
+    while (float(clock() - analysisStartTime)/CLOCKS_PER_SEC < .001) {
         this->fillInChild();
     }
     

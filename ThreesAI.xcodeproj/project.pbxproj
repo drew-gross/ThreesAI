@@ -17,6 +17,7 @@
 		7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4E71AA0408E0081BEC8 /* ExpectimaxNode.cpp */; };
 		7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */; };
 		7963F4EF1AA24EC00081BEC8 /* ExpectimaxBaseNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4ED1AA24EC00081BEC8 /* ExpectimaxBaseNode.cpp */; };
+		7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */; };
 		7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 /* End PBXBuildFile section */
@@ -55,6 +56,8 @@
 		7963F4EB1AA040E20081BEC8 /* ExpectimaxMoveNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpectimaxMoveNode.h; sourceTree = "<group>"; };
 		7963F4ED1AA24EC00081BEC8 /* ExpectimaxBaseNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExpectimaxBaseNode.cpp; sourceTree = "<group>"; };
 		7963F4EE1AA24EC00081BEC8 /* ExpectimaxBaseNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpectimaxBaseNode.h; sourceTree = "<group>"; };
+		7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChanceNodeEdge.cpp; sourceTree = "<group>"; };
+		7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChanceNodeEdge.h; sourceTree = "<group>"; };
 		7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZeroDepthMaxScoreAI.cpp; sourceTree = "<group>"; };
 		7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZeroDepthMaxScoreAI.h; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExpectimaxAI.cpp; sourceTree = "<group>"; };
@@ -123,6 +126,8 @@
 				7963F4EB1AA040E20081BEC8 /* ExpectimaxMoveNode.h */,
 				7963F4ED1AA24EC00081BEC8 /* ExpectimaxBaseNode.cpp */,
 				7963F4EE1AA24EC00081BEC8 /* ExpectimaxBaseNode.h */,
+				7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */,
+				7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */,
 			);
 			name = ExpectimaxAI;
 			sourceTree = "<group>";
@@ -193,6 +198,7 @@
 				7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
 				7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */,
+				7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */,
 				79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */,
 				7963F4E21AA01F7E0081BEC8 /* HumanAI.cpp in Sources */,
 			);
