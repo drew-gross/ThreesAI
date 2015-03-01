@@ -12,8 +12,7 @@
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board) : ExpectimaxNode<ChanceNodeEdge>(board){
-    
+ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board, Direction d) : ExpectimaxNode<ChanceNodeEdge>(board), directionMovedToGetHere(d){
 }
 
 bool ExpectimaxChanceNode::childrenAreFilledIn() {
@@ -33,9 +32,9 @@ unsigned int ExpectimaxChanceNode::value() {
     return floor(value);
 }
 
-void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> unfilledList, Direction d) {
+void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & unfilledList) {
     auto possibleNextTiles = this->board.tileStack.possibleUpcomingTiles(this->board.maxTile());
-    auto possibleNextLocations = this->board.validIndicesForNewTile(d);
+    auto possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
     vector<tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates = this->board.possibleNextBoardStates();
     
     float tileProbability = 1.0f/possibleNextLocations.size();

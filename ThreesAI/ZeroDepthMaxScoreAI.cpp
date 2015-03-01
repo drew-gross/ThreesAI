@@ -15,7 +15,7 @@ ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI() : ThreesAIBase() {
     
 }
 
-void ZeroDepthMaxScoreAI::playTurn() {
+Direction ZeroDepthMaxScoreAI::playTurn() {
     vector<pair<Direction, unsigned int>> scoresForMoves;
     
     try {
@@ -55,4 +55,5 @@ void ZeroDepthMaxScoreAI::playTurn() {
     })->first;
     
     this->board.move(d);
+    return d;
 }

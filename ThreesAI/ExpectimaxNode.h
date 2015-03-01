@@ -18,7 +18,7 @@ class ExpectimaxNodeBase {
 public:
     ExpectimaxNodeBase(ThreesBoard const& board);
     
-    virtual void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> unfilledList, Direction d) = 0;
+    virtual void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     virtual unsigned int value() = 0;
     
     ThreesBoard board;

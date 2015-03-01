@@ -29,16 +29,15 @@ bool ExpectimaxMoveNode::childrenAreFilledIn() {
     return !this->children.empty();
 }
 
-void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> unfilledList, Direction d){
+void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & unfilledList){
     if (this->childrenAreFilledIn()) {
         return;
     }
     vector<Direction> validMoves = this->board.validMoves();
     for (auto&& d : validMoves) {
-        shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(this->board);
+        shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(this->board, d);
         this->children[d] = child;
-        this->children[d]->board.move(d);
-        this->children[d]->fillInChildren(unfilledList, d);
+        unfilledList.push_back(child);
     }
 }
 

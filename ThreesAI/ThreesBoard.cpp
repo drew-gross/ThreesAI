@@ -306,6 +306,24 @@ ostream& operator << (ostream& os, const deque<T>& v)
     return os;
 }
 
+ostream& operator<<(ostream &os, Direction d){
+    switch (d) {
+        case UP:
+            os << "UP";
+            break;
+        case DOWN:
+            os << "DOWN";
+            break;
+        case RIGHT:
+            os << "RIGHT";
+            break;
+        case LEFT:
+            os << "LEFT";
+            break;
+    }
+    return os;
+}
+
 ostream& operator<<(ostream &os, ThreesBoard board){
     os << board.tileStack.possibleUpcomingTiles(board.maxTile()) << endl;
     os << "---------------------  Current Score: " <<  board.score() << endl;

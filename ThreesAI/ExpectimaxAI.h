@@ -28,7 +28,7 @@ private:
 public:
     ExpectimaxAI();
     
-    void playTurn();
+    Direction playTurn();
     
 };
 

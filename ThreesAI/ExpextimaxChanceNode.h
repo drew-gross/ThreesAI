@@ -18,14 +18,16 @@ class ExpectimaxMoveNode;
 
 class ExpectimaxChanceNode : public ExpectimaxNode<ChanceNodeEdge> {
 public:
-    ExpectimaxChanceNode(ThreesBoard const& board);
+    ExpectimaxChanceNode(ThreesBoard const& board, Direction d);
     unsigned int value();
     
     std::shared_ptr<ExpectimaxNodeBase> child(ChanceNodeEdge k);
-    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> unfilledList, Direction d);
+    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList);
     bool childrenAreFilledIn();
     
     std::map<ChanceNodeEdge, float> childrenProbabilities;
+    
+    Direction directionMovedToGetHere;
 };
 
 #endif /* defined(__ThreesAI__ExpextimaxChanceNode__) */

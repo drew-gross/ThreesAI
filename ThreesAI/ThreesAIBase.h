@@ -14,7 +14,7 @@
 class ThreesAIBase {
 public:
     ThreesAIBase();
-    virtual void playTurn() = 0;
+    virtual Direction playTurn() = 0;
     
     ThreesBoard board;
 private:

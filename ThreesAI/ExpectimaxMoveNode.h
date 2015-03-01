@@ -26,7 +26,7 @@ public:
     
     std::pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> maxChild();
     
-    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> unfilledList, Direction d);
+    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList);
 private:
 };
 

@@ -14,7 +14,7 @@
 class RandomAI : public ThreesAIBase {
 public:
     RandomAI();
-    void playTurn();
+    Direction playTurn();
 
 private:
 };

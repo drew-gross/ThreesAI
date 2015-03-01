@@ -16,7 +16,7 @@ class ZeroDepthMaxScoreAI : public ThreesAIBase {
 public:
     ZeroDepthMaxScoreAI();
     
-    void playTurn();
+    Direction playTurn();
 };
 
 #endif /* defined(__ThreesAI__ZeroDepthMaxScoreAI__) */

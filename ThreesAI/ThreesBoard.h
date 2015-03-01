@@ -10,6 +10,7 @@
 #define __ThreesAI__ThreesBoard__
 
 #include <stdio.h>
+#include <iostream>
 #include <array>
 #include <vector>
 #include <random>
@@ -24,6 +25,8 @@ typedef enum Direction {
     LEFT,
     RIGHT
 } Direction;
+
+std::ostream& operator<<(std::ostream &os, Direction d);
 
 class InvalidMoveException : public std::logic_error {
 public:

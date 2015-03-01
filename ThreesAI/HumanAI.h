@@ -13,9 +13,7 @@
 
 class HumanAI : public ThreesAIBase {
 public:
-    
-    void playTurn();
-    
+    Direction playTurn();
 };
 
 #endif /* defined(__ThreesAI__HumanAI__) */
