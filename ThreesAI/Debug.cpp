@@ -1,0 +1,15 @@
+//
+//  Debug.cpp
+//  ThreesAI
+//
+//  Created by Drew Gross on 3/1/15.
+//  Copyright (c) 2015 DrewGross. All rights reserved.
+//
+
+#include "Debug.h"
+
+void debug(bool cond) {
+    if (cond) {
+        cond=!cond;
+    }
+}

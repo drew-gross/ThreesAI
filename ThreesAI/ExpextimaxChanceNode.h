@@ -23,8 +23,7 @@ public:
     
     std::shared_ptr<ExpectimaxNodeBase> child(ChanceNodeEdge k);
     void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList);
-    bool childrenAreFilledIn();
-    
+
     std::map<ChanceNodeEdge, float> childrenProbabilities;
     
     Direction directionMovedToGetHere;

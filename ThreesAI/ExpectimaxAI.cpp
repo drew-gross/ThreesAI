@@ -10,6 +10,8 @@
 
 #include <time.h>
 
+#include "Debug.h"
+
 using namespace std;
 
 ExpectimaxAI::ExpectimaxAI() : ThreesAIBase() {
@@ -30,12 +32,24 @@ Direction ExpectimaxAI::playTurn() {
         this->fillInChild();
     }
     
-    Direction d = this->currentBoard->maxChild().first;
-    pair<unsigned int, ThreesBoard::BoardIndex> addedTileInfo = this->board.move(d);
+    pair<Direction, shared_ptr<ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
+    Direction bestDirection = bestChild.first;
+    shared_ptr<ExpectimaxNodeBase> bestResult = bestChild.second;
+    
+    pair<unsigned int, ThreesBoard::BoardIndex> addedTileInfo = this->board.move(bestDirection);
     unsigned int addedTileValue = addedTileInfo.first;
     ThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
-    shared_ptr<ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<ExpectimaxChanceNode>(this->currentBoard->child(d));
-    shared_ptr<ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<ExpectimaxMoveNode>(afterMoveBoard->child({addedTileValue, addedTileLocation, afterMoveBoard->board.tileStack.possibleUpcomingTiles(afterMoveBoard->board.maxTile()).front()}));
+    
+    shared_ptr<ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<ExpectimaxChanceNode>(this->currentBoard->child(bestDirection));
+    debug(afterMoveBoard == nullptr);
+    
+    deque<unsigned int> possibleUpcomingTiles = afterMoveBoard->board.possibleUpcomingTiles();
+    shared_ptr<ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation, possibleUpcomingTiles.front()));
+    debug(baseBoard == nullptr);
+    afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation, possibleUpcomingTiles.front()));
+    shared_ptr<ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<ExpectimaxMoveNode>(baseBoard);
+    debug(afterAddingTileBoard == nullptr);
+    
     this->currentBoard = afterAddingTileBoard;
-    return d;
+    return bestDirection;
 }

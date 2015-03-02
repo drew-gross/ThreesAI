@@ -294,6 +294,10 @@ bool ThreesBoard::isGameOver() {
     return this->validMoves().empty();
 }
 
+deque<unsigned int> ThreesBoard::possibleUpcomingTiles() {
+    return this->tileStack.possibleUpcomingTiles(this->maxTile());
+}
+
 template < class T >
 ostream& operator << (ostream& os, const deque<T>& v)
 {

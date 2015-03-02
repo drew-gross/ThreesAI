@@ -15,10 +15,6 @@ using namespace std;
 ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board, Direction d) : ExpectimaxNode<ChanceNodeEdge>(board), directionMovedToGetHere(d){
 }
 
-bool ExpectimaxChanceNode::childrenAreFilledIn() {
-    return this->children.empty();
-}
-
 shared_ptr<ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge t) {
     return this->children[t];
 }

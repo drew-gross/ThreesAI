@@ -55,6 +55,7 @@ public:
     std::vector<Direction> validMoves();
     bool isGameOver();
     std::vector<BoardIndex> validIndicesForNewTile(Direction d);
+    std::deque<unsigned int> possibleUpcomingTiles();
     
     static unsigned int tileScore(unsigned int tileValue);
 private:

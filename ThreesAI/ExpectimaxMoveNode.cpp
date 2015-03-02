@@ -9,6 +9,7 @@
 #include "ExpectimaxMoveNode.h"
 
 #include "ExpextimaxChanceNode.h"
+#include "Debug.h"
 
 using namespace std;
 
@@ -16,17 +17,11 @@ ExpectimaxMoveNode::ExpectimaxMoveNode(ThreesBoard const& board): ExpectimaxNode
     
 }
 
-pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() {
-    if (!this->childrenAreFilledIn()) {
-        return {};
-    }
+pair<Direction, shared_ptr<ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() {
+    debug(!this->childrenAreFilledIn());
     return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> right){
         return left.second->value() < right.second->value();
     });
-}
-
-bool ExpectimaxMoveNode::childrenAreFilledIn() {
-    return !this->children.empty();
 }
 
 void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & unfilledList){
@@ -36,6 +31,7 @@ void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & u
     vector<Direction> validMoves = this->board.validMoves();
     for (auto&& d : validMoves) {
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(this->board, d);
+        debug(child == nullptr);
         this->children[d] = child;
         unfilledList.push_back(child);
     }

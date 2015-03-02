@@ -8,6 +8,8 @@
 
 #include "ExpectimaxNode.h"
 
-ExpectimaxNodeBase::ExpectimaxNodeBase(ThreesBoard const& board) : board(board) {
-    
+int ExpectimaxNodeBase::num_existing_nodes = 0;
+
+ExpectimaxNodeBase::ExpectimaxNodeBase(ThreesBoard const& board) : board(board){
+    this->num_existing_nodes++;
 }
