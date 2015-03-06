@@ -184,7 +184,6 @@ unsigned int ThreesBoard::maxTile() {
 }
 
 vector<tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardStates() {
-    //TODO: convert this to use number of each type of tile remaining
     vector<tuple<float, ThreesBoard, unsigned int>> result;
     float num_ones = this->tileStack.ones;
     float num_twos = this->tileStack.twos;

@@ -10,6 +10,8 @@
 
 #include "ExpectimaxMoveNode.h"
 
+#include "Debug.h"
+
 using namespace std;
 
 ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board, Direction d) : ExpectimaxNode<ChanceNodeEdge>(board), directionMovedToGetHere(d){

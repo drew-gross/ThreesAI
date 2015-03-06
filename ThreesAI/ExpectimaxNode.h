@@ -25,7 +25,7 @@ public:
     
     ThreesBoard board;
     
-    ~ExpectimaxNodeBase(){ExpectimaxNodeBase::num_existing_nodes--; std::cout << num_existing_nodes << std::endl;};
+    ~ExpectimaxNodeBase();
 };
 
 template <typename edge_type>
