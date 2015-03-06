@@ -126,7 +126,7 @@ bool ThreesBoard::canMove(Direction d) {
     return false;
 }
 
-pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
+bool ThreesBoard::moveWithoutAdd(Direction d) {
     bool successfulMerge = false;
     switch (d) {
         case UP:
@@ -135,18 +135,12 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
                 successfulMerge |= this->tryMerge({i, 1}, {i, 2});
                 successfulMerge |= this->tryMerge({i, 2}, {i, 3});
             }
-            if (successfulMerge) {
-                return this->addTile(DOWN);
-            }
             break;
         case DOWN:
             for (unsigned i = 0; i < 4; i++) {
                 successfulMerge |= this->tryMerge({i, 3}, {i, 2});
                 successfulMerge |= this->tryMerge({i, 2}, {i, 1});
                 successfulMerge |= this->tryMerge({i, 1}, {i, 0});
-            }
-            if (successfulMerge) {
-                return this->addTile(UP);
             }
             break;
         case LEFT:
@@ -155,9 +149,6 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
                 successfulMerge |= this->tryMerge({1, i}, {2, i});
                 successfulMerge |= this->tryMerge({2, i}, {3, i});
             }
-            if (successfulMerge) {
-                return this->addTile(RIGHT);
-            }
             break;
         case RIGHT:
             for (unsigned i = 0; i < 4; i++) {
@@ -165,12 +156,16 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
                 successfulMerge |= this->tryMerge({2, i}, {1, i});
                 successfulMerge |= this->tryMerge({1, i}, {0, i});
             }
-            if (successfulMerge) {
-                return this->addTile(LEFT);
-            }
             break;
         default:
             break;
+    }
+    return successfulMerge;
+}
+
+pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
+    if (this->moveWithoutAdd(d)) {
+        return this->addTile(d);
     }
     throw InvalidMoveException();
 }
@@ -211,20 +206,20 @@ vector<tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardSt
     return result;
 }
 
-vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction d) {
+vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction movedDirection) {
     array<BoardIndex, 4> indicies;
-    switch (d) {
+    switch (movedDirection) {
         case LEFT:
-            indicies = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
-            break;
-        case RIGHT:
             indicies = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
             break;
+        case RIGHT:
+            indicies = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
+            break;
         case UP:
-            indicies = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
+            indicies = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
             break;
         case DOWN:
-            indicies = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
+            indicies = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
             break;
         default:
             break;

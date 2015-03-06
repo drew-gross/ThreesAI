@@ -31,6 +31,7 @@ void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & u
     vector<Direction> validMoves = this->board.validMoves();
     for (auto&& d : validMoves) {
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(this->board, d);
+        child->board.moveWithoutAdd(d);
         debug(child == nullptr);
         this->children[d] = child;
         unfilledList.push_back(child);

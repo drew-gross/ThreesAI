@@ -38,19 +38,22 @@ void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> &
     float tileProbability = 1.0f/possibleNextLocations.size();
     float locationProbability = 1.0f/possibleNextLocations.size();
     
-    for (auto&& possibleTile : possibleNextTiles) {
+    for (auto&& nextTile : possibleNextTiles) {
         for (auto&& boardIndex : possibleNextLocations) {
             for (auto&& state : possibleNextBoardStates) {
                 float stateProbability = tileProbability*locationProbability*get<0>(state);
                 ThreesBoard nextBoard = get<1>(state);
                 unsigned int upcomingTile = get<2>(state);
                 
-                ChanceNodeEdge childIndex(possibleTile, boardIndex, upcomingTile);
+                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(nextBoard);
+                child->board.set(boardIndex, nextTile);
+                ChanceNodeEdge childIndex(nextTile, boardIndex, upcomingTile);
+                
+                debug(child == nullptr);
                 
                 this->childrenProbabilities[childIndex] = stateProbability;
-                shared_ptr<ExpectimaxMoveNode> childState = make_shared<ExpectimaxMoveNode>(nextBoard);
-                this->children.emplace(childIndex, childState);
-                this->child(childIndex)->board.set(boardIndex, possibleTile);
+                this->children[childIndex] = child;
+                
                 unfilledList.push_back(this->child(childIndex));
             }
         }

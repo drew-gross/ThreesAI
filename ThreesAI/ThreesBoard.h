@@ -43,7 +43,10 @@ public:
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     std::pair<unsigned int, BoardIndex> move(Direction d);
+    //Returns whether or not it succeeded
+    bool moveWithoutAdd(Direction d);
     bool canMove(Direction d);
+    
     void set(BoardIndex i, unsigned int t);
     unsigned int at(BoardIndex i);
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
@@ -54,7 +57,7 @@ public:
     unsigned int score();
     std::vector<Direction> validMoves();
     bool isGameOver();
-    std::vector<BoardIndex> validIndicesForNewTile(Direction d);
+    std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection);
     std::deque<unsigned int> possibleUpcomingTiles();
     
     static unsigned int tileScore(unsigned int tileValue);
