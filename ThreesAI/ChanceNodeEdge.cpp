@@ -24,3 +24,10 @@ bool operator<(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
     }
     return left.newTileLocation < right.newTileLocation;
 }
+
+bool operator==(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
+    return
+        left.newTileValue == right.newTileValue &&
+        left.newTileLocation == right.newTileLocation &&
+        left.newUpcomingTile == right.newUpcomingTile;
+}

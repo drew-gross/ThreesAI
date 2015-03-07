@@ -23,5 +23,6 @@ public:
 
 //implemented for use as key in std::map
 bool operator<(ChanceNodeEdge const& left, ChanceNodeEdge const& right);
+bool operator==(ChanceNodeEdge const& left, ChanceNodeEdge const& right);
 
 #endif /* defined(__ThreesAI__ChanceNodeEdge__) */
