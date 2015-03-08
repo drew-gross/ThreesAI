@@ -19,14 +19,18 @@ ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board, Direction d
 }
 
 shared_ptr<ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge const& t) {
-    return this->children[t];
+    auto result = this->children.find(t);
+    debug(result == this->children.end());
+    return result->second;
 }
 
 unsigned int ExpectimaxChanceNode::value() {
     float value = accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, pair<ChanceNodeEdge, shared_ptr<ExpectimaxNodeBase>> next){
         ChanceNodeEdge edge = next.first;
         shared_ptr<ExpectimaxNodeBase> node = next.second;
-        return acc + this->childrenProbabilities[edge] * node->value();
+        auto childProbability = this->childrenProbabilities.find(edge);
+        debug(childProbability == this->childrenProbabilities.end());
+        return acc + childProbability->second * node->value();
     });
     return floor(value);
 }
@@ -50,8 +54,8 @@ void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> &
                 child->board.set(boardIndex, nextTile);
                 ChanceNodeEdge childIndex(nextTile, boardIndex, upcomingTile);
 
-                this->childrenProbabilities[childIndex] = stateProbability;
-                this->children[childIndex] = child;
+                this->childrenProbabilities.insert({childIndex, stateProbability});
+                this->children.insert({childIndex, child});
         
                 unfilledList.push_back(this->child(childIndex));
             }
