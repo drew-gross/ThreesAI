@@ -35,11 +35,11 @@ void ThreesBoard::set(BoardIndex p, unsigned int t){
     this->board[p.second][p.first] = t;
 }
 
-unsigned int ThreesBoard::at(BoardIndex p) {
+unsigned int ThreesBoard::at(BoardIndex p) const {
     return this->board[p.second][p.first];
 }
 
-bool ThreesBoard::canMerge(BoardIndex target, BoardIndex other) {
+bool ThreesBoard::canMerge(BoardIndex target, BoardIndex other) const {
     if (this->at(other) == 0) {
         return false;
     }
@@ -65,7 +65,7 @@ bool ThreesBoard::tryMerge(BoardIndex target, BoardIndex other) {
     }
 }
 
-bool ThreesBoard::canMove(Direction d) {
+bool ThreesBoard::canMove(Direction d) const {
     switch (d) {
         case UP:
             for (unsigned i = 0; i < 4; i++) {
@@ -170,7 +170,7 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
     throw InvalidMoveException();
 }
 
-unsigned int ThreesBoard::maxTile() {
+unsigned int ThreesBoard::maxTile() const {
     unsigned int maxTile = 0;
     for (array<unsigned int, 4> row : this->board) {
         maxTile = max(maxTile, *max_element(row.begin(), row.end()));
@@ -178,7 +178,7 @@ unsigned int ThreesBoard::maxTile() {
     return maxTile;
 }
 
-vector<tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardStates() {
+vector<tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardStates() const {
     vector<tuple<float, ThreesBoard, unsigned int>> result;
     float num_ones = this->tileStack.ones;
     float num_twos = this->tileStack.twos;
@@ -206,7 +206,7 @@ vector<tuple<float, ThreesBoard, unsigned int>> ThreesBoard::possibleNextBoardSt
     return result;
 }
 
-vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction movedDirection) {
+vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction movedDirection) const {
     array<BoardIndex, 4> indicies;
     switch (movedDirection) {
         case LEFT:
@@ -239,7 +239,7 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
     return {nextTileValue, *indices.begin()};
 }
 
-unsigned int ThreesBoard::score() {
+unsigned int ThreesBoard::score() const {
     return accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc1, array<unsigned int, 4> row){
         return accumulate(row.begin(), row.end(), acc1, [](unsigned int acc2, unsigned int tile){
             return acc2 + ThreesBoard::tileScore(tile);
@@ -267,7 +267,7 @@ unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
     })[tileValue];
 }
 
-vector<Direction> ThreesBoard::validMoves(){
+vector<Direction> ThreesBoard::validMoves() const {
     vector<Direction> result;
     if (this->canMove(DOWN)) {
         result.push_back(DOWN);
@@ -284,11 +284,11 @@ vector<Direction> ThreesBoard::validMoves(){
     return result;
 }
 
-bool ThreesBoard::isGameOver() {
+bool ThreesBoard::isGameOver() const {
     return this->validMoves().empty();
 }
 
-deque<unsigned int> ThreesBoard::possibleUpcomingTiles() {
+deque<unsigned int> ThreesBoard::possibleUpcomingTiles() const {
     return this->tileStack.possibleUpcomingTiles(this->maxTile());
 }
 
@@ -322,7 +322,7 @@ ostream& operator<<(ostream &os, Direction d){
     return os;
 }
 
-ostream& operator<<(ostream &os, ThreesBoard board){
+ostream& operator<<(ostream &os, ThreesBoard const& board){
     os << board.tileStack.possibleUpcomingTiles(board.maxTile()) << endl;
     os << "---------------------  Current Score: " <<  board.score() << endl;
     os << "|" << setw(4) << board.at({0,0}) << "|" << setw(4) << board.at({1,0}) << "|" << setw(4) << board.at({2,0}) << "|" << setw(4) << board.at({3,0}) << "|" << endl;

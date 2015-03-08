@@ -54,7 +54,7 @@ unsigned int TileStack::getNextTile(unsigned int maxTile) {
     return theTile;
 }
 
-deque<unsigned int> TileStack::possibleUpcomingTiles(unsigned int maxTile) {
+deque<unsigned int> TileStack::possibleUpcomingTiles(unsigned int maxTile) const {
     deque<unsigned int> inRangeTiles;
     if (this->upcomingTile <= 3) {
         inRangeTiles.push_back(this->upcomingTile);
@@ -111,7 +111,7 @@ void TileStack::rebuildIfNecessary() {
     }
 }
 
-unsigned int TileStack::maxBonusTile(unsigned int maxBoardTile) {
+unsigned int TileStack::maxBonusTile(unsigned int maxBoardTile) const {
     return maxBoardTile/8;
 }
 
@@ -126,7 +126,7 @@ unsigned int TileStack::getBonusTile(unsigned int maxBoardTile) {
     return possibleBonuses[0];
 }
 
-unsigned int TileStack::size() {
+unsigned int TileStack::size() const {
     return this->ones+this->twos+this->threes;
 }
 

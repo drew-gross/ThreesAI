@@ -33,7 +33,7 @@ class ExpectimaxNode : public ExpectimaxNodeBase {
 public:
     ExpectimaxNode(ThreesBoard const& board);
     
-    virtual std::shared_ptr<ExpectimaxNodeBase> child(edge_type edge) = 0;
+    virtual std::shared_ptr<ExpectimaxNodeBase> child(edge_type const& edge) = 0;
     std::map<edge_type, std::shared_ptr<ExpectimaxNodeBase>> children;
     bool childrenAreFilledIn();
 };

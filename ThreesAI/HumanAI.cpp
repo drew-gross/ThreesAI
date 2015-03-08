@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void HumanAI::playTurn() {
+Direction HumanAI::playTurn() {
     cout << board.score() << endl;
     cout << board << endl;
     try {
@@ -20,28 +20,33 @@ void HumanAI::playTurn() {
             case 'w':
                 board.move(UP);
                 cout << board;
+                return UP;
                 break;
                 
             case 'a':
                 board.move(LEFT);
                 cout << board;
+                return LEFT;
                 break;
                 
             case 's':
                 board.move(DOWN);
                 std::cout << board;
+                return DOWN;
                 break;
                 
             case 'd':
                 board.move(RIGHT);
                 std::cout << board;
+                return RIGHT;
                 break;
                 
             default:
+                throw InvalidMoveException();
                 break;
         }
     } catch (InvalidMoveException e) {
         cout << "Not a valid move" << endl;
-        this->playTurn();
+        return this->playTurn();
     }
 }

@@ -22,15 +22,15 @@ public:
     unsigned char threes;
     
     bool empty();
-    unsigned int size();
+    unsigned int size() const;
     unsigned int getNextTile(unsigned int maxBoardTile);
-    std::deque<unsigned int> possibleUpcomingTiles(unsigned int maxBoardTile);
+    std::deque<unsigned int> possibleUpcomingTiles(unsigned int maxBoardTile) const;
     
     static std::default_random_engine randomGenerator; //TODO: this should probably be stored somewhere else?
     
 private:
     unsigned int upcomingTile;
-    unsigned int maxBonusTile(unsigned int maxBoardTile);
+    unsigned int maxBonusTile(unsigned int maxBoardTile) const;
     unsigned int getBonusTile(unsigned int maxBoardTile);
     void rebuildIfNecessary();
     

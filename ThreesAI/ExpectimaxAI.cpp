@@ -11,6 +11,7 @@
 #include <time.h>
 
 #include "Debug.h"
+#include "Logging.h"
 
 using namespace std;
 
@@ -32,6 +33,11 @@ Direction ExpectimaxAI::playTurn() {
         this->fillInChild();
     }
     
+    if (!this->currentBoard->childrenAreFilledIn()) {
+        this->currentBoard->fillInChildren(this->unfilledChildren);
+        MYLOG("Needed to fill in children of currentBoard!");
+    }
+    
     pair<Direction, shared_ptr<ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
     Direction bestDirection = bestChild.first;
     shared_ptr<ExpectimaxNodeBase> bestResult = bestChild.second;
@@ -43,14 +49,16 @@ Direction ExpectimaxAI::playTurn() {
     debug(this->board.at(addedTileLocation) != addedTileValue);
     
     shared_ptr<ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<ExpectimaxChanceNode>(bestResult);
-    debug(afterMoveBoard == nullptr);
+
+    if (!afterMoveBoard->childrenAreFilledIn()) {
+        afterMoveBoard->fillInChildren(this->unfilledChildren);
+        MYLOG("Needed to fill in children of afterMoveBoard!");
+    }
     
     deque<unsigned int> possibleUpcomingTiles = afterMoveBoard->board.possibleUpcomingTiles();
     
     shared_ptr<ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation, possibleUpcomingTiles.front()));
-    debug(baseBoard == nullptr);
-    afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation, possibleUpcomingTiles.front()));
-    
+
     shared_ptr<ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<ExpectimaxMoveNode>(baseBoard);
     debug(afterAddingTileBoard == nullptr);
     

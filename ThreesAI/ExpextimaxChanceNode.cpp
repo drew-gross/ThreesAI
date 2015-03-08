@@ -11,13 +11,14 @@
 #include "ExpectimaxMoveNode.h"
 
 #include "Debug.h"
+#include "Logging.h"
 
 using namespace std;
 
 ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board, Direction d) : ExpectimaxNode<ChanceNodeEdge>(board), directionMovedToGetHere(d){
 }
 
-shared_ptr<ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge t) {
+shared_ptr<ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge const& t) {
     return this->children[t];
 }
 
@@ -48,12 +49,10 @@ void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> &
                 shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(nextBoard);
                 child->board.set(boardIndex, nextTile);
                 ChanceNodeEdge childIndex(nextTile, boardIndex, upcomingTile);
-                
-                debug(child == nullptr);
-                
+
                 this->childrenProbabilities[childIndex] = stateProbability;
                 this->children[childIndex] = child;
-                
+        
                 unfilledList.push_back(this->child(childIndex));
             }
         }

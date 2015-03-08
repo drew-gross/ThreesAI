@@ -20,7 +20,7 @@ public:
     ExpectimaxMoveNode(ThreesBoard const& board);
     unsigned int value();
     
-    std::shared_ptr<ExpectimaxNodeBase> child(Direction d);    
+    std::shared_ptr<ExpectimaxNodeBase> child(Direction const& d);
     
     std::pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> maxChild();
     

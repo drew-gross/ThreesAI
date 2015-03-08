@@ -21,7 +21,7 @@ public:
     ExpectimaxChanceNode(ThreesBoard const& board, Direction d);
     unsigned int value();
     
-    std::shared_ptr<ExpectimaxNodeBase> child(ChanceNodeEdge k);
+    std::shared_ptr<ExpectimaxNodeBase> child(ChanceNodeEdge const& k);
     void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList);
 
     std::map<ChanceNodeEdge, float> childrenProbabilities;

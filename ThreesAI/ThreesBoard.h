@@ -45,26 +45,26 @@ public:
     std::pair<unsigned int, BoardIndex> move(Direction d);
     //Returns whether or not it succeeded
     bool moveWithoutAdd(Direction d);
-    bool canMove(Direction d);
+    bool canMove(Direction d) const;
     
     void set(BoardIndex i, unsigned int t);
-    unsigned int at(BoardIndex i);
-    friend std::ostream& operator<<(std::ostream &os, ThreesBoard board);
-    unsigned int maxTile();
+    unsigned int at(BoardIndex i) const;
+    friend std::ostream& operator<<(std::ostream &os, ThreesBoard const& board);
+    unsigned int maxTile() const;
     
     //returns a set of boards with the upcomingTile and tileStack updated, but no new tiles added to the board.
-    std::vector<std::tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates(); //that unsigned int should be [unsigned int] in order to take into account possibility of a bonus tile.
-    unsigned int score();
-    std::vector<Direction> validMoves();
-    bool isGameOver();
-    std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection);
-    std::deque<unsigned int> possibleUpcomingTiles();
+    std::vector<std::tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates() const; //that unsigned int should be [unsigned int] in order to take into account possibility of a bonus tile.
+    unsigned int score() const;
+    std::vector<Direction> validMoves() const;
+    bool isGameOver() const;
+    std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
+    std::deque<unsigned int> possibleUpcomingTiles() const;
     
     static unsigned int tileScore(unsigned int tileValue);
 private:
     //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
     std::pair<unsigned int, BoardIndex> addTile(Direction d);
-    bool canMerge(BoardIndex target, BoardIndex other);
+    bool canMerge(BoardIndex target, BoardIndex other) const;
     bool tryMerge(BoardIndex target, BoardIndex other);
     
     std::array<std::array<unsigned int, 4>, 4> board;

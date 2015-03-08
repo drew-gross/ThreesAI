@@ -32,7 +32,6 @@ void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & u
     for (auto&& d : validMoves) {
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(this->board, d);
         child->board.moveWithoutAdd(d);
-        debug(child == nullptr);
         this->children[d] = child;
         unfilledList.push_back(child);
     }
@@ -48,6 +47,6 @@ unsigned int ExpectimaxMoveNode::value() {
     return this->board.score();
 }
 
-std::shared_ptr<ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction d) {
+std::shared_ptr<ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction const& d) {
     return this->children[d];
 }
