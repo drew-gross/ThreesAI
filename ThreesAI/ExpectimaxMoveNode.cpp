@@ -17,9 +17,9 @@ ExpectimaxMoveNode::ExpectimaxMoveNode(ThreesBoard const& board): ExpectimaxNode
     
 }
 
-pair<Direction, shared_ptr<ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() {
+pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() const {
     debug(!this->childrenAreFilledIn());
-    return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> right){
+    return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> right){
         return left.second->value() < right.second->value();
     });
 }
@@ -31,13 +31,13 @@ void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & u
     vector<Direction> validMoves = this->board.validMoves();
     for (auto&& d : validMoves) {
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(this->board, d);
+        child->board.moveWithoutAdd(d);
         this->children.insert({d, child});
-        this->children.at(d)->board.moveWithoutAdd(d);
-        unfilledList.push_back(this->children.at(d));
+        unfilledList.push_back(child);
     }
 }
 
-unsigned int ExpectimaxMoveNode::value() {
+unsigned int ExpectimaxMoveNode::value() const {
     if (this->board.isGameOver()) {
         return this->board.score();
     }
@@ -47,7 +47,7 @@ unsigned int ExpectimaxMoveNode::value() {
     return this->board.score();
 }
 
-std::shared_ptr<ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction const& d) {
+std::shared_ptr<const ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction const& d) const {
     auto result = this->children.find(d);
     debug(result == this->children.end());
     return result->second;

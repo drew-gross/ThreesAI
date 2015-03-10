@@ -18,11 +18,11 @@ class ExpectimaxChanceNode;
 class ExpectimaxMoveNode : public ExpectimaxNode<Direction> {
 public:
     ExpectimaxMoveNode(ThreesBoard const& board);
-    unsigned int value();
+    unsigned int value() const;
     
-    std::shared_ptr<ExpectimaxNodeBase> child(Direction const& d);
+    std::shared_ptr<const ExpectimaxNodeBase> child(Direction const& d) const ;
     
-    std::pair<Direction, std::shared_ptr<ExpectimaxNodeBase>> maxChild();
+    std::pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> maxChild() const;
     
     void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList);
 private:

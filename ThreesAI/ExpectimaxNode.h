@@ -21,7 +21,7 @@ public:
     ExpectimaxNodeBase(ThreesBoard const& board);
     
     virtual void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
-    virtual unsigned int value() = 0;
+    virtual unsigned int value() const = 0;
     
     ThreesBoard board;
     
@@ -33,9 +33,9 @@ class ExpectimaxNode : public ExpectimaxNodeBase {
 public:
     ExpectimaxNode(ThreesBoard const& board);
     
-    virtual std::shared_ptr<ExpectimaxNodeBase> child(edge_type const& edge) = 0;
-    std::map<edge_type, std::shared_ptr<ExpectimaxNodeBase>> children;
-    bool childrenAreFilledIn();
+    virtual std::shared_ptr<const ExpectimaxNodeBase> child(edge_type const& edge) const = 0;
+    std::map<edge_type, std::shared_ptr<const ExpectimaxNodeBase>> children;
+    bool childrenAreFilledIn() const;
 };
 
 template<typename edge_type>
@@ -44,7 +44,7 @@ ExpectimaxNode<edge_type>::ExpectimaxNode(ThreesBoard const& board) : Expectimax
 }
 
 template<typename edge_type>
-bool ExpectimaxNode<edge_type>::childrenAreFilledIn() {
+bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
     return !this->children.empty();
 }
 

@@ -29,6 +29,8 @@ void ExpectimaxAI::fillInChild() {
 Direction ExpectimaxAI::playTurn() {
     clock_t analysisStartTime = clock();
     
+    MYLOG(this->currentBoard->board);
+    
     while (float(clock() - analysisStartTime)/CLOCKS_PER_SEC < .001) {
         this->fillInChild();
     }
@@ -38,9 +40,9 @@ Direction ExpectimaxAI::playTurn() {
         MYLOG("Needed to fill in children of currentBoard!");
     }
     
-    pair<Direction, shared_ptr<ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
+    pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
     Direction bestDirection = bestChild.first;
-    shared_ptr<ExpectimaxNodeBase> bestResult = bestChild.second;
+    shared_ptr<const ExpectimaxNodeBase> bestResult = bestChild.second;
     
     pair<unsigned int, ThreesBoard::BoardIndex> addedTileInfo = this->board.move(bestDirection);
     unsigned int addedTileValue = addedTileInfo.first;
@@ -48,20 +50,20 @@ Direction ExpectimaxAI::playTurn() {
     
     debug(this->board.at(addedTileLocation) != addedTileValue);
     
-    shared_ptr<ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<ExpectimaxChanceNode>(bestResult);
+    shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(bestResult);
 
     if (!afterMoveBoard->childrenAreFilledIn()) {
-        afterMoveBoard->fillInChildren(this->unfilledChildren);
+        const_pointer_cast<ExpectimaxChanceNode>(afterMoveBoard)->fillInChildren(this->unfilledChildren);
         MYLOG("Needed to fill in children of afterMoveBoard!");
     }
     
     deque<unsigned int> possibleUpcomingTiles = afterMoveBoard->board.possibleUpcomingTiles();
     
-    shared_ptr<ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation, possibleUpcomingTiles.front()));
+    shared_ptr<const ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation, possibleUpcomingTiles.front()));
 
-    shared_ptr<ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<ExpectimaxMoveNode>(baseBoard);
+    shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(baseBoard);
     debug(afterAddingTileBoard == nullptr);
     
-    this->currentBoard = afterAddingTileBoard;
+    this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterAddingTileBoard);
     return bestDirection;
 }
