@@ -13,11 +13,10 @@
 
 class ChanceNodeEdge {
 public:
-    ChanceNodeEdge(unsigned int newTileValue, ThreesBoard::BoardIndex newTileLocation, unsigned int newUpcomingTile);
+    ChanceNodeEdge(unsigned int newTileValue, ThreesBoard::BoardIndex newTileLocation);
     
     unsigned int newTileValue;
     ThreesBoard::BoardIndex newTileLocation;
-    unsigned int newUpcomingTile;
     
 };
 

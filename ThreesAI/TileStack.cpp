@@ -17,7 +17,11 @@ TileStack::TileStack() : ones(4), twos(4), threes(4) {
 }
 
 TileStack::TileStack(unsigned char ones, unsigned char twos, unsigned char threes, unsigned int upcomingTile) : ones(ones), twos(twos), threes(threes), upcomingTile(upcomingTile) {
-    
+    if (ones + twos + threes == 0) {
+        this->ones = 4;
+        this->twos = 4;
+        this->threes = 4;
+    }
 }
 
 default_random_engine TileStack::randomGenerator = default_random_engine();
@@ -56,13 +60,14 @@ unsigned int TileStack::getNextTile(unsigned int maxTile) {
 
 deque<unsigned int> TileStack::possibleNextTiles(unsigned int maxBoardTile) const {
     deque<unsigned int> result;
-    if (ones > 0) {
+    //should be able to only add 1,2,3 if they are in the stack
+    if (ones >= 0) {
         result.push_back(1);
     }
-    if (twos > 0) {
+    if (twos >= 0) {
         result.push_back(2);
     }
-    if (threes > 0) {
+    if (threes >= 0) {
         result.push_back(3);
     }
     maxBoardTile /= 6;

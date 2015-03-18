@@ -53,7 +53,7 @@ public:
     unsigned int maxTile() const;
     
     //returns a set of boards with the upcomingTile and tileStack updated, but no new tiles added to the board.
-    std::vector<std::tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates() const; //that unsigned int should be [unsigned int] in order to take into account possibility of a bonus tile.
+    std::vector<std::tuple<float, ThreesBoard>> possibleNextBoardStates() const;
     unsigned int score() const;
     std::vector<Direction> validMoves() const;
     bool isGameOver() const;

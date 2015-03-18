@@ -8,10 +8,9 @@
 
 #include "ChanceNodeEdge.h"
 
-ChanceNodeEdge::ChanceNodeEdge(unsigned int newTileValue, ThreesBoard::BoardIndex newTileLocation, unsigned int newUpcomingTile) :
+ChanceNodeEdge::ChanceNodeEdge(unsigned int newTileValue, ThreesBoard::BoardIndex newTileLocation) :
 newTileValue(newTileValue),
-newTileLocation(newTileLocation),
-newUpcomingTile(newUpcomingTile) {
+newTileLocation(newTileLocation) {
     
 }
 
@@ -19,15 +18,11 @@ bool operator<(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
     if (left.newTileValue != right.newTileValue) {
         return left.newTileValue < right.newTileValue;
     }
-    if (left.newUpcomingTile != right.newUpcomingTile) {
-        return left.newUpcomingTile < right.newUpcomingTile;
-    }
     return left.newTileLocation < right.newTileLocation;
 }
 
 bool operator==(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
     return
         left.newTileValue == right.newTileValue &&
-        left.newTileLocation == right.newTileLocation &&
-        left.newUpcomingTile == right.newUpcomingTile;
+        left.newTileLocation == right.newTileLocation;
 }
