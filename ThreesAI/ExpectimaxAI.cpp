@@ -21,8 +21,13 @@ ExpectimaxAI::ExpectimaxAI() : ThreesAIBase() {
 }
 
 void ExpectimaxAI::fillInChild() {
-    shared_ptr<ExpectimaxNodeBase> child = this->unfilledChildren.front();
-    child->fillInChildren(this->unfilledChildren);
+    weak_ptr<ExpectimaxNodeBase> child = this->unfilledChildren.front();
+    while (child.expired()) {
+        this->unfilledChildren.pop_front();
+        child = this->unfilledChildren.front();
+    }
+    shared_ptr<ExpectimaxNodeBase> extantChild = child.lock();
+    extantChild->fillInChildren(this->unfilledChildren);
     this->unfilledChildren.pop_front();
 }
 

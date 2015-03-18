@@ -35,7 +35,7 @@ unsigned int ExpectimaxChanceNode::value() const {
     return floor(value);
 }
 
-void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & unfilledList) {
+void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     auto possibleNextTiles = this->board.tileStack.possibleNextTiles(this->board.maxTile());
     auto possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
     vector<tuple<float, ThreesBoard>> possibleNextBoardStates = this->board.possibleNextBoardStates();

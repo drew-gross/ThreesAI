@@ -22,7 +22,7 @@ public:
     unsigned int value() const;
     
     std::shared_ptr<const ExpectimaxNodeBase> child(ChanceNodeEdge const& k) const;
-    void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList);
+    void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
 
     std::map<ChanceNodeEdge, float> childrenProbabilities;
     

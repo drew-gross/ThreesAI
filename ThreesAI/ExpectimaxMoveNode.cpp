@@ -24,7 +24,7 @@ pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChi
     });
 }
 
-void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & unfilledList){
+void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList){
     if (this->childrenAreFilledIn()) {
         return;
     }
@@ -34,7 +34,7 @@ void ExpectimaxMoveNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & u
         childBoard.moveWithoutAdd(d);
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d);
         this->children.insert({d, child});
-        unfilledList.push_back(child);
+        unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));
     }
     debug(!this->childrenAreFilledIn());
 }
