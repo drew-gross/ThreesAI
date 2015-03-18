@@ -10,6 +10,8 @@
 
 #include <vector>
 
+#include "Debug.h"
+
 using namespace std;
 
 TileStack::TileStack() : ones(4), twos(4), threes(4) {
@@ -70,7 +72,7 @@ deque<unsigned int> TileStack::possibleNextTiles(unsigned int maxBoardTile) cons
     if (threes >= 0) {
         result.push_back(3);
     }
-    maxBoardTile /= 6;
+    maxBoardTile /= 8;
     while (maxBoardTile >= 6) {
         result.push_back(maxBoardTile);
         maxBoardTile /= 2;
