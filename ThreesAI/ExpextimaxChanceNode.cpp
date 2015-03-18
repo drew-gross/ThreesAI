@@ -36,7 +36,7 @@ unsigned int ExpectimaxChanceNode::value() const {
 }
 
 void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> & unfilledList) {
-    auto possibleNextTiles = this->board.tileStack.possibleUpcomingTiles(this->board.maxTile());
+    auto possibleNextTiles = this->board.tileStack.possibleNextTiles(this->board.maxTile());
     auto possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
     vector<tuple<float, ThreesBoard, unsigned int>> possibleNextBoardStates = this->board.possibleNextBoardStates();
     
@@ -50,10 +50,11 @@ void ExpectimaxChanceNode::fillInChildren(list<shared_ptr<ExpectimaxNodeBase>> &
                 ThreesBoard nextBoard = get<1>(state);
                 unsigned int upcomingTile = get<2>(state);
                 
-                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(nextBoard);
-                child->board.set(boardIndex, nextTile);
+                ThreesBoard childBoard = nextBoard;
+                childBoard.set(boardIndex, nextTile);
+                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard);
+                
                 ChanceNodeEdge childIndex(nextTile, boardIndex, upcomingTile);
-
                 this->childrenProbabilities.insert({childIndex, stateProbability});
                 this->children.insert({childIndex, child});
         

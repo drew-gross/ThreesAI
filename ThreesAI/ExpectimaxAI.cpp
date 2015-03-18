@@ -52,7 +52,7 @@ Direction ExpectimaxAI::playTurn() {
         MYLOG("Needed to fill in children of afterMoveBoard!");
     }
     
-    deque<unsigned int> possibleUpcomingTiles = afterMoveBoard->board.possibleUpcomingTiles();
+    deque<unsigned int> possibleUpcomingTiles = afterMoveBoard->board.nextTileHint();
     
     shared_ptr<const ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation, possibleUpcomingTiles.front()));
 

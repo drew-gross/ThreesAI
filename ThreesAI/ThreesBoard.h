@@ -58,7 +58,7 @@ public:
     std::vector<Direction> validMoves() const;
     bool isGameOver() const;
     std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
-    std::deque<unsigned int> possibleUpcomingTiles() const;
+    std::deque<unsigned int> nextTileHint() const;
     
     static unsigned int tileScore(unsigned int tileValue);
 private:

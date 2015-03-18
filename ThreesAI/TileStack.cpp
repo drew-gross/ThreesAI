@@ -54,7 +54,26 @@ unsigned int TileStack::getNextTile(unsigned int maxTile) {
     return theTile;
 }
 
-deque<unsigned int> TileStack::possibleUpcomingTiles(unsigned int maxTile) const {
+deque<unsigned int> TileStack::possibleNextTiles(unsigned int maxBoardTile) const {
+    deque<unsigned int> result;
+    if (ones > 0) {
+        result.push_back(1);
+    }
+    if (twos > 0) {
+        result.push_back(2);
+    }
+    if (threes > 0) {
+        result.push_back(3);
+    }
+    maxBoardTile /= 6;
+    while (maxBoardTile >= 6) {
+        result.push_back(maxBoardTile);
+        maxBoardTile /= 2;
+    }
+    return result;
+}
+
+deque<unsigned int> TileStack::nextTileHint(unsigned int maxTile) const {
     deque<unsigned int> inRangeTiles;
     if (this->upcomingTile <= 3) {
         inRangeTiles.push_back(this->upcomingTile);

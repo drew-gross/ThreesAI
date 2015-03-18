@@ -23,7 +23,7 @@ public:
     virtual void fillInChildren(std::list<std::shared_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     virtual unsigned int value() const = 0;
     
-    ThreesBoard board;
+    const ThreesBoard board;
     
     ~ExpectimaxNodeBase();
 };

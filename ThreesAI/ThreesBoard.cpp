@@ -288,8 +288,8 @@ bool ThreesBoard::isGameOver() const {
     return this->validMoves().empty();
 }
 
-deque<unsigned int> ThreesBoard::possibleUpcomingTiles() const {
-    return this->tileStack.possibleUpcomingTiles(this->maxTile());
+deque<unsigned int> ThreesBoard::nextTileHint() const {
+    return this->tileStack.nextTileHint(this->maxTile());
 }
 
 template < class T >
@@ -323,7 +323,7 @@ ostream& operator<<(ostream &os, Direction d){
 }
 
 ostream& operator<<(ostream &os, ThreesBoard const& board){
-    os << board.tileStack.possibleUpcomingTiles(board.maxTile()) << endl;
+    os << board.tileStack.nextTileHint(board.maxTile()) << endl;
     os << "---------------------  Current Score: " <<  board.score() << endl;
     os << "|" << setw(4) << board.at({0,0}) << "|" << setw(4) << board.at({1,0}) << "|" << setw(4) << board.at({2,0}) << "|" << setw(4) << board.at({3,0}) << "|" << endl;
     os << "|" << setw(4) << board.at({0,1}) << "|" << setw(4) << board.at({1,1}) << "|" << setw(4) << board.at({2,1}) << "|" << setw(4) << board.at({3,1}) << "|" << endl;
