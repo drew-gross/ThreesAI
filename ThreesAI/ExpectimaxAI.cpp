@@ -29,8 +29,6 @@ void ExpectimaxAI::fillInChild() {
 Direction ExpectimaxAI::playTurn() {
     clock_t analysisStartTime = clock();
     
-    MYLOG(this->currentBoard->board);
-    
     while (float(clock() - analysisStartTime)/CLOCKS_PER_SEC < .001) {
         this->fillInChild();
     }
@@ -48,10 +46,7 @@ Direction ExpectimaxAI::playTurn() {
     unsigned int addedTileValue = addedTileInfo.first;
     ThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
     
-    debug(this->board.at(addedTileLocation) != addedTileValue);
-    
     shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(bestResult);
-
     if (!afterMoveBoard->childrenAreFilledIn()) {
         const_pointer_cast<ExpectimaxChanceNode>(afterMoveBoard)->fillInChildren(this->unfilledChildren);
         MYLOG("Needed to fill in children of afterMoveBoard!");
