@@ -23,7 +23,7 @@ private:
     
     std::list<std::weak_ptr<ExpectimaxNodeBase>> unfilledChildren;
     
-    void fillInChild();
+    void fillInChild(unsigned int n=1);
     
 public:
     ExpectimaxAI();

@@ -20,23 +20,22 @@ ExpectimaxAI::ExpectimaxAI() : ThreesAIBase() {
     this->unfilledChildren.push_back(this->currentBoard);
 }
 
-void ExpectimaxAI::fillInChild() {
-    weak_ptr<ExpectimaxNodeBase> child = this->unfilledChildren.front();
-    while (child.expired()) {
+void ExpectimaxAI::fillInChild(unsigned int n) {
+    while (n > 0) {
+        weak_ptr<ExpectimaxNodeBase> child = this->unfilledChildren.front();
+        while (child.expired()) {
+            this->unfilledChildren.pop_front();
+            child = this->unfilledChildren.front();
+        }
+        shared_ptr<ExpectimaxNodeBase> extantChild = child.lock();
+        extantChild->fillInChildren(this->unfilledChildren);
         this->unfilledChildren.pop_front();
-        child = this->unfilledChildren.front();
+        n--;
     }
-    shared_ptr<ExpectimaxNodeBase> extantChild = child.lock();
-    extantChild->fillInChildren(this->unfilledChildren);
-    this->unfilledChildren.pop_front();
 }
 
 Direction ExpectimaxAI::playTurn() {
-    clock_t analysisStartTime = clock();
-    
-    while (float(clock() - analysisStartTime)/CLOCKS_PER_SEC < .001) {
-        this->fillInChild();
-    }
+    this->fillInChild(1000);
     
     if (!this->currentBoard->childrenAreFilledIn()) {
         this->currentBoard->fillInChildren(this->unfilledChildren);
