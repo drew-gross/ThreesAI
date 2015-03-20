@@ -45,7 +45,7 @@ ExpectimaxNode<edge_type>::ExpectimaxNode(ThreesBoard const& board) : Expectimax
 
 template<typename edge_type>
 bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
-    return !this->children.empty();
+    return !this->children.empty() && !this->board.isGameOver();
 }
 
 #endif /* defined(__ThreesAI__ExpectimaxNode__) */

@@ -36,7 +36,6 @@ void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unf
         this->children.insert({d, child});
         unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));
     }
-    debug(!this->childrenAreFilledIn());
 }
 
 unsigned int ExpectimaxMoveNode::value() const {
