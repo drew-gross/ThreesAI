@@ -22,12 +22,15 @@ public:
     
     virtual void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     virtual float value() const = 0;
+    virtual void outputDot() const = 0;
+    virtual void outputDotEdges() const = 0;
     
     const ThreesBoard board;
     
     const unsigned int depth;
     
     ~ExpectimaxNodeBase();
+    
 };
 
 template <typename edge_type>
@@ -38,6 +41,9 @@ public:
     virtual std::shared_ptr<const ExpectimaxNodeBase> child(edge_type const& edge) const = 0;
     std::map<edge_type, std::shared_ptr<const ExpectimaxNodeBase>> children;
     bool childrenAreFilledIn() const;
+    
+    void outputDot() const;
+    void outputDotEdges() const;
 };
 
 template<typename edge_type>
@@ -48,6 +54,23 @@ ExpectimaxNode<edge_type>::ExpectimaxNode(ThreesBoard const& board, unsigned int
 template<typename edge_type>
 bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
     return !this->children.empty() && !this->board.isGameOver();
+}
+
+template<typename edge_type>
+void ExpectimaxNode<edge_type>::outputDot() const {
+    std::cout << "graph {" << std::endl;
+    this->outputDotEdges();
+    std::cout << "}" << std::endl;
+}
+
+template<typename edge_type>
+void ExpectimaxNode<edge_type>::outputDotEdges() const {
+    for (auto&& child : this->children) {
+        std::cout << "\t" << long(this) << " -- " << long(child.second.get()) << std::endl;
+    }
+    for (auto&& child : this->children) {
+        child.second->outputDotEdges();
+    }
 }
 
 #endif /* defined(__ThreesAI__ExpectimaxNode__) */
