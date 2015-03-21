@@ -13,6 +13,7 @@
 #include <exception>
 
 #include "Logging.h"
+#include "Debug.h"
 
 using namespace std;
 
@@ -21,7 +22,7 @@ public:
     InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
 };
 
-ThreesBoard::ThreesBoard() {
+ThreesBoard::ThreesBoard() : isGameOverCache(false), isGameOverCacheIsValid(false) {
     array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
     this->board = array<array<unsigned int, 4>, 4>();
@@ -31,10 +32,12 @@ ThreesBoard::ThreesBoard() {
 }
 
 void ThreesBoard::set(BoardIndex p, unsigned int t){
+    this->isGameOverCacheIsValid = false;
+    
     this->board[p.second][p.first] = t;
 }
 
-unsigned int ThreesBoard::at(BoardIndex p) const {
+unsigned int ThreesBoard::at(const BoardIndex p) const {
     return this->board[p.second][p.first];
 }
 
@@ -55,6 +58,8 @@ bool ThreesBoard::canMerge(BoardIndex target, BoardIndex other) const {
 }
 
 bool ThreesBoard::tryMerge(BoardIndex target, BoardIndex other) {
+    this->isGameOverCacheIsValid = false;
+    
     if (this->canMerge(target, other)) {
         this->set(target, this->at(target) + this->at(other));
         this->set(other, 0);
@@ -126,6 +131,8 @@ bool ThreesBoard::canMove(Direction d) const {
 }
 
 bool ThreesBoard::moveWithoutAdd(Direction d) {
+    this->isGameOverCacheIsValid = false;
+    
     bool successfulMerge = false;
     switch (d) {
         case UP:
@@ -163,6 +170,8 @@ bool ThreesBoard::moveWithoutAdd(Direction d) {
 }
 
 pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
+    this->isGameOverCacheIsValid = false;
+    
     if (this->moveWithoutAdd(d)) {
         return this->addTile(d);
     }
@@ -231,6 +240,8 @@ vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction mo
 }
 
 pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
+    this->isGameOverCacheIsValid = false;
+    
     auto indices = this->validIndicesForNewTile(d);
     shuffle(indices.begin(), indices.end(), TileStack::randomGenerator);
     unsigned int nextTileValue = this->tileStack.getNextTile(this->maxTile());
@@ -246,26 +257,25 @@ unsigned int ThreesBoard::score() const {
     });
 }
 
-const unordered_map<unsigned int, unsigned int> ThreesBoard::tileScoreMap({
-    {0,0},
-    {1,0},
-    {2,0},
-    {3,3},
-    {6,9},
-    {12,27},
-    {24,81},
-    {48,243},
-    {96,729},
-    {192,2187},
-    {384,6561},
-    {768,19683},
-    {1536,59049},
-    {3072,177147},
-    {6144,531441}
-});
-
 unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
-    return tileScoreMap.find(tileValue)->second;
+    switch (tileValue) {
+        case 0: return 0;
+        case 1: return 0;
+        case 2: return 0;
+        case 3: return 3;
+        case 6: return 9;
+        case 12: return 27;
+        case 24: return 81;
+        case 48: return 243;
+        case 96: return 729;
+        case 192: return 2187;
+        case 384: return 6561;
+        case 768: return 19683;
+        case 1536: return 59049;
+        case 3072: return 177147;
+        case 6144: return 531441;
+        default: debug(); return 0;
+    }
 }
 
 vector<Direction> ThreesBoard::validMoves() const {
@@ -286,7 +296,11 @@ vector<Direction> ThreesBoard::validMoves() const {
 }
 
 bool ThreesBoard::isGameOver() const {
-    return this->validMoves().empty();
+    if (!this->isGameOverCacheIsValid) {
+        this->isGameOverCache = this->validMoves().empty();
+        this->isGameOverCacheIsValid = true;
+    }
+    return this->isGameOverCache;
 }
 
 deque<unsigned int> ThreesBoard::nextTileHint() const {

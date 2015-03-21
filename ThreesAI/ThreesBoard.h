@@ -49,7 +49,7 @@ public:
     bool canMove(Direction d) const;
     
     void set(BoardIndex i, unsigned int t);
-    unsigned int at(BoardIndex i) const;
+    unsigned int at(BoardIndex const i) const;
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard const& board);
     unsigned int maxTile() const;
     
@@ -70,7 +70,8 @@ private:
     
     std::array<std::array<unsigned int, 4>, 4> board;
     
-    const static std::unordered_map<unsigned int, unsigned int> tileScoreMap;
+    mutable bool isGameOverCache;
+    mutable bool isGameOverCacheIsValid;
 };
 
 
