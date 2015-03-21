@@ -10,7 +10,6 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
-#include <unordered_map>
 #include <exception>
 
 #include "Logging.h"
@@ -247,24 +246,26 @@ unsigned int ThreesBoard::score() const {
     });
 }
 
+const unordered_map<unsigned int, unsigned int> ThreesBoard::tileScoreMap({
+    {0,0},
+    {1,0},
+    {2,0},
+    {3,3},
+    {6,9},
+    {12,27},
+    {24,81},
+    {48,243},
+    {96,729},
+    {192,2187},
+    {384,6561},
+    {768,19683},
+    {1536,59049},
+    {3072,177147},
+    {6144,531441}
+});
+
 unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
-    return unordered_map<unsigned int, unsigned int>({
-        {0,0},
-        {1,0},
-        {2,0},
-        {3,3},
-        {6,9},
-        {12,27},
-        {24,81},
-        {48,243},
-        {96,729},
-        {192,2187},
-        {384,6561},
-        {768,19683},
-        {1536,59049},
-        {3072,177147},
-        {6144,531441}
-    })[tileValue];
+    return tileScoreMap.find(tileValue)->second;
 }
 
 vector<Direction> ThreesBoard::validMoves() const {

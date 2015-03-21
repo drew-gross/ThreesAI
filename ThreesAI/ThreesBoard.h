@@ -16,6 +16,7 @@
 #include <random>
 #include <stack>
 #include <exception>
+#include <unordered_map>
 
 #include "TileStack.h"
 
@@ -68,6 +69,8 @@ private:
     bool tryMerge(BoardIndex target, BoardIndex other);
     
     std::array<std::array<unsigned int, 4>, 4> board;
+    
+    const static std::unordered_map<unsigned int, unsigned int> tileScoreMap;
 };
 
 
