@@ -22,7 +22,7 @@ public:
     InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
 };
 
-ThreesBoard::ThreesBoard() : isGameOverCache(false), isGameOverCacheIsValid(false) {
+ThreesBoard::ThreesBoard() : isGameOverCache(false), isGameOverCacheIsValid(false), numTurns(0) {
     array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
     this->board = array<array<unsigned int, 4>, 4>();
@@ -171,6 +171,7 @@ bool ThreesBoard::moveWithoutAdd(Direction d) {
 
 pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
     this->isGameOverCacheIsValid = false;
+    this->numTurns++;
     
     if (this->moveWithoutAdd(d)) {
         return this->addTile(d);
@@ -339,11 +340,17 @@ ostream& operator<<(ostream &os, Direction d){
 
 ostream& operator<<(ostream &os, ThreesBoard const& board){
     os << board.tileStack.nextTileHint(board.maxTile()) << endl;
-    os << "---------------------  Current Score: " <<  board.score() << endl;
-    os << "|" << setw(4) << board.at({0,0}) << "|" << setw(4) << board.at({1,0}) << "|" << setw(4) << board.at({2,0}) << "|" << setw(4) << board.at({3,0}) << "|" << endl;
+    os << "---------------------  ";
+    if (board.isGameOver()) {
+        os << "Final";
+    } else {
+        os << "Current";
+    }
+    os << " Score: " <<  board.score() << endl;
+    os << "|" << setw(4) << board.at({0,0}) << "|" << setw(4) << board.at({1,0}) << "|" << setw(4) << board.at({2,0}) << "|" << setw(4) << board.at({3,0}) << "|  Number of turns: " << board.numTurns << endl;
     os << "|" << setw(4) << board.at({0,1}) << "|" << setw(4) << board.at({1,1}) << "|" << setw(4) << board.at({2,1}) << "|" << setw(4) << board.at({3,1}) << "|" << endl;
     os << "|" << setw(4) << board.at({0,2}) << "|" << setw(4) << board.at({1,2}) << "|" << setw(4) << board.at({2,2}) << "|" << setw(4) << board.at({3,2}) << "|" << endl;
     os << "|" << setw(4) << board.at({0,3}) << "|" << setw(4) << board.at({1,3}) << "|" << setw(4) << board.at({2,3}) << "|" << setw(4) << board.at({3,3}) << "|" << endl;
-    os << "---------------------" << endl;
+    os << "---------------------";
     return os;
 }

@@ -26,8 +26,9 @@ int main(int argc, const char * argv[]) {
     while (!ai.board.isGameOver()) {
         cout << ai.board << endl;
         Direction move = ai.playTurn();
-        cout << move << endl;
+        cout << move << endl << endl;
     }
+    cout << ai.board << endl;
     clock_t endTime = clock();
     double elapsed_time = (endTime-startTime)/(double)CLOCKS_PER_SEC;
     MYLOG(elapsed_time);

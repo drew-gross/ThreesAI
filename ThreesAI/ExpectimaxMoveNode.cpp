@@ -13,32 +13,34 @@
 
 using namespace std;
 
-ExpectimaxMoveNode::ExpectimaxMoveNode(ThreesBoard const& board): ExpectimaxNode<Direction>(board) {
+ExpectimaxMoveNode::ExpectimaxMoveNode(ThreesBoard const& board, unsigned int depth): ExpectimaxNode<Direction>(board, depth) {
     
 }
 
 pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() const {
     debug(!this->childrenAreFilledIn());
     return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> right){
-        return left.second->value() < right.second->value();
+        Direction l = left.first;
+        Direction r = right.first;
+        float leftValue = left.second->value();
+        float rightValue = right.second->value();
+        return leftValue < rightValue;
     });
 }
 
 void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList){
-    if (this->childrenAreFilledIn()) {
-        return;
-    }
+    debug(this->childrenAreFilledIn());
     vector<Direction> validMoves = this->board.validMoves();
     for (auto&& d : validMoves) {
         ThreesBoard childBoard = this->board;
         childBoard.moveWithoutAdd(d);
-        shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d);
+        shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d, this->depth+1);
         this->children.insert({d, child});
         unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));
     }
 }
 
-unsigned int ExpectimaxMoveNode::value() const {
+float ExpectimaxMoveNode::value() const {
     if (this->board.isGameOver()) {
         return this->board.score();
     }

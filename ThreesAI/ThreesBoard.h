@@ -62,6 +62,8 @@ public:
     std::deque<unsigned int> nextTileHint() const;
     
     static unsigned int tileScore(unsigned int tileValue);
+    unsigned int numTurns;
+
 private:
     //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
     std::pair<unsigned int, BoardIndex> addTile(Direction d);

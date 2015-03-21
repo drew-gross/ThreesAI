@@ -18,8 +18,8 @@ class ExpectimaxMoveNode;
 
 class ExpectimaxChanceNode : public ExpectimaxNode<ChanceNodeEdge> {
 public:
-    ExpectimaxChanceNode(ThreesBoard const& board, Direction d);
-    unsigned int value() const;
+    ExpectimaxChanceNode(ThreesBoard const& board, Direction d, unsigned int depth);
+    float value() const;
     
     std::shared_ptr<const ExpectimaxNodeBase> child(ChanceNodeEdge const& k) const;
     void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);

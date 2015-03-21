@@ -15,7 +15,7 @@
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board, Direction d) : ExpectimaxNode<ChanceNodeEdge>(board), directionMovedToGetHere(d){
+ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board, Direction d, unsigned int depth) : ExpectimaxNode<ChanceNodeEdge>(board, depth), directionMovedToGetHere(d){
 }
 
 shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge const& t) const {
@@ -24,15 +24,20 @@ shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge 
     return result->second;
 }
 
-unsigned int ExpectimaxChanceNode::value() const {
+float ExpectimaxChanceNode::value() const {
+    if (!this->childrenAreFilledIn()) {
+        return this->board.score();
+    }
     float value = accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, pair<ChanceNodeEdge, shared_ptr<const ExpectimaxNodeBase>> next){
         ChanceNodeEdge edge = next.first;
         shared_ptr<const ExpectimaxNodeBase> node = next.second;
-        auto childProbability = this->childrenProbabilities.find(edge);
-        debug(childProbability == this->childrenProbabilities.end());
-        return acc + childProbability->second * node->value();
+        auto childProbabilityPair = this->childrenProbabilities.find(edge);
+        debug(childProbabilityPair == this->childrenProbabilities.end());
+        float childScore = node->value();
+        float childProbability = childProbabilityPair->second;
+        return acc + childProbability * childScore;
     });
-    return floor(value);
+    return value;
 }
 
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
@@ -51,7 +56,7 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
                 
                 ThreesBoard childBoard = nextBoard;
                 childBoard.set(boardIndex, nextTile);
-                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard);
+                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
                 
                 ChanceNodeEdge childIndex(nextTile, boardIndex);
                 this->childrenProbabilities.insert({childIndex, stateProbability});

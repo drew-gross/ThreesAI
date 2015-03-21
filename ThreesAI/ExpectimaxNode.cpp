@@ -10,7 +10,7 @@
 
 int ExpectimaxNodeBase::num_existing_nodes = 0;
 
-ExpectimaxNodeBase::ExpectimaxNodeBase(ThreesBoard const& board) : board(board){
+ExpectimaxNodeBase::ExpectimaxNodeBase(ThreesBoard const& board, unsigned int depth) : board(board), depth(depth) {
     this->num_existing_nodes++;
 }
 
