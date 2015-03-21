@@ -48,7 +48,7 @@ public:
     bool moveWithoutAdd(Direction d);
     bool canMove(Direction d) const;
     
-    void set(BoardIndex i, unsigned int t);
+    void set(const BoardIndex i, const unsigned int t);
     unsigned int at(BoardIndex const i) const;
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard const& board);
     unsigned int maxTile() const;

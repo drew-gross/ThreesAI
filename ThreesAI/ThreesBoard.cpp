@@ -31,7 +31,7 @@ ThreesBoard::ThreesBoard() : isGameOverCache(false), isGameOverCacheIsValid(fals
     }
 }
 
-void ThreesBoard::set(BoardIndex p, unsigned int t){
+void ThreesBoard::set(const BoardIndex p, const unsigned int t){
     this->isGameOverCacheIsValid = false;
     
     this->board[p.second][p.first] = t;
