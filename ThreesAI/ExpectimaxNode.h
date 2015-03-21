@@ -58,7 +58,7 @@ bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
 
 template<typename edge_type>
 void ExpectimaxNode<edge_type>::outputDot() const {
-    std::cout << "graph {" << std::endl;
+    std::cout << "digraph {" << std::endl;
     this->outputDotEdges();
     std::cout << "}" << std::endl;
 }
@@ -66,7 +66,7 @@ void ExpectimaxNode<edge_type>::outputDot() const {
 template<typename edge_type>
 void ExpectimaxNode<edge_type>::outputDotEdges() const {
     for (auto&& child : this->children) {
-        std::cout << "\t" << long(this) << " -- " << long(child.second.get()) << std::endl;
+        std::cout << "\t" << long(this) << " -> " << long(child.second.get()) << std::endl;
     }
     for (auto&& child : this->children) {
         child.second->outputDotEdges();

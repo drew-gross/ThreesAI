@@ -52,9 +52,9 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 }
 
 Direction ExpectimaxAI::playTurn() {
-    this->fillInChild(1000);
+    this->fillInChild(100);
     
-    debug(this->board.numTurns == 26);
+    debug(this->board.numTurns == 24);
     pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
     Direction bestDirection = bestChild.first;
     shared_ptr<const ExpectimaxNodeBase> bestResult = bestChild.second;
@@ -66,6 +66,7 @@ Direction ExpectimaxAI::playTurn() {
     shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(bestResult);
     
     shared_ptr<const ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation));
+
     afterMoveBoard->outputDot();
     shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(baseBoard);
     debug(afterAddingTileBoard == nullptr);
