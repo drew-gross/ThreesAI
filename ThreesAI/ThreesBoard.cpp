@@ -338,6 +338,11 @@ ostream& operator<<(ostream &os, Direction d){
     return os;
 }
 
+ostream& operator<<(ostream &os, const ThreesBoard::BoardIndex i){
+    os << "{" << i.first << ", " << i.second << "}";
+    return os;
+}
+
 ostream& operator<<(ostream &os, ThreesBoard const& board){
     os << board.tileStack.nextTileHint(board.maxTile()) << endl;
     os << "---------------------  ";

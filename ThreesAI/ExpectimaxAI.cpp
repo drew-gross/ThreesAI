@@ -23,6 +23,7 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
     weak_ptr<ExpectimaxNodeBase> child;
     shared_ptr<ExpectimaxNodeBase> extantChild;
     while (n > 0) {
+        MYLOG(this->unfilledChildren.size());
         child = this->unfilledChildren.front();
         while (child.expired()) {
             this->unfilledChildren.pop_front();

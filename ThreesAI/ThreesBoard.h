@@ -76,6 +76,6 @@ private:
     mutable bool isGameOverCacheIsValid;
 };
 
-
+std::ostream& operator<<(std::ostream &os, const ThreesBoard::BoardIndex e);
 
 #endif /* defined(__ThreesAI__ThreesBoard__) */
