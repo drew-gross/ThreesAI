@@ -67,3 +67,18 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
         }
     }
 }
+
+void ExpectimaxChanceNode::pruneUnreachableChildren(deque<unsigned int> const & nextTileHint) {
+    if (nextTileHint.size() == 1) {
+        unsigned int nextTile = nextTileHint.front();
+        for (auto it = this->children.begin(); it != this->children.end();) {
+            auto old = it;
+            it++;
+            if (old->first.newTileValue != nextTile) {
+                this->children.erase(old);
+            }
+        }
+    } else {
+        debug();
+    }
+}

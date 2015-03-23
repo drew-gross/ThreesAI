@@ -24,6 +24,7 @@ public:
     virtual float value() const = 0;
     virtual void outputDot() const = 0;
     virtual void outputDotEdges() const = 0;
+    virtual void pruneUnreachableChildren(std::deque<unsigned int> const& nextTileHint) = 0;
     
     const ThreesBoard board;
     
@@ -39,7 +40,7 @@ public:
     ExpectimaxNode(ThreesBoard const& board, unsigned int depth);
     
     virtual std::shared_ptr<const ExpectimaxNodeBase> child(edge_type const& edge) const = 0;
-    std::map<edge_type, std::shared_ptr<const ExpectimaxNodeBase>> children;
+    std::map<edge_type, std::shared_ptr<ExpectimaxNodeBase>> children;
     bool childrenAreFilledIn() const;
     
     void outputDot() const;

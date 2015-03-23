@@ -38,6 +38,12 @@ void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unf
     }
 }
 
+void ExpectimaxMoveNode::pruneUnreachableChildren(deque<unsigned int> const& nextTileHint) {
+    for (auto&& child : this->children) {
+        child.second->pruneUnreachableChildren(nextTileHint);
+    }
+}
+
 float ExpectimaxMoveNode::value() const {
     if (this->board.isGameOver()) {
         return this->board.score();
