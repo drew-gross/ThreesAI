@@ -188,6 +188,7 @@ unsigned int ThreesBoard::maxTile() const {
 }
 
 vector<tuple<float, ThreesBoard>> ThreesBoard::possibleNextBoardStates() const {
+    //TODO: actually use this code somehow
     vector<tuple<float, ThreesBoard>> result;
     float num_ones = this->tileStack.ones;
     float num_twos = this->tileStack.twos;

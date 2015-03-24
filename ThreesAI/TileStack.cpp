@@ -45,7 +45,7 @@ unsigned int TileStack::getNextTile(unsigned int maxTile) {
         if (threes > 0) {
             possibleTiles.push_back(3);
         }
-        shuffle(possibleTiles.begin(), possibleTiles.end(), this->randomGenerator);
+        shuffle(possibleTiles.begin(), possibleTiles.end(), this->randomGenerator); //TODO: this is wrong! a stack with 1 1 and 4 3s is more likely to have a 3 next
         this->upcomingTile = possibleTiles[0];
         if (this->upcomingTile == 1) {
             ones--;

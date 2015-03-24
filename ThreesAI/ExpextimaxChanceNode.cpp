@@ -43,27 +43,21 @@ float ExpectimaxChanceNode::value() const {
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     auto possibleNextTiles = this->board.tileStack.possibleNextTiles(this->board.maxTile());
     auto possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
-    vector<tuple<float, ThreesBoard>> possibleNextBoardStates = this->board.possibleNextBoardStates();
     
-    float tileProbability = 1.0f/possibleNextLocations.size();
+    float tileProbability = 1.0f/possibleNextTiles.size(); //TODO: wrong, not all tiles have the same probability
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     for (auto&& nextTile : possibleNextTiles) {
         for (auto&& boardIndex : possibleNextLocations) {
-            for (auto&& state : possibleNextBoardStates) {
-                float stateProbability = tileProbability*locationProbability*get<0>(state);
-                ThreesBoard nextBoard = get<1>(state);
-                
-                ThreesBoard childBoard = nextBoard;
-                childBoard.set(boardIndex, nextTile);
-                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
-                
-                ChanceNodeEdge childIndex(nextTile, boardIndex);
-                this->childrenProbabilities.insert({childIndex, stateProbability});
-                this->children.insert({childIndex, child});
-        
-                unfilledList.push_back(child);
-            }
+            ThreesBoard childBoard = this->board;
+            childBoard.set(boardIndex, nextTile);
+            shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
+            
+            ChanceNodeEdge childIndex(nextTile, boardIndex);
+            this->childrenProbabilities.insert({childIndex, tileProbability*locationProbability});
+            this->children.insert({childIndex, child});
+            
+            unfilledList.push_back(child);
         }
     }
 }
