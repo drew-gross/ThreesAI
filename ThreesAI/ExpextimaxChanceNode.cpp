@@ -88,3 +88,13 @@ void ExpectimaxChanceNode::pruneUnreachableChildren(deque<unsigned int> const & 
         debug();
     }
 }
+
+void ExpectimaxChanceNode::outputDotEdges() const {
+    for (auto&& child : this->children) {
+        cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << endl;
+    }
+    for (auto&& child : this->children) {
+        cout << "\t" << long(child.second.get()) << " [label=\"P=" << this->childrenProbabilities.find(child.first)->second << "\"]" << endl;
+        child.second->outputDotEdges();
+    }
+}

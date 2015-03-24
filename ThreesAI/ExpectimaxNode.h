@@ -44,7 +44,6 @@ public:
     bool childrenAreFilledIn() const;
     
     void outputDot() const;
-    void outputDotEdges() const;
 };
 
 template<typename edge_type>
@@ -62,16 +61,6 @@ void ExpectimaxNode<edge_type>::outputDot() const {
     std::cout << "digraph {" << std::endl;
     this->outputDotEdges();
     std::cout << "}" << std::endl;
-}
-
-template<typename edge_type>
-void ExpectimaxNode<edge_type>::outputDotEdges() const {
-    for (auto&& child : this->children) {
-        std::cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
-    }
-    for (auto&& child : this->children) {
-        child.second->outputDotEdges();
-    }
 }
 
 #endif /* defined(__ThreesAI__ExpectimaxNode__) */

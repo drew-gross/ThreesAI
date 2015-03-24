@@ -28,6 +28,8 @@ public:
     std::map<ChanceNodeEdge, float> childrenProbabilities;
     
     Direction directionMovedToGetHere;
+    
+    void outputDotEdges() const;
 };
 
 #endif /* defined(__ThreesAI__ExpextimaxChanceNode__) */

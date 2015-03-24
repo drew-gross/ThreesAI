@@ -59,3 +59,12 @@ std::shared_ptr<const ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction co
     debug(result == this->children.end());
     return result->second;
 }
+
+void ExpectimaxMoveNode::outputDotEdges() const {
+    for (auto&& child : this->children) {
+        std::cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
+    }
+    for (auto&& child : this->children) {
+        child.second->outputDotEdges();
+    }
+}
