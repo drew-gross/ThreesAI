@@ -49,37 +49,32 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     
     for (auto&& nextTile : possibleNextTiles) {
         for (auto&& boardIndex : possibleNextLocations) {
-            ThreesBoard childBoard = this->board;
-            childBoard.set(boardIndex, nextTile);
-            shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
-            
-            ChanceNodeEdge childIndex(nextTile, boardIndex);
-            this->childrenProbabilities.insert({childIndex, tileProbability*locationProbability});
-            this->children.insert({childIndex, child});
-            
-            unfilledList.push_back(child);
-        }
+                ThreesBoard childBoard = this->board;
+                childBoard.set(boardIndex, nextTile);
+                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
+                
+                ChanceNodeEdge childIndex(nextTile, boardIndex);
+                this->childrenProbabilities.insert({childIndex, tileProbability*locationProbability});
+                this->children.insert({childIndex, child});
+        
+                unfilledList.push_back(child);
+            }
     }
 }
 
 void ExpectimaxChanceNode::pruneUnreachableChildren(deque<unsigned int> const & nextTileHint) {
-    if (nextTileHint.size() == 1) {
-        unsigned int nextTile = nextTileHint.front();
-        float lostProbability = 0;
-        for (auto it = this->children.begin(); it != this->children.end();) {
-            auto old = it;
-            it++;
-            if (old->first.newTileValue != nextTile) {
-                this->children.erase(old);
-                lostProbability += this->childrenProbabilities[old->first];
-                this->childrenProbabilities.erase(old->first);
-            }
+    float lostProbability = 0;
+    for (auto it = this->children.begin(); it != this->children.end();) {
+        auto old = it;
+        it++;
+        if (find(nextTileHint.begin(), nextTileHint.end(), old->first.newTileValue) == nextTileHint.end()) {
+            this->children.erase(old);
+            lostProbability += this->childrenProbabilities[old->first];
+            this->childrenProbabilities.erase(old->first);
         }
-        for (auto&& childProbability : this->childrenProbabilities) {
-            childProbability.second /= lostProbability;
-        }
-    } else {
-        debug();
+    }
+    for (auto&& childProbability : this->childrenProbabilities) {
+        childProbability.second /= (1-lostProbability);
     }
 }
 
