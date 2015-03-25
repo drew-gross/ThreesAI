@@ -181,7 +181,7 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
 
 unsigned int ThreesBoard::maxTile() const {
     unsigned int maxTile = 0;
-    for (array<unsigned int, 4> row : this->board) {
+    for (array<unsigned int, 4> const& row : this->board) {
         maxTile = max(maxTile, *max_element(row.begin(), row.end()));
     }
     return maxTile;
