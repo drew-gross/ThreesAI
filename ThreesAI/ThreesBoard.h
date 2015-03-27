@@ -48,8 +48,8 @@ public:
     bool moveWithoutAdd(Direction d);
     bool canMove(Direction d) const;
     
-    void set(const BoardIndex i, const unsigned int t);
-    unsigned int at(BoardIndex const i) const;
+    void set(BoardIndex const& i, const unsigned int t);
+    unsigned int at(BoardIndex const& i) const;
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard const& board);
     unsigned int maxTile() const;
     
@@ -67,8 +67,8 @@ public:
 private:
     //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
     std::pair<unsigned int, BoardIndex> addTile(Direction d);
-    bool canMerge(BoardIndex target, BoardIndex other) const;
-    bool tryMerge(BoardIndex target, BoardIndex other);
+    bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
+    bool tryMerge(BoardIndex const& target, BoardIndex const& other);
     
     std::array<std::array<unsigned int, 4>, 4> board;
     

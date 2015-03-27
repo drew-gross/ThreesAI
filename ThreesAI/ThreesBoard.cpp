@@ -31,33 +31,33 @@ ThreesBoard::ThreesBoard() : isGameOverCache(false), isGameOverCacheIsValid(fals
     }
 }
 
-void ThreesBoard::set(const BoardIndex p, const unsigned int t){
+void ThreesBoard::set(BoardIndex const& p, const unsigned int t){
     this->isGameOverCacheIsValid = false;
     
     this->board[p.second][p.first] = t;
 }
 
-unsigned int ThreesBoard::at(const BoardIndex p) const {
+unsigned int ThreesBoard::at(BoardIndex const& p) const {
     return this->board[p.second][p.first];
 }
 
-bool ThreesBoard::canMerge(BoardIndex target, BoardIndex other) const {
-    if (this->at(other) == 0) {
+bool ThreesBoard::canMerge(BoardIndex const& target, BoardIndex const& here) const {
+    if (this->at(here) == 0) {
         return false;
     }
-    if (this->at(target) == this->at(other) && this->at(target) != 1 && this->at(target) != 2) {
+    if (this->at(target) == 0 and this->at(here) != 0) {
         return true;
     }
-    if ((this->at(target) == 1 and this->at(other) == 2) or (this->at(target) == 2 and this->at(other) == 1)) {
+    if (this->at(target) == this->at(here) && this->at(target) != 1 && this->at(target) != 2) {
         return true;
     }
-    if (this->at(target) == 0 and this->at(other) != 0) {
+    if ((this->at(target) == 1 and this->at(here) == 2) or (this->at(target) == 2 and this->at(here) == 1)) {
         return true;
     }
     return false;
 }
 
-bool ThreesBoard::tryMerge(BoardIndex target, BoardIndex other) {
+bool ThreesBoard::tryMerge(BoardIndex const& target, BoardIndex const& other) {
     this->isGameOverCacheIsValid = false;
     
     if (this->canMerge(target, other)) {
