@@ -252,7 +252,7 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
 }
 
 unsigned int ThreesBoard::score() const {
-    unsigned int result;
+    unsigned int result = 0;
     for (auto&& row : this->board) {
         for (auto&& tile : row) {
             result += ThreesBoard::tileScore(tile);
@@ -266,19 +266,13 @@ unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
         case 0: return 0;
         case 1: return 0;
         case 2: return 0;
-        case 3: return 3;
-        case 6: return 9;
-        case 12: return 27;
-        case 24: return 81;
-        case 48: return 243;
-        case 96: return 729;
-        case 192: return 2187;
-        case 384: return 6561;
-        case 768: return 19683;
-        case 1536: return 59049;
-        case 3072: return 177147;
-        case 6144: return 531441;
-        default: debug(); return 0;
+        default:
+            unsigned int result = 3;
+            while (tileValue > 3) {
+                result *= 3;
+                tileValue /= 2;
+            }
+            return result;
     }
 }
 
