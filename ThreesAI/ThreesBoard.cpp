@@ -252,11 +252,13 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
 }
 
 unsigned int ThreesBoard::score() const {
-    return accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc1, array<unsigned int, 4> row){
-        return accumulate(row.begin(), row.end(), acc1, [](unsigned int acc2, unsigned int tile){
-            return acc2 + ThreesBoard::tileScore(tile);
-        });
-    });
+    unsigned int result;
+    for (auto&& row : this->board) {
+        for (auto&& tile : row) {
+            result += ThreesBoard::tileScore(tile);
+        }
+    }
+    return result;
 }
 
 unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
@@ -270,6 +272,7 @@ unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
 
 vector<Direction> ThreesBoard::validMoves() const {
     vector<Direction> result;
+    result.reserve(4);
     if (this->canMove(DOWN)) {
         result.push_back(DOWN);
     }
