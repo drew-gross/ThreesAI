@@ -20,40 +20,27 @@ ExpectimaxAI::ExpectimaxAI() : ThreesAIBase(), currentBoard(make_shared<Expectim
 }
 
 void ExpectimaxAI::fillInChild(unsigned int n) {
-    weak_ptr<ExpectimaxNodeBase> child;
-    shared_ptr<ExpectimaxNodeBase> extantChild;
-    while (n > 0) {
-        child = this->unfilledChildren.front();
-        while (child.expired()) {
-            this->unfilledChildren.pop_front();
-            child = this->unfilledChildren.front();
+    if (n == 0) {
+        return;
+    }
+    weak_ptr<ExpectimaxNodeBase> possibleChild;
+    while (possibleChild.expired()) {
+        if (this->unfilledChildren.empty()) {
+            return;
         }
-        extantChild = child.lock();
-        extantChild->fillInChildren(this->unfilledChildren);
+        possibleChild = this->unfilledChildren.front();
         this->unfilledChildren.pop_front();
-        n--;
     }
-    unsigned int currentDepth = extantChild->depth;
-    bool done = false;
-    while (!done) {
-        child = this->unfilledChildren.front();
-        while (child.expired()) {
-            this->unfilledChildren.pop_front();
-            child = this->unfilledChildren.front();
-        }
-        extantChild = child.lock();
-        if (extantChild->depth != currentDepth) {
-            done = true;
-        } else {
-            extantChild->fillInChildren(this->unfilledChildren);
-            this->unfilledChildren.pop_front();
-        }
-    }
+    shared_ptr<ExpectimaxNodeBase> child = possibleChild.lock();
+    child->fillInChildren(this->unfilledChildren);
+    this->fillInChild(n - 1);
+    //TODO: maybe I need to make sure the depth is the same everywhere?
+    return;
 }
 
 Direction ExpectimaxAI::playTurn() {
-    this->fillInChild(500);
     this->currentBoard->pruneUnreachableChildren(this->board.nextTileHint());
+    this->fillInChild(1000);
     
     pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
     Direction bestDirection = bestChild.first;
