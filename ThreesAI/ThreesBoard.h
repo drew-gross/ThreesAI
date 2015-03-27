@@ -67,13 +67,15 @@ public:
 private:
     //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
     std::pair<unsigned int, BoardIndex> addTile(Direction d);
-    bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
+    bool canMerge(BoardIndex const& target, BoardIndex const& here) const;  
     bool tryMerge(BoardIndex const& target, BoardIndex const& other);
     
     std::array<std::array<unsigned int, 4>, 4> board;
     
     mutable bool isGameOverCache;
     mutable bool isGameOverCacheIsValid;
+    mutable bool scoreCacheIsValid;
+    mutable unsigned int scoreCache;
 };
 
 std::ostream& operator<<(std::ostream &os, const ThreesBoard::BoardIndex e);
