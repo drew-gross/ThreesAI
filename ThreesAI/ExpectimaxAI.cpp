@@ -20,27 +20,45 @@ ExpectimaxAI::ExpectimaxAI() : ThreesAIBase(), currentBoard(make_shared<Expectim
 }
 
 void ExpectimaxAI::fillInChild(unsigned int n) {
-    if (n == 0) {
-        return;
+    unsigned int maxFilledDepth = 0;
+    while (n > 0) {
+        weak_ptr<ExpectimaxNodeBase> possibleNode;
+        while (possibleNode.expired()) {
+            if (this->unfilledChildren.empty()) {
+                return;
+            }
+            possibleNode = this->unfilledChildren.front();
+            this->unfilledChildren.pop_front();
+        }
+        shared_ptr<ExpectimaxNodeBase> node = possibleNode.lock();
+        node->fillInChildren(this->unfilledChildren);
+        maxFilledDepth = node->board.numTurns;
+        n--;
     }
-    weak_ptr<ExpectimaxNodeBase> possibleChild;
-    while (possibleChild.expired()) {
-        if (this->unfilledChildren.empty()) {
+    unsigned int currentDepth = 0;
+    while (currentDepth <= maxFilledDepth) {
+        weak_ptr<ExpectimaxNodeBase> possibleNode;
+        while (possibleNode.expired()) {
+            if (this->unfilledChildren.empty()) {
+                return;
+            }
+            possibleNode = this->unfilledChildren.front();
+            this->unfilledChildren.pop_front();
+        }
+        shared_ptr<ExpectimaxNodeBase> node = possibleNode.lock();
+        if (node->board.numTurns > maxFilledDepth) {
+            this->unfilledChildren.push_front(node);
             return;
         }
-        possibleChild = this->unfilledChildren.front();
-        this->unfilledChildren.pop_front();
+        node->fillInChildren(this->unfilledChildren);
+        currentDepth = node->board.numTurns;
     }
-    shared_ptr<ExpectimaxNodeBase> child = possibleChild.lock();
-    child->fillInChildren(this->unfilledChildren);
-    this->fillInChild(n - 1);
-    //TODO: maybe I need to make sure the depth is the same everywhere?
     return;
 }
 
 Direction ExpectimaxAI::playTurn() {
-    this->fillInChild(7000);
     this->currentBoard->pruneUnreachableChildren(this->board.nextTileHint());
+    this->fillInChild(40);
     
     pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
     Direction bestDirection = bestChild.first;

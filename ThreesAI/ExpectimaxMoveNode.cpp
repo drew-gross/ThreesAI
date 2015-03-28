@@ -47,6 +47,9 @@ void ExpectimaxMoveNode::pruneUnreachableChildren(deque<unsigned int> const& nex
 }
 
 float ExpectimaxMoveNode::value() const {
+    if (this->board.isGameOver()) {
+        return 0;
+    }
     if (this->childrenAreFilledIn()) {
         return this->maxChild().second->value();
     }
