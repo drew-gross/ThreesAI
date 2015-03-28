@@ -15,7 +15,7 @@
 using namespace std;
 
 TileStack::TileStack() : ones(4), twos(4), threes(4) {
-    this->getNextTile(3); //preload upcomingtile
+    this->prepUpcomingTile(3);
 }
 
 TileStack::TileStack(unsigned char ones, unsigned char twos, unsigned char threes, unsigned int upcomingTile) : ones(ones), twos(twos), threes(threes), upcomingTile(upcomingTile) {
@@ -30,37 +30,40 @@ default_random_engine TileStack::randomGenerator = default_random_engine();
 
 unsigned int TileStack::getNextTile(unsigned int maxTile) {
     unsigned int theTile = this->upcomingTile;
-    uniform_int_distribution<> bonusChance(1,21);
-    if (maxTile >= 48 && bonusChance(this->randomGenerator) == 21) {
-        this->upcomingTile = this->getBonusTile(maxTile);
-    } else {
-        this->rebuildIfNecessary();
-        vector<unsigned int> possibleTiles;
-        if (ones > 0) {
-            possibleTiles.push_back(1);
-        }
-        if (twos > 0) {
-            possibleTiles.push_back(2);
-        }
-        if (threes > 0) {
-            possibleTiles.push_back(3);
-        }
-        shuffle(possibleTiles.begin(), possibleTiles.end(), this->randomGenerator); //TODO: this is wrong! a stack with 1 1 and 4 3s is more likely to have a 3 next
-        this->upcomingTile = possibleTiles[0];
-        if (this->upcomingTile == 1) {
-            ones--;
-        }
-        if (this->upcomingTile == 2) {
-            twos--;
-        }
-        if (this->upcomingTile == 3) {
-            threes--;
-        }
-    }
+    this->prepUpcomingTile(maxTile);
     return theTile;
 }
 
-float TileStack::nonBonusTileProbability(unsigned int tile) const {
+void TileStack::prepUpcomingTile(unsigned int maxTile) {
+    uniform_real_distribution<> r(0,1);
+    float tileFinder = r(TileStack::randomGenerator);
+    auto possibleNexts = this->possibleNextTiles(maxTile);
+    for (auto&& possibleNextTile : possibleNexts) {
+        float possibleNextsProbability = possibleNextTile.second;
+        unsigned int possibleNext = possibleNextTile.first;
+        if (tileFinder < possibleNextsProbability) {
+            switch (possibleNext) {
+                case 1:
+                    this->ones--;
+                    break;
+                case 2:
+                    this->twos--;
+                    break;
+                case 3:
+                    this->threes--;
+                    break;
+            }
+            this->upcomingTile = possibleNext;
+            this->rebuildIfNecessary();
+            return;
+        } else {
+            tileFinder -= possibleNextsProbability;
+        }
+    }
+    debug();
+}
+
+float TileStack::nonBonusTileProbability(unsigned int tile, bool canHaveBonus) const {
     unsigned int count = 0;
     switch (tile) {
         case 1:
@@ -73,7 +76,11 @@ float TileStack::nonBonusTileProbability(unsigned int tile) const {
             count = this->threes;
             break;
     }
-    return (float(count)/this->size())*(float(20)/21);
+    float nonBonusProbability = float(count)/this->size();
+    if (canHaveBonus) {
+        nonBonusProbability *= float(20)/21;
+    }
+    return nonBonusProbability;
 }
 
 unsigned int int_log2(unsigned int x) {
@@ -89,13 +96,13 @@ deque<pair<unsigned int, float>> TileStack::possibleNextTiles(unsigned int maxBo
     deque<pair<unsigned int, float>> result;
     //should be able to only add 1,2,3 if they are in the stack
     if (ones >= 0) {
-        result.push_back({1, this->nonBonusTileProbability(1)});
+        result.push_back({1, this->nonBonusTileProbability(1, maxBoardTile >= 48)});
     }
     if (twos >= 0) {
-        result.push_back({2, this->nonBonusTileProbability(2)});
+        result.push_back({2, this->nonBonusTileProbability(2, maxBoardTile >= 48)});
     }
     if (threes >= 0) {
-        result.push_back({3, this->nonBonusTileProbability(3)});
+        result.push_back({3, this->nonBonusTileProbability(3, maxBoardTile >= 48)});
     }
     maxBoardTile /= 8;
     unsigned int numPossibleBonusTiles = int_log2(maxBoardTile) - 2;

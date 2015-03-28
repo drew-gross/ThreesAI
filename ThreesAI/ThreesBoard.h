@@ -52,9 +52,6 @@ public:
     unsigned int at(BoardIndex const& i) const;
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard const& board);
     unsigned int maxTile() const;
-    
-    //returns a set of boards with the upcomingTile and tileStack updated, but no new tiles added to the board.
-    std::vector<std::tuple<float, ThreesBoard>> possibleNextBoardStates() const;
     unsigned int score() const;
     std::vector<Direction> validMoves() const;
     bool isGameOver() const;

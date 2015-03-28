@@ -193,35 +193,6 @@ unsigned int ThreesBoard::maxTile() const {
     return maxTile;
 }
 
-vector<tuple<float, ThreesBoard>> ThreesBoard::possibleNextBoardStates() const {
-    //TODO: actually use this code somehow
-    vector<tuple<float, ThreesBoard>> result;
-    float num_ones = this->tileStack.ones;
-    float num_twos = this->tileStack.twos;
-    float num_threes = this->tileStack.threes;
-    float num_elems = this->tileStack.size();
-    
-    if (num_ones > 0) {
-        ThreesBoard nextBoard = ThreesBoard(*this);
-        nextBoard.tileStack = TileStack(num_ones - 1, num_twos, num_threes, 1);
-        result.push_back({num_ones/num_elems, nextBoard});
-    }
-    
-    if (num_twos > 0) {
-        ThreesBoard nextBoard = ThreesBoard(*this);
-        nextBoard.tileStack = TileStack(num_ones, num_twos - 1, num_threes, 2);
-        result.push_back({num_twos/num_elems, nextBoard});
-    }
-    
-    if (num_threes > 0) {
-        ThreesBoard nextBoard = ThreesBoard(*this);
-        nextBoard.tileStack = TileStack(num_ones, num_twos, num_threes - 1, 3);
-        result.push_back({num_threes/num_elems, nextBoard});
-    }
-    
-    return result;
-}
-
 vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction movedDirection) const {
     array<BoardIndex, 4> indicies;
     switch (movedDirection) {
