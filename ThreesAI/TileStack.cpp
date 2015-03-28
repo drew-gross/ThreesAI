@@ -60,21 +60,48 @@ unsigned int TileStack::getNextTile(unsigned int maxTile) {
     return theTile;
 }
 
-deque<unsigned int> TileStack::possibleNextTiles(unsigned int maxBoardTile) const {
-    deque<unsigned int> result;
+float TileStack::nonBonusTileProbability(unsigned int tile) const {
+    unsigned int count = 0;
+    switch (tile) {
+        case 1:
+            count = this->ones;
+            break;
+        case 2:
+            count = this->twos;
+            break;
+        case 3:
+            count = this->threes;
+            break;
+    }
+    return (float(count)/this->size())*(float(20)/21);
+}
+
+unsigned int int_log2(unsigned int x) {
+    unsigned int result = 0;
+    while (x > 0) {
+        result++;
+        x >>= 1;
+    }
+    return result;
+}
+
+deque<pair<unsigned int, float>> TileStack::possibleNextTiles(unsigned int maxBoardTile) const {
+    deque<pair<unsigned int, float>> result;
     //should be able to only add 1,2,3 if they are in the stack
     if (ones >= 0) {
-        result.push_back(1);
+        result.push_back({1, this->nonBonusTileProbability(1)});
     }
     if (twos >= 0) {
-        result.push_back(2);
+        result.push_back({2, this->nonBonusTileProbability(2)});
     }
     if (threes >= 0) {
-        result.push_back(3);
+        result.push_back({3, this->nonBonusTileProbability(3)});
     }
     maxBoardTile /= 8;
+    unsigned int numPossibleBonusTiles = int_log2(maxBoardTile) - 2;
     while (maxBoardTile >= 6) {
-        result.push_back(maxBoardTile);
+        debug(float(1)/numPossibleBonusTiles/21 > 1);
+        result.push_back({maxBoardTile, float(1)/numPossibleBonusTiles/21});
         maxBoardTile /= 2;
     }
     return result;

@@ -41,21 +41,20 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     auto possibleNextTiles = this->board.tileStack.possibleNextTiles(this->board.maxTile());
     auto possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
     
-    float tileProbability = 1.0f/possibleNextTiles.size(); //TODO: wrong, not all tiles have the same probability
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     for (auto&& nextTile : possibleNextTiles) {
         for (auto&& boardIndex : possibleNextLocations) {
-                ThreesBoard childBoard = this->board;
-                childBoard.set(boardIndex, nextTile);
-                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
-                
-                ChanceNodeEdge childIndex(nextTile, boardIndex);
-                this->childrenProbabilities.insert({childIndex, tileProbability*locationProbability});
-                this->children.insert({childIndex, child});
-        
-                unfilledList.push_back(child);
-            }
+            ThreesBoard childBoard = this->board;
+            childBoard.set(boardIndex, nextTile.first);
+            shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
+            
+            ChanceNodeEdge childIndex(nextTile.first, boardIndex);
+            this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});
+            this->children.insert({childIndex, child});
+            
+            unfilledList.push_back(child);
+        }
     }
 }
 

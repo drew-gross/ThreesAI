@@ -23,11 +23,12 @@ public:
     
     bool empty();
     unsigned int size() const;
-    std::deque<unsigned int> possibleNextTiles(unsigned int maxBoardTile) const;
+    std::deque<std::pair<unsigned int, float>> possibleNextTiles(unsigned int maxBoardTile) const;
     unsigned int getNextTile(unsigned int maxBoardTile);
     std::deque<unsigned int> nextTileHint(unsigned int maxBoardTile) const;
     
     static std::default_random_engine randomGenerator; //TODO: this should probably be stored somewhere else?
+    float nonBonusTileProbability(unsigned int tile) const;
     
 private:
     unsigned int upcomingTile;

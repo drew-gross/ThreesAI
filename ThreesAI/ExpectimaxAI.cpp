@@ -39,8 +39,8 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 }
 
 Direction ExpectimaxAI::playTurn() {
+    this->fillInChild(50);
     this->currentBoard->pruneUnreachableChildren(this->board.nextTileHint());
-    this->fillInChild(5000);
     
     pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
     Direction bestDirection = bestChild.first;
