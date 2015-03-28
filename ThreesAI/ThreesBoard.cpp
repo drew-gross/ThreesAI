@@ -169,13 +169,15 @@ bool ThreesBoard::moveWithoutAdd(Direction d) {
         default:
             break;
     }
+    if (successfulMerge) {
+        this->numTurns++;
+    }
     return successfulMerge;
 }
 
 pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
-    this->numTurns++;
     
     if (this->moveWithoutAdd(d)) {
         return this->addTile(d);
