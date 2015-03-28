@@ -28,7 +28,7 @@ float ExpectimaxChanceNode::value() const {
     if (!this->childrenAreFilledIn()) {
         return this->board.score();
     }
-    float value = accumulate(this->children.begin(), this->children.end(), 0, [this](float acc, pair<ChanceNodeEdge, shared_ptr<const ExpectimaxNodeBase>> next){
+    float value = accumulate(this->children.begin(), this->children.end(), 0.0f, [this](float acc, pair<ChanceNodeEdge, shared_ptr<const ExpectimaxNodeBase>> next){
         auto childProbabilityPair = this->childrenProbabilities.find(next.first);
         float childScore = next.second->value();
         float childProbability = childProbabilityPair->second;
