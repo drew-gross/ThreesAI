@@ -23,7 +23,7 @@ public:
     virtual void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     virtual float value() const = 0;
     virtual void outputDot() const = 0;
-    virtual void outputDotEdges() const = 0;
+    virtual void outputDotEdges(float p) const = 0;
     virtual void pruneUnreachableChildren(std::deque<unsigned int> const& nextTileHint) = 0;
     
     const ThreesBoard board;
@@ -61,7 +61,7 @@ void ExpectimaxNode<edge_type>::outputDot() const {
     std::cout << "digraph {" << std::endl;
     std::cout << "\tnode [fontname=Courier]" << std::endl;
     std::cout << "\tedge [fontname=Courier]" << std::endl;
-    this->outputDotEdges();
+    this->outputDotEdges(NAN);
     std::cout << "}" << std::endl;
 }
 

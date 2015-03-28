@@ -26,7 +26,7 @@ public:
     
     void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
     void pruneUnreachableChildren(std::deque<unsigned int> const& nextTileHint);
-    void outputDotEdges() const;
+    void outputDotEdges(float p) const;
 };
 
 

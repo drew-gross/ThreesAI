@@ -74,19 +74,18 @@ void ExpectimaxChanceNode::pruneUnreachableChildren(deque<unsigned int> const & 
     }
 }
 
-void ExpectimaxChanceNode::outputDotEdges() const {
+void ExpectimaxChanceNode::outputDotEdges(float p) const {
     for (auto&& child : this->children) {
         cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << endl;
     }
+    cout << "\t" << long(this) << " [label=\"";
+    cout << "Value=" << this->value() << endl;
+    cout << this->board << "\"";
+    if (this->board.isGameOver()) {
+        cout << ",style=filled,color=red";
+    }
+    cout << "]" << endl;
     for (auto&& child : this->children) {
-        cout << "\t" << long(child.second.get()) << " [";
-        cout << "label=\"";
-        cout << "P=" << this->childrenProbabilities.find(child.first)->second << endl << "Value=";
-        cout << child.second->value() << endl << this->board << "\"";
-        if (child.second->board.isGameOver()) {
-            cout << ",style=filled,color=red";
-        }
-        cout << "]" << endl;
-        child.second->outputDotEdges();
+        child.second->outputDotEdges(this->childrenProbabilities.find(child.first)->second);
     }
 }

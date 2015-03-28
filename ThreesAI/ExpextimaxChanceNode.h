@@ -29,7 +29,7 @@ public:
     
     Direction directionMovedToGetHere;
     
-    void outputDotEdges() const;
+    void outputDotEdges(float p) const;
 };
 
 #endif /* defined(__ThreesAI__ExpextimaxChanceNode__) */
