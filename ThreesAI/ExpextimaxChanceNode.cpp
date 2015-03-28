@@ -82,7 +82,7 @@ void ExpectimaxChanceNode::outputDotEdges() const {
         cout << "\t" << long(child.second.get()) << " [";
         cout << "label=\"";
         cout << "P=" << this->childrenProbabilities.find(child.first)->second << endl << "Value=";
-        cout << child.second->value() << "\"";
+        cout << child.second->value() << endl << this->board << "\"";
         if (child.second->board.isGameOver()) {
             cout << ",style=filled,color=red";
         }

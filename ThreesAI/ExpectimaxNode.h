@@ -59,6 +59,8 @@ bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
 template<typename edge_type>
 void ExpectimaxNode<edge_type>::outputDot() const {
     std::cout << "digraph {" << std::endl;
+    std::cout << "\tnode [fontname=Courier]" << std::endl;
+    std::cout << "\tedge [fontname=Courier]" << std::endl;
     this->outputDotEdges();
     std::cout << "}" << std::endl;
 }
