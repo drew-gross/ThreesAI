@@ -30,6 +30,6 @@ bool operator==(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
 }
 
 ostream& operator<<(ostream &os, const ChanceNodeEdge e){
-    os << "Tile: " << e.newTileValue << "\\n" << "Location: " << e.newTileLocation;
+    os << "Tile: " << e.newTileValue << "\n" << "Location: " << e.newTileLocation;
     return os;
 }

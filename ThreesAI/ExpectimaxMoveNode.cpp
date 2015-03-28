@@ -62,6 +62,8 @@ void ExpectimaxMoveNode::outputDotEdges() const {
         std::cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
     }
     for (auto&& child : this->children) {
+        cout << "\t" << long(child.second.get()) << " [" <<
+        "label=\"Value=" << child.second->value() << "\"]" << endl;
         child.second->outputDotEdges();
     }
 }
