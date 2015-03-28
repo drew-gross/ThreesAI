@@ -9,6 +9,9 @@
 #include "ExpectimaxMoveNode.h"
 
 #include "ExpextimaxChanceNode.h"
+
+#include <iomanip>
+
 #include "Debug.h"
 
 using namespace std;
@@ -18,7 +21,6 @@ ExpectimaxMoveNode::ExpectimaxMoveNode(ThreesBoard const& board, unsigned int de
 }
 
 pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() const {
-    debug(!this->childrenAreFilledIn());
     return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> right){
         float leftValue = left.second->value();
         float rightValue = right.second->value();
@@ -63,7 +65,7 @@ void ExpectimaxMoveNode::outputDotEdges() const {
     }
     for (auto&& child : this->children) {
         cout << "\t" << long(child.second.get()) << " [" <<
-        "label=\"Value=" << child.second->value() << "\"]" << endl;
+        "label=\"Value=" << setprecision(7) << child.second->value() << "\"]" << endl;
         child.second->outputDotEdges();
     }
 }
