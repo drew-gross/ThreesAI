@@ -22,6 +22,7 @@ private:
     std::shared_ptr<ExpectimaxMoveNode> currentBoard;
     
     std::list<std::weak_ptr<ExpectimaxNodeBase>> unfilledChildren;
+    std::shared_ptr<ExpectimaxNodeBase> nextReachableNode();
     
     void fillInChild(unsigned int n=1);
     

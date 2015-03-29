@@ -19,33 +19,28 @@ ExpectimaxAI::ExpectimaxAI() : ThreesAIBase(), currentBoard(make_shared<Expectim
     this->unfilledChildren.push_back(this->currentBoard);
 }
 
+shared_ptr<ExpectimaxNodeBase> ExpectimaxAI::nextReachableNode() {
+    weak_ptr<ExpectimaxNodeBase> possibleNode;
+    while (possibleNode.expired() && !this->unfilledChildren.empty()) {
+        possibleNode = this->unfilledChildren.front();
+        this->unfilledChildren.pop_front();
+    }
+    if (!possibleNode.expired()) {
+        return possibleNode.lock();
+    }
+    return shared_ptr<ExpectimaxNodeBase>();
+}
+
 void ExpectimaxAI::fillInChild(unsigned int n) {
     unsigned int maxFilledDepth = 0;
-    while (n > 0) {
-        weak_ptr<ExpectimaxNodeBase> possibleNode;
-        while (possibleNode.expired()) {
-            if (this->unfilledChildren.empty()) {
-                return;
-            }
-            possibleNode = this->unfilledChildren.front();
-            this->unfilledChildren.pop_front();
-        }
-        shared_ptr<ExpectimaxNodeBase> node = possibleNode.lock();
+    shared_ptr<ExpectimaxNodeBase> node;
+    while (n > 0 && (node = this->nextReachableNode())) {
         node->fillInChildren(this->unfilledChildren);
         maxFilledDepth = node->board.numTurns;
         n--;
     }
     unsigned int currentDepth = 0;
-    while (currentDepth <= maxFilledDepth) {
-        weak_ptr<ExpectimaxNodeBase> possibleNode;
-        while (possibleNode.expired()) {
-            if (this->unfilledChildren.empty()) {
-                return;
-            }
-            possibleNode = this->unfilledChildren.front();
-            this->unfilledChildren.pop_front();
-        }
-        shared_ptr<ExpectimaxNodeBase> node = possibleNode.lock();
+    while (currentDepth <= maxFilledDepth && (node = this->nextReachableNode())) {
         if (node->board.numTurns > maxFilledDepth) {
             this->unfilledChildren.push_front(node);
             return;
@@ -58,7 +53,7 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 
 Direction ExpectimaxAI::playTurn() {
     this->currentBoard->pruneUnreachableChildren(this->board.nextTileHint());
-    this->fillInChild(40);
+    this->fillInChild(50);
     
     pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
     Direction bestDirection = bestChild.first;
