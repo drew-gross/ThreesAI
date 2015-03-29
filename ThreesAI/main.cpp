@@ -18,9 +18,17 @@
 
 using namespace std;
 
-int main(int argc, const char * argv[]) {
-    random_device rd;
-    TileStack::randomGenerator.seed(0);
+template <typename T>
+ostream& operator<<(ostream &os, const std::deque<T> d){
+    os << "[";
+    for (auto&& t : d) {
+        os << " " << t;
+    }
+    os << "]";
+    return os;
+}
+
+void playOneGame() {
     ExpectimaxAI ai;
     clock_t startTime = clock();
     while (!ai.board.isGameOver()) {
@@ -32,5 +40,19 @@ int main(int argc, const char * argv[]) {
     clock_t endTime = clock();
     double elapsed_time = (endTime-startTime)/(double)CLOCKS_PER_SEC;
     MYLOG(elapsed_time);
+}
+
+int main(int argc, const char * argv[]) {
+    deque<unsigned int> turnsSurvived;
+    for (int i=1; i <= 10; i++) {
+        TileStack::randomGenerator.seed(i);
+        ExpectimaxAI ai;
+        ai.playGame();
+        turnsSurvived.push_back(ai.board.numTurns);
+        cout << "Seed: " << i << endl;
+        cout << ai.board << endl;
+    }
+    MYLOG(turnsSurvived);
+    ExpectimaxAI ai;
     return 0;
 }

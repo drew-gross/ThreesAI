@@ -11,3 +11,9 @@
 ThreesAIBase::ThreesAIBase() {
     this->board = ThreesBoard();
 }
+
+void ThreesAIBase::playGame() {
+    while (!this->board.isGameOver()) {
+        this->playTurn();
+    }
+}
