@@ -1,13 +1,3 @@
-/* 
-This is a test sketch for the Adafruit assembled Motor Shield for Arduino v2
-It won't work with v1.x motor shields! Only for the v2's with built in PWM
-control
-
-For use with the Adafruit Motor Shield v2 
----->	http://www.adafruit.com/products/1438
-*/
-
-
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_PWMServoDriver.h"
@@ -24,8 +14,8 @@ void setup() {
 
   AFMS.begin();
   
-  udMotor->setSpeed(5000);
-  lrMotor->setSpeed(5000);
+  udMotor->setSpeed(50);
+  lrMotor->setSpeed(50);
   buttonPresser.attach(9);
 }
 
@@ -49,7 +39,7 @@ void loop() {
         Serial.println(buttonPresser.read());
         buttonPresser.write(0);
         Serial.println(buttonPresser.read());
-        delay(2000);
+        delay(500);
         Serial.println(buttonPresser.read());
         buttonPresser.write(180);
         Serial.println(buttonPresser.read());
