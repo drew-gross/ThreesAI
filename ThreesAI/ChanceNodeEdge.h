@@ -9,14 +9,14 @@
 #ifndef __ThreesAI__ChanceNodeEdge__
 #define __ThreesAI__ChanceNodeEdge__
 
-#include "ThreesBoard.h"
+#include "SimulatedThreesBoard.h"
 
 class ChanceNodeEdge {
 public:
-    ChanceNodeEdge(unsigned int newTileValue, ThreesBoard::BoardIndex newTileLocation);
+    ChanceNodeEdge(unsigned int newTileValue, SimulatedThreesBoard::BoardIndex newTileLocation);
     
     unsigned int newTileValue;
-    ThreesBoard::BoardIndex newTileLocation;
+    SimulatedThreesBoard::BoardIndex newTileLocation;
     
 };
 

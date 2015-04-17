@@ -10,7 +10,7 @@
 
 using namespace std;
 
-ChanceNodeEdge::ChanceNodeEdge(unsigned int newTileValue, ThreesBoard::BoardIndex newTileLocation) :
+ChanceNodeEdge::ChanceNodeEdge(unsigned int newTileValue, SimulatedThreesBoard::BoardIndex newTileLocation) :
 newTileValue(newTileValue),
 newTileLocation(newTileLocation) {
     

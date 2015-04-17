@@ -14,7 +14,7 @@
 
 #include "Logging.h"
 
-#include "ThreesBoard.h"
+#include "SimulatedThreesBoard.h"
 #include "RandomAI.h"
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
@@ -33,7 +33,7 @@ ostream& operator<<(ostream &os, const std::deque<T> d){
 }
 
 void playOneGame() {
-    unique_ptr<ThreesBoard> b(new ThreesBoard);
+    unique_ptr<SimulatedThreesBoard> b(new SimulatedThreesBoard);
     ExpectimaxAI ai(move(b));
     clock_t startTime = clock();
     while (!ai.board->isGameOver()) {
@@ -61,7 +61,7 @@ int main(int argc, const char * argv[]) {
     deque<unsigned int> turnsSurvived;
     for (int i=1; i <= 3; i++) {
         TileStack::randomGenerator.seed(i);
-        unique_ptr<ThreesBoard> b(new ThreesBoard);
+        unique_ptr<SimulatedThreesBoard> b(new SimulatedThreesBoard);
         ExpectimaxAI ai(move(b));
         ai.playGame();
         turnsSurvived.push_back(ai.board->numTurns);

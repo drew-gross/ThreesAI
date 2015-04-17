@@ -22,13 +22,13 @@
 #include "ThreesBoardBase.h"
 std::ostream& operator<<(std::ostream &os, Direction d);
 
-class ThreesBoard : public ThreesBoardBase {
+class SimulatedThreesBoard : public ThreesBoardBase {
 public:
-    ThreesBoard();
+    SimulatedThreesBoard();
     
     TileStack tileStack;
     
-    ThreesBoard simulatedCopy();
+    SimulatedThreesBoard simulatedCopy();
     
     bool isGameOver();
     unsigned int score() const;
@@ -41,7 +41,7 @@ public:
     
     void set(BoardIndex const& i, const unsigned int t);
     unsigned int at(BoardIndex const& i) const;
-    friend std::ostream& operator<<(std::ostream &os, ThreesBoard const& board);
+    friend std::ostream& operator<<(std::ostream &os, SimulatedThreesBoard const& board);
     unsigned int maxTile() const;
     std::vector<Direction> validMoves() const;
     bool isGameOver() const;
@@ -64,7 +64,7 @@ private:
     mutable unsigned int scoreCache;
 };
 
-std::ostream& operator<<(std::ostream &os, const ThreesBoard::BoardIndex e);
+std::ostream& operator<<(std::ostream &os, const SimulatedThreesBoard::BoardIndex e);
 std::ostream& operator<<(std::ostream &os, const ThreesBoardBase::ThreesBoardBase &e);
 
 #endif /* defined(__ThreesAI__ThreesBoard__) */

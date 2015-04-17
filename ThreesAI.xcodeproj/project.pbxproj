@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7944F88F1A732BC300ED690E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F88E1A732BC300ED690E /* main.cpp */; };
-		7944F8971A732C1200ED690E /* ThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F8951A732C1200ED690E /* ThreesBoard.cpp */; };
+		7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */; };
 		7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4421A883278000622BC /* ThreesAIBase.cpp */; };
 		7960E4471A88333B000622BC /* RandomAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4451A88333B000622BC /* RandomAI.cpp */; };
 		7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4DD1AA00CA70081BEC8 /* TileStack.cpp */; };
@@ -40,33 +40,33 @@
 /* Begin PBXFileReference section */
 		7927DD811A8068570049E9BB /* Logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		7944F88B1A732BC300ED690E /* ThreesAI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ThreesAI; sourceTree = BUILT_PRODUCTS_DIR; };
-		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		7944F8951A732C1200ED690E /* ThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreesBoard.cpp; sourceTree = "<group>"; };
-		7944F8961A732C1200ED690E /* ThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreesBoard.h; sourceTree = "<group>"; };
-		7960E4421A883278000622BC /* ThreesAIBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreesAIBase.cpp; sourceTree = "<group>"; };
-		7960E4431A883278000622BC /* ThreesAIBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreesAIBase.h; sourceTree = "<group>"; };
-		7960E4451A88333B000622BC /* RandomAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomAI.cpp; sourceTree = "<group>"; };
-		7960E4461A88333B000622BC /* RandomAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandomAI.h; sourceTree = "<group>"; };
+		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = SimulatedThreesBoard.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7944F8961A732C1200ED690E /* SimulatedThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SimulatedThreesBoard.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7960E4421A883278000622BC /* ThreesAIBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesAIBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7960E4431A883278000622BC /* ThreesAIBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesAIBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7960E4451A88333B000622BC /* RandomAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = RandomAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7960E4461A88333B000622BC /* RandomAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RandomAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7963F4DD1AA00CA70081BEC8 /* TileStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileStack.cpp; sourceTree = "<group>"; };
 		7963F4DE1AA00CA70081BEC8 /* TileStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileStack.h; sourceTree = "<group>"; };
 		7963F4E01AA01F7E0081BEC8 /* HumanAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HumanAI.cpp; sourceTree = "<group>"; };
 		7963F4E11AA01F7E0081BEC8 /* HumanAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HumanAI.h; sourceTree = "<group>"; };
-		7963F4E31AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExpextimaxChanceNode.cpp; sourceTree = "<group>"; };
-		7963F4E41AA0404F0081BEC8 /* ExpextimaxChanceNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpextimaxChanceNode.h; sourceTree = "<group>"; };
-		7963F4E71AA0408E0081BEC8 /* ExpectimaxNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExpectimaxNode.cpp; sourceTree = "<group>"; };
-		7963F4E81AA0408E0081BEC8 /* ExpectimaxNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpectimaxNode.h; sourceTree = "<group>"; };
-		7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExpectimaxMoveNode.cpp; sourceTree = "<group>"; };
-		7963F4EB1AA040E20081BEC8 /* ExpectimaxMoveNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpectimaxMoveNode.h; sourceTree = "<group>"; };
-		7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChanceNodeEdge.cpp; sourceTree = "<group>"; };
-		7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChanceNodeEdge.h; sourceTree = "<group>"; };
-		7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZeroDepthMaxScoreAI.cpp; sourceTree = "<group>"; };
-		7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZeroDepthMaxScoreAI.h; sourceTree = "<group>"; };
-		798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreesBoardBase.cpp; sourceTree = "<group>"; };
-		798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreesBoardBase.h; sourceTree = "<group>"; };
+		7963F4E31AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpextimaxChanceNode.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7963F4E41AA0404F0081BEC8 /* ExpextimaxChanceNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpextimaxChanceNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7963F4E71AA0408E0081BEC8 /* ExpectimaxNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxNode.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7963F4E81AA0408E0081BEC8 /* ExpectimaxNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxMoveNode.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7963F4EB1AA040E20081BEC8 /* ExpectimaxMoveNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxMoveNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ChanceNodeEdge.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ChanceNodeEdge.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ZeroDepthMaxScoreAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ZeroDepthMaxScoreAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesBoardBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesBoardBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		798A74451AE0BE920073DAB3 /* Direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Direction.cpp; sourceTree = "<group>"; };
 		798A74461AE0BE920073DAB3 /* Direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Direction.h; sourceTree = "<group>"; };
-		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExpectimaxAI.cpp; sourceTree = "<group>"; };
-		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpectimaxAI.h; sourceTree = "<group>"; };
+		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "arduino-serial-lib.cpp"; sourceTree = "<group>"; };
 		79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "arduino-serial-lib.h"; sourceTree = "<group>"; };
 		79F98BB61AA3E95A0043C8BC /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
@@ -144,8 +144,8 @@
 		798A74401AE0BE140073DAB3 /* ThreesBoard */ = {
 			isa = PBXGroup;
 			children = (
-				7944F8951A732C1200ED690E /* ThreesBoard.cpp */,
-				7944F8961A732C1200ED690E /* ThreesBoard.h */,
+				7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */,
+				7944F8961A732C1200ED690E /* SimulatedThreesBoard.h */,
 				798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */,
 				798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */,
 				798A74451AE0BE920073DAB3 /* Direction.cpp */,
@@ -223,7 +223,7 @@
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
-				7944F8971A732C1200ED690E /* ThreesBoard.cpp in Sources */,
+				7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */,
 				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,

@@ -21,7 +21,7 @@ public:
     InvalidMoveException() : logic_error("That move cannot be made"){};
 };
 
-class ThreesBoard;
+class SimulatedThreesBoard;
 
 class ThreesBoardBase {
 public:
@@ -36,7 +36,7 @@ public:
     virtual unsigned int score() const = 0;
     //Throws if move is invalid. Returns location and value of new tile if not.
     virtual std::pair<unsigned int, BoardIndex> move(Direction d) = 0;
-    virtual ThreesBoard simulatedCopy() = 0;
+    virtual SimulatedThreesBoard simulatedCopy() = 0;
     virtual unsigned int maxTile() const = 0;
     virtual unsigned int at(BoardIndex const& i) const = 0;
     

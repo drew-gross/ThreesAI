@@ -59,9 +59,9 @@ Direction ExpectimaxAI::playTurn() {
     Direction bestDirection = bestChild.first;
     shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(bestChild.second);
     
-    pair<unsigned int, ThreesBoard::BoardIndex> addedTileInfo = this->board->move(bestDirection);
+    pair<unsigned int, SimulatedThreesBoard::BoardIndex> addedTileInfo = this->board->move(bestDirection);
     unsigned int addedTileValue = addedTileInfo.first;
-    ThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
+    SimulatedThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
     
     shared_ptr<const ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation));
 

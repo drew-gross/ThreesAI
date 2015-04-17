@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //
 
-#include "ThreesBoard.h"
+#include "SimulatedThreesBoard.h"
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
@@ -22,7 +22,7 @@ public:
     InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
 };
 
-ThreesBoard::ThreesBoard() : ThreesBoardBase(), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
+SimulatedThreesBoard::SimulatedThreesBoard() : ThreesBoardBase(), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
     array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
     this->board = array<array<unsigned int, 4>, 4>();
@@ -31,22 +31,22 @@ ThreesBoard::ThreesBoard() : ThreesBoardBase(), isGameOverCache(false), isGameOv
     }
 }
 
-void ThreesBoard::set(BoardIndex const& p, const unsigned int t){
+void SimulatedThreesBoard::set(BoardIndex const& p, const unsigned int t){
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     
     this->board[p.second][p.first] = t;
 }
 
-unsigned int ThreesBoard::at(BoardIndex const& p) const {
+unsigned int SimulatedThreesBoard::at(BoardIndex const& p) const {
     return this->board[p.second][p.first];
 }
 
-ThreesBoard ThreesBoard::simulatedCopy() {
-    return ThreesBoard(*this);
+SimulatedThreesBoard SimulatedThreesBoard::simulatedCopy() {
+    return SimulatedThreesBoard(*this);
 }
 
-bool ThreesBoard::canMerge(BoardIndex const& target, BoardIndex const& here) const {
+bool SimulatedThreesBoard::canMerge(BoardIndex const& target, BoardIndex const& here) const {
     if (this->at(here) == 0) {
         return false;
     }
@@ -62,7 +62,7 @@ bool ThreesBoard::canMerge(BoardIndex const& target, BoardIndex const& here) con
     return false;
 }
 
-bool ThreesBoard::tryMerge(BoardIndex const& target, BoardIndex const& other) {
+bool SimulatedThreesBoard::tryMerge(BoardIndex const& target, BoardIndex const& other) {
     if (this->canMerge(target, other)) {
         this->set(target, this->at(target) + this->at(other));
         this->set(other, 0);
@@ -75,7 +75,7 @@ bool ThreesBoard::tryMerge(BoardIndex const& target, BoardIndex const& other) {
     }
 }
 
-bool ThreesBoard::canMove(Direction d) const {
+bool SimulatedThreesBoard::canMove(Direction d) const {
     switch (d) {
         case UP:
             for (unsigned i = 0; i < 4; i++) {
@@ -136,7 +136,7 @@ bool ThreesBoard::canMove(Direction d) const {
     return false;
 }
 
-bool ThreesBoard::moveWithoutAdd(Direction d) {
+bool SimulatedThreesBoard::moveWithoutAdd(Direction d) {
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     
@@ -179,7 +179,7 @@ bool ThreesBoard::moveWithoutAdd(Direction d) {
     return successfulMerge;
 }
 
-pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
+pair<unsigned int, SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::move(Direction d) {
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     
@@ -189,7 +189,7 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::move(Direction d) {
     throw InvalidMoveException();
 }
 
-unsigned int ThreesBoard::maxTile() const {
+unsigned int SimulatedThreesBoard::maxTile() const {
     unsigned int maxTile = 0;
     for (array<unsigned int, 4> const& row : this->board) {
         maxTile = max(maxTile, *max_element(row.begin(), row.end()));
@@ -197,7 +197,7 @@ unsigned int ThreesBoard::maxTile() const {
     return maxTile;
 }
 
-vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction movedDirection) const {
+vector<SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::validIndicesForNewTile(Direction movedDirection) const {
     array<BoardIndex, 4> indicies;
     switch (movedDirection) {
         case LEFT:
@@ -215,14 +215,14 @@ vector<ThreesBoard::BoardIndex> ThreesBoard::validIndicesForNewTile(Direction mo
         default:
             break;
     }
-    auto endIterator = remove_if(indicies.begin(), indicies.end(), [this](ThreesBoard::BoardIndex tile) {
+    auto endIterator = remove_if(indicies.begin(), indicies.end(), [this](SimulatedThreesBoard::BoardIndex tile) {
         return this->at(tile) != 0;
     });
-    vector<ThreesBoard::BoardIndex> result(indicies.begin(), endIterator);
+    vector<SimulatedThreesBoard::BoardIndex> result(indicies.begin(), endIterator);
     return result;
 }
 
-pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
+pair<unsigned int, SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::addTile(Direction d) {
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     
@@ -233,14 +233,14 @@ pair<unsigned int, ThreesBoard::BoardIndex> ThreesBoard::addTile(Direction d) {
     return {nextTileValue, *indices.begin()};
 }
 
-unsigned int ThreesBoard::score() const {
+unsigned int SimulatedThreesBoard::score() const {
     if (this->scoreCacheIsValid) {
         return this->scoreCache;
     } else {
         unsigned int result = 0;
         for (auto&& row : this->board) {
             for (auto&& tile : row) {
-                result += ThreesBoard::tileScore(tile);
+                result += SimulatedThreesBoard::tileScore(tile);
             }
         }
         this->scoreCacheIsValid = true;
@@ -249,7 +249,7 @@ unsigned int ThreesBoard::score() const {
     }
 }
 
-unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
+unsigned int SimulatedThreesBoard::tileScore(unsigned int tileValue) {
     switch (tileValue) {
         case 0: return 0;
         case 1: return 0;
@@ -265,7 +265,7 @@ unsigned int ThreesBoard::tileScore(unsigned int tileValue) {
     }
 }
 
-vector<Direction> ThreesBoard::validMoves() const {
+vector<Direction> SimulatedThreesBoard::validMoves() const {
     vector<Direction> result;
     result.reserve(4);
     if (this->canMove(DOWN)) {
@@ -283,7 +283,7 @@ vector<Direction> ThreesBoard::validMoves() const {
     return result;
 }
 
-bool ThreesBoard::isGameOver() const {
+bool SimulatedThreesBoard::isGameOver() const {
     if (!this->isGameOverCacheIsValid) {
         this->isGameOverCache = this->validMoves().empty();
         this->isGameOverCacheIsValid = true;
@@ -291,7 +291,7 @@ bool ThreesBoard::isGameOver() const {
     return this->isGameOverCache;
 }
 
-deque<unsigned int> ThreesBoard::nextTileHint() const {
+deque<unsigned int> SimulatedThreesBoard::nextTileHint() const {
     return this->tileStack.nextTileHint(this->maxTile());
 }
 
@@ -313,7 +313,7 @@ ostream& operator<<(ostream &os, Direction d){
     return os;
 }
 
-ostream& operator<<(ostream &os, const ThreesBoard::BoardIndex i){
+ostream& operator<<(ostream &os, const SimulatedThreesBoard::BoardIndex i){
     os << "{" << i.first << ", " << i.second << "}";
     return os;
 }

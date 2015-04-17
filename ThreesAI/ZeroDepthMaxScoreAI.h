@@ -10,11 +10,12 @@
 #define __ThreesAI__ZeroDepthMaxScoreAI__
 
 #include "ThreesAIBase.h"
+#include "SimulatedThreesBoard.h"
 
 class ZeroDepthMaxScoreAI : public ThreesAIBase {
     
 public:
-    ZeroDepthMaxScoreAI(std::unique_ptr<ThreesBoard> board);
+    ZeroDepthMaxScoreAI(std::unique_ptr<SimulatedThreesBoard> board);
     
     Direction playTurn();
 };

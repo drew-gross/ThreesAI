@@ -15,7 +15,7 @@
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(ThreesBoard const& board, Direction d, unsigned int depth) : ExpectimaxNode<ChanceNodeEdge>(board, depth), directionMovedToGetHere(d){
+ExpectimaxChanceNode::ExpectimaxChanceNode(SimulatedThreesBoard const& board, Direction d, unsigned int depth) : ExpectimaxNode<ChanceNodeEdge>(board, depth), directionMovedToGetHere(d){
 }
 
 shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge const& t) const {
@@ -45,7 +45,7 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     
     for (auto&& nextTile : possibleNextTiles) {
         for (auto&& boardIndex : possibleNextLocations) {
-            ThreesBoard childBoard = this->board;
+            SimulatedThreesBoard childBoard = this->board;
             childBoard.set(boardIndex, nextTile.first);
             shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
             

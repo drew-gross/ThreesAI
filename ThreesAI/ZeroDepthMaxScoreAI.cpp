@@ -7,11 +7,11 @@
 //
 
 #include "ZeroDepthMaxScoreAI.h"
-#include "ThreesBoard.h"
+#include "SimulatedThreesBoard.h"
 
 using namespace std;
 
-ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(unique_ptr<ThreesBoard> board) : ThreesAIBase(move(board)) {
+ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(unique_ptr<SimulatedThreesBoard> board) : ThreesAIBase(move(board)) {
     
 }
 
@@ -19,7 +19,7 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
     vector<pair<Direction, unsigned int>> scoresForMoves;
     
     try {
-        ThreesBoard leftBoard(this->board->simulatedCopy());
+        SimulatedThreesBoard leftBoard(this->board->simulatedCopy());
         leftBoard.move(LEFT);
         scoresForMoves.push_back({LEFT, leftBoard.score()});
     } catch (InvalidMoveException) {
@@ -27,7 +27,7 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
     }
     
     try {
-        ThreesBoard rightBoard(this->board->simulatedCopy());
+        SimulatedThreesBoard rightBoard(this->board->simulatedCopy());
         rightBoard.move(RIGHT);
         scoresForMoves.push_back({RIGHT, rightBoard.score()});
     } catch (InvalidMoveException &e) {
@@ -35,7 +35,7 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
     }
     
     try {
-        ThreesBoard upBoard(this->board->simulatedCopy());
+        SimulatedThreesBoard upBoard(this->board->simulatedCopy());
         upBoard.move(UP);
         scoresForMoves.push_back({UP, upBoard.score()});
     } catch (InvalidMoveException &e) {
@@ -43,7 +43,7 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
     }
     
     try {
-        ThreesBoard downBoard(this->board->simulatedCopy());
+        SimulatedThreesBoard downBoard(this->board->simulatedCopy());
         downBoard.move(DOWN);
         scoresForMoves.push_back({DOWN, downBoard.score()});
     } catch (InvalidMoveException &e) {
