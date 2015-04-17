@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include "arduino-serial-lib.h"
+
 #include "Logging.h"
 
 #include "ThreesBoard.h"
@@ -42,7 +44,15 @@ void playOneGame() {
     MYLOG(elapsed_time);
 }
 
+void send_byte(){
+    int fd = -1;
+    fd = serialport_init("/dev/tty.usbmodem1411", 9600);
+    serialport_flush(fd);
+    serialport_write(fd, "b\n");
+}
+
 int main(int argc, const char * argv[]) {
+    send_byte();
     deque<unsigned int> turnsSurvived;
     for (int i=1; i <= 10; i++) {
         TileStack::randomGenerator.seed(i);

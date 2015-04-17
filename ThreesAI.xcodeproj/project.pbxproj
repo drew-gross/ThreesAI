@@ -19,6 +19,7 @@
 		7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */; };
 		7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
+		79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
 /* End PBXBuildFile section */
 
@@ -60,6 +61,8 @@
 		7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZeroDepthMaxScoreAI.h; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExpectimaxAI.cpp; sourceTree = "<group>"; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExpectimaxAI.h; sourceTree = "<group>"; };
+		79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "arduino-serial-lib.cpp"; sourceTree = "<group>"; };
+		79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "arduino-serial-lib.h"; sourceTree = "<group>"; };
 		79F98BB61AA3E95A0043C8BC /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
 		79F98BB71AA3E95B0043C8BC /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -94,6 +97,7 @@
 		7944F88D1A732BC300ED690E /* ThreesAI */ = {
 			isa = PBXGroup;
 			children = (
+				79D4AE0E1ADF999500DC5DFC /* LibSerial */,
 				7963F4E61AA0405E0081BEC8 /* ExpectimaxAI */,
 				7944F88E1A732BC300ED690E /* main.cpp */,
 				7963F4E01AA01F7E0081BEC8 /* HumanAI.cpp */,
@@ -130,6 +134,15 @@
 				7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */,
 			);
 			name = ExpectimaxAI;
+			sourceTree = "<group>";
+		};
+		79D4AE0E1ADF999500DC5DFC /* LibSerial */ = {
+			isa = PBXGroup;
+			children = (
+				79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */,
+				79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */,
+			);
+			name = LibSerial;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -194,6 +207,7 @@
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
 				7944F8971A732C1200ED690E /* ThreesBoard.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
+				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
 				7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
