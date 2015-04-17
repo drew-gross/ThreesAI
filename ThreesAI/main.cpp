@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include <memory>
+
 #include "arduino-serial-lib.h"
 
 #include "Logging.h"
@@ -31,8 +33,8 @@ ostream& operator<<(ostream &os, const std::deque<T> d){
 }
 
 void playOneGame() {
-    ThreesBoard b;
-    ExpectimaxAI ai(&b);
+    unique_ptr<ThreesBoard> b(new ThreesBoard);
+    ExpectimaxAI ai(move(b));
     clock_t startTime = clock();
     while (!ai.board->isGameOver()) {
         cout << &ai.board << endl;
@@ -48,21 +50,23 @@ void playOneGame() {
 void send_byte(){
     int fd = -1;
     fd = serialport_init("/dev/tty.usbmodem1411", 9600);
-    serialport_flush(fd);
-    serialport_write(fd, "b\n");
+    if (fd != -1) {
+        serialport_flush(fd);
+        serialport_write(fd, "b\n");
+    }
 }
 
 int main(int argc, const char * argv[]) {
-    send_byte();
+    //send_byte();
     deque<unsigned int> turnsSurvived;
-    for (int i=1; i <= 10; i++) {
+    for (int i=1; i <= 3; i++) {
         TileStack::randomGenerator.seed(i);
-        ThreesBoard b;
-        ExpectimaxAI ai(&b);
+        unique_ptr<ThreesBoard> b(new ThreesBoard);
+        ExpectimaxAI ai(move(b));
         ai.playGame();
         turnsSurvived.push_back(ai.board->numTurns);
         cout << "Seed: " << i << endl;
-        cout << &ai.board << endl;
+        cout << *ai.board.get() << endl;
     }
     MYLOG(turnsSurvived);
     return 0;

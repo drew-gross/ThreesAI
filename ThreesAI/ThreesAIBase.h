@@ -16,7 +16,7 @@
 
 class ThreesAIBase {
 public:
-    ThreesAIBase(ThreesBoardBase *board);
+    ThreesAIBase(std::unique_ptr<ThreesBoardBase>&& board);
     virtual Direction playTurn() = 0;
     void playGame();
     

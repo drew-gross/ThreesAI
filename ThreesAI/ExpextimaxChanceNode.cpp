@@ -80,7 +80,7 @@ void ExpectimaxChanceNode::outputDotEdges(float p) const {
     }
     cout << "\t" << long(this) << " [label=\"";
     cout << "Value=" << this->value() << endl;
-    cout << this->board << "\"";
+    cout << (ThreesBoardBase&)this->board << "\"";
     if (this->board.isGameOver()) {
         cout << ",style=filled,color=red";
     }

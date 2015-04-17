@@ -65,5 +65,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream &os, const ThreesBoard::BoardIndex e);
+std::ostream& operator<<(std::ostream &os, const ThreesBoardBase::ThreesBoardBase &e);
 
 #endif /* defined(__ThreesAI__ThreesBoard__) */

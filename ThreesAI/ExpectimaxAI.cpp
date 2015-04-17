@@ -15,7 +15,7 @@
 
 using namespace std;
 
-ExpectimaxAI::ExpectimaxAI(ThreesBoard *board) : ThreesAIBase(board), currentBoard(make_shared<ExpectimaxMoveNode>(this->board->simulatedCopy(), 0)) {
+ExpectimaxAI::ExpectimaxAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)), currentBoard(make_shared<ExpectimaxMoveNode>(this->board->simulatedCopy(), 0)) {
     this->unfilledChildren.push_back(this->currentBoard);
 }
 

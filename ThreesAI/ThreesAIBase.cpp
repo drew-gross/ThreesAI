@@ -8,8 +8,9 @@
 
 #include "ThreesAIBase.h"
 
-ThreesAIBase::ThreesAIBase(ThreesBoardBase *board) : board(board) {
+using namespace::std;
 
+ThreesAIBase::ThreesAIBase(unique_ptr<ThreesBoardBase>&& new_board) : board(move(new_board)) {
 }
 
 void ThreesAIBase::playGame() {

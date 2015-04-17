@@ -13,6 +13,7 @@
 #include <iomanip>
 
 #include "Debug.h"
+#include "ThreesBoardBase.h"
 
 using namespace std;
 
@@ -69,7 +70,7 @@ void ExpectimaxMoveNode::outputDotEdges(float p) const {
     cout << "\t" << long(this) << " [label=\"";
     cout << "Value=" << setprecision(7) << this->value() << endl;
     cout << "P=" << p << endl;
-    cout << this->board << "\"";
+    cout << (ThreesBoardBase&)this->board << "\"";
     if (this->board.isGameOver()) {
         cout << ",style=filled,color=red";
     }

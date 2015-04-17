@@ -37,8 +37,12 @@ public:
     //Throws if move is invalid. Returns location and value of new tile if not.
     virtual std::pair<unsigned int, BoardIndex> move(Direction d) = 0;
     virtual ThreesBoard simulatedCopy() = 0;
+    virtual unsigned int maxTile() const = 0;
+    virtual unsigned int at(BoardIndex const& i) const = 0;
     
     virtual std::deque<unsigned int> nextTileHint() const = 0;
 };
+
+std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board);
 
 #endif /* defined(__ThreesAI__ThreesBoardBase__) */

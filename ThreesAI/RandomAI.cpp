@@ -13,7 +13,7 @@
 
 using namespace std;
 
-RandomAI::RandomAI(ThreesBoardBase *board) : ThreesAIBase(board) {
+RandomAI::RandomAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {
     
 }
 

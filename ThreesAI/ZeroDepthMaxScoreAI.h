@@ -14,7 +14,7 @@
 class ZeroDepthMaxScoreAI : public ThreesAIBase {
     
 public:
-    ZeroDepthMaxScoreAI(ThreesBoardBase *board);
+    ZeroDepthMaxScoreAI(std::unique_ptr<ThreesBoard> board);
     
     Direction playTurn();
 };

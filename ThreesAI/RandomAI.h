@@ -9,11 +9,13 @@
 #ifndef __ThreesAI__RandomAI__
 #define __ThreesAI__RandomAI__
 
+#include <memory>
+
 #include "ThreesAIBase.h"
 
 class RandomAI : public ThreesAIBase {
 public:
-    RandomAI(ThreesBoardBase *board);
+    RandomAI(std::unique_ptr<ThreesBoardBase>&& board);
     Direction playTurn();
 
 private:
