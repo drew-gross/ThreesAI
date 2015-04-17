@@ -27,7 +27,7 @@ private:
     void fillInChild(unsigned int n=1);
     
 public:
-    ExpectimaxAI();
+    ExpectimaxAI(ThreesBoard *board);
     
     Direction playTurn();
     

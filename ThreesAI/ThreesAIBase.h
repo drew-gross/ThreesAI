@@ -9,15 +9,18 @@
 #ifndef __ThreesAI__ThreesAIBase__
 #define __ThreesAI__ThreesAIBase__
 
-#include "ThreesBoard.h"
+#include <memory>
+
+#include "ThreesBoardBase.h"
+#include "Direction.h"
 
 class ThreesAIBase {
 public:
-    ThreesAIBase();
+    ThreesAIBase(ThreesBoardBase *board);
     virtual Direction playTurn() = 0;
     void playGame();
     
-    ThreesBoard board;
+    std::unique_ptr<ThreesBoardBase> board;
 private:
 };
 

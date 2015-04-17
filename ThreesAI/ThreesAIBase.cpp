@@ -8,12 +8,12 @@
 
 #include "ThreesAIBase.h"
 
-ThreesAIBase::ThreesAIBase() {
-    this->board = ThreesBoard();
+ThreesAIBase::ThreesAIBase(ThreesBoardBase *board) : board(board) {
+
 }
 
 void ThreesAIBase::playGame() {
-    while (!this->board.isGameOver()) {
+    while (!this->board->isGameOver()) {
         this->playTurn();
     }
 }

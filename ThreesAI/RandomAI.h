@@ -13,7 +13,7 @@
 
 class RandomAI : public ThreesAIBase {
 public:
-    RandomAI();
+    RandomAI(ThreesBoardBase *board);
     Direction playTurn();
 
 private:

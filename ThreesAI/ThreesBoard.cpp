@@ -22,7 +22,7 @@ public:
     InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
 };
 
-ThreesBoard::ThreesBoard() : isGameOverCache(false), isGameOverCacheIsValid(false), numTurns(0), scoreCache(0), scoreCacheIsValid(false) {
+ThreesBoard::ThreesBoard() : ThreesBoardBase(), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
     array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
     this->board = array<array<unsigned int, 4>, 4>();
@@ -40,6 +40,10 @@ void ThreesBoard::set(BoardIndex const& p, const unsigned int t){
 
 unsigned int ThreesBoard::at(BoardIndex const& p) const {
     return this->board[p.second][p.first];
+}
+
+ThreesBoard ThreesBoard::simulatedCopy() {
+    return ThreesBoard(*this);
 }
 
 bool ThreesBoard::canMerge(BoardIndex const& target, BoardIndex const& here) const {

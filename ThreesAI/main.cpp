@@ -31,14 +31,15 @@ ostream& operator<<(ostream &os, const std::deque<T> d){
 }
 
 void playOneGame() {
-    ExpectimaxAI ai;
+    ThreesBoard b;
+    ExpectimaxAI ai(&b);
     clock_t startTime = clock();
-    while (!ai.board.isGameOver()) {
-        cout << ai.board << endl;
+    while (!ai.board->isGameOver()) {
+        cout << &ai.board << endl;
         Direction move = ai.playTurn();
         cout << move << endl << endl;
     }
-    cout << ai.board << endl;
+    cout << &ai.board << endl;
     clock_t endTime = clock();
     double elapsed_time = (endTime-startTime)/(double)CLOCKS_PER_SEC;
     MYLOG(elapsed_time);
@@ -56,13 +57,13 @@ int main(int argc, const char * argv[]) {
     deque<unsigned int> turnsSurvived;
     for (int i=1; i <= 10; i++) {
         TileStack::randomGenerator.seed(i);
-        ExpectimaxAI ai;
+        ThreesBoard b;
+        ExpectimaxAI ai(&b);
         ai.playGame();
-        turnsSurvived.push_back(ai.board.numTurns);
+        turnsSurvived.push_back(ai.board->numTurns);
         cout << "Seed: " << i << endl;
-        cout << ai.board << endl;
+        cout << &ai.board << endl;
     }
     MYLOG(turnsSurvived);
-    ExpectimaxAI ai;
     return 0;
 }

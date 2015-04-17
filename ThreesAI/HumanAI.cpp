@@ -13,31 +13,31 @@
 using namespace std;
 
 Direction HumanAI::playTurn() {
-    cout << board.score() << endl;
-    cout << board << endl;
+    cout << board->score() << endl;
+    cout << &board << endl;
     try {
         switch (getchar()) {
             case 'w':
-                board.move(UP);
-                cout << board;
+                board->move(UP);
+                cout << &board;
                 return UP;
                 break;
                 
             case 'a':
-                board.move(LEFT);
-                cout << board;
+                board->move(LEFT);
+                cout << &board;
                 return LEFT;
                 break;
                 
             case 's':
-                board.move(DOWN);
-                std::cout << board;
+                board->move(DOWN);
+                cout << &board;
                 return DOWN;
                 break;
                 
             case 'd':
-                board.move(RIGHT);
-                std::cout << board;
+                board->move(RIGHT);
+                cout << &board;
                 return RIGHT;
                 break;
                 

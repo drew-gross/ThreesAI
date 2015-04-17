@@ -19,28 +19,19 @@
 #include <unordered_map>
 
 #include "TileStack.h"
-
-typedef enum Direction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
-} Direction;
-
+#include "ThreesBoardBase.h"
 std::ostream& operator<<(std::ostream &os, Direction d);
 
-class InvalidMoveException : public std::logic_error {
-public:
-    InvalidMoveException() : logic_error("That move cannot be made"){};
-};
-
-class ThreesBoard {
+class ThreesBoard : public ThreesBoardBase {
 public:
     ThreesBoard();
     
-    typedef std::pair<unsigned int, unsigned int> BoardIndex;
-    
     TileStack tileStack;
+    
+    ThreesBoard simulatedCopy();
+    
+    bool isGameOver();
+    unsigned int score() const;
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     std::pair<unsigned int, BoardIndex> move(Direction d);
@@ -52,14 +43,12 @@ public:
     unsigned int at(BoardIndex const& i) const;
     friend std::ostream& operator<<(std::ostream &os, ThreesBoard const& board);
     unsigned int maxTile() const;
-    unsigned int score() const;
     std::vector<Direction> validMoves() const;
     bool isGameOver() const;
     std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
     std::deque<unsigned int> nextTileHint() const;
     
     static unsigned int tileScore(unsigned int tileValue);
-    unsigned int numTurns;
 
 private:
     //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
