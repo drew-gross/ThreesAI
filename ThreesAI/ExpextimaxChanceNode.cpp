@@ -38,7 +38,7 @@ float ExpectimaxChanceNode::value() const {
 }
 
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
-    auto possibleNextTiles = this->board.tileStack.possibleNextTiles(this->board.maxTile());
+    auto possibleNextTiles = this->board.possibleNextTiles();
     auto possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
     
     float locationProbability = 1.0f/possibleNextLocations.size();

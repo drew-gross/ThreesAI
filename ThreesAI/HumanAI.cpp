@@ -12,34 +12,36 @@
 
 using namespace std;
 
+HumanAI::HumanAI(std::unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {
+    
+}
+
+
 Direction HumanAI::playTurn() {
-    cout << board->score() << endl;
-    cout << &board << endl;
     try {
         switch (getchar()) {
             case 'w':
                 board->move(UP);
-                cout << &board;
                 return UP;
                 break;
                 
             case 'a':
                 board->move(LEFT);
-                cout << &board;
                 return LEFT;
                 break;
                 
             case 's':
                 board->move(DOWN);
-                cout << &board;
                 return DOWN;
                 break;
                 
             case 'd':
                 board->move(RIGHT);
-                cout << &board;
                 return RIGHT;
                 break;
+                
+            case '\n':
+                return this->playTurn();
                 
             default:
                 throw InvalidMoveException();

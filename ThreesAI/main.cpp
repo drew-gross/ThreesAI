@@ -10,8 +10,6 @@
 
 #include <memory>
 
-#include "arduino-serial-lib.h"
-
 #include "Logging.h"
 
 #include "SimulatedThreesBoard.h"
@@ -19,6 +17,7 @@
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
 #include "HumanAI.h"
+#include "RealThreesBoard.h"
 
 using namespace std;
 
@@ -47,26 +46,15 @@ void playOneGame() {
     MYLOG(elapsed_time);
 }
 
-void send_byte(){
-    int fd = -1;
-    fd = serialport_init("/dev/tty.usbmodem1411", 9600);
-    if (fd != -1) {
-        serialport_flush(fd);
-        serialport_write(fd, "b\n");
-    }
-}
-
 int main(int argc, const char * argv[]) {
-    //send_byte();
     deque<unsigned int> turnsSurvived;
-    for (int i=1; i <= 3; i++) {
-        TileStack::randomGenerator.seed(i);
-        unique_ptr<SimulatedThreesBoard> b(new SimulatedThreesBoard);
-        ExpectimaxAI ai(move(b));
+    for (int seed=1; seed <= 3; seed++) {
+        TileStack::randomGenerator.seed(seed);
+        unique_ptr<ThreesBoardBase> b(new RealThreesBoard("/dev/tty.usbmodem1411"));
+        HumanAI ai(move(b));
         ai.playGame();
         turnsSurvived.push_back(ai.board->numTurns);
-        cout << "Seed: " << i << endl;
-        cout << *ai.board.get() << endl;
+        MYLOG(seed);
     }
     MYLOG(turnsSurvived);
     return 0;

@@ -22,7 +22,7 @@ public:
     InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
 };
 
-SimulatedThreesBoard::SimulatedThreesBoard() : ThreesBoardBase(), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
+SimulatedThreesBoard::SimulatedThreesBoard() : ThreesBoardBase() {
     array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
     this->board = array<array<unsigned int, 4>, 4>();
@@ -38,28 +38,8 @@ void SimulatedThreesBoard::set(BoardIndex const& p, const unsigned int t){
     this->board[p.second][p.first] = t;
 }
 
-unsigned int SimulatedThreesBoard::at(BoardIndex const& p) const {
-    return this->board[p.second][p.first];
-}
-
-SimulatedThreesBoard SimulatedThreesBoard::simulatedCopy() {
+SimulatedThreesBoard SimulatedThreesBoard::simulatedCopy() const {
     return SimulatedThreesBoard(*this);
-}
-
-bool SimulatedThreesBoard::canMerge(BoardIndex const& target, BoardIndex const& here) const {
-    if (this->at(here) == 0) {
-        return false;
-    }
-    if (this->at(target) == 0 and this->at(here) != 0) {
-        return true;
-    }
-    if (this->at(target) == this->at(here) && this->at(target) != 1 && this->at(target) != 2) {
-        return true;
-    }
-    if ((this->at(target) == 1 and this->at(here) == 2) or (this->at(target) == 2 and this->at(here) == 1)) {
-        return true;
-    }
-    return false;
 }
 
 bool SimulatedThreesBoard::tryMerge(BoardIndex const& target, BoardIndex const& other) {
@@ -73,67 +53,6 @@ bool SimulatedThreesBoard::tryMerge(BoardIndex const& target, BoardIndex const& 
     } else {
         return false;
     }
-}
-
-bool SimulatedThreesBoard::canMove(Direction d) const {
-    switch (d) {
-        case UP:
-            for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({i, 0}, {i, 1})) {
-                    return true;
-                }
-                if (this->canMerge({i, 1}, {i, 2})) {
-                    return true;
-                }
-                if (this->canMerge({i, 2}, {i, 3})) {
-                    return true;
-                }
-            }
-            break;
-        case DOWN:
-            for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({i, 3}, {i, 2})) {
-                    return true;
-                }
-                if (this->canMerge({i, 2}, {i, 1})) {
-                    return true;
-                }
-                if (this->canMerge({i, 1}, {i, 0})) {
-                    return true;
-                }
-            }
-            break;
-        case LEFT:
-            for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({0, i}, {1, i})) {
-                    return true;
-                }
-                if (this->canMerge({1, i}, {2, i})) {
-                    return true;
-                }
-                if (this->canMerge({2, i}, {3, i})) {
-                    return true;
-                }
-            }
-            break;
-        case RIGHT:
-            for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({3, i}, {2, i})) {
-                    return true;
-                }
-                if (this->canMerge({2, i}, {1, i})) {
-                    return true;
-                }
-                if (this->canMerge({1, i}, {0, i})) {
-                    return true;
-                }
-            }
-            break;
-            
-        default:
-            break;
-    }
-    return false;
 }
 
 bool SimulatedThreesBoard::moveWithoutAdd(Direction d) {
@@ -189,12 +108,8 @@ pair<unsigned int, SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::move(
     throw InvalidMoveException();
 }
 
-unsigned int SimulatedThreesBoard::maxTile() const {
-    unsigned int maxTile = 0;
-    for (array<unsigned int, 4> const& row : this->board) {
-        maxTile = max(maxTile, *max_element(row.begin(), row.end()));
-    }
-    return maxTile;
+deque<unsigned int> SimulatedThreesBoard::nextTileHint() const {
+    return this->tileStack.nextTileHint(this->maxTile());
 }
 
 vector<SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::validIndicesForNewTile(Direction movedDirection) const {
@@ -231,68 +146,6 @@ pair<unsigned int, SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::addTi
     unsigned int nextTileValue = this->tileStack.getNextTile(this->maxTile());
     this->set(*indices.begin(), nextTileValue);
     return {nextTileValue, *indices.begin()};
-}
-
-unsigned int SimulatedThreesBoard::score() const {
-    if (this->scoreCacheIsValid) {
-        return this->scoreCache;
-    } else {
-        unsigned int result = 0;
-        for (auto&& row : this->board) {
-            for (auto&& tile : row) {
-                result += SimulatedThreesBoard::tileScore(tile);
-            }
-        }
-        this->scoreCacheIsValid = true;
-        this->scoreCache = result;
-        return result;
-    }
-}
-
-unsigned int SimulatedThreesBoard::tileScore(unsigned int tileValue) {
-    switch (tileValue) {
-        case 0: return 0;
-        case 1: return 0;
-        case 2: return 0;
-        default:
-            unsigned int result = 3;
-            tileValue /= 3;
-            while (tileValue > 1) {
-                result *= 3;
-                tileValue /= 2;
-            }
-            return result;
-    }
-}
-
-vector<Direction> SimulatedThreesBoard::validMoves() const {
-    vector<Direction> result;
-    result.reserve(4);
-    if (this->canMove(DOWN)) {
-        result.push_back(DOWN);
-    }
-    if (this->canMove(UP)) {
-        result.push_back(UP);
-    }
-    if (this->canMove(LEFT)) {
-        result.push_back(LEFT);
-    }
-    if (this->canMove(RIGHT)) {
-        result.push_back(RIGHT);
-    }
-    return result;
-}
-
-bool SimulatedThreesBoard::isGameOver() const {
-    if (!this->isGameOverCacheIsValid) {
-        this->isGameOverCache = this->validMoves().empty();
-        this->isGameOverCacheIsValid = true;
-    }
-    return this->isGameOverCache;
-}
-
-deque<unsigned int> SimulatedThreesBoard::nextTileHint() const {
-    return this->tileStack.nextTileHint(this->maxTile());
 }
 
 ostream& operator<<(ostream &os, Direction d){

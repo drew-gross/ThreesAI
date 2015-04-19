@@ -13,6 +13,7 @@
 
 class HumanAI : public ThreesAIBase {
 public:
+    HumanAI(std::unique_ptr<ThreesBoardBase>&& board);
     Direction playTurn();
 };
 

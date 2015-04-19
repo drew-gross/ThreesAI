@@ -20,6 +20,7 @@
 		7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */; };
 		798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */; };
 		798A74471AE0BE920073DAB3 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74451AE0BE920073DAB3 /* Direction.cpp */; };
+		79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
@@ -65,6 +66,8 @@
 		798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesBoardBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		798A74451AE0BE920073DAB3 /* Direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Direction.cpp; sourceTree = "<group>"; };
 		798A74461AE0BE920073DAB3 /* Direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Direction.h; sourceTree = "<group>"; };
+		79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RealThreesBoard.cpp; sourceTree = "<group>"; };
+		79CAF8EB1AE1E69300477988 /* RealThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RealThreesBoard.h; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "arduino-serial-lib.cpp"; sourceTree = "<group>"; };
@@ -150,6 +153,8 @@
 				798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */,
 				798A74451AE0BE920073DAB3 /* Direction.cpp */,
 				798A74461AE0BE920073DAB3 /* Direction.h */,
+				79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */,
+				79CAF8EB1AE1E69300477988 /* RealThreesBoard.h */,
 			);
 			name = ThreesBoard;
 			sourceTree = "<group>";
@@ -222,6 +227,7 @@
 				7960E4471A88333B000622BC /* RandomAI.cpp in Sources */,
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
+				79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
 				7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */,
 				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,

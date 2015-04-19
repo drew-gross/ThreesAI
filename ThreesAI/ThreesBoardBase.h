@@ -11,10 +11,12 @@
 
 #include <stdio.h>
 
+#include <array>
 #include <vector>
 #include <deque>
 
 #include "Direction.h"
+#include "TileStack.h"
 
 class InvalidMoveException : public std::logic_error {
 public:
@@ -29,18 +31,37 @@ public:
     
     ThreesBoardBase();
     
-    unsigned int numTurns;
+    bool isGameOver() const;
+    unsigned int score() const;
+    std::vector<Direction> validMoves() const;
+    std::deque<std::pair<unsigned int, float>> possibleNextTiles() const;
     
-    virtual bool isGameOver() const = 0;
-    virtual std::vector<Direction> validMoves() const = 0;
-    virtual unsigned int score() const = 0;
+    static unsigned int tileScore(unsigned int tileValue);
+    
     //Throws if move is invalid. Returns location and value of new tile if not.
     virtual std::pair<unsigned int, BoardIndex> move(Direction d) = 0;
-    virtual SimulatedThreesBoard simulatedCopy() = 0;
-    virtual unsigned int maxTile() const = 0;
-    virtual unsigned int at(BoardIndex const& i) const = 0;
-    
+    virtual SimulatedThreesBoard simulatedCopy() const = 0;
     virtual std::deque<unsigned int> nextTileHint() const = 0;
+    
+    unsigned int numTurns;
+    
+protected:
+    bool canMove(Direction d) const;
+    bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
+    
+    std::array<std::array<unsigned int, 4>, 4> board;
+    unsigned int at(BoardIndex const& i) const;
+    unsigned int maxTile() const;
+    
+    TileStack tileStack;
+    
+    mutable bool isGameOverCache;
+    mutable bool isGameOverCacheIsValid;
+    
+    mutable bool scoreCacheIsValid;
+    mutable unsigned int scoreCache;
+    
+    friend std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board);
 };
 
 std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board);

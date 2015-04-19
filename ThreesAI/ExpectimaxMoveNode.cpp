@@ -65,7 +65,7 @@ std::shared_ptr<const ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction co
 
 void ExpectimaxMoveNode::outputDotEdges(float p) const {
     for (auto&& child : this->children) {
-        std::cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
+        cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
     }
     cout << "\t" << long(this) << " [label=\"";
     cout << "Value=" << setprecision(7) << this->value() << endl;
