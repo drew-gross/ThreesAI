@@ -18,6 +18,7 @@
 		7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */; };
 		7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */; };
 		7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */; };
+		7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
 		798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */; };
 		798A74471AE0BE920073DAB3 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74451AE0BE920073DAB3 /* Direction.cpp */; };
 		79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */; };
@@ -62,6 +63,7 @@
 		7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ChanceNodeEdge.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ZeroDepthMaxScoreAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ZeroDepthMaxScoreAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_highgui.2.4.11.dylib; sourceTree = "<group>"; };
 		798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesBoardBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesBoardBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		798A74451AE0BE920073DAB3 /* Direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Direction.cpp; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +93,7 @@
 		7944F8821A732BC300ED690E = {
 			isa = PBXGroup;
 			children = (
+				7967865B1AF0703B003DEF6C /* OpenCV */,
 				7944F88D1A732BC300ED690E /* ThreesAI */,
 				7944F88C1A732BC300ED690E /* Products */,
 			);
@@ -142,6 +146,14 @@
 				7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */,
 			);
 			name = ExpectimaxAI;
+			sourceTree = "<group>";
+		};
+		7967865B1AF0703B003DEF6C /* OpenCV */ = {
+			isa = PBXGroup;
+			children = (
+				7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */,
+			);
+			name = OpenCV;
 			sourceTree = "<group>";
 		};
 		798A74401AE0BE140073DAB3 /* ThreesBoard */ = {
@@ -324,6 +336,15 @@
 		7944F8931A732BC300ED690E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					"$(PROJECT_DIR)",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -331,6 +352,15 @@
 		7944F8941A732BC300ED690E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					"$(PROJECT_DIR)",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
