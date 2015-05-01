@@ -17,11 +17,18 @@
 
 using namespace std;
 
-RealThreesBoard::RealThreesBoard(string portName) {
+RealThreesBoard::RealThreesBoard(string portName) : watcher(0) {
     this->fd = serialport_init("/dev/tty.usbmodem1411", 9600);
     sleep(2);
     serialport_write(this->fd, "b");
     serialport_flush(this->fd);
+    
+    cv::namedWindow("board");
+    
+    this->watcher >> this->boardImage;
+    
+    imshow("capture", this->boardImage);
+    
 }
 
 RealThreesBoard::~RealThreesBoard() {

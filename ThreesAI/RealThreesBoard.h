@@ -10,6 +10,9 @@
 #define __ThreesAI__RealThreesBoard__
 
 #include <stdio.h>
+
+#include <opencv2/opencv.hpp>
+
 #include "ThreesBoardBase.h"
 
 
@@ -26,6 +29,9 @@ public:
     
     int fd;
 private:
+    cv::VideoCapture watcher;
+    cv::Mat boardImage;
+
 };
 
 #endif /* defined(__ThreesAI__RealThreesBoard__) */

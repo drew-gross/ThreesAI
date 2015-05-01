@@ -19,8 +19,6 @@
 #include "HumanAI.h"
 #include "RealThreesBoard.h"
 
-#include <opencv2/opencv.hpp>
-
 using namespace std;
 
 template <typename T>
@@ -49,17 +47,6 @@ void playOneGame() {
 }
 
 int main(int argc, const char * argv[]) {
-    cv::VideoCapture cap(0);
-    cv::namedWindow("capture");
-    
-    for (;;) {
-        cv::Mat frame;
-        cap >> frame;
-        imshow("capture", frame);
-    }
-    
-    
-    
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {
         TileStack::randomGenerator.seed(seed);
