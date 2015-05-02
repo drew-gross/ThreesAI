@@ -24,6 +24,7 @@
 		798A74471AE0BE920073DAB3 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74451AE0BE920073DAB3 /* Direction.cpp */; };
 		79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
+		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
 		79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
 /* End PBXBuildFile section */
@@ -74,6 +75,7 @@
 		79CAF8EB1AE1E69300477988 /* RealThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RealThreesBoard.h; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_imgproc.2.4.11.dylib; sourceTree = "<group>"; };
 		79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "arduino-serial-lib.cpp"; sourceTree = "<group>"; };
 		79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "arduino-serial-lib.h"; sourceTree = "<group>"; };
 		79F98BB61AA3E95A0043C8BC /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */,
+				79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */,
 				7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -154,6 +157,7 @@
 		7967865B1AF0703B003DEF6C /* OpenCV */ = {
 			isa = PBXGroup;
 			children = (
+				79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */,
 				7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */,
 				7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */,
 			);
@@ -349,7 +353,7 @@
 					/usr/local/lib,
 					"$(PROJECT_DIR)",
 				);
-				LLVM_LTO = YES;
+				LLVM_LTO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;

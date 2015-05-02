@@ -7,6 +7,7 @@
 //
 
 #include "Debug.h"
+#include "Logging.h"
 
 #include <unistd.h>
 
@@ -16,19 +17,44 @@
 #include "SimulatedThreesBoard.h"
 
 using namespace std;
+using namespace cv;
+
+const Point2f getpoint() {
+    Point2f p;
+    setMouseCallback("capture", [](int event, int x, int y, int flags, void* userdata){
+        Point2f *p = (Point2f*)userdata;
+        p->x = x;
+        p->y = y;
+    }, &p);
+    waitKey();
+    return p;
+}
 
 RealThreesBoard::RealThreesBoard(string portName) : watcher(0) {
+    
+    this->boardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/GameStartSample.png");
+    imshow("capture", this->boardImage);
+    const Point2f fromPoints[4] = {{341, 303},{313, 563},{623, 565},{603, 302}};
+    const Point2f toPoints[4] = {{0,0},{0,500},{500,500},{500,0}};
+    Mat transform = getPerspectiveTransform(fromPoints, toPoints);
+    
+    Mat warped;
+    
+    warpPerspective(this->boardImage, warped, transform, Size(500,500));
+    
+    MYLOG(fromPoints[0]);
+    MYLOG(fromPoints[1]);
+    MYLOG(fromPoints[2]);
+    MYLOG(fromPoints[3]);
+    
+    imshow("capture", warped);
+    //TODO this needs t go back before getting the first image
     this->fd = serialport_init("/dev/tty.usbmodem1411", 9600);
     sleep(2);
     serialport_write(this->fd, "b");
     serialport_flush(this->fd);
     
-    cv::namedWindow("board");
-    
     this->watcher >> this->boardImage;
-    
-    imshow("capture", this->boardImage);
-    
 }
 
 RealThreesBoard::~RealThreesBoard() {
