@@ -4,7 +4,7 @@
 //
 //  Created by Drew Gross on 4/17/15.
 //  Copyright (c) 2015 DrewGross. All rights reserved.
-//
+//2
 
 #include "Debug.h"
 #include "Logging.h"
@@ -35,19 +35,26 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) {
     this->boardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/GameStartSample.png");
     imshow("capture", this->boardImage);
     const Point2f fromPoints[4] = {{341, 303},{313, 563},{623, 565},{603, 302}};
-    const Point2f toPoints[4] = {{0,0},{0,500},{500,500},{500,0}};
+    const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
     Mat transform = getPerspectiveTransform(fromPoints, toPoints);
     
     Mat warped;
+    Mat greyWarped;
     
-    warpPerspective(this->boardImage, warped, transform, Size(500,500));
+    warpPerspective(this->boardImage, warped, transform, Size(800,800));
+    cvtColor(warped, greyWarped, CV_BGR2GRAY);
     
-    MYLOG(fromPoints[0]);
-    MYLOG(fromPoints[1]);
-    MYLOG(fromPoints[2]);
-    MYLOG(fromPoints[3]);
+    imshow("capture", greyWarped);
     
-    imshow("capture", warped);
+    SIFT sifter = SIFT();
+
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            Rect roi = Rect(200*i, 200*j, 200, 200);
+            imshow("sub_elem", greyWarped(roi));
+            waitKey();
+        }
+    }
     //TODO this needs t go back before getting the first image
     this->fd = serialport_init("/dev/tty.usbmodem1411", 9600);
     sleep(2);
