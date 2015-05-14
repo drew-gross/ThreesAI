@@ -31,7 +31,7 @@ const Point2f getpoint(const string& window) {
 }
 
 const vector<Mat> RealThreesBoard::loadSampleImages() {
-    Mat image123 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.");
+    Mat image123 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png");
     MYSHOW(image123);
     Mat t;
     
