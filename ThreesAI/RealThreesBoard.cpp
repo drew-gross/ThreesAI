@@ -31,19 +31,21 @@ const Point2f getpoint(const string& window) {
 }
 
 const vector<Mat> RealThreesBoard::loadSampleImages() {
-    Mat image123 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png");
-    MYSHOW(image123);
+    Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png");
     Mat t;
     
-//    const Point2f fromPoints[4] = {{341, 303},{313, 563},{623, 565},{603, 302}};
-    const Point2f fromPoints[4] = {getpoint("image123"),getpoint("image123"),getpoint("image123"),getpoint("image123")};
-    const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
+    const int L = 80;
+    const int R = 560;
+    const int T = 310;
+    const int B = 800;
+    
+    const Point2f fromPoints[4] = {{L,T},{L,B},{R,B},{R,T}};
+    const Point2f toPoints[4] = {{0,0},{0,600},{800,600},{800,0}};
     Mat transform = getPerspectiveTransform(fromPoints, toPoints);
-    warpPerspective(image123, t, transform, Size(800,800));
-        MYSHOW(t);
-    waitKey();
+    warpPerspective(image, t, transform, Size(800,600));
+    MYSHOW(t);
     debug();
-    cvtColor(image123, image123, CV_BGR2GRAY);
+    cvtColor(image, image, CV_BGR2GRAY);
     
     Mat pic1;
     Mat pic2;
@@ -53,13 +55,13 @@ const vector<Mat> RealThreesBoard::loadSampleImages() {
         for (unsigned char j = 0; j < 4; j++) {
             Rect roi = Rect(200*i+50, 200*j+50, 100, 100);
             if (i == 1 and j == 0) {
-                image123(roi).copyTo(pic1);
+                image(roi).copyTo(pic1);
             }
             if (i == 0 and j == 1) {
-                image123(roi).copyTo(pic2);
+                image(roi).copyTo(pic2);
             }
             if (i == 1 and j == 1) {
-                image123(roi).copyTo(pic3);
+                image(roi).copyTo(pic3);
             }
         }
     }
