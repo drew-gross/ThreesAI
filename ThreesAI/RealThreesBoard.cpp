@@ -19,9 +19,9 @@
 using namespace std;
 using namespace cv;
 
-const Point2f getpoint() {
+const Point2f getpoint(const string& window) {
     Point2f p;
-    setMouseCallback("capture", [](int event, int x, int y, int flags, void* userdata){
+    setMouseCallback(window, [](int event, int x, int y, int flags, void* userdata){
         Point2f *p = (Point2f*)userdata;
         p->x = x;
         p->y = y;
@@ -30,70 +30,122 @@ const Point2f getpoint() {
     return p;
 }
 
-RealThreesBoard::RealThreesBoard(string portName) : watcher(0) {
+const vector<Mat> RealThreesBoard::loadSampleImages() {
+    Mat image123 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.");
+    MYSHOW(image123);
+    Mat t;
     
-    this->boardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/GameStartSample.png");
-    const Point2f fromPoints[4] = {{341, 303},{313, 563},{623, 565},{603, 302}};
+//    const Point2f fromPoints[4] = {{341, 303},{313, 563},{623, 565},{603, 302}};
+    const Point2f fromPoints[4] = {getpoint("image123"),getpoint("image123"),getpoint("image123"),getpoint("image123")};
     const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
     Mat transform = getPerspectiveTransform(fromPoints, toPoints);
+    warpPerspective(image123, t, transform, Size(800,800));
+        MYSHOW(t);
+    waitKey();
+    debug();
+    cvtColor(image123, image123, CV_BGR2GRAY);
     
-    Mat warped;
+    Mat pic1;
+    Mat pic2;
+    Mat pic3;
+    
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            Rect roi = Rect(200*i+50, 200*j+50, 100, 100);
+            if (i == 1 and j == 0) {
+                image123(roi).copyTo(pic1);
+            }
+            if (i == 0 and j == 1) {
+                image123(roi).copyTo(pic2);
+            }
+            if (i == 1 and j == 1) {
+                image123(roi).copyTo(pic3);
+            }
+        }
+    }
+    
+    MYSHOW(pic1);
+    MYSHOW(pic2);
+    MYSHOW(pic3);
+    return {};
+}
+
+RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(loadSampleImages()) {
     Mat greyWarped;
-    
-    warpPerspective(this->boardImage, warped, transform, Size(800,800));
-    cvtColor(warped, greyWarped, CV_BGR2GRAY);
     
     SIFT sifter = SIFT();
     vector<KeyPoint> kp1;
     vector<KeyPoint> kp2;
     vector<KeyPoint> kp3;
+    Mat desc1;
+    Mat desc2;
+    Mat desc3;
     
-    Mat oneImage;
-    Mat twoImage;
-    Mat treImage;
-
+    vector<DMatch> matches1;
+    vector<DMatch> matches2;
+    vector<DMatch> matches3;
+    
+    Mat pic1,pic2,pic3;
+    
+    GaussianBlur(pic1, pic1, Size(5,5), 0);
+    GaussianBlur(pic2, pic2, Size(5,5), 0);
+    GaussianBlur(pic3, pic3, Size(5,5), 0);
+    
+    threshold(pic1, pic1, 96, 255, THRESH_BINARY);
+    threshold(pic2, pic2, 96, 255, THRESH_BINARY);
+    threshold(pic3, pic3, 96, 255, THRESH_BINARY);
+    
+    sifter.detect(pic1, kp1);
+    sifter.detect(pic2, kp2);
+    sifter.detect(pic3, kp3);
+    
+    sifter.compute(pic1, kp1, desc1);
+    sifter.compute(pic2, kp2, desc2);
+    sifter.compute(pic3, kp3, desc3);
+    
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
             Rect roi = Rect(200*i+50, 200*j+50, 100, 100);
-            if (i == 1 and j == 0) {
-                oneImage = greyWarped(roi);
-            }
-            if (i == 0 and j == 1) {
-                twoImage = greyWarped(roi);
-            }
-            if (i == 1 and j == 1) {
-                treImage = greyWarped(roi);
+            Mat target;
+            greyWarped(roi).copyTo(target);
+            
+            threshold(target, target, 110, 255, THRESH_BINARY);
+            
+            vector<KeyPoint> kp;
+            Mat desc;
+            sifter.detect(target, kp);
+            sifter.compute(target, kp, desc);
+            
+            FlannBasedMatcher matcher;
+            if (!desc.empty()) {
+                matcher.match(desc1, desc, matches1);
+                Mat matchImage1;
+                matcher.match(desc2, desc, matches2);
+                Mat matchImage2;
+                matcher.match(desc3, desc, matches3);
+                Mat matchImage3;
+                drawMatches(pic1, kp1, target, kp, matches1, matchImage1);
+                drawMatches(pic2, kp2, target, kp, matches2, matchImage2);
+                drawMatches(pic3, kp3, target, kp, matches3, matchImage3);
+                MYSHOW(matchImage1);
+                MYSHOW(matchImage2);
+                MYSHOW(matchImage3);
+                waitKey();
             }
         }
     }
     
-    Mat th1;
-    Mat th2;
-    Mat th3;
-    threshold(oneImage, th1, 96, 255, THRESH_BINARY_INV);
-    threshold(twoImage, th2, 96, 255, THRESH_BINARY_INV);
-    threshold(treImage, th3, 96, 255, THRESH_BINARY);
+    vector<vector<DMatch>> m = {matches1, matches2, matches3};
+
     
-    sifter(th1, Mat(), kp1, noArray());
-    sifter(twoImage, Mat(), kp2, noArray());
-    sifter(treImage, Mat(), kp3, noArray());
+    drawKeypoints(pic1, kp1, pic1);
+    drawKeypoints(pic2, kp2, pic2);
+    drawKeypoints(pic3, kp3, pic3);
     
-    Mat kp1i;
-    Mat kp2i;
-    Mat kp3i;
-    
-    Mat e = getStructuringElement(MORPH_ELLIPSE, Size(8,8));
-    
-    drawKeypoints(th1, kp1, kp1i);
-    drawKeypoints(th2, kp2, kp2i);
-    drawKeypoints(th3, kp3, kp3i);
-    
-    imshow("1", oneImage);
-    imshow("th1", kp1i);
-    imshow("2", twoImage);
-    imshow("th2", kp2i);
-    imshow("3", treImage);
-    imshow("th3", kp3i);
+    MYSHOW(pic1);
+    MYSHOW(pic2);
+    MYSHOW(pic3);
+    MYSHOW(greyWarped);
     
     //TODO this needs t go back before getting the first image
     this->fd = serialport_init("/dev/tty.usbmodem1411", 9600);

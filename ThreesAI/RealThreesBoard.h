@@ -33,6 +33,8 @@ private:
     cv::VideoCapture watcher;
     cv::Mat boardImage;
 
+    const std::vector<cv::Mat> sampleImages;
+    static const std::vector<cv::Mat> loadSampleImages();
 };
 
 #endif /* defined(__ThreesAI__RealThreesBoard__) */

@@ -28,6 +28,7 @@
 		79DC795C1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC795B1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib */; };
 		79DC795E1AF72917003655FF /* libopencv_features2d.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC795D1AF72917003655FF /* libopencv_features2d.2.4.11.dylib */; };
 		79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */; };
+		79EFBE351AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
 /* End PBXBuildFile section */
 
@@ -82,6 +83,7 @@
 		79DC795D1AF72917003655FF /* libopencv_features2d.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_features2d.2.4.11.dylib; sourceTree = "<group>"; };
 		79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "arduino-serial-lib.cpp"; sourceTree = "<group>"; };
 		79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "arduino-serial-lib.h"; sourceTree = "<group>"; };
+		79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_flann.2.4.11.dylib; sourceTree = "<group>"; };
 		79F98BB61AA3E95A0043C8BC /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
 		79F98BB71AA3E95B0043C8BC /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -91,6 +93,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79EFBE351AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib in Frameworks */,
 				79DC795C1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib in Frameworks */,
 				7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */,
 				79DC795E1AF72917003655FF /* libopencv_features2d.2.4.11.dylib in Frameworks */,
@@ -163,6 +166,7 @@
 		7967865B1AF0703B003DEF6C /* OpenCV */ = {
 			isa = PBXGroup;
 			children = (
+				79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */,
 				79DC795D1AF72917003655FF /* libopencv_features2d.2.4.11.dylib */,
 				79DC795B1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib */,
 				79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */,

@@ -10,5 +10,6 @@
 #define ThreesAI_Logging_h
 
 #define MYLOG(x) (std::cout << "Value of " << #x << " is: " << x << std::endl);
+#define MYSHOW(x) imshow(#x, x);
 
 #endif
