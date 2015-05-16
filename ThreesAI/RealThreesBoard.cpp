@@ -30,8 +30,28 @@ const Point2f getpoint(const string& window) {
     return p;
 }
 
+void imShowVector(vector<Mat> v) {
+    int totalWidth = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
+        return s + m.cols;
+    });
+    int maxHeight = std::max_element(v.begin(), v.end(), [](Mat first, Mat second){
+        return first.rows < second.rows;
+    })->rows;
+    
+    Mat combined(maxHeight, totalWidth, v[0].type());
+    
+    int widthSoFar = 0;
+    for (auto it = v.begin(); it != v.end(); it++) {
+        it->copyTo(combined(Rect(widthSoFar, 0, it->cols, it->rows)));
+        widthSoFar += it->cols;
+    }
+    
+    MYSHOW(combined);
+}
+
 const vector<Mat> RealThreesBoard::loadSampleImages() {
-    Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png");
+    //TODO: use another image for 1 and 2
+    Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat t;
     
     const int L = 80;
@@ -42,38 +62,29 @@ const vector<Mat> RealThreesBoard::loadSampleImages() {
     const Point2f fromPoints[4] = {{L,T},{L,B},{R,B},{R,T}};
     const Point2f toPoints[4] = {{0,0},{0,600},{800,600},{800,0}};
     Mat transform = getPerspectiveTransform(fromPoints, toPoints);
+    
     warpPerspective(image, t, transform, Size(800,600));
-    MYSHOW(t);
-    debug();
-    cvtColor(image, image, CV_BGR2GRAY);
     
-    Mat pic1;
-    Mat pic2;
-    Mat pic3;
+    vector<Mat> results;
     
-    for (unsigned char i = 0; i < 4; i++) {
+    for (unsigned char i = 0; i < 3; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            Rect roi = Rect(200*i+50, 200*j+50, 100, 100);
-            if (i == 1 and j == 0) {
-                image(roi).copyTo(pic1);
-            }
-            if (i == 0 and j == 1) {
-                image(roi).copyTo(pic2);
-            }
-            if (i == 1 and j == 1) {
-                image(roi).copyTo(pic3);
-            }
+            Mat tile;
+            Rect roi = Rect(200*j, 200*i, 200, 200);
+            t(roi).copyTo(tile);
+            results.push_back(tile);
         }
     }
     
-    MYSHOW(pic1);
-    MYSHOW(pic2);
-    MYSHOW(pic3);
-    return {};
+    results.pop_back(); //get rid of empty space where 6144 will eventually go
+    
+    imShowVector(results);
+    
+    return results;
 }
 
 RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(loadSampleImages()) {
-    Mat greyWarped;
+    Mat greyWarped = this->sampleImages[0];
     
     SIFT sifter = SIFT();
     vector<KeyPoint> kp1;
