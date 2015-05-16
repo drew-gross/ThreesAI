@@ -10,6 +10,7 @@
 #include "Logging.h"
 
 #include <unistd.h>
+#include <array>
 
 #include "arduino-serial-lib.h"
 
@@ -28,6 +29,11 @@ const Point2f getpoint(const string& window) {
     }, &p);
     waitKey();
     return p;
+}
+
+const array<Point2f, 4> getQuadrilateral(Mat m) {
+    imshow("get rect", m);
+    return array<Point2f, 4>{{getpoint("get rect"),getpoint("get rect"),getpoint("get rect"),getpoint("get rect")}};
 }
 
 void imShowVector(vector<Mat> v) {
@@ -50,9 +56,31 @@ void imShowVector(vector<Mat> v) {
 }
 
 const vector<Mat> RealThreesBoard::loadSampleImages() {
-    //TODO: use another image for 1 and 2
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat t;
+    
+    Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
+    Mat t2;
+    
+    vector<Mat> results;
+    
+    const int L12 = 80;
+    const int R12 = 200;
+    const int T12 = 310;
+    const int B12 = 630;
+    
+    const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
+    const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
+    warpPerspective(image12, t2, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
+    
+    Mat image1;
+    t2(Rect(0,0,200,200)).copyTo(image1);
+    
+    Mat image2;
+    t2(Rect(0,200,200,200)).copyTo(image2);
+    
+    results.push_back(image2);
+    results.push_back(image1);
     
     const int L = 80;
     const int R = 560;
@@ -65,16 +93,14 @@ const vector<Mat> RealThreesBoard::loadSampleImages() {
     
     warpPerspective(image, t, transform, Size(800,600));
     
-    vector<Mat> results;
-    
     for (unsigned char i = 0; i < 3; i++) {
         for (unsigned char j = 0; j < 4; j++) {
             Mat tile;
-            Rect roi = Rect(200*j, 200*i, 200, 200);
-            t(roi).copyTo(tile);
+            t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
             results.push_back(tile);
         }
     }
+    
     
     results.pop_back(); //get rid of empty space where 6144 will eventually go
     
