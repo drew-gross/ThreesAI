@@ -106,6 +106,8 @@ const vector<Mat> RealThreesBoard::loadSampleImages() {
     return results;
 }
 
+const array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
+
 RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(loadSampleImages()) {
     //Get descriptors
     SIFT sifter = SIFT();
@@ -129,7 +131,6 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(lo
     
     warpPerspective(cameraSample, sampleBoard, getPerspectiveTransform(fromPoints.data(), toPoints), Size(800,800));
     MYSHOW(sampleBoard);
-    waitKey();
     
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
@@ -143,6 +144,9 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(lo
             
             FlannBasedMatcher matcher;
             if (!currentTileDescriptors.empty()) {
+                vector<float> distances;
+                
+                
                 for (int i = 0; i < this->sampleDescriptors.size(); i++) {
                     auto sampleDescriptor = this->sampleDescriptors[i];
                     
@@ -156,16 +160,27 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(lo
                         return sum + d.distance;
                     })/float(matches.size());
                     
-                    MYLOG(averageDistance);
-                    
-                    waitKey();
+                    distances.push_back(averageDistance);
                 }
+                
+                float min = INFINITY;
+                int index = 0;
+                for (int i = 0; i < distances.size(); i++) {
+                    if (distances[i] < min) {
+                        min = distances[i];
+                        index = i;
+                    }
+                }
+                
+                this->board[j][i] = indexToTile[index];
             } else {
-                MYSHOW(currentTile);
-                waitKey();
+                //This is a blank tile, probably?
+                this->board[j][i] = 0;
             }
         }
     }
+    
+    MYLOG(*this);
     
     //TODO this needs to go back before getting the first image
     this->fd = serialport_init("/dev/tty.usbmodem1411", 9600);
