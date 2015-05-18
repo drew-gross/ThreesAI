@@ -101,92 +101,73 @@ const vector<Mat> RealThreesBoard::loadSampleImages() {
         }
     }
     
-    
-    results.pop_back(); //get rid of empty space where 6144 will eventually go
-    
     imShowVector(results);
     
     return results;
 }
 
 RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(loadSampleImages()) {
-    Mat greyWarped = this->sampleImages[0];
-    
+    //Get descriptors
     SIFT sifter = SIFT();
-    vector<KeyPoint> kp1;
-    vector<KeyPoint> kp2;
-    vector<KeyPoint> kp3;
-    Mat desc1;
-    Mat desc2;
-    Mat desc3;
     
-    vector<DMatch> matches1;
-    vector<DMatch> matches2;
-    vector<DMatch> matches3;
+    for (auto&& image : this->sampleImages) {
+        vector<KeyPoint> kp;
+        sifter.detect(image, kp);
+        this->sampleKeyPoints.emplace_back(kp);
+        
+        Mat descriptor;
+        sifter.compute(image, kp, descriptor);
+        this->sampleDescriptors.emplace_back(descriptor);
+    }
     
-    Mat pic1,pic2,pic3;
+    //Get photo of initial board
+    Mat cameraSample = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
+    Mat sampleBoard;
     
-    GaussianBlur(pic1, pic1, Size(5,5), 0);
-    GaussianBlur(pic2, pic2, Size(5,5), 0);
-    GaussianBlur(pic3, pic3, Size(5,5), 0);
+    auto fromPoints = getQuadrilateral(cameraSample);
+    const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
     
-    threshold(pic1, pic1, 96, 255, THRESH_BINARY);
-    threshold(pic2, pic2, 96, 255, THRESH_BINARY);
-    threshold(pic3, pic3, 96, 255, THRESH_BINARY);
-    
-    sifter.detect(pic1, kp1);
-    sifter.detect(pic2, kp2);
-    sifter.detect(pic3, kp3);
-    
-    sifter.compute(pic1, kp1, desc1);
-    sifter.compute(pic2, kp2, desc2);
-    sifter.compute(pic3, kp3, desc3);
+    warpPerspective(cameraSample, sampleBoard, getPerspectiveTransform(fromPoints.data(), toPoints), Size(800,800));
+    MYSHOW(sampleBoard);
+    waitKey();
     
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            Rect roi = Rect(200*i+50, 200*j+50, 100, 100);
-            Mat target;
-            greyWarped(roi).copyTo(target);
-            
-            threshold(target, target, 110, 255, THRESH_BINARY);
-            
-            vector<KeyPoint> kp;
-            Mat desc;
-            sifter.detect(target, kp);
-            sifter.compute(target, kp, desc);
+            Rect roi = Rect(200*i, 200*j, 200, 200);
+            const Mat currentTile = sampleBoard(roi);
+            vector<KeyPoint> currentTileKeypoints;
+            Mat currentTileDescriptors;
+
+            sifter.detect(currentTile, currentTileKeypoints);
+            sifter.compute(currentTile, currentTileKeypoints, currentTileDescriptors);
             
             FlannBasedMatcher matcher;
-            if (!desc.empty()) {
-                matcher.match(desc1, desc, matches1);
-                Mat matchImage1;
-                matcher.match(desc2, desc, matches2);
-                Mat matchImage2;
-                matcher.match(desc3, desc, matches3);
-                Mat matchImage3;
-                drawMatches(pic1, kp1, target, kp, matches1, matchImage1);
-                drawMatches(pic2, kp2, target, kp, matches2, matchImage2);
-                drawMatches(pic3, kp3, target, kp, matches3, matchImage3);
-                MYSHOW(matchImage1);
-                MYSHOW(matchImage2);
-                MYSHOW(matchImage3);
+            if (!currentTileDescriptors.empty()) {
+                for (int i = 0; i < this->sampleDescriptors.size(); i++) {
+                    auto sampleDescriptor = this->sampleDescriptors[i];
+                    
+                    vector<DMatch> matches;
+                    Mat out;
+                    matcher.match(sampleDescriptor, currentTileDescriptors, matches);
+                    drawMatches(this->sampleImages[i], this->sampleKeyPoints[i], currentTile, currentTileKeypoints, matches, out);
+                    MYSHOW(out);
+                    
+                    float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
+                        return sum + d.distance;
+                    })/float(matches.size());
+                    
+                    MYLOG(averageDistance);
+                    
+                    waitKey();
+                }
+            } else {
+                MYSHOW(currentTile);
                 waitKey();
             }
         }
     }
     
-    vector<vector<DMatch>> m = {matches1, matches2, matches3};
-
-    
-    drawKeypoints(pic1, kp1, pic1);
-    drawKeypoints(pic2, kp2, pic2);
-    drawKeypoints(pic3, kp3, pic3);
-    
-    MYSHOW(pic1);
-    MYSHOW(pic2);
-    MYSHOW(pic3);
-    MYSHOW(greyWarped);
-    
-    //TODO this needs t go back before getting the first image
+    //TODO this needs to go back before getting the first image
     this->fd = serialport_init("/dev/tty.usbmodem1411", 9600);
     sleep(2);
     serialport_write(this->fd, "b");

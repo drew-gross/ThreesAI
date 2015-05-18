@@ -34,6 +34,8 @@ private:
     cv::Mat boardImage;
 
     const std::vector<cv::Mat> sampleImages;
+    std::vector<std::vector<cv::KeyPoint>> sampleKeyPoints; //TOOD: make const
+    std::vector<cv::Mat> sampleDescriptors; //TODO: make const
     static const std::vector<cv::Mat> loadSampleImages();
 };
 
