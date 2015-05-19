@@ -16,6 +16,16 @@
 
 #include "ThreesBoardBase.h"
 
+class TileInfo {
+public:
+    TileInfo(cv::Mat image, int value);
+    
+    cv::Mat image;
+    std::vector<cv::KeyPoint> keypoints;
+    cv::Mat descriptors;
+    int value;
+};
+
 
 class RealThreesBoard : public ThreesBoardBase {
 public:
@@ -33,10 +43,8 @@ private:
     cv::VideoCapture watcher;
     cv::Mat boardImage;
 
-    const std::vector<cv::Mat> sampleImages;
-    std::vector<std::vector<cv::KeyPoint>> sampleKeyPoints; //TOOD: make const
-    std::vector<cv::Mat> sampleDescriptors; //TODO: make const
-    static const std::vector<cv::Mat> loadSampleImages();
+    const std::vector<TileInfo> canonicalTiles;
+    const std::vector<TileInfo> loadCanonicalTiles();
 };
 
 #endif /* defined(__ThreesAI__RealThreesBoard__) */

@@ -20,6 +20,14 @@
 using namespace std;
 using namespace cv;
 
+TileInfo::TileInfo(cv::Mat image, int value) {
+    this->image = image;
+    this->value = value;
+    SIFT sifter = SIFT();
+    sifter.detect(image, this->keypoints);
+    sifter.compute(image, this->keypoints, this->descriptors);
+}
+
 const Point2f getpoint(const string& window) {
     Point2f p;
     setMouseCallback(window, [](int event, int x, int y, int flags, void* userdata){
@@ -55,14 +63,14 @@ void imShowVector(vector<Mat> v) {
     MYSHOW(combined);
 }
 
-const vector<Mat> RealThreesBoard::loadSampleImages() {
+const vector<TileInfo> RealThreesBoard::loadCanonicalTiles() {
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat t;
     
     Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
     Mat t2;
     
-    vector<Mat> results;
+    vector<TileInfo> results;
     
     const int L12 = 80;
     const int R12 = 200;
@@ -79,8 +87,8 @@ const vector<Mat> RealThreesBoard::loadSampleImages() {
     Mat image2;
     t2(Rect(0,200,200,200)).copyTo(image2);
     
-    results.push_back(image2);
-    results.push_back(image1);
+    results.push_back(TileInfo(image2, 2));
+    results.push_back(TileInfo(image1, 1));
     
     const int L = 80;
     const int R = 560;
@@ -93,37 +101,28 @@ const vector<Mat> RealThreesBoard::loadSampleImages() {
     
     warpPerspective(image, t, transform, Size(800,600));
     
+    
+    const array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
+    
     for (unsigned char i = 0; i < 3; i++) {
         for (unsigned char j = 0; j < 4; j++) {
             Mat tile;
             t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
-            results.push_back(tile);
+            results.push_back(TileInfo(tile, indexToTile[results.size()]));
         }
     }
-    
-    imShowVector(results);
     
     return results;
 }
 
-const array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
 
-RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(loadSampleImages()) {
+RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(this->loadCanonicalTiles())
+{
     //Get descriptors
     SIFT sifter = SIFT();
     
-    for (auto&& image : this->sampleImages) {
-        vector<KeyPoint> kp;
-        sifter.detect(image, kp);
-        this->sampleKeyPoints.emplace_back(kp);
-        
-        Mat descriptor;
-        sifter.compute(image, kp, descriptor);
-        this->sampleDescriptors.emplace_back(descriptor);
-    }
-    
     //Get photo of initial board
-    Mat cameraSample = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
+    Mat cameraSample = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample.png", 0);
     Mat sampleBoard;
     
     auto fromPoints = getQuadrilateral(cameraSample);
@@ -146,33 +145,25 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , sampleImages(lo
             if (!currentTileDescriptors.empty()) {
                 vector<float> distances;
                 
+                float min = INFINITY;
+                const TileInfo *bestMatch = &this->canonicalTiles[0];
                 
-                for (int i = 0; i < this->sampleDescriptors.size(); i++) {
-                    auto sampleDescriptor = this->sampleDescriptors[i];
-                    
+                for (auto&& canonicalTile : this->canonicalTiles) {
                     vector<DMatch> matches;
-                    Mat out;
-                    matcher.match(sampleDescriptor, currentTileDescriptors, matches);
-                    drawMatches(this->sampleImages[i], this->sampleKeyPoints[i], currentTile, currentTileKeypoints, matches, out);
-                    MYSHOW(out);
+                    matcher.match(canonicalTile.descriptors, currentTileDescriptors, matches);
                     
                     float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
                         return sum + d.distance;
                     })/float(matches.size());
                     
-                    distances.push_back(averageDistance);
-                }
-                
-                float min = INFINITY;
-                int index = 0;
-                for (int i = 0; i < distances.size(); i++) {
-                    if (distances[i] < min) {
-                        min = distances[i];
-                        index = i;
+                    if (averageDistance < min) {
+                        min = averageDistance;
+                        bestMatch = &canonicalTile;
                     }
+                    
                 }
                 
-                this->board[j][i] = indexToTile[index];
+                this->board[j][i] = bestMatch->value;
             } else {
                 //This is a blank tile, probably?
                 this->board[j][i] = 0;
@@ -212,8 +203,6 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     }
     
     serialport_flush(fd);
-    
-    //debug();
     return {0,{0,0}};
 }
 
