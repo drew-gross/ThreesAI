@@ -51,7 +51,7 @@ int main(int argc, const char * argv[]) {
     for (int seed=1; seed <= 3; seed++) {
         TileStack::randomGenerator.seed(seed);
         unique_ptr<ThreesBoardBase> b(new RealThreesBoard("/dev/tty.usbmodem1411"));
-        HumanAI ai(move(b));
+        RandomAI ai(move(b));
         ai.playGame();
         turnsSurvived.push_back(ai.board->numTurns);
         MYLOG(seed);

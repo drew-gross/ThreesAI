@@ -41,6 +41,8 @@ public:
     int fd;
 private:
     cv::VideoCapture watcher;
+    
+    cv::Mat captureBoard();
     cv::Mat boardImage;
 
     const std::vector<TileInfo> canonicalTiles;

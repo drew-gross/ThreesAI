@@ -82,10 +82,10 @@ const vector<TileInfo> RealThreesBoard::loadCanonicalTiles() {
     warpPerspective(image12, t2, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
     
     Mat image1;
-    t2(Rect(0,0,200,200)).copyTo(image1);
+    t2(Rect(0,200,200,200)).copyTo(image1);
     
     Mat image2;
-    t2(Rect(0,200,200,200)).copyTo(image2);
+    t2(Rect(0,0,200,200)).copyTo(image2);
     
     results.push_back(TileInfo(image2, 2));
     results.push_back(TileInfo(image1, 1));
@@ -115,26 +115,76 @@ const vector<TileInfo> RealThreesBoard::loadCanonicalTiles() {
     return results;
 }
 
+vector<Point> findScreenContour(Mat image) {
+    Mat copy;
+    Mat copy2;
+    Canny(image, copy, 30, 200);
+    copy.copyTo(copy2);
+    vector<vector<Point>> contours;
+    findContours(copy2, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+    
+    sort(contours.begin(), contours.end(), [](vector<Point> &left, vector<Point> &right){
+        return contourArea(left) > contourArea(right);
+    });
+    
+    vector<Point> screenContour;
+    for (auto&& contour : contours) {
+        double perimeter = arcLength(contour, true);
+        vector<Point> approximatePoints;
+        approxPolyDP(contour, approximatePoints, 0.02*perimeter, true);
+        
+        if (approximatePoints.size() == 4) {
+            screenContour = approximatePoints;
+            break;
+        }
+    }
+    
+    vector<vector<Point>> cs = {screenContour};
+    drawContours(image, cs, -1, Scalar(255));
+    return screenContour;
+}
 
-RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(this->loadCanonicalTiles())
-{
-    //Get descriptors
-    SIFT sifter = SIFT();
+Mat RealThreesBoard::captureBoard() {
+    Mat colorBoardImage;
+    Mat greyBoardImage;
+    Mat screenImage;
+    Mat outputImage;
     
-    //Get photo of initial board
-    Mat cameraSample = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample.png", 0);
-    Mat sampleBoard;
+    this->watcher >> colorBoardImage;
+    cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
+    //sgreyBoardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample1.png", 0);
+
+    vector<Point> screenContour = findScreenContour(greyBoardImage);
     
-    auto fromPoints = getQuadrilateral(cameraSample);
+    const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
     const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
     
-    warpPerspective(cameraSample, sampleBoard, getPerspectiveTransform(fromPoints.data(), toPoints), Size(800,800));
-    MYSHOW(sampleBoard);
+    warpPerspective(greyBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
     
+    const Point2f fromScreenPoints[4] = {{100,210},{100,670},{700,670},{700,210}};
+    
+    warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
+    
+    return outputImage;
+}
+
+
+RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(this->loadCanonicalTiles()) {
+    this->fd = serialport_init(portName.c_str(), 9600);
+    debug(this->fd < 0);
+    sleep(2);
+    serialport_write(this->fd, "b");
+    serialport_flush(this->fd);
+
+    this->boardImage = this->captureBoard();
+    
+    MYSHOW(this->boardImage);
+    
+    SIFT sifter = SIFT();
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
             Rect roi = Rect(200*i, 200*j, 200, 200);
-            const Mat currentTile = sampleBoard(roi);
+            const Mat currentTile = this->boardImage(roi);
             vector<KeyPoint> currentTileKeypoints;
             Mat currentTileDescriptors;
 
@@ -149,6 +199,9 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(
                 const TileInfo *bestMatch = &this->canonicalTiles[0];
                 
                 for (auto&& canonicalTile : this->canonicalTiles) {
+                    MYSHOW(canonicalTile.image);
+                    MYSHOW(currentTile);
+                    waitKey();
                     vector<DMatch> matches;
                     matcher.match(canonicalTile.descriptors, currentTileDescriptors, matches);
                     
@@ -168,18 +221,14 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(
                 //This is a blank tile, probably?
                 this->board[j][i] = 0;
             }
+            
+            MYLOG(this->board[j][i]);
+            MYSHOW(currentTile);
+            waitKey();
         }
     }
     
     MYLOG(*this);
-    
-    //TODO this needs to go back before getting the first image
-    this->fd = serialport_init("/dev/tty.usbmodem1411", 9600);
-    sleep(2);
-    serialport_write(this->fd, "b");
-    serialport_flush(this->fd);
-    
-    this->watcher >> this->boardImage;
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -212,6 +261,6 @@ SimulatedThreesBoard RealThreesBoard::simulatedCopy() const {
 }
 
 deque<unsigned int> RealThreesBoard::nextTileHint() const {
-    debug();
-    return {};
+    //TODO debug();
+    return {3};
 }
