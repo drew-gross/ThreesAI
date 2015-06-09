@@ -32,8 +32,8 @@ ostream& operator<<(ostream &os, const std::deque<T> d){
 }
 
 void playOneGame() {
-    unique_ptr<SimulatedThreesBoard> b(new SimulatedThreesBoard);
-    ExpectimaxAI ai(move(b));
+    unique_ptr<SimulatedThreesBoard> b(new SimulatedThreesBoard(SimulatedThreesBoard::randomBoard()));
+    ZeroDepthMaxScoreAI ai(move(b));
     clock_t startTime = clock();
     while (!ai.board->isGameOver()) {
         cout << &ai.board << endl;
@@ -51,7 +51,7 @@ int main(int argc, const char * argv[]) {
     for (int seed=1; seed <= 3; seed++) {
         TileStack::randomGenerator.seed(seed);
         unique_ptr<ThreesBoardBase> b(new RealThreesBoard("/dev/tty.usbmodem1411"));
-        RandomAI ai(move(b));
+        ZeroDepthMaxScoreAI ai(move(b));
         ai.playGame();
         turnsSurvived.push_back(ai.board->numTurns);
         MYLOG(seed);

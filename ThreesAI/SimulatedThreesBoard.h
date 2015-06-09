@@ -24,11 +24,13 @@ std::ostream& operator<<(std::ostream &os, Direction d);
 
 class SimulatedThreesBoard : public ThreesBoardBase {
 public:
-    SimulatedThreesBoard();
+    static SimulatedThreesBoard randomBoard();
     
     TileStack tileStack;
     
     SimulatedThreesBoard simulatedCopy() const;
+    
+    explicit SimulatedThreesBoard(std::array<std::array<unsigned int, 4>, 4>const&& board);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     std::pair<unsigned int, BoardIndex> move(Direction d);

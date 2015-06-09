@@ -11,7 +11,7 @@
 
 using namespace std;
 
-ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(unique_ptr<SimulatedThreesBoard> board) : ThreesAIBase(move(board)) {
+ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {
     
 }
 

@@ -152,7 +152,7 @@ Mat RealThreesBoard::captureBoard() {
     
     this->watcher >> colorBoardImage;
     cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
-    //sgreyBoardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample1.png", 0);
+    //greyBoardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample1.png", 0);
 
     vector<Point> screenContour = findScreenContour(greyBoardImage);
     
@@ -169,7 +169,7 @@ Mat RealThreesBoard::captureBoard() {
 }
 
 
-RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(this->loadCanonicalTiles()) {
+RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) , canonicalTiles(this->loadCanonicalTiles()) {
     this->fd = serialport_init(portName.c_str(), 9600);
     debug(this->fd < 0);
     sleep(2);
@@ -201,7 +201,6 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(
                 for (auto&& canonicalTile : this->canonicalTiles) {
                     MYSHOW(canonicalTile.image);
                     MYSHOW(currentTile);
-                    waitKey();
                     vector<DMatch> matches;
                     matcher.match(canonicalTile.descriptors, currentTileDescriptors, matches);
                     
@@ -215,7 +214,7 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(
                     }
                     
                 }
-                
+                //TODO: pull this out of the constructor, so I can actually properly construct ThreesBoardBase
                 this->board[j][i] = bestMatch->value;
             } else {
                 //This is a blank tile, probably?
@@ -224,7 +223,6 @@ RealThreesBoard::RealThreesBoard(string portName) : watcher(0) , canonicalTiles(
             
             MYLOG(this->board[j][i]);
             MYSHOW(currentTile);
-            waitKey();
         }
     }
     
@@ -256,8 +254,7 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
 }
 
 SimulatedThreesBoard RealThreesBoard::simulatedCopy() const {
-    debug();
-    return SimulatedThreesBoard();
+    return SimulatedThreesBoard(std::move(this->board));
 }
 
 deque<unsigned int> RealThreesBoard::nextTileHint() const {

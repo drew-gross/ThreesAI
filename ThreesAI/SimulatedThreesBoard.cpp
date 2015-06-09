@@ -22,13 +22,18 @@ public:
     InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
 };
 
-SimulatedThreesBoard::SimulatedThreesBoard() : ThreesBoardBase() {
+SimulatedThreesBoard SimulatedThreesBoard::randomBoard() {
     array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
-    this->board = array<array<unsigned int, 4>, 4>();
+    array<array<unsigned int, 4>, 4> initialBoard = array<array<unsigned int, 4>, 4>();
     for (unsigned i = 0; i < initialTiles.size(); i++) {
-        this->board[i/4][i%4] = initialTiles[i];
+        initialBoard[i/4][i%4] = initialTiles[i];
     }
+    SimulatedThreesBoard simBoard(std::move(initialBoard));
+    return simBoard;
+}
+
+SimulatedThreesBoard::SimulatedThreesBoard(array<array<unsigned int, 4>, 4>const&& otherBoard) : ThreesBoardBase(std::move(otherBoard)) {
 }
 
 void SimulatedThreesBoard::set(BoardIndex const& p, const unsigned int t){
