@@ -144,7 +144,7 @@ vector<Point> findScreenContour(Mat image) {
     return screenContour;
 }
 
-Mat RealThreesBoard::captureBoard() {
+Mat RealThreesBoard::captureBoardImage() {
     Mat colorBoardImage;
     Mat greyBoardImage;
     Mat screenImage;
@@ -152,7 +152,7 @@ Mat RealThreesBoard::captureBoard() {
     
     this->watcher >> colorBoardImage;
     cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
-    //greyBoardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample1.png", 0);
+    greyBoardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample1.png", 0);
 
     vector<Point> screenContour = findScreenContour(greyBoardImage);
     
@@ -168,88 +168,97 @@ Mat RealThreesBoard::captureBoard() {
     return outputImage;
 }
 
-
-RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) , canonicalTiles(this->loadCanonicalTiles()) {
+void RealThreesBoard::connectAndStart(string portName) {
     this->fd = serialport_init(portName.c_str(), 9600);
-    debug(this->fd < 0);
-    sleep(2);
-    serialport_write(this->fd, "b");
-    serialport_flush(this->fd);
+    sleep(2); //Necessary to initialize the output for some reason
+    if (this->fd >= 0) {
+        serialport_write(this->fd, "b");
+        serialport_flush(this->fd);
+    }
+}
 
-    this->boardImage = this->captureBoard();
-    
-    MYSHOW(this->boardImage);
-    
+int tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     SIFT sifter = SIFT();
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 0; j < 4; j++) {
-            Rect roi = Rect(200*i, 200*j, 200, 200);
-            const Mat currentTile = this->boardImage(roi);
-            vector<KeyPoint> currentTileKeypoints;
-            Mat currentTileDescriptors;
-
-            sifter.detect(currentTile, currentTileKeypoints);
-            sifter.compute(currentTile, currentTileKeypoints, currentTileDescriptors);
-            
-            FlannBasedMatcher matcher;
-            if (!currentTileDescriptors.empty()) {
-                vector<float> distances;
-                
-                float min = INFINITY;
-                const TileInfo *bestMatch = &this->canonicalTiles[0];
-                
-                for (auto&& canonicalTile : this->canonicalTiles) {
-                    MYSHOW(canonicalTile.image);
-                    MYSHOW(currentTile);
-                    vector<DMatch> matches;
-                    matcher.match(canonicalTile.descriptors, currentTileDescriptors, matches);
-                    
-                    float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
-                        return sum + d.distance;
-                    })/float(matches.size());
-                    
-                    if (averageDistance < min) {
-                        min = averageDistance;
-                        bestMatch = &canonicalTile;
-                    }
-                    
-                }
-                //TODO: pull this out of the constructor, so I can actually properly construct ThreesBoardBase
-                this->board[j][i] = bestMatch->value;
-            } else {
-                //This is a blank tile, probably?
-                this->board[j][i] = 0;
-            }
-            
-            MYLOG(this->board[j][i]);
-            MYSHOW(currentTile);
+    FlannBasedMatcher matcher;
+    
+    vector<KeyPoint> tileKeypoints;
+    Mat tileDescriptors;
+    
+    sifter.detect(tileImage, tileKeypoints);
+    sifter.compute(tileImage, tileKeypoints, tileDescriptors);
+    
+    if (tileDescriptors.empty()) {
+        //Probably blank
+        return 0;
+    }
+    
+    vector<float> distances;
+    float min = INFINITY;
+    const TileInfo *bestMatch = &canonicalTiles[0];
+    
+    for (auto&& canonicalTile : canonicalTiles) {
+        vector<DMatch> matches;
+        matcher.match(canonicalTile.descriptors, tileDescriptors, matches);
+        
+        float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
+            return sum + d.distance;
+        })/float(matches.size());
+        
+        if (averageDistance < min) {
+            min = averageDistance;
+            bestMatch = &canonicalTile;
         }
     }
     
-    MYLOG(*this);
+    return bestMatch->value;
+}
+
+array<array<unsigned int, 4>, 4> boardState(Mat boardImage, const vector<TileInfo>& canonicalTiles) {
+    array<array<unsigned int, 4>, 4> board;
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            Rect tileRoi = Rect(200*i, 200*j, 200, 200);
+            const Mat currentTile = boardImage(tileRoi);
+            board[j][i] = tileValue(currentTile, canonicalTiles);
+        }
+    }
+    return board;
+}
+
+RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) , canonicalTiles(this->loadCanonicalTiles()) {
+    this->connectAndStart(portName);
+    this->board = boardState(this->captureBoardImage(), this->canonicalTiles);
 }
 
 RealThreesBoard::~RealThreesBoard() {
-    cout << serialport_close(this->fd);
+    if (this->fd >= 0) {
+        serialport_close(this->fd);
+    }
 }
 
 pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction d) {
-    switch (d) {
-        case LEFT:
-            serialport_write(this->fd, "l");
-            break;
-        case RIGHT:
-            serialport_write(this->fd, "r");
-            break;
-        case UP:
-            serialport_write(this->fd, "u");
-            break;
-        case DOWN:
-            serialport_write(this->fd, "d");
-            break;
+    if (this->fd >= 0) {
+        switch (d) {
+            case LEFT:
+                serialport_write(this->fd, "l");
+                break;
+            case RIGHT:
+                serialport_write(this->fd, "r");
+                break;
+            case UP:
+                serialport_write(this->fd, "u");
+                break;
+            case DOWN:
+                serialport_write(this->fd, "d");
+                break;
+        }
+        
+        serialport_flush(fd);
     }
     
-    serialport_flush(fd);
+    //TODO: Sanity check against what I expect the new board to look like.
+    this->board = boardState(this->captureBoardImage(), this->canonicalTiles);
+    //TODO: Get the actual location and value of the new tile
     return {0,{0,0}};
 }
 
@@ -258,6 +267,6 @@ SimulatedThreesBoard RealThreesBoard::simulatedCopy() const {
 }
 
 deque<unsigned int> RealThreesBoard::nextTileHint() const {
-    //TODO debug();
+    //TODO: get this from the image;
     return {3};
 }

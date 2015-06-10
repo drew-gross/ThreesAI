@@ -38,15 +38,17 @@ public:
     
     ~RealThreesBoard();
     
-    int fd;
 private:
     cv::VideoCapture watcher;
     
-    cv::Mat captureBoard();
-    cv::Mat boardImage;
+    cv::Mat captureBoardImage();
 
     const std::vector<TileInfo> canonicalTiles;
     const std::vector<TileInfo> loadCanonicalTiles();
+    
+    int fd;
+    
+    void connectAndStart(std::string portName);
 };
 
 #endif /* defined(__ThreesAI__RealThreesBoard__) */
