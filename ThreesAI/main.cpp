@@ -16,7 +16,7 @@
 #include "RandomAI.h"
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
-#include "HumanAI.h"
+#include "HumanPlayer.h"
 #include "RealThreesBoard.h"
 
 using namespace std;

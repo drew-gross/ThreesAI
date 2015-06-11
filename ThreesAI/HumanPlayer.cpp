@@ -1,23 +1,23 @@
 //
-//  HumanAI.cpp
+//  HumanPlayer.cpp
 //  ThreesAI
 //
 //  Created by Drew Gross on 2/26/15.
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //
 
-#include "HumanAI.h"
+#include "HumanPlayer.h"
 
 #include <iostream>
 
 using namespace std;
 
-HumanAI::HumanAI(std::unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {
+HumanPlayer::HumanPlayer(std::unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {
     
 }
 
 
-Direction HumanAI::playTurn() {
+Direction HumanPlayer::playTurn() {
     try {
         switch (getchar()) {
             case 'w':
