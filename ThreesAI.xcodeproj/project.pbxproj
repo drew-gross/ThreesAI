@@ -17,6 +17,7 @@
 		7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4E71AA0408E0081BEC8 /* ExpectimaxNode.cpp */; };
 		7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */; };
 		7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */; };
+		79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79664DB81B29DF0B002FCF52 /* IMProc.cpp */; };
 		7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */; };
 		7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
 		7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
@@ -66,6 +67,8 @@
 		7963F4EB1AA040E20081BEC8 /* ExpectimaxMoveNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxMoveNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ChanceNodeEdge.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ChanceNodeEdge.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		79664DB81B29DF0B002FCF52 /* IMProc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IMProc.cpp; sourceTree = "<group>"; };
+		79664DB91B29DF0B002FCF52 /* IMProc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMProc.h; sourceTree = "<group>"; };
 		7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ZeroDepthMaxScoreAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ZeroDepthMaxScoreAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_highgui.2.4.11.dylib; sourceTree = "<group>"; };
@@ -132,6 +135,8 @@
 				7927DD811A8068570049E9BB /* Logging.h */,
 				79F98BB61AA3E95A0043C8BC /* Debug.cpp */,
 				79F98BB71AA3E95B0043C8BC /* Debug.h */,
+				79664DB81B29DF0B002FCF52 /* IMProc.cpp */,
+				79664DB91B29DF0B002FCF52 /* IMProc.h */,
 			);
 			path = ThreesAI;
 			sourceTree = "<group>";
@@ -273,6 +278,7 @@
 				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
+				79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
 				7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,

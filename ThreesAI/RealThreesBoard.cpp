@@ -16,6 +16,7 @@
 
 #include "RealThreesBoard.h"
 #include "SimulatedThreesBoard.h"
+#include "IMProc.h"
 
 using namespace std;
 using namespace cv;
@@ -115,35 +116,6 @@ const vector<TileInfo> RealThreesBoard::loadCanonicalTiles() {
     return results;
 }
 
-vector<Point> findScreenContour(Mat image) {
-    Mat copy;
-    Mat copy2;
-    Canny(image, copy, 30, 200);
-    copy.copyTo(copy2);
-    vector<vector<Point>> contours;
-    findContours(copy2, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-    
-    sort(contours.begin(), contours.end(), [](vector<Point> &left, vector<Point> &right){
-        return contourArea(left) > contourArea(right);
-    });
-    
-    vector<Point> screenContour;
-    for (auto&& contour : contours) {
-        double perimeter = arcLength(contour, true);
-        vector<Point> approximatePoints;
-        approxPolyDP(contour, approximatePoints, 0.02*perimeter, true);
-        
-        if (approximatePoints.size() == 4) {
-            screenContour = approximatePoints;
-            break;
-        }
-    }
-    
-    vector<vector<Point>> cs = {screenContour};
-    drawContours(image, cs, -1, Scalar(255));
-    return screenContour;
-}
-
 Mat RealThreesBoard::captureBoardImage() {
     Mat colorBoardImage;
     Mat greyBoardImage;
@@ -154,7 +126,7 @@ Mat RealThreesBoard::captureBoardImage() {
     cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
     greyBoardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample1.png", 0);
 
-    vector<Point> screenContour = findScreenContour(greyBoardImage);
+    vector<Point> screenContour = IMProc::findScreenContour(greyBoardImage);
     
     const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
     const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
