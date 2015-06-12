@@ -125,7 +125,7 @@ RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<
     this->connectAndStart(portName);
     Mat colorBoardImage;
     this->watcher >> colorBoardImage;
-    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::loadCanonicalTiles());
+    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -158,7 +158,7 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     Mat colorBoardImage;
     this->watcher >> colorBoardImage;
     this->isGameOverCacheIsValid = false;
-    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::loadCanonicalTiles()); //TODO: don't be dumb and reload the canonical tiles everytime
+    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
     //TODO: Get the actual location and value of the new tile
     return {0,{0,0}};
 }

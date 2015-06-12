@@ -29,6 +29,8 @@ namespace IMProc {
     std::vector<cv::Point> findScreenContour(cv::Mat image);
     cv::Mat colorImageToBoard(cv::Mat colorBoardImage);
     const std::vector<TileInfo> loadCanonicalTiles();
+    
+    const std::vector<TileInfo> canonicalTiles = IMProc::loadCanonicalTiles();;
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */
