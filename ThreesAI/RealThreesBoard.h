@@ -16,17 +16,6 @@
 
 #include "ThreesBoardBase.h"
 
-class TileInfo {
-public:
-    TileInfo(cv::Mat image, int value);
-    
-    cv::Mat image;
-    std::vector<cv::KeyPoint> keypoints;
-    cv::Mat descriptors;
-    int value;
-};
-
-
 class RealThreesBoard : public ThreesBoardBase {
 public:
     RealThreesBoard(std::string serialPath);
@@ -40,11 +29,6 @@ public:
     
 private:
     cv::VideoCapture watcher;
-    
-    cv::Mat captureBoardImage();
-
-    const std::vector<TileInfo> canonicalTiles;
-    const std::vector<TileInfo> loadCanonicalTiles();
     
     int fd;
     

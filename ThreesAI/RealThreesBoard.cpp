@@ -64,58 +64,6 @@ void imShowVector(vector<Mat> v) {
     MYSHOW(combined);
 }
 
-const vector<TileInfo> RealThreesBoard::loadCanonicalTiles() {
-    Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
-    Mat t;
-    
-    Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
-    Mat t2;
-    
-    vector<TileInfo> results;
-    
-    const int L12 = 80;
-    const int R12 = 200;
-    const int T12 = 310;
-    const int B12 = 630;
-    
-    const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
-    const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
-    warpPerspective(image12, t2, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
-    
-    Mat image1;
-    t2(Rect(0,200,200,200)).copyTo(image1);
-    
-    Mat image2;
-    t2(Rect(0,0,200,200)).copyTo(image2);
-    
-    results.push_back(TileInfo(image2, 2));
-    results.push_back(TileInfo(image1, 1));
-    
-    const int L = 80;
-    const int R = 560;
-    const int T = 310;
-    const int B = 800;
-    
-    const Point2f fromPoints[4] = {{L,T},{L,B},{R,B},{R,T}};
-    const Point2f toPoints[4] = {{0,0},{0,600},{800,600},{800,0}};
-    Mat transform = getPerspectiveTransform(fromPoints, toPoints);
-    
-    warpPerspective(image, t, transform, Size(800,600));
-    
-    
-    const array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
-    
-    for (unsigned char i = 0; i < 3; i++) {
-        for (unsigned char j = 0; j < 4; j++) {
-            Mat tile;
-            t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
-            results.push_back(TileInfo(tile, indexToTile[results.size()]));
-        }
-    }
-    
-    return results;
-}
-
 void RealThreesBoard::connectAndStart(string portName) {
     this->fd = serialport_init(portName.c_str(), 9600);
     sleep(2); //Necessary to initialize the output for some reason
@@ -173,11 +121,11 @@ array<array<unsigned int, 4>, 4> boardState(Mat boardImage, const vector<TileInf
     return board;
 }
 
-RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) , canonicalTiles(this->loadCanonicalTiles()) {
+RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) {
     this->connectAndStart(portName);
     Mat colorBoardImage;
     this->watcher >> colorBoardImage;
-    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), this->canonicalTiles);
+    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::loadCanonicalTiles());
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -209,7 +157,8 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     //TODO: Sanity check against what I expect the new board to look like.
     Mat colorBoardImage;
     this->watcher >> colorBoardImage;
-    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), this->canonicalTiles);
+    this->isGameOverCacheIsValid = false;
+    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::loadCanonicalTiles()); //TODO: don't be dumb and reload the canonical tiles everytime
     //TODO: Get the actual location and value of the new tile
     return {0,{0,0}};
 }

@@ -15,9 +15,20 @@
 
 #include <opencv2/opencv.hpp>
 
+class TileInfo {
+public:
+    TileInfo(cv::Mat image, int value);
+    
+    cv::Mat image;
+    std::vector<cv::KeyPoint> keypoints;
+    cv::Mat descriptors;
+    int value;
+};
+
 namespace IMProc {
     std::vector<cv::Point> findScreenContour(cv::Mat image);
     cv::Mat colorImageToBoard(cv::Mat colorBoardImage);
+    const std::vector<TileInfo> loadCanonicalTiles();
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */

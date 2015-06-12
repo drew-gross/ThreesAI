@@ -9,6 +9,8 @@
 #include "ZeroDepthMaxScoreAI.h"
 #include "SimulatedThreesBoard.h"
 
+#include "Debug.h"
+
 using namespace std;
 
 ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {
@@ -50,6 +52,7 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
         //Carry on with the others
     }
     
+    debug(scoresForMoves.empty());
     Direction d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){
         return left.second < right.second;
     })->first;
