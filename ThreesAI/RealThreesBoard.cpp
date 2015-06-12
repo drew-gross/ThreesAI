@@ -116,30 +116,6 @@ const vector<TileInfo> RealThreesBoard::loadCanonicalTiles() {
     return results;
 }
 
-Mat RealThreesBoard::captureBoardImage() {
-    Mat colorBoardImage;
-    Mat greyBoardImage;
-    Mat screenImage;
-    Mat outputImage;
-    
-    this->watcher >> colorBoardImage;
-    cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
-    greyBoardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample1.png", 0);
-
-    vector<Point> screenContour = IMProc::findScreenContour(greyBoardImage);
-    
-    const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
-    const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
-    
-    warpPerspective(greyBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
-    
-    const Point2f fromScreenPoints[4] = {{100,210},{100,670},{700,670},{700,210}};
-    
-    warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
-    
-    return outputImage;
-}
-
 void RealThreesBoard::connectAndStart(string portName) {
     this->fd = serialport_init(portName.c_str(), 9600);
     sleep(2); //Necessary to initialize the output for some reason
@@ -199,7 +175,9 @@ array<array<unsigned int, 4>, 4> boardState(Mat boardImage, const vector<TileInf
 
 RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) , canonicalTiles(this->loadCanonicalTiles()) {
     this->connectAndStart(portName);
-    this->board = boardState(this->captureBoardImage(), this->canonicalTiles);
+    Mat colorBoardImage;
+    this->watcher >> colorBoardImage;
+    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), this->canonicalTiles);
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -229,7 +207,9 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     }
     
     //TODO: Sanity check against what I expect the new board to look like.
-    this->board = boardState(this->captureBoardImage(), this->canonicalTiles);
+    Mat colorBoardImage;
+    this->watcher >> colorBoardImage;
+    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), this->canonicalTiles);
     //TODO: Get the actual location and value of the new tile
     return {0,{0,0}};
 }

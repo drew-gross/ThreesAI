@@ -17,6 +17,7 @@
 
 namespace IMProc {
     std::vector<cv::Point> findScreenContour(cv::Mat image);
+    cv::Mat colorImageToBoard(cv::Mat colorBoardImage);
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */

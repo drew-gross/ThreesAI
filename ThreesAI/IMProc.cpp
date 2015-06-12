@@ -43,3 +43,26 @@ vector<Point> IMProc::findScreenContour(Mat image) {
     drawContours(image, cs, -1, Scalar(255));
     return screenContour;
 }
+
+
+Mat IMProc::colorImageToBoard(Mat colorBoardImage) {
+    Mat greyBoardImage;
+    Mat screenImage;
+    Mat outputImage;
+    
+    cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
+    greyBoardImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/CameraSample1.png", 0);
+    
+    vector<Point> screenContour = IMProc::findScreenContour(greyBoardImage);
+    
+    const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
+    const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
+    
+    warpPerspective(greyBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
+    
+    const Point2f fromScreenPoints[4] = {{100,210},{100,670},{700,670},{700,210}};
+    
+    warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
+    
+    return outputImage;
+}
