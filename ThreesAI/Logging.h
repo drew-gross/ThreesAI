@@ -10,6 +10,16 @@
 #define ThreesAI_Logging_h
 
 #define MYLOG(x) (std::cout << "Value of " << #x << " is: " << x << std::endl);
-#define MYSHOW(x) imshow(#x, x);
+#define MYSHOW(x) Log::imShow(#x, x);
+#define MYSHOWSMALL(i, s) Log::imShow(#i, i, s);
+
+#include <vector>
+
+#include <opencv2/opencv.hpp>
+
+namespace Log {
+    void imageVector(std::vector<cv::Mat> v);
+    void imShow(const std::string& winname, cv::InputArray image, double scale=1);
+}
 
 #endif

@@ -45,6 +45,9 @@ public:
     
     unsigned int numTurns;
     
+    //TODO: operator== probably better eventually
+    bool hasSameTilesAs(ThreesBoardBase const& otherBoard) const;
+    
 protected:
     bool canMove(Direction d) const;
     bool canMerge(BoardIndex const& target, BoardIndex const& here) const;

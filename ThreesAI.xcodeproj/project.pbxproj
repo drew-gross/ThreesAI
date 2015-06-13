@@ -24,6 +24,7 @@
 		798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */; };
 		798A74471AE0BE920073DAB3 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74451AE0BE920073DAB3 /* Direction.cpp */; };
 		79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */; };
+		79D022111B2C0E3D00624854 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
 		79DC795C1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC795B1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib */; };
@@ -79,6 +80,7 @@
 		798A74461AE0BE920073DAB3 /* Direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Direction.h; sourceTree = "<group>"; };
 		79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RealThreesBoard.cpp; sourceTree = "<group>"; };
 		79CAF8EB1AE1E69300477988 /* RealThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RealThreesBoard.h; sourceTree = "<group>"; };
+		79D022101B2C0E3D00624854 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_imgproc.2.4.11.dylib; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 				798A74401AE0BE140073DAB3 /* ThreesBoard */,
 				79D4AE0E1ADF999500DC5DFC /* LibSerial */,
 				7944F88E1A732BC300ED690E /* main.cpp */,
+				79D022101B2C0E3D00624854 /* Logging.cpp */,
 				7927DD811A8068570049E9BB /* Logging.h */,
 				79F98BB61AA3E95A0043C8BC /* Debug.cpp */,
 				79F98BB71AA3E95B0043C8BC /* Debug.h */,
@@ -273,6 +276,7 @@
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
 				79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */,
+				79D022111B2C0E3D00624854 /* Logging.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
 				7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */,
 				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,

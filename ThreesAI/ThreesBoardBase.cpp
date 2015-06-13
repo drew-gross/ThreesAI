@@ -45,6 +45,10 @@ unsigned int ThreesBoardBase::tileScore(unsigned int tileValue) {
     }
 }
 
+bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard) const {
+    return this->board == otherBoard.board;
+}
+
 unsigned int ThreesBoardBase::score() const {
     if (this->scoreCacheIsValid) {
         return this->scoreCache;

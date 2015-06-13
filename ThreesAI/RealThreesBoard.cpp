@@ -45,25 +45,6 @@ const array<Point2f, 4> getQuadrilateral(Mat m) {
     return array<Point2f, 4>{{getpoint("get rect"),getpoint("get rect"),getpoint("get rect"),getpoint("get rect")}};
 }
 
-void imShowVector(vector<Mat> v) {
-    int totalWidth = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
-        return s + m.cols;
-    });
-    int maxHeight = std::max_element(v.begin(), v.end(), [](Mat first, Mat second){
-        return first.rows < second.rows;
-    })->rows;
-    
-    Mat combined(maxHeight, totalWidth, v[0].type());
-    
-    int widthSoFar = 0;
-    for (auto it = v.begin(); it != v.end(); it++) {
-        it->copyTo(combined(Rect(widthSoFar, 0, it->cols, it->rows)));
-        widthSoFar += it->cols;
-    }
-    
-    MYSHOW(combined);
-}
-
 void RealThreesBoard::connectAndStart(string portName) {
     this->fd = serialport_init(portName.c_str(), 9600);
     sleep(2); //Necessary to initialize the output for some reason
@@ -125,6 +106,8 @@ RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<
     this->connectAndStart(portName);
     Mat colorBoardImage;
     this->watcher >> colorBoardImage;
+    
+    colorBoardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/Test.png");
     this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
 }
 
@@ -157,8 +140,18 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     //TODO: Sanity check against what I expect the new board to look like.
     Mat colorBoardImage;
     this->watcher >> colorBoardImage;
+    
+    
+    SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
+    expectedBoardAfterMove.moveWithoutAdd(d);
+    
     this->isGameOverCacheIsValid = false;
     this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
+    if (!this->hasSameTilesAs(expectedBoardAfterMove)) {
+        MYSHOW(colorBoardImage);
+        debug();
+    }
+    
     //TODO: Get the actual location and value of the new tile
     return {0,{0,0}};
 }
