@@ -107,8 +107,9 @@ RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<
     Mat colorBoardImage;
     this->watcher >> colorBoardImage;
     
-    colorBoardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/Test.png");
+    //colorBoardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/x.png");
     this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
+    debug();
 }
 
 RealThreesBoard::~RealThreesBoard() {

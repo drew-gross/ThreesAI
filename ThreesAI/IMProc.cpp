@@ -25,26 +25,22 @@ void showContours(Mat const image, vector<vector<Point>> const contours) {
     MYSHOWSMALL(contoursImage,1);
 }
 
-vector<Point> IMProc::findScreenContour(Mat image) {
-    Mat copy;
-    Mat copy2;
-    GaussianBlur(image, image, Size(5,5), 2);
-    Canny(image, copy, 10, 200);
-    copy.copyTo(copy2);
+vector<Point> IMProc::findScreenContour(Mat const& image) {
+    
+    Mat blurredCopy;
+    GaussianBlur(image, blurredCopy, Size(5,5), 2);
+    
+    Mat cannyCopy;
+    Canny(blurredCopy, cannyCopy, 10, 200);
+    
+    Mat contourCopy;
+    cannyCopy.copyTo(contourCopy);
     vector<vector<Point>> contours;
-    findContours(copy2, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+    findContours(contourCopy, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
     
     sort(contours.begin(), contours.end(), [](vector<Point> &left, vector<Point> &right){
         return contourArea(left) > contourArea(right);
     });
-    
-    MYSHOW(image);
-    MYSHOW(copy);
-    for (auto&& contour : contours) {
-        showContours(copy, {contour});
-        MYLOG(contourArea(contour));
-        waitKey();
-    }
     
     vector<Point> screenContour;
     for (auto&& contour : contours) {
@@ -62,7 +58,7 @@ vector<Point> IMProc::findScreenContour(Mat image) {
 }
 
 
-Mat IMProc::colorImageToBoard(Mat colorBoardImage) {
+Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     Mat greyBoardImage;
     Mat screenImage;
     Mat outputImage;
@@ -81,9 +77,14 @@ Mat IMProc::colorImageToBoard(Mat colorBoardImage) {
     
     warpPerspective(greyBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
     
+    MYSHOW(screenImage);
+    
     const Point2f fromScreenPoints[4] = {{100,210},{100,670},{700,670},{700,210}};
     
     warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
+    MYSHOW(outputImage);
+    
+    waitKey();
     return outputImage;
 }
 

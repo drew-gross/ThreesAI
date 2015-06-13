@@ -26,8 +26,8 @@ public:
 };
 
 namespace IMProc {
-    std::vector<cv::Point> findScreenContour(cv::Mat image);
-    cv::Mat colorImageToBoard(cv::Mat colorBoardImage);
+    std::vector<cv::Point> findScreenContour(cv::Mat const& image);
+    cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
     const std::vector<TileInfo> loadCanonicalTiles();
     
     const std::vector<TileInfo> canonicalTiles = IMProc::loadCanonicalTiles();;
