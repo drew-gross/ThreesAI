@@ -39,7 +39,6 @@ public:
     
     void set(BoardIndex const& i, const unsigned int t);
     friend std::ostream& operator<<(std::ostream &os, SimulatedThreesBoard const& board);
-    std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
     std::deque<unsigned int> nextTileHint() const;
 
 private:

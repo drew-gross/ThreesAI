@@ -45,8 +45,44 @@ unsigned int ThreesBoardBase::tileScore(unsigned int tileValue) {
     }
 }
 
-bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard) const {
-    return this->board == otherBoard.board;
+bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard, vector<ThreesBoardBase::BoardIndex> excludedIndices) const {
+
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            ThreesBoardBase::BoardIndex curIndex(i,j);
+            if (find(excludedIndices.begin(), excludedIndices.end(), curIndex) == excludedIndices.end()) {
+                if (this->at(curIndex) != otherBoard.at(curIndex)) {
+                    return  false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+vector<ThreesBoardBase::BoardIndex> ThreesBoardBase::validIndicesForNewTile(Direction movedDirection) const {
+    array<ThreesBoardBase::BoardIndex, 4> indicies;
+    switch (movedDirection) {
+        case LEFT:
+            indicies = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
+            break;
+        case RIGHT:
+            indicies = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
+            break;
+        case UP:
+            indicies = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
+            break;
+        case DOWN:
+            indicies = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
+            break;
+        default:
+            break;
+    }
+    auto endIterator = remove_if(indicies.begin(), indicies.end(), [this](BoardIndex tile) {
+        return this->at(tile) != 0;
+    });
+    vector<ThreesBoardBase::BoardIndex> result(indicies.begin(), endIterator);
+    return result;
 }
 
 unsigned int ThreesBoardBase::score() const {

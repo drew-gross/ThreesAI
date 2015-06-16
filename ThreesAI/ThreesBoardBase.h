@@ -35,6 +35,7 @@ public:
     unsigned int score() const;
     std::vector<Direction> validMoves() const;
     std::deque<std::pair<unsigned int, float>> possibleNextTiles() const;
+    std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
     
     static unsigned int tileScore(unsigned int tileValue);
     
@@ -45,8 +46,7 @@ public:
     
     unsigned int numTurns;
     
-    //TODO: operator== probably better eventually
-    bool hasSameTilesAs(ThreesBoardBase const& otherBoard) const;
+    bool hasSameTilesAs(ThreesBoardBase const& otherBoard, std::vector<ThreesBoardBase::BoardIndex> excludedIndices) const;
     
 protected:
     bool canMove(Direction d) const;

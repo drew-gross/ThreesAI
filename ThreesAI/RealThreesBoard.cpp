@@ -104,12 +104,13 @@ array<array<unsigned int, 4>, 4> boardState(Mat boardImage, const vector<TileInf
 
 RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) {
     this->connectAndStart(portName);
-    Mat colorBoardImage;
-    this->watcher >> colorBoardImage;
     
-    //colorBoardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/x.png");
+    Mat colorBoardImage;
+    //TODO use image averaging here (we know the thing we are looking as isn't moving)
+    this->watcher >> colorBoardImage;
+    colorBoardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/x.png");
     this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
-    debug();
+    MYSHOW(colorBoardImage);
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -138,17 +139,17 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
         serialport_flush(fd);
     }
     
-    //TODO: Sanity check against what I expect the new board to look like.
     Mat colorBoardImage;
     this->watcher >> colorBoardImage;
     
     
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
     expectedBoardAfterMove.moveWithoutAdd(d);
+    vector<ThreesBoardBase::BoardIndex> possiblyEmptyTilesAfterMoveWithoutAdd = expectedBoardAfterMove.validIndicesForNewTile(d);
     
     this->isGameOverCacheIsValid = false;
     this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
-    if (!this->hasSameTilesAs(expectedBoardAfterMove)) {
+    if (!this->hasSameTilesAs(expectedBoardAfterMove, possiblyEmptyTilesAfterMoveWithoutAdd)) {
         MYSHOW(colorBoardImage);
         debug();
     }

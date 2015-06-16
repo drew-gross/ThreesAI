@@ -31,7 +31,7 @@ vector<Point> IMProc::findScreenContour(Mat const& image) {
     GaussianBlur(image, blurredCopy, Size(5,5), 2);
     
     Mat cannyCopy;
-    Canny(blurredCopy, cannyCopy, 10, 200);
+    Canny(blurredCopy, cannyCopy, 60, 200, 3, true);
     
     Mat contourCopy;
     cannyCopy.copyTo(contourCopy);
@@ -84,7 +84,7 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
     MYSHOW(outputImage);
     
-    waitKey();
+    
     return outputImage;
 }
 
