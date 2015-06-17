@@ -10,13 +10,21 @@
 
 #include <vector>
 #include <array>
+#include <algorithm>
+#include <numeric>
 
 #include <opencv2/opencv.hpp>
 
+#include "Debug.h"
 #include "Logging.h"
 
 using namespace std;
 using namespace cv;
+
+const cv::SIFT& IMProc::sifter() {
+    static cv::SIFT* sift = new cv::SIFT(0,3,0.04,10,1);
+    return *sift;
+}
 
 void showContours(Mat const image, vector<vector<Point>> const contours) {
     Mat contoursImage;
@@ -41,22 +49,39 @@ vector<Point> IMProc::findScreenContour(Mat const& image) {
     sort(contours.begin(), contours.end(), [](vector<Point> &left, vector<Point> &right){
         return contourArea(left) > contourArea(right);
     });
-    
-    vector<Point> screenContour;
-    for (auto&& contour : contours) {
+    transform(contours.begin(), contours.end(), contours.begin(), [](vector<Point> contour){
         double perimeter = arcLength(contour, true);
         vector<Point> approximatePoints;
         approxPolyDP(contour, approximatePoints, 0.02*perimeter, true);
-        
-        if (approximatePoints.size() == 4) {
-            screenContour = approximatePoints;
-            break;
+        return approximatePoints;
+    });
+    
+    vector<Point> screenContour = *find_if(contours.begin(), contours.end(), [](vector<Point> contour){
+        return contour.size() == 4;
+    });
+    
+    Point sum = accumulate(screenContour.begin(), screenContour.end(), Point(0,0));
+    Point center(sum.x/screenContour.size(), sum.y/screenContour.size());
+
+    vector<Point> orientedScreenContour(4);
+    for (auto&& point : screenContour) {
+        bool toLeft = point.x < center.x;
+        bool above = point.y < center.y;
+        if (toLeft && above) {
+            orientedScreenContour[0] = point;
+        }
+        if (!toLeft && above) {
+            orientedScreenContour[3] = point;
+        }
+        if (!toLeft && !above) {
+            orientedScreenContour[2] = point;
+        }
+        if (toLeft && !above) {
+            orientedScreenContour[1] = point;
         }
     }
-    
-    return screenContour;
+    return orientedScreenContour;
 }
-
 
 Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     Mat greyBoardImage;
@@ -83,7 +108,6 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     
     warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
     MYSHOW(outputImage);
-    
     
     return outputImage;
 }

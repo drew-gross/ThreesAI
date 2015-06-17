@@ -12,9 +12,9 @@
 #include <stdio.h>
 
 #include <opencv2/opencv.hpp>
-#include <opencv2/nonfree/nonfree.hpp>
 
 #include "ThreesBoardBase.h"
+#include "IMProc.h"
 
 class RealThreesBoard : public ThreesBoardBase {
 public:
@@ -29,6 +29,8 @@ public:
     
 private:
     cv::VideoCapture watcher;
+    
+    cv::Mat getAveragedImage(unsigned char numImages);
     
     int fd;
     

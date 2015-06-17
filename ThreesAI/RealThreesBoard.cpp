@@ -16,7 +16,6 @@
 
 #include "RealThreesBoard.h"
 #include "SimulatedThreesBoard.h"
-#include "IMProc.h"
 
 using namespace std;
 using namespace cv;
@@ -24,9 +23,8 @@ using namespace cv;
 TileInfo::TileInfo(cv::Mat image, int value) {
     this->image = image;
     this->value = value;
-    SIFT sifter = SIFT();
-    sifter.detect(image, this->keypoints);
-    sifter.compute(image, this->keypoints, this->descriptors);
+    IMProc::sifter().detect(image, this->keypoints);
+    IMProc::sifter().compute(image, this->keypoints, this->descriptors);
 }
 
 const Point2f getpoint(const string& window) {
@@ -47,7 +45,7 @@ const array<Point2f, 4> getQuadrilateral(Mat m) {
 
 void RealThreesBoard::connectAndStart(string portName) {
     this->fd = serialport_init(portName.c_str(), 9600);
-    sleep(2); //Necessary to initialize the output for some reason
+    sleep(2); //Necessary to initialize the output for some
     if (this->fd >= 0) {
         serialport_write(this->fd, "b");
         serialport_flush(this->fd);
@@ -55,14 +53,13 @@ void RealThreesBoard::connectAndStart(string portName) {
 }
 
 int tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
-    SIFT sifter = SIFT();
     FlannBasedMatcher matcher;
     
     vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
     
-    sifter.detect(tileImage, tileKeypoints);
-    sifter.compute(tileImage, tileKeypoints, tileDescriptors);
+    IMProc::sifter().detect(tileImage, tileKeypoints);
+    IMProc::sifter().compute(tileImage, tileKeypoints, tileDescriptors);
     
     if (tileDescriptors.empty()) {
         //Probably blank
@@ -81,7 +78,13 @@ int tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
             return sum + d.distance;
         })/float(matches.size());
         
+        Mat matchDrawing;
+        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, matches, matchDrawing);
+        MYSHOW(matchDrawing);
+        MYLOG(averageDistance);
+        
         if (averageDistance < min) {
+            MYLOG(canonicalTile.value)
             min = averageDistance;
             bestMatch = &canonicalTile;
         }
@@ -102,15 +105,33 @@ array<array<unsigned int, 4>, 4> boardState(Mat boardImage, const vector<TileInf
     return board;
 }
 
+Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
+    vector<Mat> images;
+    for (unsigned char i = 0; i < numImages; i++) {
+        Mat image;
+        this->watcher >> image;
+        images.push_back(image);
+    }
+    Mat averagedImage;
+    if (numImages == 0) {
+        return averagedImage;
+    }
+    averagedImage = Mat::zeros(images[0].rows, images[0].cols, images[0].type());
+    for (unsigned char i = 0; i < numImages; i++) {
+        averagedImage += images[i]/numImages;
+    }
+    return averagedImage;
+}
+
 RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) {
-    this->connectAndStart(portName);
     
-    Mat colorBoardImage;
-    //TODO use image averaging here (we know the thing we are looking as isn't moving)
-    this->watcher >> colorBoardImage;
-    colorBoardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/x.png");
-    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
-    MYSHOW(colorBoardImage);
+    this->connectAndStart(portName);
+    Mat boardImage(this->getAveragedImage(5));
+    
+    boardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/x.png");
+    this->board = boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
+    MYSHOW(boardImage);
+    waitKey();
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -139,18 +160,15 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
         serialport_flush(fd);
     }
     
-    Mat colorBoardImage;
-    this->watcher >> colorBoardImage;
-    
-    
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
     expectedBoardAfterMove.moveWithoutAdd(d);
     vector<ThreesBoardBase::BoardIndex> possiblyEmptyTilesAfterMoveWithoutAdd = expectedBoardAfterMove.validIndicesForNewTile(d);
     
+    Mat boardImage(this->getAveragedImage(5));
     this->isGameOverCacheIsValid = false;
-    this->board = boardState(IMProc::colorImageToBoard(colorBoardImage), IMProc::canonicalTiles);
+    this->board = boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
     if (!this->hasSameTilesAs(expectedBoardAfterMove, possiblyEmptyTilesAfterMoveWithoutAdd)) {
-        MYSHOW(colorBoardImage);
+        MYSHOW(boardImage);
         debug();
     }
     

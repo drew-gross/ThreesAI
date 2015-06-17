@@ -272,6 +272,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */,
 				7960E4471A88333B000622BC /* RandomAI.cpp in Sources */,
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
@@ -282,7 +283,6 @@
 				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
-				79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
 				7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,

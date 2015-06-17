@@ -9,6 +9,7 @@
 #include "Logging.h"
 
 #include <numeric> 
+#include <sys/stat.h>
 
 using namespace std;
 using namespace cv;
@@ -38,6 +39,7 @@ void Log::imShow(const string& winname, cv::InputArray image, double scale) {
     imshow(winname, smaller);
     
     string filename = "/tmp/threesAIdata/";
+    mkdir(filename.c_str(), ACCESSPERMS);
     filename.append(winname);
     filename.append(".png");
     imwrite(filename, image);

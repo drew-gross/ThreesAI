@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/nonfree/nonfree.hpp>
 
 class TileInfo {
 public:
@@ -31,6 +32,8 @@ namespace IMProc {
     const std::vector<TileInfo> loadCanonicalTiles();
     
     const std::vector<TileInfo> canonicalTiles = IMProc::loadCanonicalTiles();;
+    
+    const cv::SIFT& sifter();
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */
