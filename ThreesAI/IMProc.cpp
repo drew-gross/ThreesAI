@@ -22,7 +22,7 @@ using namespace std;
 using namespace cv;
 
 const cv::SIFT& IMProc::sifter() {
-    static cv::SIFT* sift = new cv::SIFT(0,3,0.04,10,1);
+    static cv::SIFT* sift = new cv::SIFT(0,3,0.04,15,1);
     return *sift;
 }
 
@@ -45,6 +45,7 @@ vector<Point> IMProc::findScreenContour(Mat const& image) {
     cannyCopy.copyTo(contourCopy);
     vector<vector<Point>> contours;
     findContours(contourCopy, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+    //TODO handle case where nothing is found
     
     sort(contours.begin(), contours.end(), [](vector<Point> &left, vector<Point> &right){
         return contourArea(left) > contourArea(right);
@@ -104,7 +105,16 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     
     MYSHOW(screenImage);
     
-    const Point2f fromScreenPoints[4] = {{100,210},{100,670},{700,670},{700,210}};
+    const int leftEdge = 100;
+    const int bottomEdge = 670;
+    const int topEdge = 220;
+    const int rightEdge = 700;
+    const Point2f fromScreenPoints[4] = {
+        {leftEdge,topEdge},
+        {leftEdge,bottomEdge},
+        {rightEdge,bottomEdge},
+        {rightEdge,topEdge}
+    };
     
     warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
     MYSHOW(outputImage);

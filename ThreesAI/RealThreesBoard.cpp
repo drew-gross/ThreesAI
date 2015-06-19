@@ -87,6 +87,8 @@ int tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
             MYLOG(canonicalTile.value)
             min = averageDistance;
             bestMatch = &canonicalTile;
+            
+            waitKey();
         }
     }
     
