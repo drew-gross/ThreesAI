@@ -17,6 +17,7 @@
 #include <stack>
 #include <exception>
 #include <unordered_map>
+#include <iterator>
 
 #include "TileStack.h"
 #include "ThreesBoardBase.h"
@@ -29,6 +30,10 @@ public:
     TileStack tileStack;
     
     SimulatedThreesBoard simulatedCopy() const;
+    static SimulatedThreesBoard fromString(const std::string s);
+    
+    template<typename InputIterator>
+    static SimulatedThreesBoard fromTileList(const InputIterator ts);
     
     explicit SimulatedThreesBoard(std::array<std::array<unsigned int, 4>, 4>const&& board);
     

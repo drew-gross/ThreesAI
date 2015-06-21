@@ -9,8 +9,10 @@
 #include <iostream>
 
 #include <memory>
+#include <array>
 
 #include "Logging.h"
+#include "Debug.h"
 
 #include "SimulatedThreesBoard.h"
 #include "RandomAI.h"
@@ -22,16 +24,8 @@
 #include <boost/filesystem.hpp>
 
 using namespace std;
-
-template <typename T>
-ostream& operator<<(ostream &os, const std::deque<T> d){
-    os << "[";
-    for (auto&& t : d) {
-        os << " " << t;
-    }
-    os << "]";
-    return os;
-}
+using namespace boost::filesystem;
+using namespace cv;
 
 void playOneGame() {
     unique_ptr<SimulatedThreesBoard> b(new SimulatedThreesBoard(SimulatedThreesBoard::randomBoard()));
@@ -48,9 +42,26 @@ void playOneGame() {
     MYLOG(elapsed_time);
 }
 
+const string project_path = "/Users/drewgross/Projects/ThreesAI/";
+
+void testImage(path p) {
+    Mat image = imread(p.string());
+    SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
+    SimulatedThreesBoard extractedBoard = SimulatedThreesBoard(IMProc::boardState(IMProc::colorImageToBoard(imread(p.string())), IMProc::canonicalTiles));
+    
+    if (!expectedBoard.hasSameTilesAs(extractedBoard, {})) {
+        MYSHOW(image);
+        MYLOG(p);
+        waitKey();
+        debug();
+    }
+}
+
 void runTests() {
-    for (auto&& image : boost::filesystem::directory_iterator("/")) {
-        MYLOG(image);
+    for (auto&& image : directory_iterator(project_path + "TestCaseImages/")) {
+        if (image.path().extension() == ".png") {
+            testImage(image.path());
+        }
     }
 }
 

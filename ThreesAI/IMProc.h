@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include <vector>
+#include <array>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/nonfree/nonfree.hpp>
@@ -29,6 +30,8 @@ public:
 namespace IMProc {
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
+    std::array<std::array<unsigned int, 4>, 4> boardState(cv::Mat boardImage, const std::vector<TileInfo>& canonicalTiles);
+    int tileValue(cv::Mat tileImage, const std::vector<TileInfo>& canonicalTiles);
     const std::vector<TileInfo> loadCanonicalTiles();
     
     const std::vector<TileInfo> canonicalTiles = IMProc::loadCanonicalTiles();;

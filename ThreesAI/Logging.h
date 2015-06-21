@@ -22,4 +22,14 @@ namespace Log {
     void imShow(const std::string& winname, cv::InputArray image, double scale=1);
 }
 
+template <typename T>
+std::ostream& operator<<(std::ostream &os, const std::deque<T> d){
+    os << "[";
+    for (auto&& t : d) {
+        os << " " << t;
+    }
+    os << "]";
+    return os;
+}
+
 #endif

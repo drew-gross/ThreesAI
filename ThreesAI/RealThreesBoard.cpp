@@ -1,4 +1,4 @@
-//
+;//
 //  RealThreesBoard.cpp
 //  ThreesAI
 //
@@ -52,84 +52,6 @@ void RealThreesBoard::connectAndStart(string portName) {
     }
 }
 
-int tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
-    BFMatcher matcher;
-    
-    vector<KeyPoint> tileKeypoints;
-    Mat tileDescriptors;
-    
-    IMProc::sifter().detect(tileImage, tileKeypoints);
-    IMProc::sifter().compute(tileImage, tileKeypoints, tileDescriptors);
-    
-    if (tileDescriptors.empty()) {
-        //Probably blank
-        return 0;
-    }
-    
-    vector<float> distances;
-    float min = INFINITY;
-    const TileInfo *bestMatch = &canonicalTiles[0];
-    
-    for (auto&& canonicalTile : canonicalTiles) {
-        vector<vector<DMatch>> matches;
-        matcher.knnMatch(canonicalTile.descriptors, tileDescriptors, matches, 2);
-        //TODO: multiple matches to the same index invalid
-        
-        //Ratio test
-        vector<DMatch> good_matches;
-        vector<DMatch> bad_matches;
-        for (int i = 0; i < matches.size(); ++i) {
-            const float ratio = 0.8;
-            if (matches[i].size() > 1) {
-                if (matches[i][0].distance < ratio * matches[i][1].distance) {
-                    good_matches.push_back(matches[i][0]);
-                } else {
-                    bad_matches.push_back(matches[i][0]);
-                }
-            } else {
-            }
-        }
-        
-        
-        float averageDistance = accumulate(good_matches.begin(), good_matches.end(), float(0), [](float sum, DMatch d) {
-            return sum + d.distance;
-        })/float(matches.size());
-        
-        if (averageDistance < min) {
-            MYLOG(canonicalTile.value);
-            min = averageDistance;
-            bestMatch = &canonicalTile;
-        }
-        
-        
-        Mat matchDrawing;
-        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, matches, matchDrawing);
-        MYSHOW(matchDrawing);
-        
-        Mat goodMatchDrawing;
-        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, good_matches, goodMatchDrawing);
-        MYSHOW(goodMatchDrawing);
-        
-        Mat badMatchDrawing;
-        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, bad_matches, badMatchDrawing);
-        MYSHOW(badMatchDrawing);
-    }
-    
-    return bestMatch->value;
-}
-
-array<array<unsigned int, 4>, 4> boardState(Mat boardImage, const vector<TileInfo>& canonicalTiles) {
-    array<array<unsigned int, 4>, 4> board;
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 0; j < 4; j++) {
-            Rect tileRoi = Rect(200*i, 200*j, 200, 200);
-            const Mat currentTile = boardImage(tileRoi);
-            board[j][i] = tileValue(currentTile, canonicalTiles);
-        }
-    }
-    return board;
-}
-
 Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
     vector<Mat> images;
     for (unsigned char i = 0; i < numImages; i++) {
@@ -154,7 +76,7 @@ RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<
     Mat boardImage(this->getAveragedImage(10));
     
     boardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/fail1.png");
-    this->board = boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
+    this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
     MYSHOW(boardImage);
     waitKey();
 }
@@ -191,7 +113,7 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     
     Mat boardImage(this->getAveragedImage(5));
     this->isGameOverCacheIsValid = false;
-    this->board = boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
+    this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
     if (!this->hasSameTilesAs(expectedBoardAfterMove, possiblyEmptyTilesAfterMoveWithoutAdd)) {
         MYSHOW(boardImage);
         debug();

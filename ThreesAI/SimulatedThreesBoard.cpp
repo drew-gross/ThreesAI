@@ -11,11 +11,15 @@
 #include <iomanip>
 #include <algorithm>
 #include <exception>
+#include <iterator>
 
 #include "Logging.h"
 #include "Debug.h"
 
+#include <boost/algorithm/string.hpp>
+
 using namespace std;
+using namespace boost;
 
 class InvalidTileAdditionException : public runtime_error {
 public:
@@ -25,12 +29,29 @@ public:
 SimulatedThreesBoard SimulatedThreesBoard::randomBoard() {
     array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
+    return fromTileList(initialTiles);
+}
+
+template <typename InputIterator>
+SimulatedThreesBoard SimulatedThreesBoard::fromTileList(const InputIterator ts) {
     array<array<unsigned int, 4>, 4> initialBoard = array<array<unsigned int, 4>, 4>();
-    for (unsigned i = 0; i < initialTiles.size(); i++) {
-        initialBoard[i/4][i%4] = initialTiles[i];
+    for (unsigned i = 0; i < ts.size(); i++) {
+        initialBoard[i/4][i%4] = ts[i];
     }
     SimulatedThreesBoard simBoard(std::move(initialBoard));
     return simBoard;
+}
+
+SimulatedThreesBoard SimulatedThreesBoard::fromString(const string s) {
+    deque<string> nums;
+    split(nums, s, is_any_of(","));
+    
+    vector<int> tileList;
+    for (auto&& str : nums) {
+        tileList.push_back(stoi(str));
+    }
+    
+    return SimulatedThreesBoard::fromTileList(tileList);
 }
 
 SimulatedThreesBoard::SimulatedThreesBoard(array<array<unsigned int, 4>, 4>const&& otherBoard) : ThreesBoardBase(std::move(otherBoard)) {
