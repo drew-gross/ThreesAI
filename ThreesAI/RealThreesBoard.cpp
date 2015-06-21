@@ -72,10 +72,8 @@ Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
 
 RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) {
     
-    //this->connectAndStart(portName);
+    this->connectAndStart(portName);
     Mat boardImage(this->getAveragedImage(10));
-    
-    boardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/fail1.png");
     this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
     MYSHOW(boardImage);
     waitKey();

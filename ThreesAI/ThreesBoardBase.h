@@ -43,6 +43,7 @@ public:
     virtual std::pair<unsigned int, BoardIndex> move(Direction d) = 0;
     virtual SimulatedThreesBoard simulatedCopy() const = 0;
     virtual std::deque<unsigned int> nextTileHint() const = 0;
+    unsigned int at(BoardIndex const& i) const;
     
     unsigned int numTurns;
     
@@ -52,7 +53,6 @@ protected:
     bool canMove(Direction d) const;
     bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
     
-    unsigned int at(BoardIndex const& i) const;
     unsigned int maxTile() const;
     
     TileStack tileStack;

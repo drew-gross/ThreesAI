@@ -30,6 +30,7 @@ public:
 namespace IMProc {
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
+    std::array<std::array<cv::Mat, 4>, 4> tileImages(cv::Mat boardImage);
     std::array<std::array<unsigned int, 4>, 4> boardState(cv::Mat boardImage, const std::vector<TileInfo>& canonicalTiles);
     int tileValue(cv::Mat tileImage, const std::vector<TileInfo>& canonicalTiles);
     const std::vector<TileInfo> loadCanonicalTiles();

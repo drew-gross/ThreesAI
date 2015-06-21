@@ -186,13 +186,22 @@ int IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     return bestMatch->value;
 }
 
+array<array<Mat, 4>, 4> IMProc::tileImages(Mat boardImage) {
+    array<array<Mat, 4>, 4> result;
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            result[j][i] = boardImage(Rect(200*i, 200*j, 200, 200));
+        }
+    }
+    return result;
+}
+
 array<array<unsigned int, 4>, 4> IMProc::boardState(Mat boardImage, const vector<TileInfo>& canonicalTiles) {
+    array<array<Mat, 4>, 4> tiles = tileImages(boardImage);
     array<array<unsigned int, 4>, 4> board;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            Rect tileRoi = Rect(200*i, 200*j, 200, 200);
-            const Mat currentTile = boardImage(tileRoi);
-            board[j][i] = IMProc::tileValue(currentTile, canonicalTiles);
+            board[j][i] = IMProc::tileValue(tiles[j][i], canonicalTiles);
         }
     }
     return board;
