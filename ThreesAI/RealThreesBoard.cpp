@@ -53,7 +53,7 @@ void RealThreesBoard::connectAndStart(string portName) {
 }
 
 int tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
-    FlannBasedMatcher matcher;
+    BFMatcher matcher;
     
     vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
@@ -71,25 +71,48 @@ int tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     const TileInfo *bestMatch = &canonicalTiles[0];
     
     for (auto&& canonicalTile : canonicalTiles) {
-        vector<DMatch> matches;
-        matcher.match(canonicalTile.descriptors, tileDescriptors, matches);
+        vector<vector<DMatch>> matches;
+        matcher.knnMatch(canonicalTile.descriptors, tileDescriptors, matches, 2);
+        //TODO: multiple matches to the same index invalid
         
-        float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
+        //Ratio test
+        vector<DMatch> good_matches;
+        vector<DMatch> bad_matches;
+        for (int i = 0; i < matches.size(); ++i) {
+            const float ratio = 0.8;
+            if (matches[i].size() > 1) {
+                if (matches[i][0].distance < ratio * matches[i][1].distance) {
+                    good_matches.push_back(matches[i][0]);
+                } else {
+                    bad_matches.push_back(matches[i][0]);
+                }
+            } else {
+            }
+        }
+        
+        
+        float averageDistance = accumulate(good_matches.begin(), good_matches.end(), float(0), [](float sum, DMatch d) {
             return sum + d.distance;
         })/float(matches.size());
+        
+        if (averageDistance < min) {
+            MYLOG(canonicalTile.value);
+            min = averageDistance;
+            bestMatch = &canonicalTile;
+        }
+        
         
         Mat matchDrawing;
         drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, matches, matchDrawing);
         MYSHOW(matchDrawing);
-        MYLOG(averageDistance);
         
-        if (averageDistance < min) {
-            MYLOG(canonicalTile.value)
-            min = averageDistance;
-            bestMatch = &canonicalTile;
-            
-            waitKey();
-        }
+        Mat goodMatchDrawing;
+        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, good_matches, goodMatchDrawing);
+        MYSHOW(goodMatchDrawing);
+        
+        Mat badMatchDrawing;
+        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, bad_matches, badMatchDrawing);
+        MYSHOW(badMatchDrawing);
     }
     
     return bestMatch->value;
@@ -127,10 +150,10 @@ Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
 
 RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) {
     
-    this->connectAndStart(portName);
-    Mat boardImage(this->getAveragedImage(5));
+    //this->connectAndStart(portName);
+    Mat boardImage(this->getAveragedImage(10));
     
-    boardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/x.png");
+    boardImage = imread("/Users/drewgross/Projects/ThreesAI/TestCaseImages/fail1.png");
     this->board = boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
     MYSHOW(boardImage);
     waitKey();

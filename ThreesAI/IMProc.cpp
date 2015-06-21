@@ -22,7 +22,7 @@ using namespace std;
 using namespace cv;
 
 const cv::SIFT& IMProc::sifter() {
-    static cv::SIFT* sift = new cv::SIFT(0,3,0.04,15,1);
+    static cv::SIFT* sift = new cv::SIFT(0,3,0.04,10,1);
     return *sift;
 }
 
@@ -103,7 +103,6 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     
     warpPerspective(greyBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
     
-    MYSHOW(screenImage);
     
     const int leftEdge = 100;
     const int bottomEdge = 670;
@@ -117,7 +116,6 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     };
     
     warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
-    MYSHOW(outputImage);
     
     return outputImage;
 }
@@ -146,8 +144,8 @@ const vector<TileInfo> IMProc::loadCanonicalTiles() {
     Mat image2;
     t2(Rect(0,0,200,200)).copyTo(image2);
     
-    results.push_back(TileInfo(image2, 2));
     results.push_back(TileInfo(image1, 1));
+    results.push_back(TileInfo(image2, 2));
     
     const int L = 80;
     const int R = 560;
@@ -170,6 +168,8 @@ const vector<TileInfo> IMProc::loadCanonicalTiles() {
             results.push_back(TileInfo(tile, indexToTile[results.size()]));
         }
     }
+    
+    results.pop_back(); //Remove the empty spot wher 6144 will eventually go
     
     return results;
 }
