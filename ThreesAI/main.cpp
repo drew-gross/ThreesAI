@@ -19,6 +19,8 @@
 #include "HumanPlayer.h"
 #include "RealThreesBoard.h"
 
+#include <boost/filesystem.hpp>
+
 using namespace std;
 
 template <typename T>
@@ -46,7 +48,15 @@ void playOneGame() {
     MYLOG(elapsed_time);
 }
 
+void runTests() {
+    for (auto&& image : boost::filesystem::directory_iterator("/")) {
+        MYLOG(image);
+    }
+}
+
 int main(int argc, const char * argv[]) {
+    runTests();
+    
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {
         TileStack::randomGenerator.seed(seed);
