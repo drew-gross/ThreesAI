@@ -8,8 +8,11 @@
 
 #include "Debug.h"
 
+#include <opencv2/opencv.hpp>
+
 void debug(bool cond) {
     if (cond) {
+        cv::waitKey(1);
         cond=!cond;
     }
 }

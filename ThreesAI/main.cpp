@@ -45,28 +45,25 @@ void playOneGame() {
 const string project_path = "/Users/drewgross/Projects/ThreesAI/";
 
 void testImage(path p) {
-    Mat image = imread(p.string());
+    Mat boardImage = IMProc::colorImageToBoard(imread(p.string()));
     SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
-    array<Mat, 16> is = IMProc::tileImages(image);
+    array<Mat, 16> is = IMProc::tileImages(boardImage);
     
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 0; j < 4; j++) {
-            int extratedValue = IMProc::tileValue(is[i*4+j], IMProc::loadCanonicalTiles());
-            if (expectedBoard.at({i,j}) != extratedValue) {
-                waitKey();
-                debug();
-            }
+    int successes = 0;
+    int failures = 0;
+    
+    MYSHOW(boardImage);
+    for (unsigned char i = 0; i < 16; i++) {
+        int extratedValue = IMProc::tileValue(is[i], IMProc::loadCanonicalTiles());
+        if (expectedBoard.at({i/4,i%4}) != extratedValue) {
+            MYSHOW(is[i]);
+            debug();
+            failures++;
+        } else {
+            successes++;
         }
     }
-    
-    SimulatedThreesBoard extractedBoard = SimulatedThreesBoard(IMProc::boardState(IMProc::colorImageToBoard(imread(p.string())), IMProc::canonicalTiles));
-    
-    if (!expectedBoard.hasSameTilesAs(extractedBoard, {})) {
-        MYSHOW(image);
-        MYLOG(p);
-        waitKey();
-        debug();
-    }
+    debug();
 }
 
 void runTests() {
@@ -78,7 +75,7 @@ void runTests() {
 }
 
 int main(int argc, const char * argv[]) {
-    runTests();
+    //runTests();
     
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {
