@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <array>
 
+#include <boost/multi_array.hpp>
+
 #include "arduino-serial-lib.h"
 
 #include "RealThreesBoard.h"
@@ -19,6 +21,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace boost;
 
 TileInfo::TileInfo(cv::Mat image, int value) {
     this->image = image;
@@ -38,9 +41,9 @@ const Point2f getpoint(const string& window) {
     return p;
 }
 
-const array<Point2f, 4> getQuadrilateral(Mat m) {
+const std::array<Point2f, 4> getQuadrilateral(Mat m) {
     imshow("get rect", m);
-    return array<Point2f, 4>{{getpoint("get rect"),getpoint("get rect"),getpoint("get rect"),getpoint("get rect")}};
+    return std::array<cv::Point2f, 4>{{getpoint("get rect"),getpoint("get rect"),getpoint("get rect"),getpoint("get rect")}};
 }
 
 void RealThreesBoard::connectAndStart(string portName) {
@@ -70,7 +73,7 @@ Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
     return averagedImage;
 }
 
-RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase(array<array<unsigned int, 4>, 4>({array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0}),array<unsigned int, 4>({0,0,0,0})})), watcher(0) {
+RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}), watcher(0) {
     
     this->connectAndStart(portName);
     Mat boardImage(this->getAveragedImage(10));
@@ -122,7 +125,7 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
 }
 
 SimulatedThreesBoard RealThreesBoard::simulatedCopy() const {
-    return SimulatedThreesBoard(std::move(this->board));
+    return SimulatedThreesBoard(this->board);
 }
 
 deque<unsigned int> RealThreesBoard::nextTileHint() const {

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-ThreesBoardBase::ThreesBoardBase(array<array<unsigned int, 4>, 4>const&& boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
+ThreesBoardBase::ThreesBoardBase(array<unsigned int, 16> boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
     
 }
 
@@ -26,7 +26,7 @@ bool ThreesBoardBase::isGameOver() const {
 }
 
 unsigned int ThreesBoardBase::at(BoardIndex const& p) const {
-    return this->board[p.second][p.first];
+    return this->board[p.first*4+p.second];
 }
 
 unsigned int ThreesBoardBase::tileScore(unsigned int tileValue) {
@@ -61,7 +61,7 @@ bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard, vector<T
 }
 
 vector<ThreesBoardBase::BoardIndex> ThreesBoardBase::validIndicesForNewTile(Direction movedDirection) const {
-    array<ThreesBoardBase::BoardIndex, 4> indicies;
+    std::array<ThreesBoardBase::BoardIndex, 4> indicies;
     switch (movedDirection) {
         case LEFT:
             indicies = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
@@ -89,15 +89,11 @@ unsigned int ThreesBoardBase::score() const {
     if (this->scoreCacheIsValid) {
         return this->scoreCache;
     } else {
-        unsigned int result = 0;
-        for (auto&& row : this->board) {
-            for (auto&& tile : row) {
-                result += ThreesBoardBase::tileScore(tile);
-            }
-        }
         this->scoreCacheIsValid = true;
-        this->scoreCache = result;
-        return result;
+        this->scoreCache = accumulate(this->board.begin(), this->board.begin(), 0, [](unsigned int acc, unsigned int tile){
+            return acc + ThreesBoardBase::tileScore(tile);
+        });
+        return this->scoreCache;
     }
 }
 
@@ -201,11 +197,7 @@ deque<pair<unsigned int, float>> ThreesBoardBase::possibleNextTiles() const {
 }
 
 unsigned int ThreesBoardBase::maxTile() const {
-    unsigned int maxTile = 0;
-    for (array<unsigned int, 4> const& row : this->board) {
-        maxTile = max(maxTile, *max_element(row.begin(), row.end()));
-    }
-    return maxTile;
+    return *max_element(board.begin(), board.end());
 }
 
 template < class T >

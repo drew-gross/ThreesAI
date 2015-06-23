@@ -27,41 +27,32 @@ public:
 };
 
 SimulatedThreesBoard SimulatedThreesBoard::randomBoard() {
-    array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
+    std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
-    return fromTileList(initialTiles);
-}
-
-template <typename InputIterator>
-SimulatedThreesBoard SimulatedThreesBoard::fromTileList(const InputIterator ts) {
-    array<array<unsigned int, 4>, 4> initialBoard = array<array<unsigned int, 4>, 4>();
-    for (unsigned i = 0; i < ts.size(); i++) {
-        initialBoard[i/4][i%4] = ts[i];
-    }
-    SimulatedThreesBoard simBoard(std::move(initialBoard));
-    return simBoard;
+    return SimulatedThreesBoard(initialTiles);
 }
 
 SimulatedThreesBoard SimulatedThreesBoard::fromString(const string s) {
     deque<string> nums;
     split(nums, s, is_any_of(","));
+    debug(nums.size() != 16);
     
-    vector<int> tileList;
-    for (auto&& str : nums) {
-        tileList.push_back(stoi(str));
-    }
+    std::array<unsigned int, 16> tileList;
+    transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
+        return stoi(s);
+    });
     
-    return SimulatedThreesBoard::fromTileList(tileList);
+    return SimulatedThreesBoard(tileList);
 }
 
-SimulatedThreesBoard::SimulatedThreesBoard(array<array<unsigned int, 4>, 4>const&& otherBoard) : ThreesBoardBase(std::move(otherBoard)) {
+SimulatedThreesBoard::SimulatedThreesBoard(std::array<unsigned int, 16> otherBoard) : ThreesBoardBase(std::move(otherBoard)) {
 }
 
 void SimulatedThreesBoard::set(BoardIndex const& p, const unsigned int t){
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     
-    this->board[p.second][p.first] = t;
+    this->board[p.first*4+p.second] = t;
 }
 
 SimulatedThreesBoard SimulatedThreesBoard::simulatedCopy() const {

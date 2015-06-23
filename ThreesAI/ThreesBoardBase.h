@@ -29,7 +29,7 @@ class ThreesBoardBase {
 public:
     typedef std::pair<unsigned int, unsigned int> BoardIndex;
     
-    explicit ThreesBoardBase(std::array<std::array<unsigned int, 4>, 4>const&& boardTiles);
+    explicit ThreesBoardBase(std::array<unsigned int, 16> boardTiles);
     
     bool isGameOver() const;
     unsigned int score() const;
@@ -56,7 +56,7 @@ protected:
     unsigned int maxTile() const;
     
     TileStack tileStack;
-    std::array<std::array<unsigned int, 4>, 4> board;
+    std::array<unsigned int, 16> board;
     
     mutable bool isGameOverCache;
     mutable bool isGameOverCacheIsValid;

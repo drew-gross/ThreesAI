@@ -47,11 +47,11 @@ const string project_path = "/Users/drewgross/Projects/ThreesAI/";
 void testImage(path p) {
     Mat image = imread(p.string());
     SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
-    array<array<Mat, 4>, 4> is = IMProc::tileImages(image);
+    array<Mat, 16> is = IMProc::tileImages(image);
     
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            int extratedValue = IMProc::tileValue(is[i][j], IMProc::loadCanonicalTiles());
+            int extratedValue = IMProc::tileValue(is[i*4+j], IMProc::loadCanonicalTiles());
             if (expectedBoard.at({i,j}) != extratedValue) {
                 waitKey();
                 debug();

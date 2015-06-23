@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <numeric>
 
+#include <boost/mpl/transform.hpp>
 #include <opencv2/opencv.hpp>
 
 #include "Debug.h"
@@ -20,6 +21,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace boost;
 
 const cv::SIFT& IMProc::sifter() {
     static cv::SIFT* sift = new cv::SIFT(0,3,0.04,10,1);
@@ -186,25 +188,23 @@ int IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     return bestMatch->value;
 }
 
-array<array<Mat, 4>, 4> IMProc::tileImages(Mat boardImage) {
-    array<array<Mat, 4>, 4> result;
+array<Mat, 16> IMProc::tileImages(Mat boardImage) {
+    array<Mat, 16> result;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            result[j][i] = boardImage(Rect(200*i, 200*j, 200, 200));
+            result[j*4+i] = boardImage(Rect(200*i, 200*j, 200, 200));
         }
     }
     return result;
 }
 
-array<array<unsigned int, 4>, 4> IMProc::boardState(Mat boardImage, const vector<TileInfo>& canonicalTiles) {
-    array<array<Mat, 4>, 4> tiles = tileImages(boardImage);
-    array<array<unsigned int, 4>, 4> board;
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 0; j < 4; j++) {
-            board[j][i] = IMProc::tileValue(tiles[j][i], canonicalTiles);
-        }
-    }
-    return board;
+array<unsigned int, 16> IMProc::boardState(Mat boardImage, const vector<TileInfo>& canonicalTiles) {
+    array<unsigned int, 16> result;
+    array<Mat, 16> images = tileImages(boardImage);
+    transform(images.begin(), images.end(), result.begin(), [&canonicalTiles](Mat image){
+        return tileValue(image, canonicalTiles);
+    });
+    return result;
 }
 
 const vector<TileInfo> IMProc::loadCanonicalTiles() {
@@ -246,7 +246,7 @@ const vector<TileInfo> IMProc::loadCanonicalTiles() {
     warpPerspective(image, t, transform, Size(800,600));
     
     
-    const array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
+    const std::array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
     
     for (unsigned char i = 0; i < 3; i++) {
         for (unsigned char j = 0; j < 4; j++) {

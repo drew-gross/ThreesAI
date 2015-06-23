@@ -19,6 +19,8 @@
 #include <unordered_map>
 #include <iterator>
 
+#include <boost/multi_array.hpp>
+
 #include "TileStack.h"
 #include "ThreesBoardBase.h"
 std::ostream& operator<<(std::ostream &os, Direction d);
@@ -32,10 +34,7 @@ public:
     SimulatedThreesBoard simulatedCopy() const;
     static SimulatedThreesBoard fromString(const std::string s);
     
-    template<typename InputIterator>
-    static SimulatedThreesBoard fromTileList(const InputIterator ts);
-    
-    explicit SimulatedThreesBoard(std::array<std::array<unsigned int, 4>, 4>const&& board);
+    explicit SimulatedThreesBoard(std::array<unsigned int, 16> board);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     std::pair<unsigned int, BoardIndex> move(Direction d);
