@@ -132,6 +132,7 @@ int IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     
     if (tileDescriptors.empty()) {
         //Probably blank
+        MYSHOW(tileImage);
         return 0;
     }
     
@@ -139,6 +140,7 @@ int IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     float min = INFINITY;
     const TileInfo *bestMatch = &canonicalTiles[0];
     
+    vector<DMatch> bestMatches;
     for (auto&& canonicalTile : canonicalTiles) {
         vector<DMatch> matches;
         matcher.match(canonicalTile.descriptors, tileDescriptors, matches);
@@ -169,21 +171,13 @@ int IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
         if (averageDistance < min) {
             min = averageDistance;
             bestMatch = &canonicalTile;
+            bestMatches = matches;
         }
-        
-        
-        Mat matchDrawing;
-        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, matches, matchDrawing);
-        MYSHOW(matchDrawing);
-        
-//        Mat goodMatchDrawing;
-//        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, good_matches, goodMatchDrawing);
-//        MYSHOW(goodMatchDrawing);
-//        
-//        Mat badMatchDrawing;
-//        drawMatches(canonicalTile.image, canonicalTile.keypoints, tileImage, tileKeypoints, bad_matches, badMatchDrawing);
-//        MYSHOW(badMatchDrawing);
     }
+    
+    Mat matchDrawing;
+    drawMatches(bestMatch->image, bestMatch->keypoints, tileImage, tileKeypoints, bestMatches, matchDrawing);
+    MYSHOW(matchDrawing);
     
     return bestMatch->value;
 }

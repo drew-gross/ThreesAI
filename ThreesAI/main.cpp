@@ -56,14 +56,14 @@ void testImage(path p) {
     for (unsigned char i = 0; i < 16; i++) {
         int extratedValue = IMProc::tileValue(is[i], IMProc::loadCanonicalTiles());
         if (expectedBoard.at({i/4,i%4}) != extratedValue) {
-            MYSHOW(is[i]);
             debug();
             failures++;
         } else {
             successes++;
         }
     }
-    debug();
+    MYLOG(failures);
+    MYLOG(successes);
 }
 
 void runTests() {
@@ -75,7 +75,7 @@ void runTests() {
 }
 
 int main(int argc, const char * argv[]) {
-    //runTests();
+    runTests();
     
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {
