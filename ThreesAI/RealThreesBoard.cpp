@@ -76,7 +76,7 @@ Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
 RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}), watcher(0) {
     this->connectAndStart(portName);
     Mat boardImage(this->getAveragedImage(8));
-    this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
+    this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles());
     
     MYSHOW(boardImage);
     MYSHOW(IMProc::colorImageToBoard(boardImage));
@@ -115,7 +115,7 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     
     Mat boardImage(this->getAveragedImage(8));
     this->isGameOverCacheIsValid = false;
-    this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles);
+    this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles());
     if (!this->hasSameTilesAs(expectedBoardAfterMove, possiblyEmptyTilesAfterMoveWithoutAdd)) {
         MYSHOW(boardImage);
         debug();

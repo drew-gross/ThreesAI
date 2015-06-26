@@ -32,11 +32,9 @@ namespace IMProc {
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
     std::array<unsigned int, 16> boardState(cv::Mat boardImage, const std::vector<TileInfo>& canonicalTiles);
-    int tileValue(cv::Mat tileImage, const std::vector<TileInfo>& canonicalTiles);
-    const std::vector<TileInfo> loadCanonicalTiles();
+    std::pair<int, cv::Mat> tileValue(cv::Mat tileImage, const std::vector<TileInfo>& canonicalTiles);
     
-    const std::vector<TileInfo> canonicalTiles = IMProc::loadCanonicalTiles();;
-    
+    const std::vector<TileInfo>& canonicalTiles();
     const cv::SIFT& sifter();
 }
 

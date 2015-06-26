@@ -13,6 +13,7 @@
 
 #include "Logging.h"
 #include "Debug.h"
+#include "IMProc.h"
 
 #include "SimulatedThreesBoard.h"
 #include "RandomAI.h"
@@ -51,13 +52,19 @@ void testImage(path p) {
     
     int successes = 0;
     int failures = 0;
-    
-    MYSHOW(boardImage);
     for (unsigned char i = 0; i < 16; i++) {
-        int extratedValue = IMProc::tileValue(is[i], IMProc::loadCanonicalTiles());
-        if (expectedBoard.at({i/4,i%4}) != extratedValue) {
-            debug();
+        pair<int, Mat> extractedValueAndImage = IMProc::tileValue(is[i], IMProc::canonicalTiles());
+        int extractedValue = extractedValueAndImage.first;
+        int expectedValue = expectedBoard.at({i/4,i%4});
+        if (expectedValue != extractedValue) {
+            for (auto&& canonicalTile : IMProc::canonicalTiles()) {
+                if (canonicalTile.value == expectedValue) {
+                    MYSHOW(IMProc::tileValue(is[i], {canonicalTile}).second);
+                }
+            }
+            MYSHOW(extractedValueAndImage.second);
             failures++;
+            debug();
         } else {
             successes++;
         }

@@ -23,9 +23,68 @@ using namespace std;
 using namespace cv;
 using namespace boost;
 
+const vector<TileInfo>* loadCanonicalTiles() {
+    Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
+    Mat t;
+    
+    Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
+    Mat t2;
+    
+    vector<TileInfo>* results = new vector<TileInfo>();
+    
+    const int L12 = 80;
+    const int R12 = 200;
+    const int T12 = 310;
+    const int B12 = 630;
+    
+    const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
+    const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
+    warpPerspective(image12, t2, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
+    
+    Mat image1;
+    t2(Rect(0,200,200,200)).copyTo(image1);
+    
+    Mat image2;
+    t2(Rect(0,0,200,200)).copyTo(image2);
+    
+    results->push_back(TileInfo(image1, 1));
+    results->push_back(TileInfo(image2, 2));
+    
+    const int L = 80;
+    const int R = 560;
+    const int T = 310;
+    const int B = 800;
+    
+    const Point2f fromPoints[4] = {{L,T},{L,B},{R,B},{R,T}};
+    const Point2f toPoints[4] = {{0,0},{0,600},{800,600},{800,0}};
+    Mat transform = getPerspectiveTransform(fromPoints, toPoints);
+    
+    warpPerspective(image, t, transform, Size(800,600));
+    
+    
+    const std::array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
+    
+    for (unsigned char i = 0; i < 3; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            Mat tile;
+            t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
+            results->push_back(TileInfo(tile, indexToTile[results->size()]));
+        }
+    }
+    
+    results->pop_back(); //Remove the empty spot wher 6144 will eventually go
+    
+    return results;
+}
+
 const cv::SIFT& IMProc::sifter() {
     static cv::SIFT* sift = new cv::SIFT(0,3,0.04,10,1);
     return *sift;
+}
+
+const vector<TileInfo>& IMProc::canonicalTiles() {
+    static const vector<TileInfo>* tiles = loadCanonicalTiles();
+    return *tiles;
 }
 
 void showContours(Mat const image, vector<vector<Point>> const contours) {
@@ -121,7 +180,7 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
 }
 
 
-int IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
+pair<int, Mat> IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     BFMatcher matcher;
     
     vector<KeyPoint> tileKeypoints;
@@ -133,7 +192,7 @@ int IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     if (tileDescriptors.empty()) {
         //Probably blank
         MYSHOW(tileImage);
-        return 0;
+        return {0, tileImage};
     }
     
     vector<float> distances;
@@ -177,9 +236,8 @@ int IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     
     Mat matchDrawing;
     drawMatches(bestMatch->image, bestMatch->keypoints, tileImage, tileKeypoints, bestMatches, matchDrawing);
-    MYSHOW(matchDrawing);
     
-    return bestMatch->value;
+    return {bestMatch->value, matchDrawing};
 }
 
 array<Mat, 16> IMProc::tileImages(Mat boardImage) {
@@ -196,61 +254,7 @@ array<unsigned int, 16> IMProc::boardState(Mat boardImage, const vector<TileInfo
     array<unsigned int, 16> result;
     array<Mat, 16> images = tileImages(boardImage);
     transform(images.begin(), images.end(), result.begin(), [&canonicalTiles](Mat image){
-        return tileValue(image, canonicalTiles);
+        return tileValue(image, canonicalTiles).first;
     });
     return result;
-}
-
-const vector<TileInfo> IMProc::loadCanonicalTiles() {
-    Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
-    Mat t;
-    
-    Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
-    Mat t2;
-    
-    vector<TileInfo> results;
-    
-    const int L12 = 80;
-    const int R12 = 200;
-    const int T12 = 310;
-    const int B12 = 630;
-    
-    const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
-    const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
-    warpPerspective(image12, t2, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
-    
-    Mat image1;
-    t2(Rect(0,200,200,200)).copyTo(image1);
-    
-    Mat image2;
-    t2(Rect(0,0,200,200)).copyTo(image2);
-    
-    results.push_back(TileInfo(image1, 1));
-    results.push_back(TileInfo(image2, 2));
-    
-    const int L = 80;
-    const int R = 560;
-    const int T = 310;
-    const int B = 800;
-    
-    const Point2f fromPoints[4] = {{L,T},{L,B},{R,B},{R,T}};
-    const Point2f toPoints[4] = {{0,0},{0,600},{800,600},{800,0}};
-    Mat transform = getPerspectiveTransform(fromPoints, toPoints);
-    
-    warpPerspective(image, t, transform, Size(800,600));
-    
-    
-    const std::array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
-    
-    for (unsigned char i = 0; i < 3; i++) {
-        for (unsigned char j = 0; j < 4; j++) {
-            Mat tile;
-            t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
-            results.push_back(TileInfo(tile, indexToTile[results.size()]));
-        }
-    }
-    
-    results.pop_back(); //Remove the empty spot wher 6144 will eventually go
-    
-    return results;
 }
