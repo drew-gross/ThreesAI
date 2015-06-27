@@ -203,25 +203,28 @@ pair<int, Mat> IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonica
     for (auto&& canonicalTile : canonicalTiles) {
         vector<DMatch> matches;
         matcher.match(canonicalTile.descriptors, tileDescriptors, matches);
-        //matcher.knnMatch(canonicalTile.descriptors, tileDescriptors, matches, 2);
+        
+        vector<vector<DMatch>> knnMatches;
+        matcher.knnMatch(canonicalTile.descriptors, tileDescriptors, knnMatches, 2);
         //TODO: multiple matches to the same index invalid
         
         //Ratio test
         
-//        vector<DMatch> good_matches;
-//        vector<DMatch> bad_matches;
-//        for (int i = 0; i < matches.size(); ++i) {
-//            const float ratio = 0.8;
-//            if (matches[i].size() > 1) {
-//                if (matches[i][0].distance < ratio * matches[i][1].distance) {
-//                    good_matches.push_back(matches[i][0]);
-//                } else {
-//                    bad_matches.push_back(matches[i][0]);
-//                }
-//            } else {
-//            }
-//        }
+        vector<DMatch> good_matches;
+        vector<DMatch> bad_matches;
+        for (int i = 0; i < matches.size(); ++i) {
+            const float ratio = 0.8;
+            if (knnMatches[i].size() > 1) {
+                if (knnMatches[i][0].distance < ratio * knnMatches[i][1].distance) {
+                    good_matches.push_back(knnMatches[i][0]);
+                } else {
+                    bad_matches.push_back(knnMatches[i][0]);
+                }
+            } else {
+            }
+        }
         
+        //matches = good_matches; //Use ratio test version
         
         float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
             return sum + d.distance;
