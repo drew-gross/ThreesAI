@@ -27,12 +27,20 @@ public:
     int value;
 };
 
+class MatchResult {
+public:
+    MatchResult(TileInfo matchedTile, cv::Mat matchDrawing);
+    
+    TileInfo matchedTile;
+    cv::Mat matchDrawing;
+};
+
 namespace IMProc {
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
     std::array<unsigned int, 16> boardState(cv::Mat boardImage, const std::vector<TileInfo>& canonicalTiles);
-    std::pair<int, cv::Mat> tileValue(cv::Mat tileImage, const std::vector<TileInfo>& canonicalTiles);
+    MatchResult tileValue(cv::Mat tileImage, const std::vector<TileInfo>& canonicalTiles);
     
     const std::vector<TileInfo>& canonicalTiles();
     const cv::SIFT& sifter();

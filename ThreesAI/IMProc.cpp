@@ -23,6 +23,9 @@ using namespace std;
 using namespace cv;
 using namespace boost;
 
+MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing) : matchedTile(matchedTile) , matchDrawing(matchDrawing) {
+}
+
 const vector<TileInfo>* loadCanonicalTiles() {
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat t;
@@ -180,7 +183,7 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
 }
 
 
-pair<int, Mat> IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
+MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     BFMatcher matcher;
     
     vector<KeyPoint> tileKeypoints;
@@ -192,7 +195,7 @@ pair<int, Mat> IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonica
     if (tileDescriptors.empty()) {
         //Probably blank
         MYSHOW(tileImage);
-        return {0, tileImage};
+        return MatchResult(TileInfo(Mat(), 0), Mat());
     }
     
     vector<float> distances;
@@ -224,7 +227,7 @@ pair<int, Mat> IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonica
             }
         }
         
-        //matches = good_matches; //Use ratio test version
+        matches = good_matches; //Use ratio test version
         
         float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
             return sum + d.distance;
@@ -240,7 +243,7 @@ pair<int, Mat> IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonica
     Mat matchDrawing;
     drawMatches(bestMatch->image, bestMatch->keypoints, tileImage, tileKeypoints, bestMatches, matchDrawing);
     
-    return {bestMatch->value, matchDrawing};
+    return MatchResult(*bestMatch, matchDrawing);
 }
 
 array<Mat, 16> IMProc::tileImages(Mat boardImage) {
@@ -257,7 +260,7 @@ array<unsigned int, 16> IMProc::boardState(Mat boardImage, const vector<TileInfo
     array<unsigned int, 16> result;
     array<Mat, 16> images = tileImages(boardImage);
     transform(images.begin(), images.end(), result.begin(), [&canonicalTiles](Mat image){
-        return tileValue(image, canonicalTiles).first;
+        return tileValue(image, canonicalTiles).matchedTile.value;
     });
     return result;
 }

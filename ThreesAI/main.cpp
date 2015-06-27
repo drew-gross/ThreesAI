@@ -53,16 +53,16 @@ void testImage(path p) {
     int successes = 0;
     int failures = 0;
     for (unsigned char i = 0; i < 16; i++) {
-        pair<int, Mat> extractedValueAndImage = IMProc::tileValue(is[i], IMProc::canonicalTiles());
-        int extractedValue = extractedValueAndImage.first;
+        MatchResult extractedValueAndImage = IMProc::tileValue(is[i], IMProc::canonicalTiles());
+        int extractedValue = extractedValueAndImage.matchedTile.value;
         int expectedValue = expectedBoard.at({i/4,i%4});
         if (expectedValue != extractedValue) {
             for (auto&& canonicalTile : IMProc::canonicalTiles()) {
                 if (canonicalTile.value == expectedValue) {
-                    MYSHOW(IMProc::tileValue(is[i], {canonicalTile}).second);
+                    MYSHOW(IMProc::tileValue(is[i], {canonicalTile}).matchDrawing);
                 }
             }
-            MYSHOW(extractedValueAndImage.second);
+            MYSHOW(extractedValueAndImage.matchDrawing);
             failures++;
             debug();
         } else {
