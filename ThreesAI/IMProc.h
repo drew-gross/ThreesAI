@@ -29,10 +29,11 @@ public:
 
 class MatchResult {
 public:
-    MatchResult(TileInfo matchedTile, cv::Mat matchDrawing);
+    MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, std::vector<cv::DMatch> matches);
     
     TileInfo matchedTile;
     cv::Mat matchDrawing;
+    std::vector<cv::DMatch> matches;
 };
 
 namespace IMProc {

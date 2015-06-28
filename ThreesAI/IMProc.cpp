@@ -23,7 +23,7 @@ using namespace std;
 using namespace cv;
 using namespace boost;
 
-MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing) : matchedTile(matchedTile) , matchDrawing(matchDrawing) {
+MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches) : matchedTile(matchedTile), matchDrawing(matchDrawing), matches(matches) {
 }
 
 const vector<TileInfo>* loadCanonicalTiles() {
@@ -184,7 +184,7 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
 
 
 MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
-    BFMatcher matcher;
+    BFMatcher matcher(NORM_L2, false);
     
     vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
@@ -195,7 +195,7 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
     if (tileDescriptors.empty()) {
         //Probably blank
         MYSHOW(tileImage);
-        return MatchResult(TileInfo(Mat(), 0), Mat());
+        return MatchResult(TileInfo(Mat(), 0), Mat(), {});
     }
     
     vector<float> distances;
@@ -207,6 +207,7 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
         vector<DMatch> matches;
         matcher.match(canonicalTile.descriptors, tileDescriptors, matches);
         
+        
         vector<vector<DMatch>> knnMatches;
         matcher.knnMatch(canonicalTile.descriptors, tileDescriptors, knnMatches, 2);
         //TODO: multiple matches to the same index invalid
@@ -216,7 +217,7 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
         vector<DMatch> good_matches;
         vector<DMatch> bad_matches;
         for (int i = 0; i < matches.size(); ++i) {
-            const float ratio = 0.8;
+            const float ratio = 0.6;
             if (knnMatches[i].size() > 1) {
                 if (knnMatches[i][0].distance < ratio * knnMatches[i][1].distance) {
                     good_matches.push_back(knnMatches[i][0]);
@@ -228,6 +229,7 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
         }
         
         matches = good_matches; //Use ratio test version
+        
         
         float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
             return sum + d.distance;
@@ -243,7 +245,7 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
     Mat matchDrawing;
     drawMatches(bestMatch->image, bestMatch->keypoints, tileImage, tileKeypoints, bestMatches, matchDrawing);
     
-    return MatchResult(*bestMatch, matchDrawing);
+    return MatchResult(*bestMatch, matchDrawing, bestMatches);
 }
 
 array<Mat, 16> IMProc::tileImages(Mat boardImage) {
