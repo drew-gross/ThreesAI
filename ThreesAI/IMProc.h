@@ -37,6 +37,18 @@ public:
 };
 
 namespace IMProc {
+    namespace Paramater {
+        const float tileMatchRatioTestRatio = 0.6;
+        const bool tileMatcherCrossCheck = false;
+        const int tileMatcherNormType = cv::NORM_L2;
+        
+        const int siftFeatureCount = 0;
+        const int siftOctaveLayers = 3;
+        const double siftContrastThreshold = 0.04;
+        const double siftEdgeThreshold = 10;
+        const double siftGaussianSigma = 1;
+    }
+    
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);

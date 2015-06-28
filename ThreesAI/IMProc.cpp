@@ -81,7 +81,12 @@ const vector<TileInfo>* loadCanonicalTiles() {
 }
 
 const cv::SIFT& IMProc::sifter() {
-    static cv::SIFT* sift = new cv::SIFT(0,3,0.04,10,1);
+    static cv::SIFT* sift = new cv::SIFT(
+      Paramater::siftFeatureCount,
+      Paramater::siftOctaveLayers,
+      Paramater::siftContrastThreshold,
+      Paramater::siftEdgeThreshold,
+      Paramater::siftGaussianSigma);
     return *sift;
 }
 
@@ -184,7 +189,7 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
 
 
 MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
-    BFMatcher matcher(NORM_L2, false);
+    BFMatcher matcher(Paramater::tileMatcherNormType, Paramater::tileMatcherCrossCheck);
     
     vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
@@ -213,13 +218,11 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
         //TODO: multiple matches to the same index invalid
         
         //Ratio test
-        
         vector<DMatch> good_matches;
         vector<DMatch> bad_matches;
         for (int i = 0; i < matches.size(); ++i) {
-            const float ratio = 0.6;
             if (knnMatches[i].size() > 1) {
-                if (knnMatches[i][0].distance < ratio * knnMatches[i][1].distance) {
+                if (knnMatches[i][0].distance < Paramater::tileMatchRatioTestRatio * knnMatches[i][1].distance) {
                     good_matches.push_back(knnMatches[i][0]);
                 } else {
                     bad_matches.push_back(knnMatches[i][0]);
