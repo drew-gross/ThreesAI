@@ -47,6 +47,8 @@ namespace IMProc {
         const double siftContrastThreshold = 0.04;
         const double siftEdgeThreshold = 10;
         const double siftGaussianSigma = 1;
+        
+        const float matchFractionRejectionThreshold = 0.13;
     }
     
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);

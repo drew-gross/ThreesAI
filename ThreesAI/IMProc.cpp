@@ -187,6 +187,21 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     return outputImage;
 }
 
+float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint> const& trainKeypoints, vector<DMatch> const& matches) {
+    int foundMatches = 0;
+    int missedMatches = 0;
+    for (int i = 0; i < queryKeypoints.size(); i++) {
+        missedMatches++;
+        for (auto&& match : matches) {
+            if (match.queryIdx == i) {
+                foundMatches++;
+                missedMatches--;
+                break;
+            }
+        }
+    }
+    return float(foundMatches)/missedMatches;
+}
 
 MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
     BFMatcher matcher(Paramater::tileMatcherNormType, Paramater::tileMatcherCrossCheck);
@@ -231,8 +246,11 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
             }
         }
         
-        matches = good_matches; //Use ratio test version
+        if (matchNonMatchRatio(canonicalTile.keypoints, tileKeypoints, good_matches) < Paramater::matchFractionRejectionThreshold) {
+            continue;
+        };
         
+        matches = good_matches; //Use ratio test version
         
         float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
             return sum + d.distance;
