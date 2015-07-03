@@ -60,11 +60,13 @@ void testImage(path p) {
             for (auto&& canonicalTile : IMProc::canonicalTiles()) {
                 if (canonicalTile.value == expectedValue) {
                     MYSHOW(IMProc::tileValue(is[i], {canonicalTile}).matchDrawing);
+
                 }
             }
             MYSHOW(extractedValueAndImage.matchDrawing);
-            failures++;
             debug();
+            IMProc::tileValue(is[i], IMProc::canonicalTiles());
+            failures++;
         } else {
             successes++;
         }

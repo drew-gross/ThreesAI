@@ -188,19 +188,7 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
 }
 
 float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint> const& trainKeypoints, vector<DMatch> const& matches) {
-    int foundMatches = 0;
-    int missedMatches = 0;
-    for (int i = 0; i < queryKeypoints.size(); i++) {
-        missedMatches++;
-        for (auto&& match : matches) {
-            if (match.queryIdx == i) {
-                foundMatches++;
-                missedMatches--;
-                break;
-            }
-        }
-    }
-    return float(foundMatches)/missedMatches;
+    return float(matches.size())/(queryKeypoints.size()+trainKeypoints.size());
 }
 
 MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
@@ -215,7 +203,7 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
     if (tileDescriptors.empty()) {
         //Probably blank
         MYSHOW(tileImage);
-        return MatchResult(TileInfo(Mat(), 0), Mat(), {});
+        return MatchResult(TileInfo(Mat(), 0), tileImage, {});
     }
     
     vector<float> distances;
@@ -245,7 +233,6 @@ MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTi
             } else {
             }
         }
-        
         if (matchNonMatchRatio(canonicalTile.keypoints, tileKeypoints, good_matches) < Paramater::matchFractionRejectionThreshold) {
             continue;
         };

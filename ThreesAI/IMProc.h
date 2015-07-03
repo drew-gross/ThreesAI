@@ -38,7 +38,7 @@ public:
 
 namespace IMProc {
     namespace Paramater {
-        const float tileMatchRatioTestRatio = 0.6;
+        const float tileMatchRatioTestRatio = 0.62; // Higher means more feature matches are accepted as "good" by the ratio test
         const bool tileMatcherCrossCheck = false;
         const int tileMatcherNormType = cv::NORM_L2;
         
@@ -48,7 +48,7 @@ namespace IMProc {
         const double siftEdgeThreshold = 10;
         const double siftGaussianSigma = 1;
         
-        const float matchFractionRejectionThreshold = 0.13;
+        const float matchFractionRejectionThreshold = 0.11; // High means more image matches are rejected for having too many non-matching features
     }
     
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
