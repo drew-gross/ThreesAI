@@ -78,7 +78,7 @@ void runTests() {
 
 int main(int argc, const char * argv[]) {
     runTests();
-    
+    /*
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {
         TileStack::randomGenerator.seed(seed);
@@ -88,6 +88,6 @@ int main(int argc, const char * argv[]) {
         turnsSurvived.push_back(ai.board->numTurns);
         MYLOG(seed);
     }
-    MYLOG(turnsSurvived);
+    MYLOG(turnsSurvived);*/
     return 0;
 }

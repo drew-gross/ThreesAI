@@ -212,10 +212,6 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
     vector<vector<DMatch>> knnMatches;
     matcher.knnMatch(candidate.descriptors, tileDescriptors, knnMatches, 2);
 
-    Mat allMatchesImage;
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, knnMatches, allMatchesImage);
-    MYSHOW(allMatchesImage);
-    
     //Ratio test
     vector<DMatch> ratioPassingMatches;
     for (int i = 0; i < knnMatches.size(); ++i) {
@@ -229,10 +225,6 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
     }
     
     //Remove matches the have the same query or train index
-    Mat ratioPassingImage;
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, ratioPassingMatches, ratioPassingImage);
-    MYSHOW(ratioPassingImage);
-    
     vector<DMatch> noDupeMatches;
     for (auto&& queryMatch : ratioPassingMatches) {
         bool passes = true;
@@ -247,10 +239,6 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
             noDupeMatches.push_back(queryMatch);
         }
     }
-    
-    Mat noDupeImage;
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, noDupeMatches, noDupeImage);
-    MYSHOW(noDupeImage);
     
     this->matches = noDupeMatches;
     if (noDupeMatches.size() == 0) {
