@@ -233,9 +233,13 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
     }
     
     this->matches = good_matches;
-    this->averageDistance = accumulate(this->matches.begin(), this->matches.end(), float(0), [](float sum, DMatch d) {
-        return sum + d.distance;
-    })/this->matches.size();
+    if (good_matches.size() == 0) {
+        this->averageDistance = INFINITY;
+    } else {
+        this->averageDistance = accumulate(this->matches.begin(), this->matches.end(), float(0), [](float sum, DMatch d) {
+            return sum + d.distance;
+        })/this->matches.size();
+    }
     this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, good_matches);
     
     Mat mdrawing;
@@ -262,22 +266,25 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     }
     
     if (matchResults.size() == 0) {
+        //If there are matches, but no good ones, probably a 1
         return MatchResult(TileInfo(Mat(), 1), tileImage, {}, INFINITY, INFINITY);
     }
     
-    vector<float> distances;
-    float min = INFINITY;
-    const MatchResult *bestResult = &matchResults[0];
+    sort(matchResults.begin(), matchResults.end(), [](MatchResult l, MatchResult r){
+        return l.averageDistance < r.averageDistance;
+    });
     
-    vector<DMatch> bestMatches;
-    for (auto&& m : matchResults) {
-        if (m.averageDistance < min) {
-            min = m.averageDistance;
-            bestResult = &m;
-        }
+    float lowestAverageDistance = matchResults[0].averageDistance;
+    auto potentailMatchEnd = matchResults.begin();
+    while (potentailMatchEnd->averageDistance < lowestAverageDistance*Paramater::goodEnoughAverageMultiplier) {
+        potentailMatchEnd++;
     }
     
-    return *bestResult;
+    sort(matchResults.begin(), potentailMatchEnd, [](MatchResult l, MatchResult r){
+        return l.matchingKeypointFraction > r.matchingKeypointFraction;
+    });
+    
+    return matchResults[0];
 }
 
 array<Mat, 16> IMProc::tileImages(Mat boardImage) {

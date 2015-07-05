@@ -51,7 +51,6 @@ void testImage(path p) {
     SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
     array<Mat, 16> is = IMProc::tileImages(boardImage);
     
-    int successes = 0;
     int failures = 0;
     for (unsigned char i = 0; i < 16; i++) {
         MatchResult match = IMProc::tileValue(is[i], IMProc::canonicalTiles());
@@ -61,17 +60,12 @@ void testImage(path p) {
             MatchResult expectedMatch(IMProc::canonicalTiles().at(expectedValue), is[i]);
             MYSHOW(match.drawing);
             MYSHOW(expectedMatch.drawing);
-            MYLOG(match.averageDistance);
-            MYLOG(expectedMatch.averageDistance);
             debug();
             IMProc::tileValue(is[i], IMProc::canonicalTiles());
             failures++;
-        } else {
-            successes++;
         }
     }
     MYLOG(failures);
-    MYLOG(successes);
 }
 
 void runTests() {
