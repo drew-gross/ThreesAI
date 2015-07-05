@@ -46,24 +46,23 @@ void playOneGame() {
 const string project_path = "/Users/drewgross/Projects/ThreesAI/";
 
 void testImage(path p) {
-    Mat boardImage = IMProc::colorImageToBoard(imread(p.string()));
+    Mat image = imread(p.string());
+    Mat boardImage = IMProc::colorImageToBoard(image);
     SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
     array<Mat, 16> is = IMProc::tileImages(boardImage);
     
     int successes = 0;
     int failures = 0;
     for (unsigned char i = 0; i < 16; i++) {
-        MatchResult extractedValueAndImage = IMProc::tileValue(is[i], IMProc::canonicalTiles());
-        int extractedValue = extractedValueAndImage.matchedTile.value;
+        MatchResult match = IMProc::tileValue(is[i], IMProc::canonicalTiles());
+        int extractedValue = match.tile.value;
         int expectedValue = expectedBoard.at({i/4,i%4});
         if (expectedValue != extractedValue) {
-            for (auto&& canonicalTile : IMProc::canonicalTiles()) {
-                if (canonicalTile.value == expectedValue) {
-                    MYSHOW(IMProc::tileValue(is[i], {canonicalTile}).matchDrawing);
-
-                }
-            }
-            MYSHOW(extractedValueAndImage.matchDrawing);
+            MatchResult expectedMatch(IMProc::canonicalTiles().at(expectedValue), is[i]);
+            MYSHOW(match.drawing);
+            MYSHOW(expectedMatch.drawing);
+            MYLOG(match.averageDistance);
+            MYLOG(expectedMatch.averageDistance);
             debug();
             IMProc::tileValue(is[i], IMProc::canonicalTiles());
             failures++;

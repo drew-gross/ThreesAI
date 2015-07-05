@@ -29,16 +29,24 @@ public:
 
 class MatchResult {
 public:
-    MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, std::vector<cv::DMatch> matches);
+    MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, std::vector<cv::DMatch> matches, float averageDistance, float matchingKeypointsFraction);
+    MatchResult(TileInfo t, cv::Mat image);
     
-    TileInfo matchedTile;
-    cv::Mat matchDrawing;
+    TileInfo tile;
+    cv::Mat drawing;
     std::vector<cv::DMatch> matches;
+    float averageDistance;
+    float matchingKeypointFraction;
 };
 
 namespace IMProc {
     namespace Paramater {
-        const float tileMatchRatioTestRatio = 0.62; // Higher means more feature matches are accepted as "good" by the ratio test
+        const double cannyRejectThreshold = 60;
+        const double cannyAcceptThreshold = 100;
+        const int cannyApertureSize = 3;
+        const bool cannyUseL2 = true;
+        
+        const float tileMatchRatioTestRatio = 0.75; // Higher means more feature matches are accepted as "good" by the ratio test
         const bool tileMatcherCrossCheck = false;
         const int tileMatcherNormType = cv::NORM_L2;
         
@@ -47,17 +55,15 @@ namespace IMProc {
         const double siftContrastThreshold = 0.04;
         const double siftEdgeThreshold = 10;
         const double siftGaussianSigma = 1;
-        
-        const float matchFractionRejectionThreshold = 0.11; // High means more image matches are rejected for having too many non-matching features
     }
     
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
-    std::array<unsigned int, 16> boardState(cv::Mat boardImage, const std::vector<TileInfo>& canonicalTiles);
-    MatchResult tileValue(cv::Mat tileImage, const std::vector<TileInfo>& canonicalTiles);
+    std::array<unsigned int, 16> boardState(cv::Mat boardImage, const std::map<int, TileInfo>& canonicalTiles);
+    MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
     
-    const std::vector<TileInfo>& canonicalTiles();
+    const std::map<int, TileInfo>& canonicalTiles();
     const cv::SIFT& sifter();
 }
 

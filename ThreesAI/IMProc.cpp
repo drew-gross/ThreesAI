@@ -23,17 +23,17 @@ using namespace std;
 using namespace cv;
 using namespace boost;
 
-MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches) : matchedTile(matchedTile), matchDrawing(matchDrawing), matches(matches) {
+MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches, float averageDistance, float matchingKeypointsFraction) : tile(matchedTile), drawing(matchDrawing), matches(matches), averageDistance(averageDistance), matchingKeypointFraction(matchingKeypointsFraction){
 }
 
-const vector<TileInfo>* loadCanonicalTiles() {
+const map<int, TileInfo>* loadCanonicalTiles() {
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat t;
     
     Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
     Mat t2;
     
-    vector<TileInfo>* results = new vector<TileInfo>();
+    map<int, TileInfo>* results = new map<int, TileInfo>();
     
     const int L12 = 80;
     const int R12 = 200;
@@ -50,8 +50,8 @@ const vector<TileInfo>* loadCanonicalTiles() {
     Mat image2;
     t2(Rect(0,0,200,200)).copyTo(image2);
     
-    results->push_back(TileInfo(image1, 1));
-    results->push_back(TileInfo(image2, 2));
+    results->emplace(piecewise_construct, forward_as_tuple(1), forward_as_tuple(image1, 1));
+    results->emplace(piecewise_construct, forward_as_tuple(2), forward_as_tuple(image2, 2));
     
     const int L = 80;
     const int R = 560;
@@ -71,11 +71,11 @@ const vector<TileInfo>* loadCanonicalTiles() {
         for (unsigned char j = 0; j < 4; j++) {
             Mat tile;
             t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
-            results->push_back(TileInfo(tile, indexToTile[results->size()]));
+            results->emplace(piecewise_construct, forward_as_tuple(indexToTile[results->size()]), forward_as_tuple(tile, indexToTile[results->size()]));
         }
     }
     
-    results->pop_back(); //Remove the empty spot wher 6144 will eventually go
+    results->erase(6144); //Remove the empty spot where 6144 will eventually go
     
     return results;
 }
@@ -90,8 +90,8 @@ const cv::SIFT& IMProc::sifter() {
     return *sift;
 }
 
-const vector<TileInfo>& IMProc::canonicalTiles() {
-    static const vector<TileInfo>* tiles = loadCanonicalTiles();
+const map<int, TileInfo>& IMProc::canonicalTiles() {
+    static const map<int, TileInfo>* tiles = loadCanonicalTiles();
     return *tiles;
 }
 
@@ -108,7 +108,7 @@ vector<Point> IMProc::findScreenContour(Mat const& image) {
     GaussianBlur(image, blurredCopy, Size(5,5), 2);
     
     Mat cannyCopy;
-    Canny(blurredCopy, cannyCopy, 60, 200, 3, true);
+    Canny(blurredCopy, cannyCopy, Paramater::cannyRejectThreshold, Paramater::cannyAcceptThreshold, Paramater::cannyApertureSize, Paramater::cannyUseL2);
     
     Mat contourCopy;
     cannyCopy.copyTo(contourCopy);
@@ -157,14 +157,14 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     Mat greyBoardImage;
     Mat screenImage;
     Mat outputImage;
-    Mat contoursImage;
-    colorBoardImage.copyTo(contoursImage);
     
     cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
     
     vector<Point> screenContour = IMProc::findScreenContour(greyBoardImage);
     //TODO: handle empty screenContour
 
+    //showContours(colorBoardImage, {screenContour});
+    
     const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
     const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
     
@@ -191,69 +191,93 @@ float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint
     return float(matches.size())/(queryKeypoints.size()+trainKeypoints.size());
 }
 
-MatchResult IMProc::tileValue(Mat tileImage, const vector<TileInfo>& canonicalTiles) {
-    BFMatcher matcher(Paramater::tileMatcherNormType, Paramater::tileMatcherCrossCheck);
-    
+MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
+    BFMatcher matcher(IMProc::Paramater::tileMatcherNormType, IMProc::Paramater::tileMatcherCrossCheck);
     vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
+    
+    IMProc::sifter().detect(image, tileKeypoints);
+    IMProc::sifter().compute(image, tileKeypoints, tileDescriptors);
+    
+    //vector<DMatch> matches;
+    //matcher.match(t.descriptors, tileDescriptors, matches);
+    
+    if (tileDescriptors.empty()) {
+        this->averageDistance = INFINITY;
+        this->matches = {};
+        
+        Mat mdrawing;
+        drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, mdrawing);
+        this->drawing = mdrawing;
+        return;
+    }
+    
+    vector<vector<DMatch>> knnMatches;
+    matcher.knnMatch(candidate.descriptors, tileDescriptors, knnMatches, 2);
+    
+    //TODO: multiple matches to the same index invalid
+    
+    //Ratio test
+    vector<DMatch> good_matches;
+    vector<DMatch> bad_matches;
+    for (int i = 0; i < knnMatches.size(); ++i) {
+        if (knnMatches[i].size() > 1) {
+            if (knnMatches[i][0].distance < IMProc::Paramater::tileMatchRatioTestRatio * knnMatches[i][1].distance) {
+                good_matches.push_back(knnMatches[i][0]);
+            } else {
+                bad_matches.push_back(knnMatches[i][0]);
+            }
+        } else if (knnMatches[i].size() == 1) {
+            good_matches.push_back(knnMatches[i][0]);
+        }
+    }
+    
+    this->matches = good_matches;
+    this->averageDistance = accumulate(this->matches.begin(), this->matches.end(), float(0), [](float sum, DMatch d) {
+        return sum + d.distance;
+    })/this->matches.size();
+    this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, good_matches);
+    
+    Mat mdrawing;
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, mdrawing);
+    this->drawing = mdrawing;
+}
+
+MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& canonicalTiles) {
+    
+    Mat tileDescriptors;
+    vector<KeyPoint> tileKeypoints;
     
     IMProc::sifter().detect(tileImage, tileKeypoints);
     IMProc::sifter().compute(tileImage, tileKeypoints, tileDescriptors);
     
     if (tileDescriptors.empty()) {
         //Probably blank
-        MYSHOW(tileImage);
-        return MatchResult(TileInfo(Mat(), 0), tileImage, {});
+        return MatchResult(TileInfo(Mat(), 0), tileImage, {}, INFINITY, INFINITY);
+    }
+    
+    vector<MatchResult> matchResults;
+    for (auto&& t : canonicalTiles) {
+        matchResults.emplace_back(t.second, tileImage);
+    }
+    
+    if (matchResults.size() == 0) {
+        return MatchResult(TileInfo(Mat(), 1), tileImage, {}, INFINITY, INFINITY);
     }
     
     vector<float> distances;
     float min = INFINITY;
-    const TileInfo *bestMatch = &canonicalTiles[0];
+    const MatchResult *bestResult = &matchResults[0];
     
     vector<DMatch> bestMatches;
-    for (auto&& canonicalTile : canonicalTiles) {
-        vector<DMatch> matches;
-        matcher.match(canonicalTile.descriptors, tileDescriptors, matches);
-        
-        
-        vector<vector<DMatch>> knnMatches;
-        matcher.knnMatch(canonicalTile.descriptors, tileDescriptors, knnMatches, 2);
-        //TODO: multiple matches to the same index invalid
-        
-        //Ratio test
-        vector<DMatch> good_matches;
-        vector<DMatch> bad_matches;
-        for (int i = 0; i < matches.size(); ++i) {
-            if (knnMatches[i].size() > 1) {
-                if (knnMatches[i][0].distance < Paramater::tileMatchRatioTestRatio * knnMatches[i][1].distance) {
-                    good_matches.push_back(knnMatches[i][0]);
-                } else {
-                    bad_matches.push_back(knnMatches[i][0]);
-                }
-            } else {
-            }
-        }
-        if (matchNonMatchRatio(canonicalTile.keypoints, tileKeypoints, good_matches) < Paramater::matchFractionRejectionThreshold) {
-            continue;
-        };
-        
-        matches = good_matches; //Use ratio test version
-        
-        float averageDistance = accumulate(matches.begin(), matches.end(), float(0), [](float sum, DMatch d) {
-            return sum + d.distance;
-        })/float(matches.size());
-        
-        if (averageDistance < min) {
-            min = averageDistance;
-            bestMatch = &canonicalTile;
-            bestMatches = matches;
+    for (auto&& m : matchResults) {
+        if (m.averageDistance < min) {
+            min = m.averageDistance;
+            bestResult = &m;
         }
     }
     
-    Mat matchDrawing;
-    drawMatches(bestMatch->image, bestMatch->keypoints, tileImage, tileKeypoints, bestMatches, matchDrawing);
-    
-    return MatchResult(*bestMatch, matchDrawing, bestMatches);
+    return *bestResult;
 }
 
 array<Mat, 16> IMProc::tileImages(Mat boardImage) {
@@ -266,11 +290,11 @@ array<Mat, 16> IMProc::tileImages(Mat boardImage) {
     return result;
 }
 
-array<unsigned int, 16> IMProc::boardState(Mat boardImage, const vector<TileInfo>& canonicalTiles) {
+array<unsigned int, 16> IMProc::boardState(Mat boardImage, const map<int, TileInfo>& canonicalTiles) {
     array<unsigned int, 16> result;
     array<Mat, 16> images = tileImages(boardImage);
     transform(images.begin(), images.end(), result.begin(), [&canonicalTiles](Mat image){
-        return tileValue(image, canonicalTiles).matchedTile.value;
+        return tileValue(image, canonicalTiles).tile.value;
     });
     return result;
 }
