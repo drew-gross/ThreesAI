@@ -56,7 +56,7 @@ namespace IMProc {
         const double siftEdgeThreshold = 10;
         const double siftGaussianSigma = 1;
         
-        const float goodEnoughAverageMultiplier = 1.2;
+        const float goodEnoughAverageMultiplier = 1.4;
     }
     
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);

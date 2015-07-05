@@ -199,9 +199,6 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
     IMProc::sifter().detect(image, tileKeypoints);
     IMProc::sifter().compute(image, tileKeypoints, tileDescriptors);
     
-    //vector<DMatch> matches;
-    //matcher.match(t.descriptors, tileDescriptors, matches);
-    
     if (tileDescriptors.empty()) {
         this->averageDistance = INFINITY;
         this->matches = {};
@@ -214,33 +211,56 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
     
     vector<vector<DMatch>> knnMatches;
     matcher.knnMatch(candidate.descriptors, tileDescriptors, knnMatches, 2);
-    
-    //TODO: multiple matches to the same index invalid
+
+    Mat allMatchesImage;
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, knnMatches, allMatchesImage);
+    MYSHOW(allMatchesImage);
     
     //Ratio test
-    vector<DMatch> good_matches;
-    vector<DMatch> bad_matches;
+    vector<DMatch> ratioPassingMatches;
     for (int i = 0; i < knnMatches.size(); ++i) {
         if (knnMatches[i].size() > 1) {
             if (knnMatches[i][0].distance < IMProc::Paramater::tileMatchRatioTestRatio * knnMatches[i][1].distance) {
-                good_matches.push_back(knnMatches[i][0]);
-            } else {
-                bad_matches.push_back(knnMatches[i][0]);
+                ratioPassingMatches.push_back(knnMatches[i][0]);
             }
         } else if (knnMatches[i].size() == 1) {
-            good_matches.push_back(knnMatches[i][0]);
+            ratioPassingMatches.push_back(knnMatches[i][0]);
         }
     }
     
-    this->matches = good_matches;
-    if (good_matches.size() == 0) {
+    //Remove matches the have the same query or train index
+    Mat ratioPassingImage;
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, ratioPassingMatches, ratioPassingImage);
+    MYSHOW(ratioPassingImage);
+    
+    vector<DMatch> noDupeMatches;
+    for (auto&& queryMatch : ratioPassingMatches) {
+        bool passes = true;
+        for (auto&& otherMatch : ratioPassingMatches) {
+            if (&queryMatch != &otherMatch) {
+                if (queryMatch.queryIdx == otherMatch.queryIdx || queryMatch.trainIdx == otherMatch.trainIdx) {
+                    passes = false;
+                }
+            }
+        }
+        if (passes) {
+            noDupeMatches.push_back(queryMatch);
+        }
+    }
+    
+    Mat noDupeImage;
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, noDupeMatches, noDupeImage);
+    MYSHOW(noDupeImage);
+    
+    this->matches = noDupeMatches;
+    if (noDupeMatches.size() == 0) {
         this->averageDistance = INFINITY;
     } else {
         this->averageDistance = accumulate(this->matches.begin(), this->matches.end(), float(0), [](float sum, DMatch d) {
             return sum + d.distance;
         })/this->matches.size();
     }
-    this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, good_matches);
+    this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, noDupeMatches);
     
     Mat mdrawing;
     drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, mdrawing);

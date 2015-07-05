@@ -61,7 +61,7 @@ void testImage(path p) {
             MYSHOW(match.drawing);
             MYSHOW(expectedMatch.drawing);
             debug();
-            IMProc::tileValue(is[i], IMProc::canonicalTiles());
+            MatchResult(IMProc::canonicalTiles().at(expectedValue), is[i]);
             failures++;
         }
     }
