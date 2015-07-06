@@ -8,13 +8,23 @@
 
 #include "ThreesBoardBase.h"
 
-#include <iostream>
-#include <iomanip>
-
 using namespace std;
 
 ThreesBoardBase::ThreesBoardBase(array<unsigned int, 16> boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
     
+}
+
+std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board){
+    os << "Upcoming: " << board.nextTileHint() << std::endl;
+    if (board.isGameOver()) {
+        os << "Final";
+    } else {
+        os << "Current";
+    }
+    os << " Score: " << board.score() << std::endl;
+    os << "Number of turns: " << board.numTurns << std::endl;
+    os << board.board;
+    return os;
 }
 
 bool ThreesBoardBase::isGameOver() const {
@@ -198,34 +208,4 @@ deque<pair<unsigned int, float>> ThreesBoardBase::possibleNextTiles() const {
 
 unsigned int ThreesBoardBase::maxTile() const {
     return *max_element(board.begin(), board.end());
-}
-
-template < class T >
-ostream& operator << (ostream& os, const deque<T>& v)
-{
-    os << "[";
-    for (typename deque<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
-    {
-        os << " " << *ii;
-    }
-    os << "]";
-    return os;
-}
-
-ostream& operator<<(ostream &os, ThreesBoardBase const& board){
-    os << "Upcoming: " << board.nextTileHint() << endl;
-    if (board.isGameOver()) {
-        os << "Final";
-    } else {
-        os << "Current";
-    }
-    os << " Score: " <<  board.score() << endl;
-    os << "Number of turns: " << board.numTurns << endl;
-    os << "---------------------" << endl;
-    os << "|" << setw(4) << board.at({0,0}) << "|" << setw(4) << board.at({1,0}) << "|" << setw(4) << board.at({2,0}) << "|" << setw(4) << board.at({3,0}) << "|" << endl;
-    os << "|" << setw(4) << board.at({0,1}) << "|" << setw(4) << board.at({1,1}) << "|" << setw(4) << board.at({2,1}) << "|" << setw(4) << board.at({3,1}) << "|" << endl;
-    os << "|" << setw(4) << board.at({0,2}) << "|" << setw(4) << board.at({1,2}) << "|" << setw(4) << board.at({2,2}) << "|" << setw(4) << board.at({3,2}) << "|" << endl;
-    os << "|" << setw(4) << board.at({0,3}) << "|" << setw(4) << board.at({1,3}) << "|" << setw(4) << board.at({2,3}) << "|" << setw(4) << board.at({3,3}) << "|" << endl;
-    os << "---------------------";
-    return os;
 }

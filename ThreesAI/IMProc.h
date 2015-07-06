@@ -52,11 +52,12 @@ namespace IMProc {
         
         const int siftFeatureCount = 0;
         const int siftOctaveLayers = 3;
-        const double siftContrastThreshold = 0.04;
-        const double siftEdgeThreshold = 10;
+        const double siftContrastThreshold = 0.04; // Higher means more features are rejected for not having enough contrast
+        const double siftEdgeThreshold = 10; // Higher means less features are rejected for being too edge like
         const double siftGaussianSigma = 1;
         
         const float goodEnoughAverageMultiplier = 1.4;
+        const float zeroOrOneStdDevThreshold = 4.5; // Lower means more images with no descriptors will be classified as a 1;
     }
     
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);

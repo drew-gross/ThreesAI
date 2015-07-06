@@ -10,6 +10,8 @@
 #define __ThreesAI__ThreesBoardBase__
 
 #include <stdio.h>
+#include <iostream>
+#include <iomanip>
 
 #include <array>
 #include <vector>
@@ -17,6 +19,7 @@
 
 #include "Direction.h"
 #include "TileStack.h"
+#include "Logging.h"
 
 class InvalidMoveException : public std::logic_error {
 public:

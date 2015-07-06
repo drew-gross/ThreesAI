@@ -75,12 +75,8 @@ Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
 
 RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}), watcher(0) {
     this->connectAndStart(portName);
-    Mat boardImage(this->getAveragedImage(8));
-    this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles());
-    
-    MYSHOW(boardImage);
-    MYSHOW(IMProc::colorImageToBoard(boardImage));
-    debug();
+    this->image = this->getAveragedImage(8);
+    this->board = IMProc::boardState(IMProc::colorImageToBoard(this->image), IMProc::canonicalTiles());
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -109,17 +105,27 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
         serialport_flush(fd);
     }
     
+    //show old and new images
+    Mat newImage(this->getAveragedImage(8));
+    MYSHOW(newImage);
+    MYSHOW(this->image);
+    
+    //show old new, and expected board
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
     expectedBoardAfterMove.moveWithoutAdd(d);
-    vector<ThreesBoardBase::BoardIndex> possiblyEmptyTilesAfterMoveWithoutAdd = expectedBoardAfterMove.validIndicesForNewTile(d);
+    vector<ThreesBoardBase::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
+    //MYLOG(*this);
+    //MYLOG(expectedBoardAfterMove);
+    std::array<unsigned int, 16> newBoardState = IMProc::boardState(IMProc::colorImageToBoard(this->image), IMProc::canonicalTiles());
+    MYLOG(newBoardState);
     
-    Mat boardImage(this->getAveragedImage(8));
-    this->isGameOverCacheIsValid = false;
-    this->board = IMProc::boardState(IMProc::colorImageToBoard(boardImage), IMProc::canonicalTiles());
-    if (!this->hasSameTilesAs(expectedBoardAfterMove, possiblyEmptyTilesAfterMoveWithoutAdd)) {
-        MYSHOW(boardImage);
+    if (!this->hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
         debug();
     }
+    
+    this->isGameOverCacheIsValid = false;
+    this->image = newImage;
+    this->board = newBoardState;
     
     //TODO: Get the actual location and value of the new tile
     return {0,{0,0}};

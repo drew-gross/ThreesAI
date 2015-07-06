@@ -256,7 +256,6 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
 }
 
 MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& canonicalTiles) {
-    
     Mat tileDescriptors;
     vector<KeyPoint> tileKeypoints;
     
@@ -264,8 +263,15 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     IMProc::sifter().compute(tileImage, tileKeypoints, tileDescriptors);
     
     if (tileDescriptors.empty()) {
-        //Probably blank
-        return MatchResult(TileInfo(Mat(), 0), tileImage, {}, INFINITY, INFINITY);
+        //Probably either a zero or a 1, guess based on image variance
+        Scalar mean;
+        Scalar stdDev;
+        meanStdDev(tileImage, mean, stdDev);;
+        if (stdDev[0] < Paramater::zeroOrOneStdDevThreshold) {
+            return MatchResult(TileInfo(Mat(), 0), tileImage, {}, INFINITY, INFINITY);
+        } else {
+            return MatchResult(TileInfo(Mat(), 1), tileImage, {}, INFINITY, INFINITY);
+        }
     }
     
     vector<MatchResult> matchResults;

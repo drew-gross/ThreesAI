@@ -31,6 +31,7 @@ private:
     cv::VideoCapture watcher;
     
     cv::Mat getAveragedImage(unsigned char numImages);
+    cv::Mat image;
     
     int fd;
     
