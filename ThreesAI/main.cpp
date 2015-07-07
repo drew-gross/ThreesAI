@@ -55,20 +55,21 @@ void testImage(path p) {
     for (unsigned char i = 0; i < 16; i++) {
         MatchResult match = IMProc::tileValue(is[i], IMProc::canonicalTiles());
         int extractedValue = match.tile.value;
-        int expectedValue = expectedBoard.at({i/4,i%4});
+        int expectedValue = expectedBoard.at({i%4,i/4});
+        MYLOG(match.matchingKeypointFraction);
         if (expectedValue != extractedValue) {
             MatchResult expectedMatch(IMProc::canonicalTiles().at(expectedValue), is[i]);
             MYSHOW(match.drawing);
             MYSHOW(expectedMatch.drawing);
             debug();
-            MatchResult(IMProc::canonicalTiles().at(expectedValue), is[i]);
+            IMProc::tileValue(is[i], IMProc::canonicalTiles());
             failures++;
         }
     }
     MYLOG(failures);
 }
 
-void runTests() {
+void testImageProc() {
     for (auto&& image : directory_iterator(project_path + "TestCaseImages/")) {
         if (image.path().extension() == ".png") {
             testImage(image.path());
@@ -76,8 +77,48 @@ void runTests() {
     }
 }
 
+void testBoardMovement() {
+    SimulatedThreesBoard b = SimulatedThreesBoard::fromString("0,0,0,0,\
+                                                               0,0,1,0,\
+                                                               0,0,0,0,\
+                                                               0,0,0,0");
+    b.moveWithoutAdd(LEFT);
+    debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
+                                                              0,1,0,0,\
+                                                              0,0,0,0,\
+                                                              0,0,0,0"), {}));
+    b.moveWithoutAdd(DOWN);
+    debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
+                                                              0,0,0,0,\
+                                                              0,1,0,0,\
+                                                              0,0,0,0"), {}));
+    b.moveWithoutAdd(RIGHT);
+    debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
+                                                              0,0,0,0,\
+                                                              0,0,1,0,\
+                                                              0,0,0,0"), {}));
+    b.moveWithoutAdd(UP);
+    debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
+                                                              0,0,1,0,\
+                                                              0,0,0,0,\
+                                                              0,0,0,0"), {}));
+    
+    
+    SimulatedThreesBoard x = SimulatedThreesBoard::fromString("6,0,0,0,\
+                                                               0,0,1,0,\
+                                                               0,0,6,0,\
+                                                               0,6,0,0");
+    
+    SimulatedThreesBoard y = SimulatedThreesBoard::fromString("3,0,0,0,\
+                                                               0,0,1,0,\
+                                                               0,0,3,0,\
+                                                               0,3,0,0");
+    debug(!x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}}));
+}
+
 int main(int argc, const char * argv[]) {
-    //runTests();
+    testImageProc();
+    testBoardMovement();
     
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {

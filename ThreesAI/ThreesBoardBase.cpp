@@ -8,7 +8,7 @@
 
 #include "ThreesBoardBase.h"
 
-
+#include "Debug.h"
 #include "Logging.h"
 
 using namespace std;
@@ -39,7 +39,7 @@ bool ThreesBoardBase::isGameOver() const {
 }
 
 unsigned int ThreesBoardBase::at(BoardIndex const& p) const {
-    return this->board[p.first*4+p.second];
+    return this->board[p.first+p.second*4];
 }
 
 unsigned int ThreesBoardBase::tileScore(unsigned int tileValue) {
@@ -59,13 +59,15 @@ unsigned int ThreesBoardBase::tileScore(unsigned int tileValue) {
 }
 
 bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard, vector<ThreesBoardBase::BoardIndex> excludedIndices) const {
-
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
             ThreesBoardBase::BoardIndex curIndex(i,j);
             if (find(excludedIndices.begin(), excludedIndices.end(), curIndex) == excludedIndices.end()) {
-                if (this->at(curIndex) != otherBoard.at(curIndex)) {
-                    return  false;
+                unsigned int tile = this->at(curIndex);
+                unsigned int otherTile = otherBoard.at(curIndex);
+                if (tile != otherTile) {
+                    debug();
+                    return false;
                 }
             }
         }
@@ -103,7 +105,7 @@ unsigned int ThreesBoardBase::score() const {
         return this->scoreCache;
     } else {
         this->scoreCacheIsValid = true;
-        this->scoreCache = accumulate(this->board.begin(), this->board.begin(), 0, [](unsigned int acc, unsigned int tile){
+        this->scoreCache = accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc, unsigned int tile){
             return acc + ThreesBoardBase::tileScore(tile);
         });
         return this->scoreCache;

@@ -24,8 +24,6 @@ class SimulatedThreesBoard : public ThreesBoardBase {
 public:
     static SimulatedThreesBoard randomBoard();
     
-    TileStack tileStack;
-    
     SimulatedThreesBoard simulatedCopy() const;
     static SimulatedThreesBoard fromString(const std::string s);
     

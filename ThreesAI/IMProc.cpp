@@ -288,6 +288,8 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         return l.averageDistance < r.averageDistance;
     });
     
+    //TODO: try removing any match with matchingKeypointFraction < 0.055
+    
     float lowestAverageDistance = matchResults[0].averageDistance;
     auto potentailMatchEnd = matchResults.begin();
     while (potentailMatchEnd->averageDistance < lowestAverageDistance*Paramater::goodEnoughAverageMultiplier) {
@@ -305,7 +307,7 @@ array<Mat, 16> IMProc::tileImages(Mat boardImage) {
     array<Mat, 16> result;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            result[j*4+i] = boardImage(Rect(200*i, 200*j, 200, 200));
+            result[i+j*4] = boardImage(Rect(200*i, 200*j, 200, 200));
         }
     }
     return result;

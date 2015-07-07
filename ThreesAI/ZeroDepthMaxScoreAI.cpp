@@ -30,37 +30,32 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
     SimulatedThreesBoard downBoard(this->board->simulatedCopy());
     
     try {
-        leftBoard.move(LEFT);
+        leftBoard.moveWithoutAdd(LEFT);
         scoresForMoves.push_back({LEFT, leftBoard.score()});
     } catch (InvalidMoveException) {
         //Carry on trying the others
     }
     
     try {
-        rightBoard.move(RIGHT);
+        rightBoard.moveWithoutAdd(RIGHT);
         scoresForMoves.push_back({RIGHT, rightBoard.score()});
     } catch (InvalidMoveException &e) {
         //Carry on with the others
     }
     
     try {
-        upBoard.move(UP);
+        upBoard.moveWithoutAdd(UP);
         scoresForMoves.push_back({UP, upBoard.score()});
     } catch (InvalidMoveException &e) {
         //Carry on with the others
     }
     
     try {
-        downBoard.move(DOWN);
+        downBoard.moveWithoutAdd(DOWN);
         scoresForMoves.push_back({DOWN, downBoard.score()});
     } catch (InvalidMoveException &e) {
         //Carry on with the others
     }
-    
-    MYLOG(leftBoard);
-    MYLOG(rightBoard);
-    MYLOG(upBoard);
-    MYLOG(downBoard);
     
     debug(scoresForMoves.empty());
     Direction d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){

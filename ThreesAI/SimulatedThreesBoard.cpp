@@ -52,7 +52,7 @@ void SimulatedThreesBoard::set(BoardIndex const& p, const unsigned int t){
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     
-    this->board[p.first*4+p.second] = t;
+    this->board[p.first+p.second*4] = t;
 }
 
 SimulatedThreesBoard SimulatedThreesBoard::simulatedCopy() const {
