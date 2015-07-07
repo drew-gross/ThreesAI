@@ -6,10 +6,15 @@
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //
 
+#include <stdio.h>
+#include <iostream>
+
 #include "ZeroDepthMaxScoreAI.h"
+#include "ThreesBoardBase.h"
 #include "SimulatedThreesBoard.h"
 
 #include "Debug.h"
+#include "Logging.h"
 
 using namespace std;
 
@@ -19,9 +24,12 @@ ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(unique_ptr<ThreesBoardBase>&& board) : 
 
 Direction ZeroDepthMaxScoreAI::playTurn() {
     vector<pair<Direction, unsigned int>> scoresForMoves;
+    SimulatedThreesBoard leftBoard(this->board->simulatedCopy());
+    SimulatedThreesBoard rightBoard(this->board->simulatedCopy());
+    SimulatedThreesBoard upBoard(this->board->simulatedCopy());
+    SimulatedThreesBoard downBoard(this->board->simulatedCopy());
     
     try {
-        SimulatedThreesBoard leftBoard(this->board->simulatedCopy());
         leftBoard.move(LEFT);
         scoresForMoves.push_back({LEFT, leftBoard.score()});
     } catch (InvalidMoveException) {
@@ -29,7 +37,6 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
     }
     
     try {
-        SimulatedThreesBoard rightBoard(this->board->simulatedCopy());
         rightBoard.move(RIGHT);
         scoresForMoves.push_back({RIGHT, rightBoard.score()});
     } catch (InvalidMoveException &e) {
@@ -37,7 +44,6 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
     }
     
     try {
-        SimulatedThreesBoard upBoard(this->board->simulatedCopy());
         upBoard.move(UP);
         scoresForMoves.push_back({UP, upBoard.score()});
     } catch (InvalidMoveException &e) {
@@ -45,12 +51,16 @@ Direction ZeroDepthMaxScoreAI::playTurn() {
     }
     
     try {
-        SimulatedThreesBoard downBoard(this->board->simulatedCopy());
         downBoard.move(DOWN);
         scoresForMoves.push_back({DOWN, downBoard.score()});
     } catch (InvalidMoveException &e) {
         //Carry on with the others
     }
+    
+    MYLOG(leftBoard);
+    MYLOG(rightBoard);
+    MYLOG(upBoard);
+    MYLOG(downBoard);
     
     debug(scoresForMoves.empty());
     Direction d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){

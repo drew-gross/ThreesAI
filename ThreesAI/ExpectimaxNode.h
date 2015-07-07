@@ -12,6 +12,7 @@
 #include <list>
 #include <map>
 #include <stdio.h>
+#include <iostream>
 
 #include "SimulatedThreesBoard.h"
 

@@ -10,20 +10,15 @@
 #define __ThreesAI__ThreesBoard__
 
 #include <stdio.h>
-#include <iostream>
 #include <array>
 #include <vector>
 #include <random>
-#include <stack>
 #include <exception>
-#include <unordered_map>
-#include <iterator>
 
-#include <boost/multi_array.hpp>
+#include "ThreesBoardBase.h"
 
 #include "TileStack.h"
-#include "ThreesBoardBase.h"
-std::ostream& operator<<(std::ostream &os, Direction d);
+
 
 class SimulatedThreesBoard : public ThreesBoardBase {
 public:
@@ -42,7 +37,6 @@ public:
     bool moveWithoutAdd(Direction d);
     
     void set(BoardIndex const& i, const unsigned int t);
-    friend std::ostream& operator<<(std::ostream &os, SimulatedThreesBoard const& board);
     std::deque<unsigned int> nextTileHint() const;
 
 private:
@@ -52,6 +46,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream &os, const SimulatedThreesBoard::BoardIndex e);
-std::ostream& operator<<(std::ostream &os, const ThreesBoardBase::ThreesBoardBase &e);
+std::ostream& operator<<(std::ostream &os, Direction d);
 
 #endif /* defined(__ThreesAI__ThreesBoard__) */

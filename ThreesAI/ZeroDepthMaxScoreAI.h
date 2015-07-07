@@ -10,7 +10,6 @@
 #define __ThreesAI__ZeroDepthMaxScoreAI__
 
 #include "ThreesAIBase.h"
-#include "SimulatedThreesBoard.h"
 
 class ZeroDepthMaxScoreAI : public ThreesAIBase {
     

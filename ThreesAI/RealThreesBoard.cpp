@@ -116,7 +116,8 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     vector<ThreesBoardBase::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
     //MYLOG(*this);
     //MYLOG(expectedBoardAfterMove);
-    std::array<unsigned int, 16> newBoardState = IMProc::boardState(IMProc::colorImageToBoard(this->image), IMProc::canonicalTiles());
+    std::array<unsigned int, 16> newBoardState = IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles());
+    MYLOG(this->board);
     MYLOG(newBoardState);
     
     if (!this->hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
