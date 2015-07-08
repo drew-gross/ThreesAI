@@ -279,28 +279,32 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         matchResults.emplace_back(t.second, tileImage);
     }
     
-    if (matchResults.size() == 0) {
-        //If there are matches, but no good ones, probably a 1
-        return MatchResult(TileInfo(Mat(), 1), tileImage, {}, INFINITY, INFINITY);
-    }
-    
     sort(matchResults.begin(), matchResults.end(), [](MatchResult l, MatchResult r){
         return l.averageDistance < r.averageDistance;
     });
     
-    //TODO: try removing any match with matchingKeypointFraction < 0.055
+    vector<MatchResult> goodMatchResults;
+    for (auto&& m : matchResults) {
+        if (m.matchingKeypointFraction > 0.055) {
+            goodMatchResults.push_back(m);
+        }
+    }
     
-    float lowestAverageDistance = matchResults[0].averageDistance;
-    auto potentailMatchEnd = matchResults.begin();
-    while (potentailMatchEnd->averageDistance < lowestAverageDistance*Paramater::goodEnoughAverageMultiplier) {
+    if (goodMatchResults.empty()) {
+        return matchResults[0];
+    }
+    
+    float lowestAverageDistance = goodMatchResults[0].averageDistance;
+    auto potentailMatchEnd = goodMatchResults.begin();
+    while (potentailMatchEnd != goodMatchResults.end() && potentailMatchEnd->averageDistance < lowestAverageDistance*Paramater::goodEnoughAverageMultiplier) {
         potentailMatchEnd++;
     }
     
-    sort(matchResults.begin(), potentailMatchEnd, [](MatchResult l, MatchResult r){
+    sort(goodMatchResults.begin(), potentailMatchEnd, [](MatchResult l, MatchResult r){
         return l.matchingKeypointFraction > r.matchingKeypointFraction;
     });
     
-    return matchResults[0];
+    return goodMatchResults[0];
 }
 
 array<Mat, 16> IMProc::tileImages(Mat boardImage) {
