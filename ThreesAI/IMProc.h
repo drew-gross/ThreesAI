@@ -61,6 +61,9 @@ namespace IMProc {
         const float minimumMatchingKeypointFraction = 0.055;
     }
     
+    const cv::Point2f getPoint(const std::string& window);
+    const std::array<cv::Point2f, 4> getQuadrilateral(cv::Mat m);
+    
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);

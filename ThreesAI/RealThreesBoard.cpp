@@ -28,23 +28,6 @@ TileInfo::TileInfo(cv::Mat image, int value) {
     IMProc::sifter().detect(image, this->keypoints);
     IMProc::sifter().compute(image, this->keypoints, this->descriptors);
 }
-
-const Point2f getpoint(const string& window) {
-    Point2f p;
-    setMouseCallback(window, [](int event, int x, int y, int flags, void* userdata){
-        Point2f *p = (Point2f*)userdata;
-        p->x = x;
-        p->y = y;
-    }, &p);
-    waitKey();
-    return p;
-}
-
-const std::array<Point2f, 4> getQuadrilateral(Mat m) {
-    imshow("get rect", m);
-    return std::array<cv::Point2f, 4>{{getpoint("get rect"),getpoint("get rect"),getpoint("get rect"),getpoint("get rect")}};
-}
-
 void RealThreesBoard::connectAndStart(string portName) {
     this->fd = serialport_init(portName.c_str(), 9600);
     sleep(2); //Necessary to initialize the output for some

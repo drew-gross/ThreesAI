@@ -23,6 +23,22 @@ using namespace cv;
 MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches, float averageDistance, float matchingKeypointsFraction) : tile(matchedTile), drawing(matchDrawing), matches(matches), averageDistance(averageDistance), matchingKeypointFraction(matchingKeypointsFraction){
 }
 
+const Point2f IMProc::getPoint(const string& window) {
+    Point2f p;
+    setMouseCallback(window, [](int event, int x, int y, int flags, void* userdata){
+        Point2f *p = (Point2f*)userdata;
+        p->x = x;
+        p->y = y;
+    }, &p);
+    waitKey();
+    return p;
+}
+
+const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
+    imshow("get rect", m);
+    return std::array<cv::Point2f, 4>{{getPoint("get rect"),getPoint("get rect"),getPoint("get rect"),getPoint("get rect")}};
+}
+
 const map<int, TileInfo>* loadCanonicalTiles() {
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat t;
