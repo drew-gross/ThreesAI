@@ -22,7 +22,7 @@ public:
     SimulatedThreesBoard simulatedCopy() const;
     static SimulatedThreesBoard fromString(const std::string s);
     
-    explicit SimulatedThreesBoard(std::array<unsigned int, 16> board);
+    explicit SimulatedThreesBoard(Board board);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     std::pair<unsigned int, BoardIndex> move(Direction d);

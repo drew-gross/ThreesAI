@@ -13,7 +13,7 @@
 
 using namespace std;
 
-ThreesBoardBase::ThreesBoardBase(array<unsigned int, 16> boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
+ThreesBoardBase::ThreesBoardBase(Board boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
     
 }
 

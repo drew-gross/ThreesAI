@@ -15,6 +15,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/nonfree/nonfree.hpp>
 
+#include "ThreesBoardBase.h"
+
 class TileInfo {
 public:
     TileInfo(cv::Mat image, int value);
@@ -62,7 +64,7 @@ namespace IMProc {
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
-    std::array<unsigned int, 16> boardState(cv::Mat boardImage, const std::map<int, TileInfo>& canonicalTiles);
+    ThreesBoardBase::Board boardState(cv::Mat boardImage, const std::map<int, TileInfo>& canonicalTiles);
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
     
     const std::map<int, TileInfo>& canonicalTiles();

@@ -44,7 +44,7 @@ SimulatedThreesBoard SimulatedThreesBoard::fromString(const string s) {
     return SimulatedThreesBoard(tileList);
 }
 
-SimulatedThreesBoard::SimulatedThreesBoard(std::array<unsigned int, 16> otherBoard) : ThreesBoardBase(std::move(otherBoard)) {
+SimulatedThreesBoard::SimulatedThreesBoard(Board otherBoard) : ThreesBoardBase(std::move(otherBoard)) {
 }
 
 void SimulatedThreesBoard::set(BoardIndex const& p, const unsigned int t){
