@@ -9,10 +9,11 @@
 #ifndef __ThreesAI__ExpectimaxNode__
 #define __ThreesAI__ExpectimaxNode__
 
-#include <list>
-#include <map>
 #include <stdio.h>
 #include <iostream>
+
+#include <list>
+#include <map>
 
 #include "SimulatedThreesBoard.h"
 

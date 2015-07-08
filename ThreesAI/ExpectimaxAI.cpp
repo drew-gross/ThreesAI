@@ -8,8 +8,6 @@
 
 #include "ExpectimaxAI.h"
 
-#include <time.h>
-
 #include "Debug.h"
 #include "Logging.h"
 

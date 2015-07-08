@@ -9,16 +9,11 @@
 #ifndef __ThreesAI__ThreesBoard__
 #define __ThreesAI__ThreesBoard__
 
-#include <stdio.h>
 #include <array>
 #include <vector>
-#include <random>
-#include <exception>
+#include <deque>
 
 #include "ThreesBoardBase.h"
-
-#include "TileStack.h"
-
 
 class SimulatedThreesBoard : public ThreesBoardBase {
 public:

@@ -6,22 +6,21 @@
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //2
 
-#include "Debug.h"
-#include "Logging.h"
+
+#include "RealThreesBoard.h"
 
 #include <unistd.h>
 #include <array>
 
-#include <boost/multi_array.hpp>
-
 #include "arduino-serial-lib.h"
 
-#include "RealThreesBoard.h"
 #include "SimulatedThreesBoard.h"
+
+#include "Debug.h"
+#include "Logging.h"
 
 using namespace std;
 using namespace cv;
-using namespace boost;
 
 TileInfo::TileInfo(cv::Mat image, int value) {
     this->image = image;

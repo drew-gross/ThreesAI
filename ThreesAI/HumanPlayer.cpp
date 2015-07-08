@@ -16,7 +16,6 @@ HumanPlayer::HumanPlayer(std::unique_ptr<ThreesBoardBase>&& board) : ThreesAIBas
     
 }
 
-
 Direction HumanPlayer::playTurn() {
     try {
         switch (getchar()) {

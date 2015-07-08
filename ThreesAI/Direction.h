@@ -9,8 +9,6 @@
 #ifndef __ThreesAI__Direction__
 #define __ThreesAI__Direction__
 
-#include <stdio.h>
-
 typedef enum Direction {
     UP,
     DOWN,

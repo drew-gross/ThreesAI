@@ -9,9 +9,9 @@
 #ifndef __ThreesAI__RandomAI__
 #define __ThreesAI__RandomAI__
 
-#include <memory>
-
 #include "ThreesAIBase.h"
+
+#include <memory>
 
 class RandomAI : public ThreesAIBase {
 public:

@@ -10,10 +10,8 @@
 
 #include <vector>
 #include <array>
-#include <algorithm>
 #include <numeric>
 
-#include <boost/mpl/transform.hpp>
 #include <opencv2/opencv.hpp>
 
 #include "Debug.h"
@@ -21,7 +19,6 @@
 
 using namespace std;
 using namespace cv;
-using namespace boost;
 
 MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches, float averageDistance, float matchingKeypointsFraction) : tile(matchedTile), drawing(matchDrawing), matches(matches), averageDistance(averageDistance), matchingKeypointFraction(matchingKeypointsFraction){
 }
@@ -285,7 +282,7 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     
     vector<MatchResult> goodMatchResults;
     for (auto&& m : matchResults) {
-        if (m.matchingKeypointFraction > 0.055) {
+        if (m.matchingKeypointFraction > Paramater::minimumMatchingKeypointFraction) {
             goodMatchResults.push_back(m);
         }
     }

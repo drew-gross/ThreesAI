@@ -9,8 +9,6 @@
 #ifndef __ThreesAI__IMProc__
 #define __ThreesAI__IMProc__
 
-#include <stdio.h>
-
 #include <vector>
 #include <array>
 
@@ -58,6 +56,7 @@ namespace IMProc {
         
         const float goodEnoughAverageMultiplier = 1.4;
         const float zeroOrOneStdDevThreshold = 4.5; // Lower means more images with no descriptors will be classified as a 1;
+        const float minimumMatchingKeypointFraction = 0.055;
     }
     
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);

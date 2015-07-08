@@ -6,11 +6,11 @@
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //
 
+#include "ZeroDepthMaxScoreAI.h"
+
 #include <stdio.h>
 #include <iostream>
 
-#include "ZeroDepthMaxScoreAI.h"
-#include "ThreesBoardBase.h"
 #include "SimulatedThreesBoard.h"
 
 #include "Debug.h"

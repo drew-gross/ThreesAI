@@ -6,9 +6,10 @@
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //
 
+#include "RandomAI.h"
+
 #include <vector>
 
-#include "RandomAI.h"
 #include "TileStack.h"
 
 using namespace std;

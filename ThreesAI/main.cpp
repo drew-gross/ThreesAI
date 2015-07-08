@@ -16,10 +16,8 @@
 #include "IMProc.h"
 
 #include "SimulatedThreesBoard.h"
-#include "RandomAI.h"
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
-#include "HumanPlayer.h"
 #include "RealThreesBoard.h"
 
 #include <boost/filesystem.hpp>
@@ -56,7 +54,6 @@ void testImage(path p) {
         MatchResult match = IMProc::tileValue(is[i], IMProc::canonicalTiles());
         int extractedValue = match.tile.value;
         int expectedValue = expectedBoard.at({i%4,i/4});
-        MYLOG(match.matchingKeypointFraction);
         if (expectedValue != extractedValue) {
             MatchResult expectedMatch(IMProc::canonicalTiles().at(expectedValue), is[i]);
             MYSHOW(match.drawing);

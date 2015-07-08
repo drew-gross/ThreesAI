@@ -8,12 +8,13 @@
 
 #include "ExpectimaxMoveNode.h"
 
-#include "ExpextimaxChanceNode.h"
 
 #include <iomanip>
 
-#include "Debug.h"
+#include "ExpextimaxChanceNode.h"
 #include "ThreesBoardBase.h"
+
+#include "Debug.h"
 
 using namespace std;
 

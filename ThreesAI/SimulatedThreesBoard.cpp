@@ -7,16 +7,15 @@
 //
 
 #include "SimulatedThreesBoard.h"
+
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
-#include <exception>
-#include <iterator>
+#include <boost/algorithm/string.hpp>
 
 #include "Logging.h"
 #include "Debug.h"
 
-#include <boost/algorithm/string.hpp>
 
 using namespace std;
 using namespace boost;
