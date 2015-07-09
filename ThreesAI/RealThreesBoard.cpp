@@ -87,6 +87,9 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
         serialport_flush(fd);
     }
     
+    //Wait 1s to allow image to stabilize
+    sleep(1);
+    
     //show old and new images
     Mat newImage(this->getAveragedImage(8));
     MYSHOW(newImage);
@@ -100,9 +103,9 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     MYLOG(this->board);
     MYLOG(newBoardState);
     MYLOG(expectedBoardAfterMove);
-    
-    if (!this->hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
+    if (!SimulatedThreesBoard(newBoardState).hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
         debug();
+        SimulatedThreesBoard(newBoardState).hasSameTilesAs(expectedBoardAfterMove, unknownIndexes);
     }
     
     this->isGameOverCacheIsValid = false;

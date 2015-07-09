@@ -62,6 +62,7 @@ protected:
     
     mutable bool scoreCacheIsValid;
     mutable unsigned int scoreCache;
+    friend std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board);
 };
 
 std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board);

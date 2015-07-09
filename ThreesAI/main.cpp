@@ -109,13 +109,13 @@ void testBoardMovement() {
     SimulatedThreesBoard y = SimulatedThreesBoard::fromString("3,0,0,0,\
                                                                0,0,1,0,\
                                                                0,0,3,0,\
-                                                               0,3,0,0");
-    debug(!x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}}));
+                                                               0,0,2,0");
+    debug(!x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}, {2,3}}));
 }
 
 int main(int argc, const char * argv[]) {
-    testImageProc();
     testBoardMovement();
+//    testImageProc();
     
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {
