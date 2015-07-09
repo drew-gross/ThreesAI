@@ -115,7 +115,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-//    testImageProc();
+    //testImageProc();
     
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {

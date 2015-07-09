@@ -58,7 +58,7 @@ namespace IMProc {
         
         const float goodEnoughAverageMultiplier = 1.4;
         const float zeroOrOneStdDevThreshold = 4.5; // Lower means more images with no descriptors will be classified as a 1;
-        const float minimumMatchingKeypointFraction = 0.055;
+        const float minimumMatchingKeypointFraction = 0.054;
     }
     
     const cv::Point2f getPoint(const std::string& window);

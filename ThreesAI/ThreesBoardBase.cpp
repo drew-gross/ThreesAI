@@ -66,7 +66,6 @@ bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard, vector<T
                 unsigned int tile = this->at(curIndex);
                 unsigned int otherTile = otherBoard.at(curIndex);
                 if (tile != otherTile) {
-                    debug();
                     return false;
                 }
             }

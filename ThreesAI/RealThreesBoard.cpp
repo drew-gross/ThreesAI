@@ -100,10 +100,11 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     expectedBoardAfterMove.moveWithoutAdd(d);
     vector<ThreesBoardBase::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
     Board newBoardState = IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles());
-    MYLOG(this->board);
-    MYLOG(newBoardState);
-    MYLOG(expectedBoardAfterMove);
     if (!SimulatedThreesBoard(newBoardState).hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
+        
+        MYLOG(this->board);
+        MYLOG(newBoardState);
+        MYLOG(expectedBoardAfterMove);
         debug();
         SimulatedThreesBoard(newBoardState).hasSameTilesAs(expectedBoardAfterMove, unknownIndexes);
     }

@@ -237,7 +237,8 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
         }
     }
     
-    //Remove matches the have the same query or train index
+    //Remove matches the have the same keypoint as another match.
+    //TODO: keep the best match of the matches that have the same keypoints
     vector<DMatch> noDupeMatches;
     for (auto&& queryMatch : ratioPassingMatches) {
         bool passes = true;
@@ -304,7 +305,10 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     }
     
     if (goodMatchResults.empty()) {
-        return matchResults[0];
+        //This is a hack: if the image has descriptors but no good matches, its probably a 1.
+        //Alternative would be "return matches[0]" which returns the one with the best average
+        //distance among the shitty matches.
+        return MatchResult(TileInfo(Mat(), 1), tileImage, {}, INFINITY, INFINITY);
     }
     
     float lowestAverageDistance = goodMatchResults[0].averageDistance;
