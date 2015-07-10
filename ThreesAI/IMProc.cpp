@@ -20,7 +20,7 @@
 using namespace std;
 using namespace cv;
 
-MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches, float averageDistance, float matchingKeypointsFraction) : tile(matchedTile), drawing(matchDrawing), matches(matches), averageDistance(averageDistance), matchingKeypointFraction(matchingKeypointsFraction){
+MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches, float averageDistance, float matchingKeypointsFraction) : tile(matchedTile), matches(matches), averageDistance(averageDistance), matchingKeypointFraction(matchingKeypointsFraction){
 }
 
 const Point2f IMProc::getPoint(const string& window) {
@@ -204,7 +204,7 @@ float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint
     return float(matches.size())/(queryKeypoints.size()+trainKeypoints.size());
 }
 
-MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
+MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate), knnDrawing(), ratioPassDrawing(), noDupeDrawing() {
     BFMatcher matcher(IMProc::Paramater::tileMatcherNormType, IMProc::Paramater::tileMatcherCrossCheck);
     vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
@@ -216,14 +216,15 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
         this->averageDistance = INFINITY;
         this->matches = {};
         
-        Mat mdrawing;
-        drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, mdrawing);
-        this->drawing = mdrawing;
+        drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, this->knnDrawing);
+        drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, this->ratioPassDrawing);
+        drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, this->noDupeDrawing);
         return;
     }
     
     vector<vector<DMatch>> knnMatches;
     matcher.knnMatch(candidate.descriptors, tileDescriptors, knnMatches, 2);
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, knnMatches, this->knnDrawing);
 
     //Ratio test
     vector<DMatch> ratioPassingMatches;
@@ -237,22 +238,22 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
         }
     }
     
-    //Remove matches the have the same keypoint as another match.
-    //TODO: keep the best match of the matches that have the same keypoints
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, ratioPassingMatches, this->ratioPassDrawing);
+    
+    //Remove matches if there is a better match to the same keypoint
     vector<DMatch> noDupeMatches;
     for (auto&& queryMatch : ratioPassingMatches) {
         bool passes = true;
         for (auto&& otherMatch : ratioPassingMatches) {
-            if (&queryMatch != &otherMatch) {
-                if (queryMatch.queryIdx == otherMatch.queryIdx || queryMatch.trainIdx == otherMatch.trainIdx) {
-                    passes = false;
-                }
+            if ((queryMatch.queryIdx == otherMatch.queryIdx || queryMatch.trainIdx == otherMatch.trainIdx) && queryMatch.distance < otherMatch.distance) {
+                passes = false;
             }
         }
         if (passes) {
             noDupeMatches.push_back(queryMatch);
         }
     }
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, noDupeMatches, this->noDupeDrawing);
     
     this->matches = noDupeMatches;
     if (noDupeMatches.size() == 0) {
@@ -263,10 +264,6 @@ MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate) {
         })/this->matches.size();
     }
     this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, noDupeMatches);
-    
-    Mat mdrawing;
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, mdrawing);
-    this->drawing = mdrawing;
 }
 
 MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& canonicalTiles) {

@@ -33,7 +33,9 @@ public:
     MatchResult(TileInfo t, cv::Mat image);
     
     TileInfo tile;
-    cv::Mat drawing;
+    cv::Mat knnDrawing;
+    cv::Mat ratioPassDrawing;
+    cv::Mat noDupeDrawing;
     std::vector<cv::DMatch> matches;
     float averageDistance;
     float matchingKeypointFraction;
@@ -57,8 +59,8 @@ namespace IMProc {
         const double siftGaussianSigma = 1;
         
         const float goodEnoughAverageMultiplier = 1.4;
-        const float zeroOrOneStdDevThreshold = 4.5; // Lower means more images with no descriptors will be classified as a 1;
-        const float minimumMatchingKeypointFraction = 0.054;
+        const float zeroOrOneStdDevThreshold = 4.65; // Lower means more images with no descriptors will be classified as a 1;
+        const float minimumMatchingKeypointFraction = 0.052;
     }
     
     const cv::Point2f getPoint(const std::string& window);

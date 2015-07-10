@@ -55,10 +55,21 @@ void testImage(path p) {
         int extractedValue = match.tile.value;
         int expectedValue = expectedBoard.at({i%4,i/4});
         if (expectedValue != extractedValue) {
-            MatchResult expectedMatch(IMProc::canonicalTiles().at(expectedValue), is[i]);
-            MYSHOW(match.drawing);
-            MYSHOW(expectedMatch.drawing);
-            debug();
+            if (expectedValue != 0) {
+                MatchResult expectedMatch(IMProc::canonicalTiles().at(expectedValue), is[i]);
+                MYSHOW(expectedMatch.knnDrawing);
+                MYSHOW(expectedMatch.ratioPassDrawing);
+                MYSHOW(expectedMatch.noDupeDrawing);
+                MYSHOW(match.knnDrawing);
+                MYSHOW(match.ratioPassDrawing);
+                MYSHOW(match.noDupeDrawing);
+                debug();
+            } else {
+                MYSHOW(match.knnDrawing);
+                MYSHOW(match.ratioPassDrawing);
+                MYSHOW(match.noDupeDrawing);
+                debug();
+            }
             IMProc::tileValue(is[i], IMProc::canonicalTiles());
             failures++;
         }
@@ -115,7 +126,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    //testImageProc();
+    testImageProc();
     
     deque<unsigned int> turnsSurvived;
     for (int seed=1; seed <= 3; seed++) {
