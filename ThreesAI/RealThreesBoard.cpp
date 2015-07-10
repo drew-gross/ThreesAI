@@ -49,8 +49,9 @@ Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
         return averagedImage;
     }
     averagedImage = Mat::zeros(images[0].rows, images[0].cols, images[0].type());
-    for (unsigned char i = 0; i < numImages; i++) {
-        averagedImage += images[i]/numImages;
+    for (auto&& image : images) {
+        debug(image.rows != averagedImage.rows || image.cols != averagedImage.cols);
+        averagedImage += image/numImages;
     }
     return averagedImage;
 }

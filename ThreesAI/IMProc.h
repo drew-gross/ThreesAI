@@ -58,7 +58,7 @@ namespace IMProc {
         const double siftEdgeThreshold = 10; // Higher means less features are rejected for being too edge like
         const double siftGaussianSigma = 1;
         
-        const float goodEnoughAverageMultiplier = 1.4;
+        const float goodEnoughAverageMultiplier = 1.3;
         const float zeroOrOneStdDevThreshold = 4.65; // Lower means more images with no descriptors will be classified as a 1;
         const float minimumMatchingKeypointFraction = 0.052;
     }
