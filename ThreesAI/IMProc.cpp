@@ -38,10 +38,10 @@ const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
 
 const map<int, TileInfo>* loadCanonicalTiles() {
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
-    Mat t;
+    Mat boardImage;
     
     Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
-    Mat t2;
+    Mat board12;
     
     map<int, TileInfo>* results = new map<int, TileInfo>();
     
@@ -52,16 +52,10 @@ const map<int, TileInfo>* loadCanonicalTiles() {
     
     const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
     const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
-    warpPerspective(image12, t2, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
+    warpPerspective(image12, board12, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
     
-    Mat image1;
-    t2(Rect(0,200,200,200)).copyTo(image1);
-    
-    Mat image2;
-    t2(Rect(0,0,200,200)).copyTo(image2);
-    
-    results->emplace(piecewise_construct, forward_as_tuple(1), forward_as_tuple(image1, 1, IMProc::canonicalSifter()));
-    results->emplace(piecewise_construct, forward_as_tuple(2), forward_as_tuple(image2, 2, IMProc::canonicalSifter()));
+    results->emplace(piecewise_construct, forward_as_tuple(1), forward_as_tuple(IMProc::tileFromIntersection(board12, 0, 200), 1, IMProc::canonicalSifter()));
+    results->emplace(piecewise_construct, forward_as_tuple(2), forward_as_tuple(IMProc::tileFromIntersection(board12, 0, 0), 2, IMProc::canonicalSifter()));
     
     const int L = 80;
     const int R = 560;
@@ -72,29 +66,32 @@ const map<int, TileInfo>* loadCanonicalTiles() {
     const Point2f toPoints[4] = {{0,0},{0,600},{800,600},{800,0}};
     Mat transform = getPerspectiveTransform(fromPoints, toPoints);
     
-    warpPerspective(image, t, transform, Size(800,600));
+    warpPerspective(image, boardImage, transform, Size(800,600));
     
     
     const std::array<int, 14> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072,6144};
     
     for (unsigned char i = 0; i < 3; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            Mat tile;
-            t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
-            
             int value = indexToTile[results->size()];
-            
-            //dirty hack to get an empty tile into the map/
+            //dirty hack to get an empty tile into the map
             //TODO: fix this.
             if (value == 6144) {
                 value = 0;
             }
             
-            results->emplace(piecewise_construct, forward_as_tuple(value), forward_as_tuple(tile, value, IMProc::canonicalSifter()));
+            results->emplace(piecewise_construct, forward_as_tuple(value), forward_as_tuple(IMProc::tileFromIntersection(boardImage, 200*j, 200*i), value, IMProc::canonicalSifter()));
         }
     }
     
     return results;
+}
+
+const Mat IMProc::tileFromIntersection(Mat image, int x, int y) {
+    return image(Rect(x + Paramater::ignoredEdgePadding,
+                      y + Paramater::ignoredEdgePadding,
+                      200 - Paramater::ignoredEdgePadding*2,
+                      200 - Paramater::ignoredEdgePadding*2));
 }
 
 const cv::SIFT& IMProc::canonicalSifter() {
@@ -347,7 +344,7 @@ array<Mat, 16> IMProc::tileImages(Mat boardImage) {
     array<Mat, 16> result;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            result[i+j*4] = boardImage(Rect(200*i, 200*j, 200, 200));
+            result[i+j*4] = IMProc::tileFromIntersection(boardImage, 200*i, 200*j);
         }
     }
     return result;

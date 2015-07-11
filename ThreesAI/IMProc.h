@@ -54,7 +54,7 @@ namespace IMProc {
         const int canonicalFeatureCount = 0;
         const int canonicalOctaveLayers = 3;
         const double canonicalContrastThreshold = 0.04; // Higher means more features are rejected for not having enough contrast
-        const double canonicalEdgeThreshold = 8; // Higher means less features are rejected for being too edge like
+        const double canonicalEdgeThreshold = 7; // Higher means less features are rejected for being too edge like
         const double canonicalGaussianSigma = 1;
         
         const int imageFeatureCount = 0;
@@ -65,7 +65,9 @@ namespace IMProc {
         
         const float goodEnoughAverageMultiplier = 1.4; // Higher means more images are considered candidates to be sorted by number of matching keypoints.
         const float zeroOrOneStdDevThreshold = 4.75; // Lower means more images with no descriptors will be classified as a 1;
-        const float minimumMatchingKeypointFraction = 0.055;
+        const float minimumMatchingKeypointFraction = 0.065;
+        
+        const unsigned int ignoredEdgePadding = 40; // Number of pixels to chop off the edge of the each tile image
     }
     
     const cv::Point2f getPoint(const std::string& window);
@@ -76,6 +78,7 @@ namespace IMProc {
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
     ThreesBoardBase::Board boardState(cv::Mat boardImage, const std::map<int, TileInfo>& canonicalTiles);
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
+    const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     
     const std::map<int, TileInfo>& canonicalTiles();
     const cv::SIFT& canonicalSifter();
