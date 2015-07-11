@@ -22,11 +22,11 @@
 using namespace std;
 using namespace cv;
 
-TileInfo::TileInfo(cv::Mat image, int value) {
+TileInfo::TileInfo(cv::Mat image, int value, const SIFT& sifter) {
     this->image = image;
     this->value = value;
-    IMProc::sifter().detect(image, this->keypoints);
-    IMProc::sifter().compute(image, this->keypoints, this->descriptors);
+    sifter.detect(image, this->keypoints);
+    sifter.compute(image, this->keypoints, this->descriptors);
 }
 void RealThreesBoard::connectAndStart(string portName) {
     this->fd = serialport_init(portName.c_str(), 9600);
@@ -101,6 +101,9 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     expectedBoardAfterMove.moveWithoutAdd(d);
     vector<ThreesBoardBase::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
     Board newBoardState = IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles());
+    
+    
+    
     if (!SimulatedThreesBoard(newBoardState).hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
         
         MYLOG(this->board);

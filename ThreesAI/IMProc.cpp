@@ -20,9 +20,6 @@
 using namespace std;
 using namespace cv;
 
-MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches, float averageDistance, float matchingKeypointsFraction) : tile(matchedTile), matches(matches), averageDistance(averageDistance), matchingKeypointFraction(matchingKeypointsFraction){
-}
-
 const Point2f IMProc::getPoint(const string& window) {
     Point2f p;
     setMouseCallback(window, [](int event, int x, int y, int flags, void* userdata){
@@ -63,8 +60,8 @@ const map<int, TileInfo>* loadCanonicalTiles() {
     Mat image2;
     t2(Rect(0,0,200,200)).copyTo(image2);
     
-    results->emplace(piecewise_construct, forward_as_tuple(1), forward_as_tuple(image1, 1));
-    results->emplace(piecewise_construct, forward_as_tuple(2), forward_as_tuple(image2, 2));
+    results->emplace(piecewise_construct, forward_as_tuple(1), forward_as_tuple(image1, 1, IMProc::canonicalSifter()));
+    results->emplace(piecewise_construct, forward_as_tuple(2), forward_as_tuple(image2, 2, IMProc::canonicalSifter()));
     
     const int L = 80;
     const int R = 560;
@@ -84,7 +81,7 @@ const map<int, TileInfo>* loadCanonicalTiles() {
         for (unsigned char j = 0; j < 4; j++) {
             Mat tile;
             t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
-            results->emplace(piecewise_construct, forward_as_tuple(indexToTile[results->size()]), forward_as_tuple(tile, indexToTile[results->size()]));
+            results->emplace(piecewise_construct, forward_as_tuple(indexToTile[results->size()]), forward_as_tuple(tile, indexToTile[results->size()], IMProc::canonicalSifter()));
         }
     }
     
@@ -93,13 +90,23 @@ const map<int, TileInfo>* loadCanonicalTiles() {
     return results;
 }
 
-const cv::SIFT& IMProc::sifter() {
+const cv::SIFT& IMProc::canonicalSifter() {
     static cv::SIFT* sift = new cv::SIFT(
-      Paramater::siftFeatureCount,
-      Paramater::siftOctaveLayers,
-      Paramater::siftContrastThreshold,
-      Paramater::siftEdgeThreshold,
-      Paramater::siftGaussianSigma);
+        Paramater::canonicalFeatureCount,
+        Paramater::canonicalOctaveLayers,
+        Paramater::canonicalContrastThreshold,
+        Paramater::canonicalEdgeThreshold,
+        Paramater::canonicalGaussianSigma);
+    return *sift;
+}
+
+const cv::SIFT& IMProc::imageSifter() {
+    static cv::SIFT* sift = new cv::SIFT(
+        Paramater::imageFeatureCount,
+        Paramater::imageOctaveLayers,
+        Paramater::imageContrastThreshold,
+        Paramater::imageEdgeThreshold,
+        Paramater::imageGaussianSigma);
     return *sift;
 }
 
@@ -204,13 +211,16 @@ float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint
     return float(matches.size())/(queryKeypoints.size()+trainKeypoints.size());
 }
 
+MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches, float averageDistance, float matchingKeypointsFraction) : tile(matchedTile), matches(matches), averageDistance(averageDistance), matchingKeypointFraction(matchingKeypointsFraction){
+}
+
 MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate), knnDrawing(), ratioPassDrawing(), noDupeDrawing() {
     BFMatcher matcher(IMProc::Paramater::tileMatcherNormType, IMProc::Paramater::tileMatcherCrossCheck);
     vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
     
-    IMProc::sifter().detect(image, tileKeypoints);
-    IMProc::sifter().compute(image, tileKeypoints, tileDescriptors);
+    IMProc::imageSifter().detect(image, tileKeypoints);
+    IMProc::imageSifter().compute(image, tileKeypoints, tileDescriptors);
     
     if (tileDescriptors.empty()) {
         this->averageDistance = INFINITY;
@@ -270,8 +280,8 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     Mat tileDescriptors;
     vector<KeyPoint> tileKeypoints;
     
-    IMProc::sifter().detect(tileImage, tileKeypoints);
-    IMProc::sifter().compute(tileImage, tileKeypoints, tileDescriptors);
+    IMProc::imageSifter().detect(tileImage, tileKeypoints);
+    IMProc::imageSifter().compute(tileImage, tileKeypoints, tileDescriptors);
     
     if (tileDescriptors.empty()) {
         //Probably either a zero or a 1, guess based on image variance
@@ -279,9 +289,9 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         Scalar stdDev;
         meanStdDev(tileImage, mean, stdDev);;
         if (stdDev[0] < Paramater::zeroOrOneStdDevThreshold) {
-            return MatchResult(TileInfo(Mat(), 0), tileImage, {}, INFINITY, INFINITY);
+            return MatchResult(TileInfo(Mat(), 0, IMProc::imageSifter()), tileImage, {}, INFINITY, INFINITY);
         } else {
-            return MatchResult(TileInfo(Mat(), 1), tileImage, {}, INFINITY, INFINITY);
+            return MatchResult(TileInfo(Mat(), 1, IMProc::imageSifter()), tileImage, {}, INFINITY, INFINITY);
         }
     }
     
@@ -305,7 +315,7 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         //This is a hack: if the image has descriptors but no good matches, its probably a 1.
         //Alternative would be "return matches[0]" which returns the one with the best average
         //distance among the shitty matches.
-        return MatchResult(TileInfo(Mat(), 1), tileImage, {}, INFINITY, INFINITY);
+        return MatchResult(TileInfo(Mat(), 1, IMProc::imageSifter()), tileImage, {}, INFINITY, INFINITY);
     }
     
     float lowestAverageDistance = goodMatchResults[0].averageDistance;

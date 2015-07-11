@@ -19,7 +19,7 @@
 
 class TileInfo {
 public:
-    TileInfo(cv::Mat image, int value);
+    TileInfo(cv::Mat image, int value, const cv::SIFT& sifter);
     
     cv::Mat image;
     std::vector<cv::KeyPoint> keypoints;
@@ -52,13 +52,19 @@ namespace IMProc {
         const bool tileMatcherCrossCheck = false;
         const int tileMatcherNormType = cv::NORM_L2;
         
-        const int siftFeatureCount = 0;
-        const int siftOctaveLayers = 3;
-        const double siftContrastThreshold = 0.04; // Higher means more features are rejected for not having enough contrast
-        const double siftEdgeThreshold = 10; // Higher means less features are rejected for being too edge like
-        const double siftGaussianSigma = 1;
+        const int canonicalFeatureCount = 0;
+        const int canonicalOctaveLayers = 3;
+        const double canonicalContrastThreshold = 0.04; // Higher means more features are rejected for not having enough contrast
+        const double canonicalEdgeThreshold = 8; // Higher means less features are rejected for being too edge like
+        const double canonicalGaussianSigma = 1;
         
-        const float goodEnoughAverageMultiplier = 1.3;
+        const int imageFeatureCount = 0;
+        const int imageOctaveLayers = 3;
+        const double imageContrastThreshold = 0.04; // Higher means more features are rejected for not having enough contrast
+        const double imageEdgeThreshold = 10; // Higher means less features are rejected for being too edge like
+        const double imageGaussianSigma = 1;
+        
+        const float goodEnoughAverageMultiplier = 1.4; // Higher means more images are considered candidates to be sorted by number of matching keypoints.
         const float zeroOrOneStdDevThreshold = 4.65; // Lower means more images with no descriptors will be classified as a 1;
         const float minimumMatchingKeypointFraction = 0.052;
     }
@@ -73,7 +79,8 @@ namespace IMProc {
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
     
     const std::map<int, TileInfo>& canonicalTiles();
-    const cv::SIFT& sifter();
+    const cv::SIFT& canonicalSifter();
+    const cv::SIFT& imageSifter();
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */
