@@ -71,9 +71,17 @@ void testImage(path p) {
 }
 
 void testImageProc() {
-    for (auto&& image : directory_iterator(project_path + "TestCaseImages/")) {
-        if (image.path().extension() == ".png") {
-            testImage(image.path());
+    vector<path> paths;
+    for (auto&& path : directory_iterator(project_path + "TestCaseImages/")) {
+        paths.push_back(path.path());
+    }
+    sort(paths.begin(), paths.end(), [](path l, path r){
+        return last_write_time(l) > last_write_time(r);
+    });
+    
+    for (auto&& path : paths) {
+        if (path.extension() == ".png") {
+            testImage(path);
         }
     }
 }
