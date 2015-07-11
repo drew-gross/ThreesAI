@@ -29,8 +29,7 @@ public:
 
 class MatchResult {
 public:
-    MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, std::vector<cv::DMatch> matches, float averageDistance, float matchingKeypointsFraction);
-    MatchResult(TileInfo t, cv::Mat image);
+    MatchResult(TileInfo t, cv::Mat image, bool calculate=true);
     
     TileInfo tile;
     cv::Mat knnDrawing;
@@ -65,8 +64,8 @@ namespace IMProc {
         const double imageGaussianSigma = 1;
         
         const float goodEnoughAverageMultiplier = 1.4; // Higher means more images are considered candidates to be sorted by number of matching keypoints.
-        const float zeroOrOneStdDevThreshold = 4.65; // Lower means more images with no descriptors will be classified as a 1;
-        const float minimumMatchingKeypointFraction = 0.052;
+        const float zeroOrOneStdDevThreshold = 4.75; // Lower means more images with no descriptors will be classified as a 1;
+        const float minimumMatchingKeypointFraction = 0.055;
     }
     
     const cv::Point2f getPoint(const std::string& window);

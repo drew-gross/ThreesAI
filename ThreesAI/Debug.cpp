@@ -9,6 +9,7 @@
 #include "Debug.h"
 
 #include <opencv2/opencv.hpp>
+#include <QuickTime/Movies.h>
 
 void debug(bool cond) {
     if (cond) {

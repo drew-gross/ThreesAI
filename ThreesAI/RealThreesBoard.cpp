@@ -34,6 +34,8 @@ void RealThreesBoard::connectAndStart(string portName) {
     if (this->fd >= 0) {
         serialport_write(this->fd, "b");
         serialport_flush(this->fd);
+    } else {
+        debug();
     }
 }
 
@@ -88,8 +90,8 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
         serialport_flush(fd);
     }
     
-    //Wait 1s to allow image to stabilize
-    sleep(1);
+    //Wait 0.5s to allow image to stabilize
+    usleep(500000);
     
     //show old and new images
     Mat newImage(this->getAveragedImage(8));
@@ -100,22 +102,25 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
     expectedBoardAfterMove.moveWithoutAdd(d);
     vector<ThreesBoardBase::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
-    Board newBoardState = IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles());
+    SimulatedThreesBoard newBoardState = SimulatedThreesBoard(IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles()));
+
+    if (newBoardState.hasSameTilesAs(*this, {})) {
+        //Movement failed, retry.
+        return this->move(d);
+    }
     
-    
-    
-    if (!SimulatedThreesBoard(newBoardState).hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
+    if (!newBoardState.hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
         
         MYLOG(this->board);
         MYLOG(newBoardState);
         MYLOG(expectedBoardAfterMove);
         debug();
-        SimulatedThreesBoard(newBoardState).hasSameTilesAs(expectedBoardAfterMove, unknownIndexes);
+        newBoardState.hasSameTilesAs(expectedBoardAfterMove, unknownIndexes);
     }
     
     this->isGameOverCacheIsValid = false;
     this->image = newImage;
-    this->board = newBoardState;
+    this->board = newBoardState.board;
     
     //TODO: Get the actual location and value of the new tile
     return {0,{0,0}};

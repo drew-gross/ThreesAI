@@ -75,17 +75,24 @@ const map<int, TileInfo>* loadCanonicalTiles() {
     warpPerspective(image, t, transform, Size(800,600));
     
     
-    const std::array<int, 13> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072};
+    const std::array<int, 14> indexToTile = {1,2,3,6,12,24,48,96,192,384,768,1536,3072,6144};
     
     for (unsigned char i = 0; i < 3; i++) {
         for (unsigned char j = 0; j < 4; j++) {
             Mat tile;
             t(Rect(200*j, 200*i, 200, 200)).copyTo(tile);
-            results->emplace(piecewise_construct, forward_as_tuple(indexToTile[results->size()]), forward_as_tuple(tile, indexToTile[results->size()], IMProc::canonicalSifter()));
+            
+            int value = indexToTile[results->size()];
+            
+            //dirty hack to get an empty tile into the map/
+            //TODO: fix this.
+            if (value == 6144) {
+                value = 0;
+            }
+            
+            results->emplace(piecewise_construct, forward_as_tuple(value), forward_as_tuple(tile, value, IMProc::canonicalSifter()));
         }
     }
-    
-    results->erase(6144); //Remove the empty spot where 6144 will eventually go
     
     return results;
 }
@@ -181,10 +188,8 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
     
     vector<Point> screenContour = IMProc::findScreenContour(greyBoardImage);
-    //TODO: handle empty screenContour
-
-    //showContours(colorBoardImage, {screenContour});
     
+    //TODO: handle empty screenContour
     const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
     const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
     
@@ -211,10 +216,17 @@ float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint
     return float(matches.size())/(queryKeypoints.size()+trainKeypoints.size());
 }
 
-MatchResult::MatchResult(TileInfo matchedTile, cv::Mat matchDrawing, vector<DMatch> matches, float averageDistance, float matchingKeypointsFraction) : tile(matchedTile), matches(matches), averageDistance(averageDistance), matchingKeypointFraction(matchingKeypointsFraction){
-}
-
-MatchResult::MatchResult(TileInfo candidate, Mat image) : tile(candidate), knnDrawing(), ratioPassDrawing(), noDupeDrawing() {
+MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(candidate), knnDrawing(), ratioPassDrawing(), noDupeDrawing() {
+    if (!calculate) {
+        knnDrawing = image;
+        ratioPassDrawing = image;
+        noDupeDrawing = image;
+        matches = {};
+        averageDistance = INFINITY;
+        matchingKeypointFraction = -INFINITY;
+        return;
+    }
+    
     BFMatcher matcher(IMProc::Paramater::tileMatcherNormType, IMProc::Paramater::tileMatcherCrossCheck);
     vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
@@ -289,9 +301,9 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         Scalar stdDev;
         meanStdDev(tileImage, mean, stdDev);;
         if (stdDev[0] < Paramater::zeroOrOneStdDevThreshold) {
-            return MatchResult(TileInfo(Mat(), 0, IMProc::imageSifter()), tileImage, {}, INFINITY, INFINITY);
+            return MatchResult(TileInfo(tileImage, 0, IMProc::imageSifter()), tileImage, false);
         } else {
-            return MatchResult(TileInfo(Mat(), 1, IMProc::imageSifter()), tileImage, {}, INFINITY, INFINITY);
+            return MatchResult(TileInfo(tileImage, 1, IMProc::imageSifter()), tileImage, false);
         }
     }
     
@@ -315,7 +327,7 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         //This is a hack: if the image has descriptors but no good matches, its probably a 1.
         //Alternative would be "return matches[0]" which returns the one with the best average
         //distance among the shitty matches.
-        return MatchResult(TileInfo(Mat(), 1, IMProc::imageSifter()), tileImage, {}, INFINITY, INFINITY);
+        return MatchResult(TileInfo(tileImage, 1, IMProc::imageSifter()), tileImage, false);
     }
     
     float lowestAverageDistance = goodMatchResults[0].averageDistance;

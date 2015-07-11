@@ -15,6 +15,8 @@
 
 #include "ThreesBoardBase.h"
 
+class RealThreesBoard;
+
 class SimulatedThreesBoard : public ThreesBoardBase {
 public:
     static SimulatedThreesBoard randomBoard();
@@ -31,6 +33,8 @@ public:
     
     void set(BoardIndex const& i, const unsigned int t);
     std::deque<unsigned int> nextTileHint() const;
+    
+    friend class RealThreesBoard;
 
 private:
     //Adds a tile in an appropriate location given that the given direction was the most recent move. Throws if this can't be done.
