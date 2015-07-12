@@ -51,17 +51,16 @@ void testImage(path p) {
     
     int failures = 0;
     for (unsigned char i = 0; i < 16; i++) {
-        MatchResult match = IMProc::tileValue(is[i], IMProc::canonicalTiles());
-        int extractedValue = match.tile.value;
+        MatchResult extracted = IMProc::tileValue(is[i], IMProc::canonicalTiles());
         int expectedValue = expectedBoard.at({i%4,i/4});
-        if (expectedValue != extractedValue) {
-            MatchResult expectedMatch(IMProc::canonicalTiles().at(expectedValue), is[i]);
-            MYSHOW(expectedMatch.knnDrawing);
-            MYSHOW(expectedMatch.ratioPassDrawing);
-            MYSHOW(expectedMatch.noDupeDrawing);
-            MYSHOW(match.knnDrawing);
-            MYSHOW(match.ratioPassDrawing);
-            MYSHOW(match.noDupeDrawing);
+        if (expectedValue != extracted.tile.value) {
+            MatchResult expected(IMProc::canonicalTiles().at(expectedValue), is[i]);
+            MYSHOW(expected.knnDrawing);
+            MYSHOW(expected.ratioPassDrawing);
+            MYSHOW(expected.noDupeDrawing);
+            MYSHOW(extracted.knnDrawing);
+            MYSHOW(extracted.ratioPassDrawing);
+            MYSHOW(extracted.noDupeDrawing);
             debug();
             IMProc::tileValue(is[i], IMProc::canonicalTiles());
             failures++;

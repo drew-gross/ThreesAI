@@ -47,7 +47,7 @@ namespace IMProc {
         const int cannyApertureSize = 3;
         const bool cannyUseL2 = true;
         
-        const float tileMatchRatioTestRatio = 0.75; // Higher means more feature matches are accepted as "good" by the ratio test
+        const float tileMatchRatioTestRatio = 0.8; // Higher means more feature matches are accepted as "good" by the ratio test
         const bool tileMatcherCrossCheck = false;
         const int tileMatcherNormType = cv::NORM_L2;
         
@@ -68,6 +68,8 @@ namespace IMProc {
         const float minimumMatchingKeypointFraction = 0.065;
         
         const unsigned int ignoredEdgePadding = 20; // Number of pixels to chop off the edge of the each tile image
+        
+        const float sixDifferenceMeanThreshold = 10; // Lower means more things that look like six are determined to be not 6.
     }
     
     const cv::Point2f getPoint(const std::string& window);

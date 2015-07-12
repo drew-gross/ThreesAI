@@ -215,9 +215,9 @@ float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint
 
 MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(candidate), knnDrawing(), ratioPassDrawing(), noDupeDrawing() {
     if (!calculate) {
-        knnDrawing = image;
-        ratioPassDrawing = image;
-        noDupeDrawing = image;
+        drawMatches(candidate.image, candidate.keypoints, image, {}, this->matches, this->knnDrawing);
+        drawMatches(candidate.image, candidate.keypoints, image, {}, this->matches, this->ratioPassDrawing);
+        drawMatches(candidate.image, candidate.keypoints, image, {}, this->matches, this->noDupeDrawing);
         matches = {};
         averageDistance = INFINITY;
         matchingKeypointFraction = -INFINITY;
@@ -243,7 +243,6 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
     
     vector<vector<DMatch>> knnMatches;
     matcher.knnMatch(candidate.descriptors, tileDescriptors, knnMatches, 2);
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, knnMatches, this->knnDrawing);
 
     //Ratio test
     vector<DMatch> ratioPassingMatches;
@@ -257,14 +256,15 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
         }
     }
     
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, ratioPassingMatches, this->ratioPassDrawing);
-    
-    //Remove matches if there is a better match to the same keypoint
+    //Remove matches if there is a better match to the same keypoint, because there cannot be 2 matches to the same keypoint.
     vector<DMatch> noDupeMatches;
     for (auto&& queryMatch : ratioPassingMatches) {
         bool passes = true;
         for (auto&& otherMatch : ratioPassingMatches) {
-            if ((queryMatch.queryIdx == otherMatch.queryIdx || queryMatch.trainIdx == otherMatch.trainIdx) && queryMatch.distance < otherMatch.distance) {
+            if (candidate.value == 96 && queryMatch.trainIdx == otherMatch.trainIdx && queryMatch.distance < otherMatch.distance) {
+                //96 might legitimately have 2 matches from candidate tile to photo because 9 looks like 6.
+                passes = false;
+            } else if ((queryMatch.queryIdx == otherMatch.queryIdx || queryMatch.trainIdx == otherMatch.trainIdx) && queryMatch.distance < otherMatch.distance) {
                 passes = false;
             }
         }
@@ -272,7 +272,6 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
             noDupeMatches.push_back(queryMatch);
         }
     }
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, noDupeMatches, this->noDupeDrawing);
     
     this->matches = noDupeMatches;
     if (noDupeMatches.size() == 0) {
@@ -282,6 +281,10 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
             return sum + d.distance;
         })/this->matches.size();
     }
+    
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, knnMatches, this->knnDrawing);
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, ratioPassingMatches, this->ratioPassDrawing);
+    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, noDupeMatches, this->noDupeDrawing);
     this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, noDupeMatches);
 }
 
@@ -313,7 +316,7 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         return l.averageDistance < r.averageDistance;
     });
     
-    vector<MatchResult> goodMatchResults;
+    deque<MatchResult> goodMatchResults;
     for (auto&& m : matchResults) {
         if (m.matchingKeypointFraction > Paramater::minimumMatchingKeypointFraction) {
             goodMatchResults.push_back(m);
@@ -336,6 +339,19 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     sort(goodMatchResults.begin(), potentailMatchEnd, [](MatchResult l, MatchResult r){
         return l.matchingKeypointFraction > r.matchingKeypointFraction;
     });
+    
+    if (goodMatchResults[0].tile.value == 6 && goodMatchResults.size() > 1) {
+        Mat difference;
+        Mat tile;
+        threshold(tileImage, tile, 100, 255, THRESH_BINARY);
+        subtract(goodMatchResults[0].tile.image, tile, difference);
+        Scalar mean;
+        Scalar stdDev;
+        meanStdDev(difference, mean, stdDev);
+        if (mean[0] > IMProc::Paramater::sixDifferenceMeanThreshold) {
+            goodMatchResults.pop_front();
+        }
+    }
     
     return goodMatchResults[0];
 }
