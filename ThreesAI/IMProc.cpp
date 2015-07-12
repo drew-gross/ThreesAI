@@ -288,6 +288,36 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
     this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, noDupeMatches);
 }
 
+bool mustDetect6vs96(deque<MatchResult> matches) {
+    if (matches.size() < 2) {
+        return false;
+    }
+    bool hasRightTiles = (matches[0].tile.value == 6 && matches[1].tile.value == 96) ||
+    (matches[1].tile.value == 6 && matches[0].tile.value == 96);
+    
+    if (!hasRightTiles) {
+        return false;
+    }
+    
+    // Make sure there is actually significant ambiguity
+    bool ambiguousAverage = matches[0].averageDistance > matches[1].averageDistance;
+    bool ambiguousFraction = matches[0].matchingKeypointFraction < matches[1].matchingKeypointFraction;
+    
+    // If keypoints fraction and average distance disagree, definitely need to diff
+    if (ambiguousAverage || ambiguousFraction) {
+        return true;
+    }
+    
+    // If keypoints fraction and average distance agree, and aren't even close
+    // to disagreeing, don't need to diff
+    if ((matches[0].averageDistance * 1.2 < matches[1].averageDistance) &&
+        (matches[0].matchingKeypointFraction * 0.9 > matches[1].matchingKeypointFraction)) {
+        return false;
+    }
+    
+    return true;
+}
+
 MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& canonicalTiles) {
     Mat tileDescriptors;
     vector<KeyPoint> tileKeypoints;
@@ -340,7 +370,8 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         return l.matchingKeypointFraction > r.matchingKeypointFraction;
     });
     
-    if ((goodMatchResults[0].tile.value == 6 || goodMatchResults[0].tile.value == 96) && goodMatchResults.size() > 1) {
+    if (mustDetect6vs96(goodMatchResults)) {
+        //Detect by diffing with canonical image
         Mat difference;
         Mat tileBinary;
         Mat tileEroded;
@@ -350,11 +381,6 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         Scalar mean;
         Scalar stdDev;
         meanStdDev(difference, mean, stdDev);
-        MYSHOW(tileImage);
-        MYSHOW(tileBinary);
-        MYSHOW(tileEroded);
-        MYSHOW(difference);
-        MYLOG(mean[0]);
         if (mean[0] > Paramater::differenceMeanThreshold) {
             goodMatchResults.pop_front();
         }

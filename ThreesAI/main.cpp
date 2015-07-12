@@ -55,12 +55,10 @@ void testImage(path p) {
         int expectedValue = expectedBoard.at({i%4,i/4});
         if (expectedValue != extracted.tile.value) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), is[i]);
-           /* MYSHOW(expected.knnDrawing);
-            MYSHOW(expected.ratioPassDrawing);
-            MYSHOW(expected.noDupeDrawing);
-            MYSHOW(extracted.knnDrawing);
-            MYSHOW(extracted.ratioPassDrawing);
-            MYSHOW(extracted.noDupeDrawing);*/
+            vector<Mat> expectedV = {expected.knnDrawing, expected.ratioPassDrawing, expected.noDupeDrawing};
+            vector<Mat> extractedV = {extracted.knnDrawing, extracted.ratioPassDrawing, extracted.noDupeDrawing};
+            MYSHOWV(expectedV);
+            MYSHOWV(extractedV);
             debug();
             IMProc::tileValue(is[i], IMProc::canonicalTiles());
             failures++;

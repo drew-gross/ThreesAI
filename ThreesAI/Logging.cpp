@@ -14,7 +14,7 @@
 using namespace std;
 using namespace cv;
 
-void imShowVector(vector<Mat> v) {
+void Log::imShowH(std::string name, vector<Mat> v) {
     int totalWidth = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
         return s + m.cols;
     });
@@ -30,7 +30,25 @@ void imShowVector(vector<Mat> v) {
         widthSoFar += it->cols;
     }
     
-    MYSHOW(combined);
+    imshow(name, combined);
+}
+void Log::imShowV(std::string name, vector<Mat> v) {
+    int totalHeight = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
+        return s + m.rows;
+    });
+    int maxWidth = std::max_element(v.begin(), v.end(), [](Mat first, Mat second){
+        return first.cols < second.cols;
+    })->cols;
+    
+    Mat combined(totalHeight, maxWidth, v[0].type());
+    
+    int heightSoFar = 0;
+    for (auto it = v.begin(); it != v.end(); it++) {
+        it->copyTo(combined(Rect(0, heightSoFar, it->cols, it->rows)));
+        heightSoFar += it->rows;
+    }
+    
+    imshow(name, combined);
 }
 
 void Log::imShow(const string& winname, cv::InputArray image, double scale) {
