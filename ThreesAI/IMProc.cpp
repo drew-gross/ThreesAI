@@ -301,9 +301,9 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         Scalar stdDev;
         meanStdDev(tileImage, mean, stdDev);;
         if (stdDev[0] < Paramater::zeroOrOneStdDevThreshold) {
-            return MatchResult(TileInfo(tileImage, 0, IMProc::imageSifter()), tileImage, false);
+            return MatchResult(TileInfo(canonicalTiles.at(0).image, 0, IMProc::imageSifter()), tileImage, false);
         } else {
-            return MatchResult(TileInfo(tileImage, 1, IMProc::imageSifter()), tileImage, false);
+            return MatchResult(TileInfo(canonicalTiles.at(1).image, 1, IMProc::imageSifter()), tileImage, false);
         }
     }
     
@@ -340,15 +340,22 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         return l.matchingKeypointFraction > r.matchingKeypointFraction;
     });
     
-    if (goodMatchResults[0].tile.value == 6 && goodMatchResults.size() > 1) {
+    if ((goodMatchResults[0].tile.value == 6 || goodMatchResults[0].tile.value == 96) && goodMatchResults.size() > 1) {
         Mat difference;
-        Mat tile;
-        threshold(tileImage, tile, 100, 255, THRESH_BINARY);
-        subtract(goodMatchResults[0].tile.image, tile, difference);
+        Mat tileBinary;
+        Mat tileEroded;
+        threshold(tileImage, tileBinary, 0, 255, THRESH_OTSU);
+        morphologyEx(tileBinary, tileEroded, MORPH_ERODE, getStructuringElement(Paramater::differenceErosionShape, Paramater::differenceErosionSize));
+        subtract(tileEroded, goodMatchResults[0].tile.image, difference);
         Scalar mean;
         Scalar stdDev;
         meanStdDev(difference, mean, stdDev);
-        if (mean[0] > IMProc::Paramater::sixDifferenceMeanThreshold) {
+        MYSHOW(tileImage);
+        MYSHOW(tileBinary);
+        MYSHOW(tileEroded);
+        MYSHOW(difference);
+        MYLOG(mean[0]);
+        if (mean[0] > Paramater::differenceMeanThreshold) {
             goodMatchResults.pop_front();
         }
     }

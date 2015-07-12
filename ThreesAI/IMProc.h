@@ -53,23 +53,25 @@ namespace IMProc {
         
         const int canonicalFeatureCount = 0;
         const int canonicalOctaveLayers = 3;
-        const double canonicalContrastThreshold = 0.04; // Higher means more features are rejected for not having enough contrast
-        const double canonicalEdgeThreshold = 10; // Higher means less features are rejected for being too edge like
+        const double canonicalContrastThreshold = 0.04; // Higher means more keypoints are rejected for not having enough contrast
+        const double canonicalEdgeThreshold = 10; // Higher means less keypoints are rejected for being too edge like
         const double canonicalGaussianSigma = 1;
         
         const int imageFeatureCount = 0;
         const int imageOctaveLayers = 3;
-        const double imageContrastThreshold = 0.04; // Higher means more features are rejected for not having enough contrast
-        const double imageEdgeThreshold = 10; // Higher means less features are rejected for being too edge like
+        const double imageContrastThreshold = 0.04; // Higher means more keypoints are rejected for not having enough contrast
+        const double imageEdgeThreshold = 15; // Higher means less keypoints are rejected for being too edge like
         const double imageGaussianSigma = 1;
         
         const float goodEnoughAverageMultiplier = 1.6; // Higher means more images are considered candidates to be sorted by number of matching keypoints.
-        const float zeroOrOneStdDevThreshold = 4.3; // Lower means more images with no descriptors will be classified as a 1;
+        const float zeroOrOneStdDevThreshold = 3.95; // Lower means more images with no descriptors will be classified as a 1;
         const float minimumMatchingKeypointFraction = 0.065;
         
         const unsigned int ignoredEdgePadding = 20; // Number of pixels to chop off the edge of the each tile image
         
-        const float sixDifferenceMeanThreshold = 10; // Lower means more things that look like six are determined to be not 6.
+        const int differenceErosionShape = cv::MORPH_ELLIPSE;
+        const cv::Size differenceErosionSize = cv::Size(18,18);
+        const float differenceMeanThreshold = 1.2; // Lower means more things that look like six are determined to be not 6.
     }
     
     const cv::Point2f getPoint(const std::string& window);
