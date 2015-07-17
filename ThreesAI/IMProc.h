@@ -49,7 +49,7 @@ namespace IMProc {
         const int cannyApertureSize = 3;
         const bool cannyUseL2 = true;
         
-        const float tileMatchRatioTestRatio = 0.9; // Higher means more feature matches are accepted as "good" by the ratio test
+        const float tileMatchRatioTestRatio = 0.8; // Higher means more feature matches are accepted as "good" by the ratio test
         const bool tileMatcherCrossCheck = false;
         const int tileMatcherNormType = cv::NORM_L2;
         
