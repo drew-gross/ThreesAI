@@ -38,6 +38,8 @@ public:
     std::vector<cv::DMatch> matches;
     float averageDistance;
     float matchingKeypointFraction;
+    float quality;
+    float imageStdDev;
 };
 
 namespace IMProc {
@@ -63,7 +65,7 @@ namespace IMProc {
         const double imageEdgeThreshold = 15; // Higher means less keypoints are rejected for being too edge like
         const double imageGaussianSigma = 1;
         
-        const float goodEnoughAverageMultiplier = 1.5; // Higher means more images are considered candidates to be sorted by number of matching keypoints.
+        const float goodEnoughAverageMultiplier = 1.35; // Higher means more images are considered candidates to be sorted by number of matching keypoints.
         const float zeroOrOneStdDevThreshold = 3.95; // Lower means more images with no descriptors will be classified as a 1;
         const float minimumMatchingKeypointFraction = 0.065;
         
@@ -71,7 +73,7 @@ namespace IMProc {
         
         const int differenceErosionShape = cv::MORPH_ELLIPSE;
         const cv::Size differenceErosionSize = cv::Size(18,18);
-        const float differenceMeanThreshold = 1.2; // Lower means more things that look like six are determined to be not 6.
+        const float differenceMeanThreshold = 1.8; // Lower means more things that look like six are determined to be not 6.
     }
     
     const cv::Point2f getPoint(const std::string& window);
@@ -87,6 +89,8 @@ namespace IMProc {
     const std::map<int, TileInfo>& canonicalTiles();
     const cv::SIFT& canonicalSifter();
     const cv::SIFT& imageSifter();
+    
+    void showContours(cv::Mat const image, std::vector<std::vector<cv::Point>> const contours);
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */

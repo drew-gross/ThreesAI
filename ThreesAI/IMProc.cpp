@@ -119,7 +119,7 @@ const map<int, TileInfo>& IMProc::canonicalTiles() {
     return *tiles;
 }
 
-void showContours(Mat const image, vector<vector<Point>> const contours) {
+void IMProc::showContours(Mat const image, vector<vector<Point>> const contours) {
     Mat contoursImage;
     image.copyTo(contoursImage);
     drawContours(contoursImage, contours, -1, Scalar(255), 5);
@@ -214,6 +214,12 @@ float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint
 }
 
 MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(candidate), knnDrawing(), ratioPassDrawing(), noDupeDrawing() {
+    Scalar mean;
+    Scalar stdDev;
+    meanStdDev(image, mean, stdDev);
+    
+    this->imageStdDev = stdDev[0];
+    
     if (!calculate) {
         drawMatches(candidate.image, candidate.keypoints, image, {}, this->matches, this->knnDrawing);
         drawMatches(candidate.image, candidate.keypoints, image, {}, this->matches, this->ratioPassDrawing);
@@ -286,6 +292,12 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
     drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, ratioPassingMatches, this->ratioPassDrawing);
     drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, noDupeMatches, this->noDupeDrawing);
     this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, noDupeMatches);
+    
+    if (this->matchingKeypointFraction > 0.02) {
+        this->quality = this->averageDistance/(this->matchingKeypointFraction-0.02);
+    } else {
+        this->quality = INFINITY;
+    }
 }
 
 bool mustDetect6vs96(deque<MatchResult> matches) {
@@ -310,8 +322,8 @@ bool mustDetect6vs96(deque<MatchResult> matches) {
     
     // If keypoints fraction and average distance agree, and aren't even close
     // to disagreeing, don't need to diff
-    if ((matches[0].averageDistance * 1.2 < matches[1].averageDistance) &&
-        (matches[0].matchingKeypointFraction * 0.9 > matches[1].matchingKeypointFraction)) {
+    if ((matches[0].averageDistance * 1.3 < matches[1].averageDistance) &&
+        (matches[0].matchingKeypointFraction * 0.8 > matches[1].matchingKeypointFraction)) {
         return false;
     }
     
@@ -343,7 +355,11 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     }
     
     sort(matchResults.begin(), matchResults.end(), [](MatchResult l, MatchResult r){
-        return l.averageDistance < r.averageDistance;
+        //If all the matches were eliminated by ratio test, use number of total matches
+        if (l.averageDistance == INFINITY && r.averageDistance == INFINITY) {
+            return l.matches.size() > r.matches.size();
+        }
+        return l.quality < r.quality;
     });
     
     deque<MatchResult> goodMatchResults;
@@ -354,21 +370,13 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     }
     
     if (goodMatchResults.empty()) {
-        //This is a hack: if the image has descriptors but no good matches, its probably a 1.
-        //Alternative would be "return matches[0]" which returns the one with the best average
-        //distance among the shitty matches.
-        return MatchResult(TileInfo(tileImage, 1, IMProc::imageSifter()), tileImage, false);
+        // If none of the matches are good, use the best of the shitty ones. But not tile 0.
+        if (matchResults[0].tile.value == 0) {
+            return matchResults[1];
+        } else {
+            return matchResults[0];
+        }
     }
-    
-    float lowestAverageDistance = goodMatchResults[0].averageDistance;
-    auto potentailMatchEnd = goodMatchResults.begin();
-    while (potentailMatchEnd != goodMatchResults.end() && potentailMatchEnd->averageDistance < lowestAverageDistance*Paramater::goodEnoughAverageMultiplier) {
-        potentailMatchEnd++;
-    }
-    
-    sort(goodMatchResults.begin(), potentailMatchEnd, [](MatchResult l, MatchResult r){
-        return l.matchingKeypointFraction > r.matchingKeypointFraction;
-    });
     
     if (mustDetect6vs96(goodMatchResults)) {
         //Detect by diffing with canonical image
