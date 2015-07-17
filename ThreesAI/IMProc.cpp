@@ -294,7 +294,7 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
     this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, noDupeMatches);
     
     if (this->matchingKeypointFraction > 0.02) {
-        this->quality = this->averageDistance/(this->matchingKeypointFraction-0.02);
+        this->quality = this->averageDistance/(this->matchingKeypointFraction + IMProc::Paramater::matchingKeypointFractionDiscount);
     } else {
         this->quality = INFINITY;
     }
@@ -359,6 +359,13 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         if (l.averageDistance == INFINITY && r.averageDistance == INFINITY) {
             return l.matches.size() > r.matches.size();
         }
+        /*/If the average distance is wayyyyy better for one, use average distance
+        if (l.averageDistance * IMProc::Paramater::goodEnoughAverageMultiplier < r.averageDistance) {
+            return true;
+        } else if (r.averageDistance * IMProc::Paramater::goodEnoughAverageMultiplier < l.averageDistance) {
+            return false;
+        }*/
+        
         return l.quality < r.quality;
     });
     

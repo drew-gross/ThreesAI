@@ -16,11 +16,11 @@
 
 class ThreesAIBase {
 public:
-    ThreesAIBase(std::unique_ptr<ThreesBoardBase>&& board);
+    ThreesAIBase(std::shared_ptr<ThreesBoardBase> board);
     virtual Direction playTurn() = 0;
     void playGame();
     
-    std::unique_ptr<ThreesBoardBase> board;
+    std::shared_ptr<ThreesBoardBase> board;
 private:
 };
 

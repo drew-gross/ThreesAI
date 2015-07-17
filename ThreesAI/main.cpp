@@ -126,15 +126,11 @@ int main(int argc, const char * argv[]) {
     testBoardMovement();
     //testImageProc(); debug();
     
-    deque<unsigned int> turnsSurvived;
-    for (int seed=1; seed <= 3; seed++) {
-        TileStack::randomGenerator.seed(seed);
-        unique_ptr<ThreesBoardBase> b(new RealThreesBoard("/dev/tty.usbmodem1411"));
-        ZeroDepthMaxScoreAI ai(move(b));
+    for (;;) {
+        shared_ptr<ThreesBoardBase> b = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");
+        ZeroDepthMaxScoreAI ai(b);
         ai.playGame();
-        turnsSurvived.push_back(ai.board->numTurns);
-        MYLOG(seed);
+        MYLOG("game over");
     }
-    MYLOG(turnsSurvived);
     return 0;
 }

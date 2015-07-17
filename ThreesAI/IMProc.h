@@ -49,7 +49,7 @@ namespace IMProc {
         const int cannyApertureSize = 3;
         const bool cannyUseL2 = true;
         
-        const float tileMatchRatioTestRatio = 0.8; // Higher means more feature matches are accepted as "good" by the ratio test
+        const float tileMatchRatioTestRatio = 0.9; // Higher means more feature matches are accepted as "good" by the ratio test
         const bool tileMatcherCrossCheck = false;
         const int tileMatcherNormType = cv::NORM_L2;
         
@@ -65,8 +65,9 @@ namespace IMProc {
         const double imageEdgeThreshold = 15; // Higher means less keypoints are rejected for being too edge like
         const double imageGaussianSigma = 1;
         
-        const float goodEnoughAverageMultiplier = 1.35; // Higher means more images are considered candidates to be sorted by number of matching keypoints.
-        const float zeroOrOneStdDevThreshold = 3.95; // Lower means more images with no descriptors will be classified as a 1;
+        const float goodEnoughAverageMultiplier = 1.65; // Higher means more images are considered candidates to be sorted by quality.
+        const float matchingKeypointFractionDiscount = -0.03;
+        const float zeroOrOneStdDevThreshold = 3.95; // Lower means more images with no descriptors will be classified as a 1.
         const float minimumMatchingKeypointFraction = 0.065;
         
         const unsigned int ignoredEdgePadding = 25; // Number of pixels to chop off the edge of the each tile image

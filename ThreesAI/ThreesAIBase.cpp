@@ -10,7 +10,7 @@
 
 using namespace::std;
 
-ThreesAIBase::ThreesAIBase(unique_ptr<ThreesBoardBase>&& new_board) : board(move(new_board)) {
+ThreesAIBase::ThreesAIBase(shared_ptr<ThreesBoardBase> new_board) : board(new_board) {
 }
 
 void ThreesAIBase::playGame() {

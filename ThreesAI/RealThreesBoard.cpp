@@ -31,12 +31,7 @@ TileInfo::TileInfo(cv::Mat image, int value, const SIFT& sifter) {
 void RealThreesBoard::connectAndStart(string portName) {
     this->fd = serialport_init(portName.c_str(), 9600);
     sleep(2); //Necessary to initialize the output for some
-    if (this->fd >= 0) {
-        serialport_write(this->fd, "b");
-        serialport_flush(this->fd);
-    } else {
-        debug();
-    }
+    debug(this->fd < 0);
 }
 
 Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
@@ -65,8 +60,18 @@ RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase({0,0,0,0,0,0
 }
 
 RealThreesBoard::~RealThreesBoard() {
+    serialport_write(this->fd, "l");
+    serialport_flush(fd);
+    sleep(2);
+    serialport_write(this->fd, "l");
+    serialport_flush(fd);
+    sleep(2);
+    serialport_write(this->fd, "b");
+    serialport_flush(fd);
+    sleep(2);
     if (this->fd >= 0) {
         serialport_close(this->fd);
+        sleep(2);
     }
 }
 
@@ -94,9 +99,7 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     usleep(500000);
     
     //show old and new images
-    Mat newImage(this->getAveragedImage(8));
-    MYSHOW(newImage);
-    MYSHOW(this->image);
+    Mat newImage(this->getAveragedImage(8));;
     
     //show old new, and expected board
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
@@ -110,7 +113,8 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     }
     
     if (!newBoardState.hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
-        
+        MYSHOW(newImage);
+        MYSHOW(this->image)
         MYLOG(this->board);
         MYLOG(newBoardState);
         MYLOG(expectedBoardAfterMove);
