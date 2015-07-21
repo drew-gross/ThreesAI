@@ -42,8 +42,6 @@ void playOneGame() {
     MYLOG(elapsed_time);
 }
 
-const string project_path = "/Users/drewgross/Projects/ThreesAI/";
-
 void testImage(path p) {
     Mat image = imread(p.string());
     Mat boardImage = IMProc::colorImageToBoard(image);
@@ -58,7 +56,7 @@ void testImage(path p) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), is[i]);
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
-            MYSHOW(Log::concatH({Log::concatV(expectedV), Log::concatV(extractedV)}));
+            MYSHOW(IMProc::concatH({IMProc::concatV(expectedV), IMProc::concatV(extractedV)}));
             debug();
             IMProc::tileValue(is[i], IMProc::canonicalTiles());
             failures++;
@@ -82,12 +80,12 @@ void testImageProc() {
     }
     vector<Mat> cv;
     for (auto&& vector : canonicalKeypoints) {
-        cv.push_back(Log::concatV(vector));
+        cv.push_back(IMProc::concatV(vector));
     }
     //MYSHOW(Log::concatH(cv));
     
     vector<path> paths;
-    for (auto&& path : directory_iterator(project_path + "TestCaseImages/")) {
+    for (auto&& path : directory_iterator(Log::project_path + "TestCaseImages/")) {
         paths.push_back(path.path());
     }
     sort(paths.begin(), paths.end(), [](path l, path r){
@@ -142,7 +140,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     for (;;) {
         shared_ptr<ThreesBoardBase> b = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");

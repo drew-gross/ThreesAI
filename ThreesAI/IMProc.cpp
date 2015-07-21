@@ -36,6 +36,44 @@ const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
     return std::array<cv::Point2f, 4>{{getPoint("get rect"),getPoint("get rect"),getPoint("get rect"),getPoint("get rect")}};
 }
 
+Mat IMProc::concatH(vector<Mat> v) {
+    int totalWidth = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
+        return s + m.cols;
+    });
+    int maxHeight = std::max_element(v.begin(), v.end(), [](Mat first, Mat second){
+        return first.rows < second.rows;
+    })->rows;
+    
+    Mat combined(maxHeight, totalWidth, v[0].type());
+    
+    int widthSoFar = 0;
+    for (auto it = v.begin(); it != v.end(); it++) {
+        it->copyTo(combined(Rect(widthSoFar, 0, it->cols, it->rows)));
+        widthSoFar += it->cols;
+    }
+    
+    return combined;
+}
+
+Mat IMProc::concatV(vector<Mat> v) {
+    int totalHeight = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
+        return s + m.rows;
+    });
+    int maxWidth = std::max_element(v.begin(), v.end(), [](Mat first, Mat second){
+        return first.cols < second.cols;
+    })->cols;
+    
+    Mat combined(totalHeight, maxWidth, v[0].type());
+    
+    int heightSoFar = 0;
+    for (auto it = v.begin(); it != v.end(); it++) {
+        it->copyTo(combined(Rect(0, heightSoFar, it->cols, it->rows)));
+        heightSoFar += it->rows;
+    }
+    
+    return combined;
+}
+
 const map<int, TileInfo>* loadCanonicalTiles() {
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat boardImage;
@@ -420,3 +458,4 @@ ThreesBoardBase::Board IMProc::boardState(Mat boardImage, const map<int, TileInf
     });
     return result;
 }
+

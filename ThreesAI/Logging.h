@@ -21,9 +21,10 @@
 #include <opencv2/opencv.hpp>
 
 namespace Log {
-    cv::Mat concatH(std::vector<cv::Mat> v);
-    cv::Mat concatV(std::vector<cv::Mat> v);
     void imShow(const std::string& winname, cv::InputArray image, double scale=1);
+    void imSave(cv::Mat image);
+    
+    const std::string project_path = "/Users/drewgross/Projects/ThreesAI/";
 }
 
 template <typename T>

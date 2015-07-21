@@ -113,13 +113,8 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     }
     
     if (!newBoardState.hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
-        MYSHOW(newImage);
-        MYSHOW(this->image)
-        MYLOG(this->board);
-        MYLOG(newBoardState);
-        MYLOG(expectedBoardAfterMove);
-        debug();
-        newBoardState.hasSameTilesAs(expectedBoardAfterMove, unknownIndexes);
+        Log::imSave(newImage);
+        Log::imSave(this->image);
     }
     
     this->isGameOverCacheIsValid = false;
