@@ -381,9 +381,11 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         threshold(tileImage, tileBinary, 0, 255, THRESH_OTSU);
         morphologyEx(tileBinary, tileEroded, MORPH_ERODE, getStructuringElement(Paramater::differenceErosionShape, Paramater::differenceErosionSize));
         subtract(tileEroded, goodMatchResults[0].tile.image, difference);
+        Mat numeralsOnly = difference(Rect(0, 0, tileImage.cols, tileImage.rows-30));
         Scalar mean;
         Scalar stdDev;
-        meanStdDev(difference, mean, stdDev);
+        meanStdDev(numeralsOnly, mean, stdDev);
+        //MYSHOW(Log::concatV({tileImage, difference, tileBinary, tileEroded, goodMatchResults[0].tile.image, numeralsOnly})); debug();
         if (mean[0] > Paramater::differenceMeanThreshold) {
             goodMatchResults.pop_front();
         }
@@ -393,7 +395,7 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     // because there is only 1 keypoint so they can have a super high matching keypoint
     // fraction. So get rid of the first match if it has a terrible distance and
     // there is a second match.
-    if (goodMatchResults.size() > 1 && goodMatchResults[0].averageDistance > Paramater::minimumAverageDistance) {
+    if (goodMatchResults.size() > 1 && goodMatchResults[0].averageDistance > Paramater::minimumAverageDistance && goodMatchResults[0].averageDistance > goodMatchResults[1].averageDistance) {
         return goodMatchResults[1];
     } else {
         return goodMatchResults[0];

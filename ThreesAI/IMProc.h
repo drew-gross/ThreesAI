@@ -73,14 +73,14 @@ namespace IMProc {
         const float goodEnoughAverageMultiplier = 1.65; // Higher means more images are considered candidates to be sorted by quality.
         const float matchingKeypointFractionDiscount = -0.03;
         const float zeroOrOneStdDevThreshold = 3.95; // Lower means more images with no descriptors will be classified as a 1.
-        const float minimumMatchingKeypointFraction = 0.065;
+        const float minimumMatchingKeypointFraction = 0.04;
         const float minimumAverageDistance = 350;
         
         const unsigned int ignoredEdgePadding = 25; // Number of pixels to chop off the edge of the each tile image
         
         const int differenceErosionShape = cv::MORPH_ELLIPSE;
         const cv::Size differenceErosionSize = cv::Size(18,18);
-        const float differenceMeanThreshold = 3; // Lower means more things that look like six are determined to be not 6.
+        const float differenceMeanThreshold = 1.5; // Lower means more things that look like six are determined to be not 6.
     }
     
     const cv::Point2f getPoint(const std::string& window);
