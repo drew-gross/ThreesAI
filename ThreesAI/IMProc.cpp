@@ -209,10 +209,6 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     return outputImage;
 }
 
-float matchNonMatchRatio(vector<KeyPoint> const& queryKeypoints, vector<KeyPoint> const& trainKeypoints, vector<DMatch> const& matches) {
-    return float(matches.size())/(queryKeypoints.size()+trainKeypoints.size());
-}
-
 MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(candidate), knnDrawing(), ratioPassDrawing(), noDupeDrawing() {
     Scalar mean;
     Scalar stdDev;
@@ -291,9 +287,9 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
     drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, knnMatches, this->knnDrawing);
     drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, ratioPassingMatches, this->ratioPassDrawing);
     drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, noDupeMatches, this->noDupeDrawing);
-    this->matchingKeypointFraction = matchNonMatchRatio(candidate.keypoints, tileKeypoints, noDupeMatches);
+    this->matchingKeypointFraction = float(noDupeMatches.size())/(pow(candidate.keypoints.size(), 1.3) + tileKeypoints.size());
     
-    if (this->matchingKeypointFraction > 0.02) {
+    if (this->matchingKeypointFraction > -IMProc::Paramater::matchingKeypointFractionDiscount) {
         this->quality = this->averageDistance/(this->matchingKeypointFraction + IMProc::Paramater::matchingKeypointFractionDiscount);
     } else {
         this->quality = INFINITY;
@@ -359,12 +355,6 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         if (l.averageDistance == INFINITY && r.averageDistance == INFINITY) {
             return l.matches.size() > r.matches.size();
         }
-        /*/If the average distance is wayyyyy better for one, use average distance
-        if (l.averageDistance * IMProc::Paramater::goodEnoughAverageMultiplier < r.averageDistance) {
-            return true;
-        } else if (r.averageDistance * IMProc::Paramater::goodEnoughAverageMultiplier < l.averageDistance) {
-            return false;
-        }*/
         
         return l.quality < r.quality;
     });
@@ -396,12 +386,24 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         Scalar mean;
         Scalar stdDev;
         meanStdDev(difference, mean, stdDev);
+        MYSHOW(tileImage);
+        MYSHOW(difference);
+        MYSHOW(tileBinary);
+        MYSHOW(tileEroded);
         if (mean[0] > Paramater::differenceMeanThreshold) {
             goodMatchResults.pop_front();
         }
     }
     
-    return goodMatchResults[0];
+    // Tiles can sometimes masquarade as 1s even with a terrible average distance,
+    // because there is only 1 keypoint so they can have a super high matching keypoint
+    // fraction. So get rid of the first match if it has a terrible distance and
+    // there is a second match.
+    if (goodMatchResults.size() > 1 && goodMatchResults[0].averageDistance > Paramater::minimumAverageDistance) {
+        return goodMatchResults[1];
+    } else {
+        return goodMatchResults[0];
+    }
 }
 
 array<Mat, 16> IMProc::tileImages(Mat boardImage) {

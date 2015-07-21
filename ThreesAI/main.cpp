@@ -1,3 +1,4 @@
+
 //
 //  main.cpp
 //  ThreesAI
@@ -57,17 +58,34 @@ void testImage(path p) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), is[i]);
             vector<Mat> expectedV = {expected.knnDrawing, expected.ratioPassDrawing, expected.noDupeDrawing};
             vector<Mat> extractedV = {extracted.knnDrawing, extracted.ratioPassDrawing, extracted.noDupeDrawing};
-            MYSHOWV(expectedV);
-            MYSHOWV(extractedV);
+            MYSHOW(Log::concatH({Log::concatV(expectedV), Log::concatV(extractedV)}));
             debug();
             IMProc::tileValue(is[i], IMProc::canonicalTiles());
             failures++;
         }
     }
-    MYLOG(failures);
+    if (failures > 0) {
+        imwrite(p.string(), image); //Make most recently failed tests run first.
+    }
+    MYLOG(failures); 
 }
 
 void testImageProc() {
+    vector<vector<Mat>> canonicalKeypoints = {{}};
+    for (auto&& image : IMProc::canonicalTiles()) {
+        if (canonicalKeypoints.rbegin()->size() == 7) {
+            canonicalKeypoints.push_back({});
+        }
+        Mat kpi;
+        drawKeypoints(image.second.image, image.second.keypoints, kpi);
+        canonicalKeypoints.rbegin()->push_back(kpi);
+    }
+    vector<Mat> cv;
+    for (auto&& vector : canonicalKeypoints) {
+        cv.push_back(Log::concatV(vector));
+    }
+    //MYSHOW(Log::concatH(cv));
+    
     vector<path> paths;
     for (auto&& path : directory_iterator(project_path + "TestCaseImages/")) {
         paths.push_back(path.path());
@@ -124,7 +142,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    //testImageProc(); debug();
+    testImageProc(); debug();
     
     for (;;) {
         shared_ptr<ThreesBoardBase> b = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");

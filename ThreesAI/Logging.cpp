@@ -14,7 +14,7 @@
 using namespace std;
 using namespace cv;
 
-void Log::imShowH(std::string name, vector<Mat> v) {
+Mat Log::concatH(vector<Mat> v) {
     int totalWidth = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
         return s + m.cols;
     });
@@ -30,9 +30,9 @@ void Log::imShowH(std::string name, vector<Mat> v) {
         widthSoFar += it->cols;
     }
     
-    imshow(name, combined);
+    return combined;
 }
-void Log::imShowV(std::string name, vector<Mat> v) {
+Mat Log::concatV(vector<Mat> v) {
     int totalHeight = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
         return s + m.rows;
     });
@@ -48,7 +48,7 @@ void Log::imShowV(std::string name, vector<Mat> v) {
         heightSoFar += it->rows;
     }
     
-    imshow(name, combined);
+    return combined;
 }
 
 void Log::imShow(const string& winname, cv::InputArray image, double scale) {

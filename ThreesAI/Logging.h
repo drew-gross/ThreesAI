@@ -11,8 +11,6 @@
 
 #define MYLOG(x) (std::cout << "Value of " << #x << " is: " << x << std::endl);
 #define MYSHOW(x) Log::imShow(#x, x);
-#define MYSHOWV(x) Log::imShowV(#x, x);
-#define MYSHOWH(x) Log::imShowH(#x, x);
 #define MYSHOWSMALL(i, s) Log::imShow(#i, i, s);
 
 #include <iomanip>
@@ -23,8 +21,8 @@
 #include <opencv2/opencv.hpp>
 
 namespace Log {
-    void imShowH(std::string name, std::vector<cv::Mat> v);
-    void imShowV(std::string name, std::vector<cv::Mat> v);
+    cv::Mat concatH(std::vector<cv::Mat> v);
+    cv::Mat concatV(std::vector<cv::Mat> v);
     void imShow(const std::string& winname, cv::InputArray image, double scale=1);
 }
 
