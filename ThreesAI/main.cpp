@@ -56,8 +56,8 @@ void testImage(path p) {
         int expectedValue = expectedBoard.at({i%4,i/4});
         if (expectedValue != extracted.tile.value) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), is[i]);
-            vector<Mat> expectedV = {expected.knnDrawing, expected.ratioPassDrawing, expected.noDupeDrawing};
-            vector<Mat> extractedV = {extracted.knnDrawing, extracted.ratioPassDrawing, extracted.noDupeDrawing};
+            vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
+            vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(Log::concatH({Log::concatV(expectedV), Log::concatV(extractedV)}));
             debug();
             IMProc::tileValue(is[i], IMProc::canonicalTiles());
@@ -142,7 +142,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     for (;;) {
         shared_ptr<ThreesBoardBase> b = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");

@@ -31,11 +31,16 @@ class MatchResult {
 public:
     MatchResult(TileInfo t, cv::Mat image, bool calculate=true);
     
+    cv::Mat knnDrawing();
+    cv::Mat ratioPassDrawing();
+    cv::Mat noDupeDrawing();
+    
     TileInfo tile;
-    cv::Mat knnDrawing;
-    cv::Mat ratioPassDrawing;
-    cv::Mat noDupeDrawing;
-    std::vector<cv::DMatch> matches;
+    std::vector<std::vector<cv::DMatch>> knnMatches;
+    std::vector<cv::DMatch> ratioPassMatches;
+    std::vector<cv::DMatch> noDupeMatches;
+    cv::Mat queryImage;
+    std::vector<cv::KeyPoint> queryKeypoints;
     float averageDistance;
     float matchingKeypointFraction;
     float quality;

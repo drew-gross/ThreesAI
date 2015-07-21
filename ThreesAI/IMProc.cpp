@@ -209,60 +209,62 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     return outputImage;
 }
 
-MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(candidate), knnDrawing(), ratioPassDrawing(), noDupeDrawing() {
+Mat MatchResult::knnDrawing() {
+    Mat drawing;
+    drawMatches(this->tile.image, this->tile.keypoints, this->queryImage, queryKeypoints, this->knnMatches, drawing);
+    return drawing;
+}
+
+Mat MatchResult::ratioPassDrawing() {
+    Mat drawing;
+    drawMatches(this->tile.image, this->tile.keypoints, this->queryImage, queryKeypoints, this->ratioPassMatches, drawing);
+    return drawing;
+}
+
+Mat MatchResult::noDupeDrawing() {
+    Mat drawing;
+    drawMatches(this->tile.image, this->tile.keypoints, this->queryImage, queryKeypoints, this->noDupeMatches, drawing);
+    return drawing;
+}
+
+MatchResult::MatchResult(TileInfo candidate, Mat queryImage, bool calculate) : tile(candidate), queryImage(queryImage), queryKeypoints(), knnMatches(), ratioPassMatches(), noDupeMatches(), averageDistance(INFINITY), matchingKeypointFraction(-INFINITY) {
     Scalar mean;
     Scalar stdDev;
-    meanStdDev(image, mean, stdDev);
+    meanStdDev(queryImage, mean, stdDev);
     
     this->imageStdDev = stdDev[0];
     
     if (!calculate) {
-        drawMatches(candidate.image, candidate.keypoints, image, {}, this->matches, this->knnDrawing);
-        drawMatches(candidate.image, candidate.keypoints, image, {}, this->matches, this->ratioPassDrawing);
-        drawMatches(candidate.image, candidate.keypoints, image, {}, this->matches, this->noDupeDrawing);
-        matches = {};
-        averageDistance = INFINITY;
-        matchingKeypointFraction = -INFINITY;
         return;
     }
     
     BFMatcher matcher(IMProc::Paramater::tileMatcherNormType, IMProc::Paramater::tileMatcherCrossCheck);
-    vector<KeyPoint> tileKeypoints;
     Mat tileDescriptors;
     
-    IMProc::imageSifter().detect(image, tileKeypoints);
-    IMProc::imageSifter().compute(image, tileKeypoints, tileDescriptors);
+    IMProc::imageSifter().detect(this->queryImage, this->queryKeypoints);
+    IMProc::imageSifter().compute(this->queryImage, this->queryKeypoints, tileDescriptors);
     
     if (tileDescriptors.empty()) {
-        this->averageDistance = INFINITY;
-        this->matches = {};
-        
-        drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, this->knnDrawing);
-        drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, this->ratioPassDrawing);
-        drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, this->matches, this->noDupeDrawing);
         return;
     }
     
-    vector<vector<DMatch>> knnMatches;
-    matcher.knnMatch(candidate.descriptors, tileDescriptors, knnMatches, 2);
+    matcher.knnMatch(candidate.descriptors, tileDescriptors, this->knnMatches, 2);
 
     //Ratio test
-    vector<DMatch> ratioPassingMatches;
     for (int i = 0; i < knnMatches.size(); ++i) {
         if (knnMatches[i].size() > 1) {
             if (knnMatches[i][0].distance < IMProc::Paramater::tileMatchRatioTestRatio * knnMatches[i][1].distance) {
-                ratioPassingMatches.push_back(knnMatches[i][0]);
+                this->ratioPassMatches.push_back(knnMatches[i][0]);
             }
         } else if (knnMatches[i].size() == 1) {
-            ratioPassingMatches.push_back(knnMatches[i][0]);
+            this->ratioPassMatches.push_back(knnMatches[i][0]);
         }
     }
     
     //Remove matches if there is a better match to the same keypoint, because there cannot be 2 matches to the same keypoint.
-    vector<DMatch> noDupeMatches;
-    for (auto&& queryMatch : ratioPassingMatches) {
+    for (auto&& queryMatch : this->ratioPassMatches) {
         bool passes = true;
-        for (auto&& otherMatch : ratioPassingMatches) {
+        for (auto&& otherMatch : this->ratioPassMatches) {
             if (candidate.value == 96 && queryMatch.trainIdx == otherMatch.trainIdx && queryMatch.distance < otherMatch.distance) {
                 //96 might legitimately have 2 matches from candidate tile to photo because 9 looks like 6.
                 passes = false;
@@ -271,23 +273,19 @@ MatchResult::MatchResult(TileInfo candidate, Mat image, bool calculate) : tile(c
             }
         }
         if (passes) {
-            noDupeMatches.push_back(queryMatch);
+            this->noDupeMatches.push_back(queryMatch);
         }
     }
     
-    this->matches = noDupeMatches;
-    if (noDupeMatches.size() == 0) {
+    if (this->noDupeMatches.size() == 0) {
         this->averageDistance = INFINITY;
     } else {
-        this->averageDistance = accumulate(this->matches.begin(), this->matches.end(), float(0), [](float sum, DMatch d) {
+        this->averageDistance = accumulate(this->noDupeMatches.begin(), this->noDupeMatches.end(), float(0), [](float sum, DMatch d) {
             return sum + d.distance;
-        })/this->matches.size();
+        })/this->noDupeMatches.size();
     }
     
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, knnMatches, this->knnDrawing);
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, ratioPassingMatches, this->ratioPassDrawing);
-    drawMatches(candidate.image, candidate.keypoints, image, tileKeypoints, noDupeMatches, this->noDupeDrawing);
-    this->matchingKeypointFraction = float(noDupeMatches.size())/(pow(candidate.keypoints.size(), 1.3) + tileKeypoints.size());
+    this->matchingKeypointFraction = float(noDupeMatches.size())/(pow(this->tile.keypoints.size(), 1.3) + this->queryKeypoints.size());
     
     if (this->matchingKeypointFraction > -IMProc::Paramater::matchingKeypointFractionDiscount) {
         this->quality = this->averageDistance/(this->matchingKeypointFraction + IMProc::Paramater::matchingKeypointFractionDiscount);
@@ -353,7 +351,7 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
     sort(matchResults.begin(), matchResults.end(), [](MatchResult l, MatchResult r){
         //If all the matches were eliminated by ratio test, use number of total matches
         if (l.averageDistance == INFINITY && r.averageDistance == INFINITY) {
-            return l.matches.size() > r.matches.size();
+            return l.noDupeMatches.size() > r.noDupeMatches.size();
         }
         
         return l.quality < r.quality;
@@ -386,10 +384,6 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         Scalar mean;
         Scalar stdDev;
         meanStdDev(difference, mean, stdDev);
-        MYSHOW(tileImage);
-        MYSHOW(difference);
-        MYSHOW(tileBinary);
-        MYSHOW(tileEroded);
         if (mean[0] > Paramater::differenceMeanThreshold) {
             goodMatchResults.pop_front();
         }
