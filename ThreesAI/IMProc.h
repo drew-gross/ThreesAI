@@ -59,13 +59,13 @@ namespace IMProc {
         const int tileMatcherNormType = cv::NORM_L2;
         
         const int canonicalFeatureCount = 0;
-        const int canonicalOctaveLayers = 4;
-        const double canonicalContrastThreshold = 0.055; // Higher means more keypoints are rejected for not having enough contrast
-        const double canonicalEdgeThreshold = 10.5; // Higher means less keypoints are rejected for being too edge like
+        const int canonicalOctaveLayers = 6;
+        const double canonicalContrastThreshold = 0.05; // Higher means more keypoints are rejected for not having enough contrast
+        const double canonicalEdgeThreshold = 6; // Higher means less keypoints are rejected for being too edge like
         const double canonicalGaussianSigma = 1;
         
         const int imageFeatureCount = 0;
-        const int imageOctaveLayers = 4;
+        const int imageOctaveLayers = 6;
         const double imageContrastThreshold = 0.030; // Higher means more keypoints are rejected for not having enough contrast
         const double imageEdgeThreshold = 15; // Higher means less keypoints are rejected for being too edge like
         const double imageGaussianSigma = 1;

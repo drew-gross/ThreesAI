@@ -82,7 +82,7 @@ void testImageProc() {
     for (auto&& vector : canonicalKeypoints) {
         cv.push_back(IMProc::concatV(vector));
     }
-    //MYSHOW(Log::concatH(cv));
+    //MYSHOW(IMProc::concatH(cv)); debug();
     
     vector<path> paths;
     for (auto&& path : directory_iterator(Log::project_path + "TestCaseImages/")) {

@@ -121,7 +121,12 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     this->image = newImage;
     this->board = newBoardState.board;
     
-    //TODO: Get the actual location and value of the new tile
+    for (auto&& index : unknownIndexes) {
+        if (this->at(index) != 0) {
+            return {this->at(index), index};
+        }
+    }
+    debug();
     return {0,{0,0}};
 }
 
