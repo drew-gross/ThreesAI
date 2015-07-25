@@ -27,7 +27,7 @@ private:
     void fillInChild(unsigned int n=1);
     
 public:
-    ExpectimaxAI(std::unique_ptr<ThreesBoardBase>&& board);
+    ExpectimaxAI(std::shared_ptr<ThreesBoardBase> board);
     
     Direction playTurn();
     

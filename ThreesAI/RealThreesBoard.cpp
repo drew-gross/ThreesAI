@@ -105,7 +105,7 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
     expectedBoardAfterMove.moveWithoutAdd(d);
     vector<ThreesBoardBase::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
-    SimulatedThreesBoard newBoardState = SimulatedThreesBoard(IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles()));
+    SimulatedThreesBoard newBoardState(IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles()));
 
     if (newBoardState.hasSameTilesAs(*this, {})) {
         //Movement failed, retry.
@@ -117,15 +117,22 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
         Log::imSave(this->image);
     }
     
-    this->isGameOverCacheIsValid = false;
-    this->image = newImage;
-    this->board = newBoardState.board;
-    
     for (auto&& index : unknownIndexes) {
-        if (this->at(index) != 0) {
-            return {this->at(index), index};
+        if (newBoardState.at(index) != 0) {
+            this->isGameOverCacheIsValid = false;
+            this->image = newImage;
+            this->board = newBoardState.board;
+            debug(newBoardState.at(index) == 0);
+            return {newBoardState.at(index), index};
         }
     }
+    Log::imSave(newImage);
+    Log::imSave(this->image);
+    MYSHOW(newImage);
+    MYSHOW(this->image)
+    MYLOG(newBoardState);
+    MYLOG(*this);
+    MYLOG(expectedBoardAfterMove);
     debug();
     return {0,{0,0}};
 }

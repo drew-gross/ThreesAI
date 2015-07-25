@@ -13,7 +13,7 @@
 
 using namespace std;
 
-ExpectimaxAI::ExpectimaxAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)), currentBoard(make_shared<ExpectimaxMoveNode>(this->board->simulatedCopy(), 0)) {
+ExpectimaxAI::ExpectimaxAI(shared_ptr<ThreesBoardBase> board) : ThreesAIBase(board), currentBoard(make_shared<ExpectimaxMoveNode>(this->board->simulatedCopy(), 0)) {
     this->unfilledChildren.push_back(this->currentBoard);
 }
 
@@ -50,7 +50,8 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 }
 
 Direction ExpectimaxAI::playTurn() {
-    this->currentBoard->pruneUnreachableChildren(this->board->nextTileHint());
+    //TODO: reenable this
+    //this->currentBoard->pruneUnreachableChildren(this->board->nextTileHint());
     this->fillInChild(50);
     
     pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
