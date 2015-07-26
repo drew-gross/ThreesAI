@@ -21,7 +21,6 @@ public:
     void playGame();
     
     std::shared_ptr<ThreesBoardBase> board;
-private:
 };
 
 #endif /* defined(__ThreesAI__ThreesAIBase__) */

@@ -61,8 +61,8 @@ namespace IMProc {
         const int canonicalFeatureCount = 0;
         const int canonicalOctaveLayers = 6;
         const double canonicalContrastThreshold = 0.05; // Higher means more keypoints are rejected for not having enough contrast
-        const double canonicalEdgeThreshold = 6; // Higher means less keypoints are rejected for being too edge like
-        const double canonicalGaussianSigma = 1;
+        const double canonicalEdgeThreshold = 7; // Higher means less keypoints are rejected for being too edge like
+        const double canonicalGaussianSigma = 0.8;
         
         const int imageFeatureCount = 0;
         const int imageOctaveLayers = 6;
@@ -98,6 +98,9 @@ namespace IMProc {
     const std::map<int, TileInfo>& canonicalTiles();
     const cv::SIFT& canonicalSifter();
     const cv::SIFT& imageSifter();
+    
+    const cv::Mat color12(int which);
+    const cv::Mat color12sample(int which);
     
     void showContours(cv::Mat const image, std::vector<std::vector<cv::Point>> const contours);
 }

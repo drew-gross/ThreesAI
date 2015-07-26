@@ -12,9 +12,7 @@
 
 using namespace std;
 
-HumanPlayer::HumanPlayer(std::unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {
-    
-}
+HumanPlayer::HumanPlayer(std::unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {}
 
 Direction HumanPlayer::playTurn() {
     try {

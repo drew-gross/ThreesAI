@@ -13,9 +13,7 @@
 
 using namespace std;
 
-ThreesBoardBase::ThreesBoardBase(Board boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {
-    
-}
+ThreesBoardBase::ThreesBoardBase(Board boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {}
 
 std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board){
     os << "Upcoming: " << board.nextTileHint() << std::endl;
@@ -131,57 +129,40 @@ bool ThreesBoardBase::canMove(Direction d) const {
     switch (d) {
         case UP:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({i, 0}, {i, 1})) {
-                    return true;
-                }
-                if (this->canMerge({i, 1}, {i, 2})) {
-                    return true;
-                }
-                if (this->canMerge({i, 2}, {i, 3})) {
+                if (this->canMerge({i, 0}, {i, 1}) ||
+                    this->canMerge({i, 1}, {i, 2}) ||
+                    this->canMerge({i, 2}, {i, 3})) {
                     return true;
                 }
             }
             break;
         case DOWN:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({i, 3}, {i, 2})) {
-                    return true;
-                }
-                if (this->canMerge({i, 2}, {i, 1})) {
-                    return true;
-                }
-                if (this->canMerge({i, 1}, {i, 0})) {
+                if (this->canMerge({i, 3}, {i, 2}) ||
+                    this->canMerge({i, 2}, {i, 1}) ||
+                    this->canMerge({i, 1}, {i, 0})) {
                     return true;
                 }
             }
             break;
         case LEFT:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({0, i}, {1, i})) {
-                    return true;
-                }
-                if (this->canMerge({1, i}, {2, i})) {
-                    return true;
-                }
-                if (this->canMerge({2, i}, {3, i})) {
+                if (this->canMerge({0, i}, {1, i}) ||
+                    this->canMerge({1, i}, {2, i}) ||
+                    this->canMerge({2, i}, {3, i})) {
                     return true;
                 }
             }
             break;
         case RIGHT:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({3, i}, {2, i})) {
-                    return true;
-                }
-                if (this->canMerge({2, i}, {1, i})) {
-                    return true;
-                }
-                if (this->canMerge({1, i}, {0, i})) {
+                if (this->canMerge({3, i}, {2, i}) || 
+                    this->canMerge({2, i}, {1, i}) ||
+                    this->canMerge({1, i}, {0, i})) {
                     return true;
                 }
             }
-            break;
-            
+            break;            
         default:
             break;
     }
@@ -191,17 +172,10 @@ bool ThreesBoardBase::canMove(Direction d) const {
 vector<Direction> ThreesBoardBase::validMoves() const {
     vector<Direction> result;
     result.reserve(4);
-    if (this->canMove(DOWN)) {
-        result.push_back(DOWN);
-    }
-    if (this->canMove(UP)) {
-        result.push_back(UP);
-    }
-    if (this->canMove(LEFT)) {
-        result.push_back(LEFT);
-    }
-    if (this->canMove(RIGHT)) {
-        result.push_back(RIGHT);
+    for (auto&& d : {DOWN, UP, LEFT, RIGHT}) {
+        if (this->canMove(d)) {
+            result.push_back(d);
+        }
     }
     return result;
 }

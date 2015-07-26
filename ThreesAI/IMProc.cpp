@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <numeric>
+#include <algorithm>
 
 #include <opencv2/opencv.hpp>
 
@@ -74,26 +75,41 @@ Mat IMProc::concatV(vector<Mat> v) {
     return combined;
 }
 
+const int L12 = 80;
+const int R12 = 200;
+const int T12 = 310;
+const int B12 = 630;
+const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
+const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
+
+const Mat IMProc::color12sample(int which) {
+    Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
+    Mat boardImage = IMProc::colorImageToBoard(image);
+    array<Mat, 16> tiles = IMProc::tileImages(boardImage);
+    return which == 1 ? tiles[0] : tiles[1];
+}
+
+const Mat IMProc::color12(int which) {
+    Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png");
+    Mat board12;
+    
+    warpPerspective(image12, board12, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
+    
+    return tileFromIntersection(board12, 0, which == 1 ? 200 : 0);
+}
+
 const map<int, TileInfo>* loadCanonicalTiles() {
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat boardImage;
     
-    Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png", 0);
-    Mat board12;
-    
     map<int, TileInfo>* results = new map<int, TileInfo>();
     
-    const int L12 = 80;
-    const int R12 = 200;
-    const int T12 = 310;
-    const int B12 = 630;
-    
-    const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
-    const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
-    warpPerspective(image12, board12, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
-    
-    results->emplace(piecewise_construct, forward_as_tuple(1), forward_as_tuple(IMProc::tileFromIntersection(board12, 0, 200), 1, IMProc::canonicalSifter()));
-    results->emplace(piecewise_construct, forward_as_tuple(2), forward_as_tuple(IMProc::tileFromIntersection(board12, 0, 0), 2, IMProc::canonicalSifter()));
+    Mat grey1;
+    Mat grey2;
+    cvtColor(IMProc::color12(1), grey1, COLOR_RGB2GRAY);
+    cvtColor(IMProc::color12(2), grey2, COLOR_RGB2GRAY);
+    results->emplace(piecewise_construct, forward_as_tuple(1), forward_as_tuple(grey1, 1, IMProc::canonicalSifter()));
+    results->emplace(piecewise_construct, forward_as_tuple(2), forward_as_tuple(grey2, 2, IMProc::canonicalSifter()));
     
     const int L = 80;
     const int R = 560;
@@ -218,7 +234,7 @@ vector<Point> IMProc::findScreenContour(Mat const& image) {
 Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     Mat greyBoardImage;
     Mat screenImage;
-    Mat outputImage;
+    Mat colorOutput;
     
     cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
     
@@ -228,7 +244,6 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
     const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
     
-    warpPerspective(greyBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
     
     
     const int leftEdge = 100;
@@ -242,9 +257,10 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
         {rightEdge,topEdge}
     };
     
-    warpPerspective(screenImage, outputImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
+    warpPerspective(colorBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
+    warpPerspective(screenImage, colorOutput, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
     
-    return outputImage;
+    return colorOutput;
 }
 
 Mat MatchResult::knnDrawing() {
@@ -265,10 +281,13 @@ Mat MatchResult::noDupeDrawing() {
     return drawing;
 }
 
-MatchResult::MatchResult(TileInfo candidate, Mat queryImage, bool calculate) : tile(candidate), queryImage(queryImage), queryKeypoints(), knnMatches(), ratioPassMatches(), noDupeMatches(), averageDistance(INFINITY), matchingKeypointFraction(-INFINITY) {
+MatchResult::MatchResult(TileInfo candidate, Mat colorImage, bool calculate) : tile(candidate), queryImage(), queryKeypoints(), knnMatches(), ratioPassMatches(), noDupeMatches(), averageDistance(INFINITY), matchingKeypointFraction(-INFINITY) {
+    
+    cvtColor(colorImage, this->queryImage, CV_RGB2GRAY);
+    
     Scalar mean;
     Scalar stdDev;
-    meanStdDev(queryImage, mean, stdDev);
+    meanStdDev(this->queryImage, mean, stdDev);
     
     this->imageStdDev = stdDev[0];
     
@@ -323,23 +342,59 @@ MatchResult::MatchResult(TileInfo candidate, Mat queryImage, bool calculate) : t
         })/this->noDupeMatches.size();
     }
     
-    this->matchingKeypointFraction = float(noDupeMatches.size())/(pow(this->tile.keypoints.size(), 1.3) + this->queryKeypoints.size());
+    this->matchingKeypointFraction = float(noDupeMatches.size())/(this->tile.keypoints.size() + this->queryKeypoints.size());
     
     if (this->matchingKeypointFraction > -IMProc::Paramater::matchingKeypointFractionDiscount) {
-        this->quality = this->averageDistance/(this->matchingKeypointFraction + IMProc::Paramater::matchingKeypointFractionDiscount);
+        this->quality = this->averageDistance/(this->matchingKeypointFraction + IMProc::Paramater::matchingKeypointFractionDiscount)/this->noDupeMatches.size();
     } else {
         this->quality = INFINITY;
     }
 }
 
-bool mustDetect6vs96(deque<MatchResult> matches) {
-    if (matches.size() < 2) {
-        return false;
-    }
-    bool hasRightTiles = (matches[0].tile.value == 6 && matches[1].tile.value == 96) ||
-    (matches[1].tile.value == 6 && matches[0].tile.value == 96);
+Mat getHistogram(Mat i) {
+    Mat hsv;
+    cvtColor(i, hsv, COLOR_RGB2HSV);
+    int channels[] = { 0, 1 };
+    Mat hist;
     
-    if (!hasRightTiles) {
+    /// Using 50 bins for hue and 60 for saturation
+    int h_bins = 50; int s_bins = 60;
+    int histSize[] = { h_bins, s_bins };
+    // hue varies from 0 to 179, saturation from 0 to 255
+    float h_ranges[] = { 0, 180 };
+    float s_ranges[] = { 0, 256 };
+    
+    const float* ranges[] = { h_ranges, s_ranges };
+    calcHist(&i, 1, channels, Mat(), hist, 2, histSize, ranges);
+    return hist;
+}
+
+int detect1or2ByColor(Mat i) {
+    Rect flatRegionRect = Rect(0,0,40,100);
+    Mat flatRegion = i(flatRegionRect);
+    Mat i1 = IMProc::color12sample(1);
+    Mat i2 = IMProc::color12sample(2);
+    double d1 = norm(mean(i(flatRegionRect)), mean(i1(flatRegionRect)));
+    double d2 = norm(mean(i(flatRegionRect)), mean(i2(flatRegionRect)));
+    return d1 < d2 ? 1 : 2;
+}
+
+bool mustDetect6vs96vs192(deque<MatchResult> matches) {
+    size_t numElemsToCheck = min(matches.size(), (size_t)3);
+    
+    auto end_it = matches.begin()+numElemsToCheck;
+    
+    bool has6 = find_if(matches.begin(), end_it, [](MatchResult m){
+        return m.tile.value == 6;
+    }) != end_it;
+    bool has96 = find_if(matches.begin(), end_it, [](MatchResult m){
+        return m.tile.value == 96;
+    }) != end_it;
+    bool has192 = find_if(matches.begin(), end_it, [](MatchResult m){
+        return m.tile.value == 192;
+    }) != end_it;
+    
+    if ((!has6 && !has96) || (!has6 && !has192) || (!has96 && !has192)) {
         return false;
     }
     
@@ -362,28 +417,58 @@ bool mustDetect6vs96(deque<MatchResult> matches) {
     return true;
 }
 
-MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& canonicalTiles) {
+MatchResult detect6vs96vs192(deque<MatchResult> matches, Mat greyTileImage) {
+    Mat tileBinary;
+    Mat tileEroded;
+    threshold(greyTileImage, tileBinary, 0, 255, THRESH_OTSU);
+    morphologyEx(tileBinary, tileEroded, MORPH_ERODE, getStructuringElement(IMProc::Paramater::differenceErosionShape, IMProc::Paramater::differenceErosionSize));
+    
+    size_t numElemsToCheck = min(matches.size(), (size_t)3);
+    return *min_element(matches.begin(), matches.begin()+numElemsToCheck, [&tileEroded](MatchResult l, MatchResult r){
+        Mat differenceL;
+        Mat differenceR;
+        subtract(tileEroded, l.tile.image, differenceL);
+        subtract(tileEroded, r.tile.image, differenceR);
+        
+        Mat numeralsOnlyL = differenceL(Rect(0, 0, differenceL.cols, differenceL.rows-30));
+        Mat numeralsOnlyR = differenceR(Rect(0, 0, differenceR.cols, differenceR.rows-30));
+        
+        Scalar meanL;
+        Scalar meanR;
+        Scalar stdDevL;
+        Scalar stdDevR;
+        
+        meanStdDev(numeralsOnlyL, meanL, stdDevL);
+        meanStdDev(numeralsOnlyR, meanR, stdDevR);
+        
+        return meanL[0] < meanR[0];
+    });
+}
+
+MatchResult IMProc::tileValue(const Mat& colorTileImage, const map<int, TileInfo>& canonicalTiles) {
+    Mat greyTileImage;
+    cvtColor(colorTileImage, greyTileImage, CV_RGB2GRAY);
     Mat tileDescriptors;
     vector<KeyPoint> tileKeypoints;
     
-    IMProc::imageSifter().detect(tileImage, tileKeypoints);
-    IMProc::imageSifter().compute(tileImage, tileKeypoints, tileDescriptors);
+    IMProc::imageSifter().detect(greyTileImage, tileKeypoints);
+    IMProc::imageSifter().compute(greyTileImage, tileKeypoints, tileDescriptors);
     
     if (tileDescriptors.empty()) {
         //Probably either a zero or a 1, guess based on image variance
         Scalar mean;
         Scalar stdDev;
-        meanStdDev(tileImage, mean, stdDev);;
+        meanStdDev(greyTileImage, mean, stdDev);;
         if (stdDev[0] < Paramater::zeroOrOneStdDevThreshold) {
-            return MatchResult(TileInfo(canonicalTiles.at(0).image, 0, IMProc::imageSifter()), tileImage, false);
+            return MatchResult(TileInfo(canonicalTiles.at(0).image, 0, IMProc::imageSifter()), colorTileImage, false);
         } else {
-            return MatchResult(TileInfo(canonicalTiles.at(1).image, 1, IMProc::imageSifter()), tileImage, false);
+            return MatchResult(TileInfo(canonicalTiles.at(1).image, 1, IMProc::imageSifter()), colorTileImage, false);
         }
     }
     
     vector<MatchResult> matchResults;
     for (auto&& t : canonicalTiles) {
-        matchResults.emplace_back(t.second, tileImage);
+        matchResults.emplace_back(t.second, colorTileImage);
     }
     
     sort(matchResults.begin(), matchResults.end(), [](MatchResult l, MatchResult r){
@@ -411,21 +496,18 @@ MatchResult IMProc::tileValue(const Mat& tileImage, const map<int, TileInfo>& ca
         }
     }
     
-    if (mustDetect6vs96(goodMatchResults)) {
-        //Detect by diffing with canonical image
-        Mat difference;
-        Mat tileBinary;
-        Mat tileEroded;
-        threshold(tileImage, tileBinary, 0, 255, THRESH_OTSU);
-        morphologyEx(tileBinary, tileEroded, MORPH_ERODE, getStructuringElement(Paramater::differenceErosionShape, Paramater::differenceErosionSize));
-        subtract(tileEroded, goodMatchResults[0].tile.image, difference);
-        Mat numeralsOnly = difference(Rect(0, 0, tileImage.cols, tileImage.rows-30));
-        Scalar mean;
-        Scalar stdDev;
-        meanStdDev(numeralsOnly, mean, stdDev);
-        //MYSHOW(Log::concatV({tileImage, difference, tileBinary, tileEroded, goodMatchResults[0].tile.image, numeralsOnly})); debug();
-        if (mean[0] > Paramater::differenceMeanThreshold) {
-            goodMatchResults.pop_front();
+    if (mustDetect6vs96vs192(goodMatchResults)) {
+        return detect6vs96vs192(goodMatchResults, greyTileImage);
+    }
+    
+    if (goodMatchResults[0].tile.value == 1 ||
+        goodMatchResults[0].tile.value == 2)
+    {
+        int result = detect1or2ByColor(colorTileImage);
+        for (auto&& m : matchResults) {
+            if (m.tile.value == result) {
+                return m;
+            }
         }
     }
     

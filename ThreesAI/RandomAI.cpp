@@ -14,9 +14,7 @@
 
 using namespace std;
 
-RandomAI::RandomAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {
-    
-}
+RandomAI::RandomAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {}
 
 Direction RandomAI::playTurn() {
     vector<Direction> moves = this->board->validMoves();

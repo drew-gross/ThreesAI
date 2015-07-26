@@ -18,9 +18,7 @@
 
 using namespace std;
 
-ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(shared_ptr<ThreesBoardBase> board) : ThreesAIBase(board) {
-    
-}
+ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(shared_ptr<ThreesBoardBase> board) : ThreesAIBase(board) {}
 
 Direction ZeroDepthMaxScoreAI::playTurn() {
     vector<pair<Direction, unsigned int>> scoresForMoves;

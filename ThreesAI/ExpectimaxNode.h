@@ -31,9 +31,6 @@ public:
     const SimulatedThreesBoard board;
     
     const unsigned int depth;
-    
-    ~ExpectimaxNodeBase();
-    
 };
 
 template <typename edge_type>
@@ -49,9 +46,7 @@ public:
 };
 
 template<typename edge_type>
-ExpectimaxNode<edge_type>::ExpectimaxNode(SimulatedThreesBoard const& board, unsigned int depth) : ExpectimaxNodeBase(board, depth) {
-    
-}
+ExpectimaxNode<edge_type>::ExpectimaxNode(SimulatedThreesBoard const& board, unsigned int depth) : ExpectimaxNodeBase(board, depth) {}
 
 template<typename edge_type>
 bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {

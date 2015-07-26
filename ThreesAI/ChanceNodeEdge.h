@@ -17,7 +17,6 @@ public:
     
     unsigned int newTileValue;
     SimulatedThreesBoard::BoardIndex newTileLocation;
-    
 };
 
 //implemented for use as key in std::map

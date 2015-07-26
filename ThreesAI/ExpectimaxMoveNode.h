@@ -29,6 +29,4 @@ public:
     void outputDotEdges(float p) const;
 };
 
-
-
 #endif /* defined(__ThreesAI__ExpectimaxMoveNode__) */

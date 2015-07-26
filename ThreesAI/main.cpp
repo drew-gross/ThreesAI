@@ -46,19 +46,19 @@ void testImage(path p) {
     Mat image = imread(p.string());
     Mat boardImage = IMProc::colorImageToBoard(image);
     SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
-    array<Mat, 16> is = IMProc::tileImages(boardImage);
+    array<Mat, 16> tiles = IMProc::tileImages(boardImage);
     
     int failures = 0;
     for (unsigned char i = 0; i < 16; i++) {
-        MatchResult extracted = IMProc::tileValue(is[i], IMProc::canonicalTiles());
+        MatchResult extracted = IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
         int expectedValue = expectedBoard.at({i%4,i/4});
         if (expectedValue != extracted.tile.value) {
-            MatchResult expected(IMProc::canonicalTiles().at(expectedValue), is[i]);
+            MatchResult expected(IMProc::canonicalTiles().at(expectedValue), tiles[i]);
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(IMProc::concatH({IMProc::concatV(expectedV), IMProc::concatV(extractedV)}));
             debug();
-            IMProc::tileValue(is[i], IMProc::canonicalTiles());
+            IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
             failures++;
         }
     }
@@ -140,7 +140,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     for (;;) {
         shared_ptr<ThreesBoardBase> b = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");

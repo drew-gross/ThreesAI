@@ -17,8 +17,6 @@ class RandomAI : public ThreesAIBase {
 public:
     RandomAI(std::unique_ptr<ThreesBoardBase>&& board);
     Direction playTurn();
-
-private:
 };
 
 #endif /* defined(__ThreesAI__RandomAI__) */

@@ -16,7 +16,6 @@
 #include "Logging.h"
 #include "Debug.h"
 
-
 using namespace std;
 using namespace boost;
 
@@ -44,8 +43,7 @@ SimulatedThreesBoard SimulatedThreesBoard::fromString(const string s) {
     return SimulatedThreesBoard(tileList);
 }
 
-SimulatedThreesBoard::SimulatedThreesBoard(Board otherBoard) : ThreesBoardBase(std::move(otherBoard)) {
-}
+SimulatedThreesBoard::SimulatedThreesBoard(Board otherBoard) : ThreesBoardBase(std::move(otherBoard)) {}
 
 void SimulatedThreesBoard::set(BoardIndex const& p, const unsigned int t){
     this->isGameOverCacheIsValid = false;
