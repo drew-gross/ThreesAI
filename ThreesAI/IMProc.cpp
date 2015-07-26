@@ -83,19 +83,24 @@ const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
 const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
 
 const Mat IMProc::color12sample(int which) {
-    Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
-    Mat boardImage = IMProc::colorImageToBoard(image);
-    array<Mat, 16> tiles = IMProc::tileImages(boardImage);
+    static Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
+    static Mat boardImage = IMProc::colorImageToBoard(image);
+    static array<Mat, 16> tiles = IMProc::tileImages(boardImage);
     return which == 1 ? tiles[0] : tiles[1];
 }
 
 const Mat IMProc::color12(int which) {
+    static bool hasBoard = false;
+    static Mat board12;
+    if (hasBoard) {
+        return tileFromIntersection(board12, 0, which == 1 ? 200 : 0);
+    }
     Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png");
-    Mat board12;
+
     
     warpPerspective(image12, board12, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
-    
-    return tileFromIntersection(board12, 0, which == 1 ? 200 : 0);
+    hasBoard = true;
+    return color12(which);
 }
 
 const map<int, TileInfo>* loadCanonicalTiles() {
