@@ -71,7 +71,7 @@ namespace IMProc {
         const double imageGaussianSigma = 1;
         
         const float goodEnoughAverageMultiplier = 1.65; // Higher means more images are considered candidates to be sorted by quality.
-        const float matchingKeypointFractionDiscount = -0.02;
+        const float matchingKeypointFractionDiscount = -0.01;
         const float zeroOrOneStdDevThreshold = 3.95; // Lower means more images with no descriptors will be classified as a 1.
         const float minimumMatchingKeypointFraction = 0.03;
         const float minimumAverageDistance = 350;

@@ -350,7 +350,10 @@ MatchResult::MatchResult(TileInfo candidate, Mat colorImage, bool calculate) : t
     this->matchingKeypointFraction = float(noDupeMatches.size())/(this->tile.keypoints.size() + this->queryKeypoints.size());
     
     if (this->matchingKeypointFraction > -IMProc::Paramater::matchingKeypointFractionDiscount) {
-        this->quality = this->averageDistance/(this->matchingKeypointFraction + IMProc::Paramater::matchingKeypointFractionDiscount)/this->noDupeMatches.size();
+        this->quality = (
+        this->averageDistance)/(
+        (this->matchingKeypointFraction + IMProc::Paramater::matchingKeypointFractionDiscount)*
+        pow(this->noDupeMatches.size(), 0.8));
     } else {
         this->quality = INFINITY;
     }
