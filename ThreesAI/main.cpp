@@ -22,9 +22,11 @@
 #include "RealThreesBoard.h"
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace std;
 using namespace boost::filesystem;
+using namespace boost;
 using namespace cv;
 
 void playOneGame() {
@@ -45,14 +47,27 @@ void playOneGame() {
 void testImage(path p) {
     Mat image = imread(p.string());
     Mat boardImage = IMProc::colorImageToBoard(image);
-    SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
-    array<Mat, 16> tiles = IMProc::tileImages(boardImage);
+    vector<string> splitName;
+    split(splitName, p.stem().string(), is_any_of("-"));
+    SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(splitName[0]);
+
+    deque<string> nextTileHintStrings;
+    split(nextTileHintStrings, splitName[1], is_any_of(","));
+    debug(nextTileHintStrings.size() > 3);
     
+    deque<unsigned int> nextTileHint;
+    transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), nextTileHint.begin(), [](string s){
+        return stoi(s);
+    });
+    
+    array<Mat, 16> tiles = IMProc::tileImages(boardImage);
+    IMProc::BoardInfo boardState = IMProc::boardState(boardImage, IMProc::canonicalTiles());
+    debug(boardState.second != nextTileHint);
     int failures = 0;
     for (unsigned char i = 0; i < 16; i++) {
         MatchResult extracted = IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
         int expectedValue = expectedBoard.at({i%4,i/4});
-        if (expectedValue != extracted.tile.value) {
+        if (boardState.first[i] != extracted.tile.value) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), tiles[i]);
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
@@ -143,7 +158,7 @@ int main(int argc, const char * argv[]) {
     testImageProc(); debug();
     
     for (;;) {
-        shared_ptr<ThreesBoardBase> b = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");
+        std::shared_ptr<ThreesBoardBase> b = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");
         ExpectimaxAI ai(b);
         ai.playGame();
         MYLOG("game over");

@@ -56,7 +56,9 @@ Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
 RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}), watcher(0) {
     this->connectAndStart(portName);
     this->image = this->getAveragedImage(8);
-    this->board = IMProc::boardState(IMProc::colorImageToBoard(this->image), IMProc::canonicalTiles());
+    auto state = IMProc::boardState(IMProc::colorImageToBoard(this->image), IMProc::canonicalTiles());
+    this->board = state.first;
+    this->cachedTileHint = state.second;
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -105,7 +107,7 @@ pair<unsigned int, ThreesBoardBase::BoardIndex> RealThreesBoard::move(Direction 
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
     expectedBoardAfterMove.moveWithoutAdd(d);
     vector<ThreesBoardBase::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
-    SimulatedThreesBoard newBoardState(IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles()));
+    SimulatedThreesBoard newBoardState(IMProc::boardState(IMProc::colorImageToBoard(newImage), IMProc::canonicalTiles()).first);
 
     if (newBoardState.hasSameTilesAs(*this, {})) {
         //Movement failed, retry.
@@ -142,6 +144,5 @@ SimulatedThreesBoard RealThreesBoard::simulatedCopy() const {
 }
 
 deque<unsigned int> RealThreesBoard::nextTileHint() const {
-    //TODO: get this from the image;
-    return {3};
+    return this->cachedTileHint;
 }

@@ -30,6 +30,7 @@ private:
     
     cv::Mat getAveragedImage(unsigned char numImages);
     cv::Mat image;
+    std::deque<unsigned int> cachedTileHint;
     
     int fd;
     

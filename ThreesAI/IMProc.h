@@ -83,6 +83,8 @@ namespace IMProc {
         const float differenceMeanThreshold = 1.5; // Lower means more things that look like six are determined to be not 6.
     }
     
+    typedef std::pair<ThreesBoardBase::Board, std::deque<unsigned int>> BoardInfo;
+    
     const cv::Point2f getPoint(const std::string& window);
     const std::array<cv::Point2f, 4> getQuadrilateral(cv::Mat m);
     cv::Mat concatH(std::vector<cv::Mat> v);
@@ -91,7 +93,7 @@ namespace IMProc {
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
-    ThreesBoardBase::Board boardState(cv::Mat boardImage, const std::map<int, TileInfo>& canonicalTiles);
+    BoardInfo boardState(cv::Mat boardImage, const std::map<int, TileInfo>& canonicalTiles);
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     

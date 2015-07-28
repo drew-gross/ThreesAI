@@ -540,12 +540,15 @@ array<Mat, 16> IMProc::tileImages(Mat boardImage) {
     return result;
 }
 
-ThreesBoardBase::Board IMProc::boardState(Mat boardImage, const map<int, TileInfo>& canonicalTiles) {
-    ThreesBoardBase::Board result;
+IMProc::BoardInfo IMProc::boardState(Mat boardImage, const map<int, TileInfo>& canonicalTiles) {
+    ThreesBoardBase::Board board;
     array<Mat, 16> images = tileImages(boardImage);
-    transform(images.begin(), images.end(), result.begin(), [&canonicalTiles](Mat image){
+    transform(images.begin(), images.end(), board.begin(), [&canonicalTiles](Mat image){
         return tileValue(image, canonicalTiles).tile.value;
     });
-    return result;
+    MYSHOW(boardImage);
+    debug();
+    deque<unsigned int> hint;
+    return {board, hint};
 }
 
