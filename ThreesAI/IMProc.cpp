@@ -17,9 +17,25 @@
 
 #include "Debug.h"
 #include "Logging.h"
+#include "IMLog.h"
 
 using namespace std;
 using namespace cv;
+using namespace IMLog;
+
+Mat screenImageToHintImage(Mat i) {
+    const float left = 375;
+    const float right = 425;
+    const float top = 80;
+    const float bottom = 120;
+    const float outputWidth = 100;
+    const float outputHeight = 100;
+    const Point2f fromPointsHint[4] = {{left,top},{left,bottom},{right,bottom},{right,top}};
+    const Point2f toPointsHint[4] = {{0,0},{0,outputHeight},{outputWidth,outputHeight},{outputWidth,0}};
+    Mat hintImage;
+    warpPerspective(i, hintImage, getPerspectiveTransform(fromPointsHint, toPointsHint), Size(outputWidth,outputHeight));
+    return hintImage;
+}
 
 const Point2f IMProc::getPoint(const string& window) {
     Point2f p;
@@ -37,44 +53,6 @@ const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
     return std::array<cv::Point2f, 4>{{getPoint("get rect"),getPoint("get rect"),getPoint("get rect"),getPoint("get rect")}};
 }
 
-Mat IMProc::concatH(vector<Mat> v) {
-    int totalWidth = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
-        return s + m.cols;
-    });
-    int maxHeight = std::max_element(v.begin(), v.end(), [](Mat first, Mat second){
-        return first.rows < second.rows;
-    })->rows;
-    
-    Mat combined(maxHeight, totalWidth, v[0].type());
-    
-    int widthSoFar = 0;
-    for (auto it = v.begin(); it != v.end(); it++) {
-        it->copyTo(combined(Rect(widthSoFar, 0, it->cols, it->rows)));
-        widthSoFar += it->cols;
-    }
-    
-    return combined;
-}
-
-Mat IMProc::concatV(vector<Mat> v) {
-    int totalHeight = accumulate(v.begin(), v.end(), 0, [](int s, Mat m){
-        return s + m.rows;
-    });
-    int maxWidth = std::max_element(v.begin(), v.end(), [](Mat first, Mat second){
-        return first.cols < second.cols;
-    })->cols;
-    
-    Mat combined(totalHeight, maxWidth, v[0].type());
-    
-    int heightSoFar = 0;
-    for (auto it = v.begin(); it != v.end(); it++) {
-        it->copyTo(combined(Rect(0, heightSoFar, it->cols, it->rows)));
-        heightSoFar += it->rows;
-    }
-    
-    return combined;
-}
-
 const int L12 = 80;
 const int R12 = 200;
 const int T12 = 310;
@@ -82,11 +60,28 @@ const int B12 = 630;
 const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
 const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
 
-const Mat IMProc::color12sample(int which) {
+const Mat IMProc::color1sample() {
+    static Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint.png");
+    static array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(IMProc::screenImage(image)));
+    return tiles[0];
+}
+
+const vector<Mat> IMProc::color1hints() {
+    static Mat image1 = screenImageToHintImage(IMProc::screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint1.png")));
+    static Mat image2 = screenImageToHintImage(IMProc::screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint2.png")));
+    return {image1, image2};
+}
+
+const Mat IMProc::color2sample() {
     static Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
-    static Mat boardImage = IMProc::colorImageToBoard(image);
-    static array<Mat, 16> tiles = IMProc::tileImages(boardImage);
-    return which == 1 ? tiles[0] : tiles[1];
+    static array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(IMProc::screenImage(image)));
+    return tiles[1];
+}
+
+const vector<Mat> IMProc::color3hints() {
+    static Mat image1 = screenImageToHintImage(IMProc::screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample3Hint1.png")));
+    static Mat image2 = screenImageToHintImage(IMProc::screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample3Hint2.png")));
+    return {image1, image2};
 }
 
 const Mat IMProc::color12(int which) {
@@ -178,13 +173,6 @@ const map<int, TileInfo>& IMProc::canonicalTiles() {
     return *tiles;
 }
 
-void IMProc::showContours(Mat const image, vector<vector<Point>> const contours) {
-    Mat contoursImage;
-    image.copyTo(contoursImage);
-    drawContours(contoursImage, contours, -1, Scalar(255), 5);
-    MYSHOWSMALL(contoursImage,1);
-}
-
 vector<Point> IMProc::findScreenContour(Mat const& image) {
     
     Mat blurredCopy;
@@ -236,10 +224,11 @@ vector<Point> IMProc::findScreenContour(Mat const& image) {
     return orientedScreenContour;
 }
 
-Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
+const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
+
+Mat IMProc::screenImage(Mat const& colorBoardImage) {
     Mat greyBoardImage;
     Mat screenImage;
-    Mat colorOutput;
     
     cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
     
@@ -247,10 +236,13 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
     
     //TODO: handle empty screenContour
     const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
-    const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
     
+    warpPerspective(colorBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
     
-    
+    return screenImage;
+}
+
+Mat IMProc::boardImageFromScreen(Mat screenImage) {
     const int leftEdge = 100;
     const int bottomEdge = 670;
     const int topEdge = 220;
@@ -261,11 +253,9 @@ Mat IMProc::colorImageToBoard(Mat const& colorBoardImage) {
         {rightEdge,bottomEdge},
         {rightEdge,topEdge}
     };
-    
-    warpPerspective(colorBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
-    warpPerspective(screenImage, colorOutput, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
-    
-    return colorOutput;
+    Mat boardImage;
+    warpPerspective(screenImage, boardImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
+    return boardImage;
 }
 
 Mat MatchResult::knnDrawing() {
@@ -375,16 +365,6 @@ Mat getHistogram(Mat i) {
     const float* ranges[] = { h_ranges, s_ranges };
     calcHist(&i, 1, channels, Mat(), hist, 2, histSize, ranges);
     return hist;
-}
-
-int detect1or2ByColor(Mat i) {
-    Rect flatRegionRect = Rect(0,0,40,100);
-    Mat flatRegion = i(flatRegionRect);
-    Mat i1 = IMProc::color12sample(1);
-    Mat i2 = IMProc::color12sample(2);
-    double d1 = norm(mean(i(flatRegionRect)), mean(i1(flatRegionRect)));
-    double d2 = norm(mean(i(flatRegionRect)), mean(i2(flatRegionRect)));
-    return d1 < d2 ? 1 : 2;
 }
 
 bool mustDetect6vs96vs192(deque<MatchResult> matches) {
@@ -511,7 +491,8 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const map<int, TileInfo
     if (goodMatchResults[0].tile.value == 1 ||
         goodMatchResults[0].tile.value == 2)
     {
-        int result = detect1or2ByColor(colorTileImage);
+        Rect flatRegionRect = Rect(0,0,40,100);
+        int result = detect1or2or3orBonusByColor(colorTileImage(flatRegionRect));
         for (auto&& m : matchResults) {
             if (m.tile.value == result) {
                 return m;
@@ -520,7 +501,7 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const map<int, TileInfo
     }
     
     // Tiles can sometimes masquarade as 1s even with a terrible average distance,
-    // because there is only 1 keypoint so they can have a super high matching keypoint
+    // because there are few keypoints so they can have a super high matching keypoint
     // fraction. So get rid of the first match if it has a terrible distance and
     // there is a second match.
     if (goodMatchResults.size() > 1 && goodMatchResults[0].averageDistance > Paramater::minimumAverageDistance && goodMatchResults[0].averageDistance > goodMatchResults[1].averageDistance) {
@@ -540,15 +521,71 @@ array<Mat, 16> IMProc::tileImages(Mat boardImage) {
     return result;
 }
 
-IMProc::BoardInfo IMProc::boardState(Mat boardImage, const map<int, TileInfo>& canonicalTiles) {
+unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
+    Rect flatRegionRect = Rect(0,0,40,100);
+    Mat i2 = IMProc::color2sample();
+    Scalar inputMean;
+    Scalar iStdDev;
+    meanStdDev(input, inputMean, iStdDev);
+    
+    
+    Scalar i2Mean;
+    Scalar i2StdDev;
+    
+    Scalar i3Mean;
+    Scalar i3StdDev;
+    
+    double closestSample1distance = INFINITY;
+    Mat closestSample1Mat;
+    for (auto&& sample : color1hints()) {
+        Scalar sampleMean = mean(sample);
+        double newDistance = norm(inputMean, sampleMean);
+        if (newDistance < closestSample1distance) {
+            closestSample1distance = newDistance;
+            closestSample1Mat = sample;
+        }
+    }
+    
+    double closestSample3distance = INFINITY;
+    Mat closestSample3Mat;
+    for (auto&& sample : color3hints()) {
+        Scalar sampleMean = mean(sample);
+        double newDistance = norm(inputMean, sampleMean);
+        if (newDistance < closestSample3distance) {
+            closestSample3distance = newDistance;
+            closestSample3Mat = sample;
+        }
+    }
+    
+    meanStdDev(i2(flatRegionRect), i2Mean, i2StdDev);
+    MYSHOW(concatV({input, closestSample1Mat, i2, closestSample3Mat}));
+    Scalar m = mean(iStdDev);
+    if (m[0] > 4) {
+        return 4; //Bonus
+    }
+    double d2 = norm(inputMean, i2Mean);
+    if (closestSample1distance < d2 && closestSample1distance < closestSample3distance) {
+        return 1;
+    } else if (d2 < closestSample3distance) {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+IMProc::BoardInfo IMProc::boardState(Mat screenImage, const map<int, TileInfo>& canonicalTiles) {
     ThreesBoardBase::Board board;
-    array<Mat, 16> images = tileImages(boardImage);
+    array<Mat, 16> images = tileImages(boardImageFromScreen(screenImage));
     transform(images.begin(), images.end(), board.begin(), [&canonicalTiles](Mat image){
         return tileValue(image, canonicalTiles).tile.value;
     });
-    MYSHOW(boardImage);
-    debug();
-    deque<unsigned int> hint;
-    return {board, hint};
+
+    unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage));
+    if (hint < 4) {
+        return {board, {hint}};
+    } else {
+        //TODO: get the real bonus tile hint here
+        return {board, {6,12,24,48,96,192,384,768,1536}};
+    }
 }
 

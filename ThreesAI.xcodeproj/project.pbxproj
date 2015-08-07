@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		7944F88F1A732BC300ED690E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F88E1A732BC300ED690E /* main.cpp */; };
 		7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */; };
+		7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7955D3CD1B74848B0034EE4F /* IMLog.cpp */; };
 		7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4421A883278000622BC /* ThreesAIBase.cpp */; };
 		7960E4471A88333B000622BC /* RandomAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4451A88333B000622BC /* RandomAI.cpp */; };
 		7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4DD1AA00CA70081BEC8 /* TileStack.cpp */; };
@@ -53,6 +54,8 @@
 		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = SimulatedThreesBoard.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7944F8961A732C1200ED690E /* SimulatedThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SimulatedThreesBoard.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7955D3CD1B74848B0034EE4F /* IMLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IMLog.cpp; sourceTree = "<group>"; };
+		7955D3CE1B74848B0034EE4F /* IMLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMLog.h; sourceTree = "<group>"; };
 		7960E4421A883278000622BC /* ThreesAIBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesAIBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7960E4431A883278000622BC /* ThreesAIBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesAIBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7960E4451A88333B000622BC /* RandomAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = RandomAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -145,6 +148,8 @@
 				79F98BB71AA3E95B0043C8BC /* Debug.h */,
 				79664DB81B29DF0B002FCF52 /* IMProc.cpp */,
 				79664DB91B29DF0B002FCF52 /* IMProc.h */,
+				7955D3CD1B74848B0034EE4F /* IMLog.cpp */,
+				7955D3CE1B74848B0034EE4F /* IMLog.h */,
 			);
 			path = ThreesAI;
 			sourceTree = "<group>";
@@ -285,6 +290,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */,
 				79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */,
 				7960E4471A88333B000622BC /* RandomAI.cpp in Sources */,
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,

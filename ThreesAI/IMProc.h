@@ -87,13 +87,12 @@ namespace IMProc {
     
     const cv::Point2f getPoint(const std::string& window);
     const std::array<cv::Point2f, 4> getQuadrilateral(cv::Mat m);
-    cv::Mat concatH(std::vector<cv::Mat> v);
-    cv::Mat concatV(std::vector<cv::Mat> v);
     
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
-    cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
+    cv::Mat boardImageFromScreen(cv::Mat screenImage);
+    cv::Mat screenImage(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
-    BoardInfo boardState(cv::Mat boardImage, const std::map<int, TileInfo>& canonicalTiles);
+    BoardInfo boardState(cv::Mat screenImage, const std::map<int, TileInfo>& canonicalTiles);
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     
@@ -102,9 +101,11 @@ namespace IMProc {
     const cv::SIFT& imageSifter();
     
     const cv::Mat color12(int which);
-    const cv::Mat color12sample(int which);
-    
-    void showContours(cv::Mat const image, std::vector<std::vector<cv::Point>> const contours);
+    const cv::Mat color1sample();
+    const cv::Mat color2sample();
+    const std::vector<cv::Mat> color1hints();
+    const std::vector<cv::Mat> color3hints();
+    unsigned int detect1or2or3orBonusByColor(cv::Mat i);
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */

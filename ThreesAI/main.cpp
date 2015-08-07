@@ -1,4 +1,3 @@
-
 //
 //  main.cpp
 //  ThreesAI
@@ -15,6 +14,7 @@
 #include "Logging.h"
 #include "Debug.h"
 #include "IMProc.h"
+#include "IMLog.h"
 
 #include "SimulatedThreesBoard.h"
 #include "ZeroDepthMaxScoreAI.h"
@@ -28,6 +28,7 @@ using namespace std;
 using namespace boost::filesystem;
 using namespace boost;
 using namespace cv;
+using namespace IMLog;
 
 void playOneGame() {
     unique_ptr<SimulatedThreesBoard> b(new SimulatedThreesBoard(SimulatedThreesBoard::randomBoard()));
@@ -44,9 +45,8 @@ void playOneGame() {
     MYLOG(elapsed_time);
 }
 
-void testImage(path p) {
-    Mat image = imread(p.string());
-    Mat boardImage = IMProc::colorImageToBoard(image);
+unsigned int testImage(path p) {
+    unsigned int failures = 0;
     vector<string> splitName;
     split(splitName, p.stem().string(), is_any_of("-"));
     SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(splitName[0]);
@@ -56,14 +56,20 @@ void testImage(path p) {
     debug(nextTileHintStrings.size() > 3);
     
     deque<unsigned int> nextTileHint;
+    nextTileHint.resize(nextTileHintStrings.size());
     transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), nextTileHint.begin(), [](string s){
         return stoi(s);
     });
     
-    array<Mat, 16> tiles = IMProc::tileImages(boardImage);
-    IMProc::BoardInfo boardState = IMProc::boardState(boardImage, IMProc::canonicalTiles());
-    debug(boardState.second != nextTileHint);
-    int failures = 0;
+    Mat screenImage = IMProc::screenImage(imread(p.string()));
+    array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(screenImage));
+    IMProc::BoardInfo boardState = IMProc::boardState(screenImage, IMProc::canonicalTiles());
+    if(boardState.second != nextTileHint && boardState.second.size() == 1) {
+        MYSHOW(screenImage);
+        failures++; 
+        debug();
+        IMProc::boardState(screenImage, IMProc::canonicalTiles());
+    }
     for (unsigned char i = 0; i < 16; i++) {
         MatchResult extracted = IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
         int expectedValue = expectedBoard.at({i%4,i/4});
@@ -71,16 +77,13 @@ void testImage(path p) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), tiles[i]);
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
-            MYSHOW(IMProc::concatH({IMProc::concatV(expectedV), IMProc::concatV(extractedV)}));
+            MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
             debug();
             IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
             failures++;
         }
     }
-    if (failures > 0) {
-        imwrite(p.string(), image); //Make most recently failed tests run first.
-    }
-    MYLOG(failures); 
+    return failures;
 }
 
 void testImageProc() {
@@ -95,7 +98,7 @@ void testImageProc() {
     }
     vector<Mat> cv;
     for (auto&& vector : canonicalKeypoints) {
-        cv.push_back(IMProc::concatV(vector));
+        cv.push_back(concatV(vector));
     }
     //MYSHOW(IMProc::concatH(cv)); debug();
     
@@ -107,9 +110,17 @@ void testImageProc() {
         return last_write_time(l) > last_write_time(r);
     });
     
+    unsigned int num_tests = 0;
     for (auto&& path : paths) {
         if (path.extension() == ".png") {
-            testImage(path);
+            unsigned int failures = testImage(path);
+            if (failures > 0) {
+                
+                imwrite(path.string(), imread(path.string())); //Make most recently failed tests run first.
+                MYLOG(failures);
+            }
+            num_tests++;
+            cout << "Finished " << num_tests << "/" << paths.size() << endl;
         }
     }
 }
