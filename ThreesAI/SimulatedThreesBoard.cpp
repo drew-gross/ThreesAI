@@ -24,10 +24,10 @@ public:
     InvalidTileAdditionException() : runtime_error("Attempting to add a tile where none can be added"){};
 };
 
-SimulatedThreesBoard SimulatedThreesBoard::randomBoard() {
+std::shared_ptr<SimulatedThreesBoard> SimulatedThreesBoard::randomBoard() {
     std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
-    return SimulatedThreesBoard(initialTiles);
+    return make_shared<SimulatedThreesBoard>(initialTiles);
 }
 
 SimulatedThreesBoard SimulatedThreesBoard::fromString(const string s) {
@@ -112,7 +112,7 @@ bool SimulatedThreesBoard::moveWithoutAdd(Direction d) {
     return successfulMerge;
 }
 
-pair<unsigned int, SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::move(Direction d) {
+MoveResult SimulatedThreesBoard::move(Direction d) {
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     
@@ -122,11 +122,7 @@ pair<unsigned int, SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::move(
     throw InvalidMoveException();
 }
 
-deque<unsigned int> SimulatedThreesBoard::nextTileHint() const {
-    return this->tileStack.nextTileHint(this->maxTile());
-}
-
-pair<unsigned int, SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::addTile(Direction d) {
+MoveResult SimulatedThreesBoard::addTile(Direction d) {
     this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     
@@ -134,7 +130,7 @@ pair<unsigned int, SimulatedThreesBoard::BoardIndex> SimulatedThreesBoard::addTi
     shuffle(indices.begin(), indices.end(), TileStack::randomGenerator);
     unsigned int nextTileValue = this->tileStack.getNextTile(this->maxTile());
     this->set(*indices.begin(), nextTileValue);
-    return {nextTileValue, *indices.begin()};
+    return {nextTileValue, *indices.begin(), this->tileStack.nextTileHint(this->maxTile())};
 }
 
 ostream& operator<<(ostream &os, Direction d){
@@ -155,7 +151,7 @@ ostream& operator<<(ostream &os, Direction d){
     return os;
 }
 
-ostream& operator<<(ostream &os, const SimulatedThreesBoard::BoardIndex i){
+ostream& operator<<(ostream &os, const BoardIndex i){
     os << "{" << i.first << ", " << i.second << "}";
     return os;
 }

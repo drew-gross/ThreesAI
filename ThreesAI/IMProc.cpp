@@ -557,13 +557,11 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
         }
     }
     
-    meanStdDev(i2(flatRegionRect), i2Mean, i2StdDev);
-    MYSHOW(concatV({input, closestSample1Mat, i2, closestSample3Mat}));
     Scalar m = mean(iStdDev);
     if (m[0] > 4) {
         return 4; //Bonus
     }
-    double d2 = norm(inputMean, i2Mean);
+    double d2 = norm(inputMean, mean(i2(flatRegionRect)));
     if (closestSample1distance < d2 && closestSample1distance < closestSample3distance) {
         return 1;
     } else if (d2 < closestSample3distance) {

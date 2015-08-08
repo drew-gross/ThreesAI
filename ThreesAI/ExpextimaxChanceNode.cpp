@@ -39,12 +39,12 @@ float ExpectimaxChanceNode::value() const {
 
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     auto possibleNextTiles = this->board.possibleNextTiles();
-    auto possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
+    vector<BoardIndex> possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
     
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     for (auto&& nextTile : possibleNextTiles) {
-        for (auto&& boardIndex : possibleNextLocations) {
+        for (BoardIndex boardIndex : possibleNextLocations) {
             SimulatedThreesBoard childBoard = this->board;
             childBoard.set(boardIndex, nextTile.first);
             shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
@@ -80,7 +80,9 @@ void ExpectimaxChanceNode::outputDotEdges(float p) const {
     }
     cout << "\t" << long(this) << " [label=\"";
     cout << "Value=" << this->value() << endl;
-    cout << (ThreesBoardBase&)this->board << "\"";
+    //TODO: get the hint
+    pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> info(shared_ptr<const ThreesBoardBase>(&this->board),{});
+    cout << info << "\"";
     if (this->board.isGameOver()) {
         cout << ",style=filled,color=red";
     }

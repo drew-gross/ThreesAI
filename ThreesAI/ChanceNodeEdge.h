@@ -13,10 +13,10 @@
 
 class ChanceNodeEdge {
 public:
-    ChanceNodeEdge(unsigned int newTileValue, SimulatedThreesBoard::BoardIndex newTileLocation);
+    ChanceNodeEdge(unsigned int newTileValue, BoardIndex newTileLocation);
     
     unsigned int newTileValue;
-    SimulatedThreesBoard::BoardIndex newTileLocation;
+    BoardIndex newTileLocation;
 };
 
 //implemented for use as key in std::map

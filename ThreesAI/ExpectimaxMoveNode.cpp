@@ -8,7 +8,7 @@
 
 #include "ExpectimaxMoveNode.h"
 
-
+#include <memory>
 #include <iomanip>
 
 #include "ExpextimaxChanceNode.h"
@@ -71,7 +71,9 @@ void ExpectimaxMoveNode::outputDotEdges(float p) const {
     cout << "\t" << long(this) << " [label=\"";
     cout << "Value=" << setprecision(7) << this->value() << endl;
     cout << "P=" << p << endl;
-    cout << (ThreesBoardBase&)this->board << "\"";
+    //TODO: get the hint
+    pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> info(shared_ptr<const ThreesBoardBase>(&this->board),{});
+    cout << info << "\"";
     if (this->board.isGameOver()) {
         cout << ",style=filled,color=red";
     }

@@ -16,21 +16,21 @@
 
 class RealThreesBoard : public ThreesBoardBase {
 public:
-    RealThreesBoard(std::string serialPath);
+    static std::pair<RealThreesBoard, std::deque<unsigned int>> boardFromPortName(std::string serialPath);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
-    std::pair<unsigned int, BoardIndex> move(Direction d);
+    MoveResult move(Direction d);
     std::deque<unsigned int> nextTileHint() const;
     SimulatedThreesBoard simulatedCopy() const;
     
     ~RealThreesBoard();
     
 private:
+    RealThreesBoard(std::string serialPath);
     cv::VideoCapture watcher;
     
     cv::Mat getAveragedImage(unsigned char numImages);
     cv::Mat image;
-    std::deque<unsigned int> cachedTileHint;
     
     int fd;
     

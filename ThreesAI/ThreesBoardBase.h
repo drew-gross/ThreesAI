@@ -23,9 +23,18 @@ public:
 
 class SimulatedThreesBoard;
 
+typedef std::pair<unsigned int, unsigned int> BoardIndex;
+
+class MoveResult {
+public:
+    MoveResult(unsigned int value, BoardIndex location, std::deque<unsigned int> hint);
+    unsigned int value;
+    BoardIndex location;
+    std::deque<unsigned int> hint;
+};
+
 class ThreesBoardBase {
 public:
-    typedef std::pair<unsigned int, unsigned int> BoardIndex;
     typedef std::array<unsigned int, 16> Board;
     
     explicit ThreesBoardBase(Board boardTiles);
@@ -39,14 +48,13 @@ public:
     static unsigned int tileScore(unsigned int tileValue);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
-    virtual std::pair<unsigned int, BoardIndex> move(Direction d) = 0;
+    virtual MoveResult move(Direction d) = 0;
     virtual SimulatedThreesBoard simulatedCopy() const = 0;
-    virtual std::deque<unsigned int> nextTileHint() const = 0;
     unsigned int at(BoardIndex const& i) const;
     
     unsigned int numTurns;
     
-    bool hasSameTilesAs(ThreesBoardBase const& otherBoard, std::vector<ThreesBoardBase::BoardIndex> excludedIndices) const;
+    bool hasSameTilesAs(ThreesBoardBase const& otherBoard, std::vector<BoardIndex> excludedIndices) const;
     
 protected:
     bool canMove(Direction d) const;
@@ -62,7 +70,7 @@ protected:
     
     mutable bool scoreCacheIsValid;
     mutable unsigned int scoreCache;
-    friend std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board);
+    friend std::ostream& operator<<(std::ostream &os, std::pair<std::shared_ptr<const ThreesBoardBase>, std::deque<unsigned int>> const& info);
 };
 
 std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board);

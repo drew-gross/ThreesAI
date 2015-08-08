@@ -8,23 +8,26 @@
 
 #include "ThreesBoardBase.h"
 
+#include <memory>
+
 #include "Debug.h"
 #include "Logging.h"
 
 using namespace std;
 
 ThreesBoardBase::ThreesBoardBase(Board boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {}
+MoveResult::MoveResult(unsigned int value, BoardIndex location, std::deque<unsigned int> hint) : value(value), location(location), hint(hint) {};
 
-std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board){
-    os << "Upcoming: " << board.nextTileHint() << std::endl;
-    if (board.isGameOver()) {
+std::ostream& operator<<(std::ostream &os, pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> const& info) {
+    os << "Upcoming: " << info.second << endl;
+    if (info.first->isGameOver()) {
         os << "Final";
     } else {
         os << "Current";
     }
-    os << " Score: " << board.score() << std::endl;
-    os << "Number of turns: " << board.numTurns << std::endl;
-    os << board.board;
+    os << " Score: " << info.first->score() << std::endl;
+    os << "Number of turns: " << info.first->numTurns << std::endl;
+    os << info.first->board;
     return os;
 }
 
@@ -56,10 +59,10 @@ unsigned int ThreesBoardBase::tileScore(unsigned int tileValue) {
     }
 }
 
-bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard, vector<ThreesBoardBase::BoardIndex> excludedIndices) const {
+bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard, vector<BoardIndex> excludedIndices) const {
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            ThreesBoardBase::BoardIndex curIndex(i,j);
+            BoardIndex curIndex(i,j);
             if (find(excludedIndices.begin(), excludedIndices.end(), curIndex) == excludedIndices.end()) {
                 unsigned int tile = this->at(curIndex);
                 unsigned int otherTile = otherBoard.at(curIndex);
@@ -72,8 +75,8 @@ bool ThreesBoardBase::hasSameTilesAs(ThreesBoardBase const& otherBoard, vector<T
     return true;
 }
 
-vector<ThreesBoardBase::BoardIndex> ThreesBoardBase::validIndicesForNewTile(Direction movedDirection) const {
-    std::array<ThreesBoardBase::BoardIndex, 4> indicies;
+vector<BoardIndex> ThreesBoardBase::validIndicesForNewTile(Direction movedDirection) const {
+    std::array<BoardIndex, 4> indicies;
     switch (movedDirection) {
         case LEFT:
             indicies = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
@@ -93,7 +96,7 @@ vector<ThreesBoardBase::BoardIndex> ThreesBoardBase::validIndicesForNewTile(Dire
     auto endIterator = remove_if(indicies.begin(), indicies.end(), [this](BoardIndex tile) {
         return this->at(tile) != 0;
     });
-    vector<ThreesBoardBase::BoardIndex> result(indicies.begin(), endIterator);
+    vector<BoardIndex> result(indicies.begin(), endIterator);
     return result;
 }
 

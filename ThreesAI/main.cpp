@@ -31,8 +31,7 @@ using namespace cv;
 using namespace IMLog;
 
 void playOneGame() {
-    unique_ptr<SimulatedThreesBoard> b(new SimulatedThreesBoard(SimulatedThreesBoard::randomBoard()));
-    ZeroDepthMaxScoreAI ai(move(b));
+    ZeroDepthMaxScoreAI ai(move(SimulatedThreesBoard::randomBoard()));
     clock_t startTime = clock();
     while (!ai.board->isGameOver()) {
         cout << &ai.board << endl;
@@ -87,21 +86,6 @@ unsigned int testImage(path p) {
 }
 
 void testImageProc() {
-    vector<vector<Mat>> canonicalKeypoints = {{}};
-    for (auto&& image : IMProc::canonicalTiles()) {
-        if (canonicalKeypoints.rbegin()->size() == 7) {
-            canonicalKeypoints.push_back({});
-        }
-        Mat kpi;
-        drawKeypoints(image.second.image, image.second.keypoints, kpi);
-        canonicalKeypoints.rbegin()->push_back(kpi);
-    }
-    vector<Mat> cv;
-    for (auto&& vector : canonicalKeypoints) {
-        cv.push_back(concatV(vector));
-    }
-    //MYSHOW(IMProc::concatH(cv)); debug();
-    
     vector<path> paths;
     for (auto&& path : directory_iterator(Log::project_path + "TestCaseImages/")) {
         paths.push_back(path.path());
@@ -166,10 +150,10 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     for (;;) {
-        std::shared_ptr<ThreesBoardBase> b = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");
+        std::shared_ptr<ThreesBoardBase> b = SimulatedThreesBoard::randomBoard();// make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");
         ExpectimaxAI ai(b);
         ai.playGame();
         MYLOG("game over");

@@ -50,21 +50,17 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 }
 
 Direction ExpectimaxAI::playTurn() {
-    this->currentBoard->pruneUnreachableChildren(this->board->nextTileHint());
     this->fillInChild(50);
     
     pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
     Direction bestDirection = bestChild.first;
     shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(bestChild.second);
     
-    pair<unsigned int, SimulatedThreesBoard::BoardIndex> addedTileInfo = this->board->move(bestDirection);
-    unsigned int addedTileValue = addedTileInfo.first;
-    SimulatedThreesBoard::BoardIndex addedTileLocation = addedTileInfo.second;
-    
-    shared_ptr<const ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(addedTileValue, addedTileLocation));
-
+    MoveResult move = this->board->move(bestDirection);
+    shared_ptr<const ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(move.value, move.location));
     shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(baseBoard);
     
     this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterAddingTileBoard);
+    this->currentBoard->pruneUnreachableChildren(move.hint);
     return bestDirection;
 }
