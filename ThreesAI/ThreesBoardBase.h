@@ -27,9 +27,10 @@ typedef std::pair<unsigned int, unsigned int> BoardIndex;
 
 class MoveResult {
 public:
-    MoveResult(unsigned int value, BoardIndex location, std::deque<unsigned int> hint);
+    MoveResult(unsigned int value, BoardIndex location, std::deque<unsigned int> hint, Direction d);
     unsigned int value;
     BoardIndex location;
+    Direction direction;
     std::deque<unsigned int> hint;
 };
 
@@ -44,8 +45,6 @@ public:
     std::vector<Direction> validMoves() const;
     std::deque<std::pair<unsigned int, float>> possibleNextTiles() const;
     std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
-    
-    static unsigned int tileScore(unsigned int tileValue);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     virtual MoveResult move(Direction d) = 0;

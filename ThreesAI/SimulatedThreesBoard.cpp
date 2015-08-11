@@ -143,7 +143,7 @@ MoveResult SimulatedThreesBoard::addTile(Direction d) {
     shuffle(indices.begin(), indices.end(), TileStack::randomGenerator);
     unsigned int nextTileValue = this->tileStack.getNextTile(this->maxTile());
     this->set(*indices.begin(), nextTileValue);
-    return {nextTileValue, *indices.begin(), this->tileStack.nextTileHint(this->maxTile())};
+    return MoveResult(nextTileValue, *indices.begin(), this->tileStack.nextTileHint(this->maxTile()), d);
 }
 
 ostream& operator<<(ostream &os, Direction d){

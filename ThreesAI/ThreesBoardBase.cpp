@@ -15,7 +15,7 @@
 
 using namespace std;
 
-ThreesBoardBase::ThreesBoardBase(Board boardTiles, deque<unsigned int> initialHint) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false), lastMove(0, {0,0}, initialHint) {
+ThreesBoardBase::ThreesBoardBase(Board boardTiles, deque<unsigned int> initialHint) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false), lastMove(0, {0,0}, initialHint, LEFT) {
     if (initialHint.size() == 1) {
         if (initialHint[0] == 1) {
             this->tileStack.ones--;
@@ -28,7 +28,7 @@ ThreesBoardBase::ThreesBoardBase(Board boardTiles, deque<unsigned int> initialHi
         }
     }
 }
-MoveResult::MoveResult(unsigned int value, BoardIndex location, std::deque<unsigned int> hint) : value(value), location(location), hint(hint) {};
+MoveResult::MoveResult(unsigned int value, BoardIndex location, std::deque<unsigned int> hint, Direction d) : value(value), location(location), hint(hint), direction(d) {};
 
 std::ostream& operator<<(std::ostream &os, pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> const& info) {
     os << "Upcoming: " << info.second << endl;
@@ -55,7 +55,7 @@ unsigned int ThreesBoardBase::at(BoardIndex const& p) const {
     return this->board[p.first+p.second*4];
 }
 
-unsigned int ThreesBoardBase::tileScore(unsigned int tileValue) {
+unsigned int tileScore(unsigned int tileValue) {
     switch (tileValue) {
         case 0: return 0;
         case 1: return 0;
@@ -118,7 +118,7 @@ unsigned int ThreesBoardBase::score() const {
     } else {
         this->scoreCacheIsValid = true;
         this->scoreCache = accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc, unsigned int tile){
-            return acc + ThreesBoardBase::tileScore(tile);
+            return acc + tileScore(tile);
         });
         return this->scoreCache;
     }

@@ -30,7 +30,7 @@ TileInfo::TileInfo(cv::Mat image, int value, const SIFT& sifter) {
     sifter.compute(image, this->keypoints, this->descriptors);
 }
 
-RealThreesBoard::RealThreesBoard(int fd, shared_ptr<VideoCapture> watcher, Board b, deque<unsigned int> initialHint) : ThreesBoardBase(b, initialHint), watcher(watcher) {}
+RealThreesBoard::RealThreesBoard(int fd, shared_ptr<VideoCapture> watcher, Board b, deque<unsigned int> initialHint) : ThreesBoardBase(b, initialHint), watcher(watcher), fd(fd) {}
 
 shared_ptr<RealThreesBoard> RealThreesBoard::boardFromPortName(string port) {
     int fd = serialport_init(port.c_str(), 9600);
@@ -58,6 +58,25 @@ RealThreesBoard::~RealThreesBoard() {
         serialport_close(this->fd);
         sleep(2);
     }
+}
+
+bool boardTransitionIsValid(ThreesBoardBase const &oldBoard, MoveResult lastMove, ThreesBoardBase const &newBoard) {
+    auto unknownIndexes = oldBoard.validIndicesForNewTile(lastMove.direction);
+    //Check if any of the moved tiles don't read the same
+    if (!newBoard.hasSameTilesAs(oldBoard, unknownIndexes)) {
+        return false;
+    }
+    
+    for (auto&& index : unknownIndexes) {
+        if (newBoard.at(index) != 0) {
+            for (auto&& hint : lastMove.hint) {
+                if (newBoard.at(index) == hint) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 MoveResult RealThreesBoard::move(Direction d) {
@@ -99,10 +118,12 @@ MoveResult RealThreesBoard::move(Direction d) {
         return this->move(d);
     }
     
-    //Check if any of the moved tiles don't read the same
-    if (!newBoardState.hasSameTilesAs(expectedBoardAfterMove, unknownIndexes)) {
+    bool ok = boardTransitionIsValid(*this, this->lastMove, newBoardState);
+    
+    if (!ok) {
         Log::imSave(newImage);
         Log::imSave(this->image);
+        debug();
     }
     
     for (auto&& index : unknownIndexes) {
@@ -111,21 +132,7 @@ MoveResult RealThreesBoard::move(Direction d) {
             this->isGameOverCacheIsValid = false;
             this->image = newImage;
             this->board = newBoardState.board;
-            
-            //Check if the newly appeared tile matches the hint
-            bool ok = false;
-            for (auto&& hint : this->lastMove.hint) {
-                if (newTile == hint) {
-                    ok = true;
-                }
-            }
-            if (!ok) {
-                Log::imSave(newImage);
-                Log::imSave(this->image);
-                debug();
-            }
-            this->lastMove = {newTile, index, newBoardInfo.second};
-            
+            this->lastMove = MoveResult(newTile, index, newBoardInfo.second, d);
             return this->lastMove;
         }
     }
@@ -138,7 +145,7 @@ MoveResult RealThreesBoard::move(Direction d) {
     MYLOG(*this);
     MYLOG(expectedBoardAfterMove);*/
     debug();
-    return MoveResult(0,{0,0},{0});
+    return MoveResult(0,{0,0},{0},d);
 }
 
 SimulatedThreesBoard RealThreesBoard::simulatedCopy() const {
