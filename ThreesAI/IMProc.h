@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <array>
+#include <memory>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/nonfree/nonfree.hpp>
@@ -87,6 +88,7 @@ namespace IMProc {
     
     const cv::Point2f getPoint(const std::string& window);
     const std::array<cv::Point2f, 4> getQuadrilateral(cv::Mat m);
+    cv::Mat getAveragedImage(std::shared_ptr<cv::VideoCapture> cam, unsigned char numImages);
     
     std::vector<cv::Point> findScreenContour(cv::Mat const& image);
     cv::Mat boardImageFromScreen(cv::Mat screenImage);

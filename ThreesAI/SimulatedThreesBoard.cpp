@@ -27,23 +27,36 @@ public:
 std::shared_ptr<SimulatedThreesBoard> SimulatedThreesBoard::randomBoard() {
     std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), TileStack::randomGenerator);
-    return make_shared<SimulatedThreesBoard>(initialTiles);
+    return std::shared_ptr<SimulatedThreesBoard>(new SimulatedThreesBoard(initialTiles, {1}));
 }
 
 SimulatedThreesBoard SimulatedThreesBoard::fromString(const string s) {
+    
+    vector<string> splitName;
+    split(splitName, s, is_any_of("-"));
+    
     deque<string> nums;
-    split(nums, s, is_any_of(","));
+    split(nums, splitName[0], is_any_of(","));
     debug(nums.size() != 16);
+    
+    deque<string> nextTileHintStrings;
+    split(nextTileHintStrings, splitName[1], is_any_of(","));
+    debug(nextTileHintStrings.size() > 3);
     
     std::array<unsigned int, 16> tileList;
     transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
         return stoi(s);
     });
     
-    return SimulatedThreesBoard(tileList);
+    deque<unsigned int> hint(nextTileHintStrings.size());
+    transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), hint.begin(), [](string s) {
+        return stoi(s);
+    });
+    
+    return SimulatedThreesBoard(tileList, hint);
 }
 
-SimulatedThreesBoard::SimulatedThreesBoard(Board otherBoard) : ThreesBoardBase(std::move(otherBoard)) {}
+SimulatedThreesBoard::SimulatedThreesBoard(Board otherBoard, deque<unsigned int> initialHint) : ThreesBoardBase(std::move(otherBoard), initialHint) {}
 
 void SimulatedThreesBoard::set(BoardIndex const& p, const unsigned int t){
     this->isGameOverCacheIsValid = false;

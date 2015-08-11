@@ -9,27 +9,26 @@
 #ifndef __ThreesAI__RealThreesBoard__
 #define __ThreesAI__RealThreesBoard__
 
+#include <memory>
+
 #include <opencv2/opencv.hpp>
 
-#include "ThreesBoardBase.h"
 #include "IMProc.h"
 
 class RealThreesBoard : public ThreesBoardBase {
 public:
-    static std::pair<RealThreesBoard, std::deque<unsigned int>> boardFromPortName(std::string serialPath);
+    RealThreesBoard(int fd, std::shared_ptr<cv::VideoCapture> watcher, Board b, std::deque<unsigned int> initialHint);
+    static std::shared_ptr<RealThreesBoard> boardFromPortName(std::string serialPath);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     MoveResult move(Direction d);
-    std::deque<unsigned int> nextTileHint() const;
     SimulatedThreesBoard simulatedCopy() const;
     
     ~RealThreesBoard();
     
 private:
-    RealThreesBoard(std::string serialPath);
-    cv::VideoCapture watcher;
+    std::shared_ptr<cv::VideoCapture> watcher;
     
-    cv::Mat getAveragedImage(unsigned char numImages);
     cv::Mat image;
     
     int fd;

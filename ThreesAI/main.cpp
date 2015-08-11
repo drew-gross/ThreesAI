@@ -46,10 +46,10 @@ void playOneGame() {
 
 unsigned int testImage(path p) {
     unsigned int failures = 0;
+    SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
+    
     vector<string> splitName;
     split(splitName, p.stem().string(), is_any_of("-"));
-    SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(splitName[0]);
-
     deque<string> nextTileHintStrings;
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
@@ -113,38 +113,38 @@ void testBoardMovement() {
     SimulatedThreesBoard b = SimulatedThreesBoard::fromString("0,0,0,0,\
                                                                0,0,1,0,\
                                                                0,0,0,0,\
-                                                               0,0,0,0");
+                                                               0,0,0,0-1");
     b.moveWithoutAdd(LEFT);
     debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
                                                               0,1,0,0,\
                                                               0,0,0,0,\
-                                                              0,0,0,0"), {}));
+                                                              0,0,0,0-1"), {}));
     b.moveWithoutAdd(DOWN);
     debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
                                                               0,0,0,0,\
                                                               0,1,0,0,\
-                                                              0,0,0,0"), {}));
+                                                              0,0,0,0-1"), {}));
     b.moveWithoutAdd(RIGHT);
     debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
                                                               0,0,0,0,\
                                                               0,0,1,0,\
-                                                              0,0,0,0"), {}));
+                                                              0,0,0,0-1"), {}));
     b.moveWithoutAdd(UP);
     debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
                                                               0,0,1,0,\
                                                               0,0,0,0,\
-                                                              0,0,0,0"), {}));
+                                                              0,0,0,0-1"), {}));
     
     
     SimulatedThreesBoard x = SimulatedThreesBoard::fromString("6,0,0,0,\
                                                                0,0,1,0,\
                                                                0,0,6,0,\
-                                                               0,6,0,0");
+                                                               0,6,0,0-1");
     
     SimulatedThreesBoard y = SimulatedThreesBoard::fromString("3,0,0,0,\
                                                                0,0,1,0,\
                                                                0,0,3,0,\
-                                                               0,0,2,0");
+                                                               0,0,2,0-1");
     debug(!x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}, {2,3}}));
 }
 
@@ -153,8 +153,8 @@ int main(int argc, const char * argv[]) {
     //testImageProc(); debug();
     
     for (;;) {
-        std::shared_ptr<ThreesBoardBase> b = SimulatedThreesBoard::randomBoard();// make_shared<RealThreesBoard>("/dev/tty.usbmodem1411");
-        ExpectimaxAI ai(b);
+        auto p = RealThreesBoard::boardFromPortName("/dev/tty.usbmodem1411");
+        ExpectimaxAI ai(p);
         ai.playGame();
         MYLOG("game over");
     }

@@ -53,6 +53,25 @@ const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
     return std::array<cv::Point2f, 4>{{getPoint("get rect"),getPoint("get rect"),getPoint("get rect"),getPoint("get rect")}};
 }
 
+Mat IMProc::getAveragedImage(shared_ptr<VideoCapture> cam, unsigned char numImages) {
+    vector<Mat> images;
+    for (unsigned char i = 0; i < numImages; i++) {
+        Mat image;
+        *cam >> image;
+        images.push_back(image);
+    }
+    Mat averagedImage;
+    if (numImages == 0) {
+        return averagedImage;
+    }
+    averagedImage = Mat::zeros(images[0].rows, images[0].cols, images[0].type());
+    for (auto&& image : images) {
+        debug(image.rows != averagedImage.rows || image.cols != averagedImage.cols);
+        averagedImage += image/numImages;
+    }
+    return averagedImage;
+}
+
 const int L12 = 80;
 const int R12 = 200;
 const int T12 = 310;

@@ -15,7 +15,19 @@
 
 using namespace std;
 
-ThreesBoardBase::ThreesBoardBase(Board boardTiles) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false) {}
+ThreesBoardBase::ThreesBoardBase(Board boardTiles, deque<unsigned int> initialHint) : board(boardTiles), numTurns(0), isGameOverCache(false), isGameOverCacheIsValid(false), scoreCache(0), scoreCacheIsValid(false), lastMove(0, {0,0}, initialHint) {
+    if (initialHint.size() == 1) {
+        if (initialHint[0] == 1) {
+            this->tileStack.ones--;
+        } else if (initialHint[0] == 2) {
+            this->tileStack.twos--;
+        } else if (initialHint[0] == 3) {
+            this->tileStack.threes--;
+        } else {
+            debug();
+        }
+    }
+}
 MoveResult::MoveResult(unsigned int value, BoardIndex location, std::deque<unsigned int> hint) : value(value), location(location), hint(hint) {};
 
 std::ostream& operator<<(std::ostream &os, pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> const& info) {

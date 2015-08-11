@@ -25,7 +25,7 @@ public:
     SimulatedThreesBoard simulatedCopy() const;
     static SimulatedThreesBoard fromString(const std::string s);
     
-    explicit SimulatedThreesBoard(Board board);
+    SimulatedThreesBoard(Board board, std::deque<unsigned int> initialHint);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     MoveResult move(Direction d);

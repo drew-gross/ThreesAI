@@ -29,37 +29,19 @@ TileInfo::TileInfo(cv::Mat image, int value, const SIFT& sifter) {
     sifter.detect(image, this->keypoints);
     sifter.compute(image, this->keypoints, this->descriptors);
 }
-void RealThreesBoard::connectAndStart(string portName) {
-    this->fd = serialport_init(portName.c_str(), 9600);
+
+RealThreesBoard::RealThreesBoard(int fd, shared_ptr<VideoCapture> watcher, Board b, deque<unsigned int> initialHint) : ThreesBoardBase(b, initialHint), watcher(watcher) {}
+
+shared_ptr<RealThreesBoard> RealThreesBoard::boardFromPortName(string port) {
+    int fd = serialport_init(port.c_str(), 9600);
     sleep(2); //Necessary to initialize the output for some
-    debug(this->fd < 0);
-}
+    debug(fd < 0);
+    
+    shared_ptr<VideoCapture> watcher = make_shared<VideoCapture>(0);
+    Mat initialImage = getAveragedImage(watcher, 8);
+    auto state = boardState(screenImage(initialImage), canonicalTiles());
 
-Mat RealThreesBoard::getAveragedImage(unsigned char numImages) {
-    vector<Mat> images;
-    for (unsigned char i = 0; i < numImages; i++) {
-        Mat image;
-        this->watcher >> image;
-        images.push_back(image);
-    }
-    Mat averagedImage;
-    if (numImages == 0) {
-        return averagedImage;
-    }
-    averagedImage = Mat::zeros(images[0].rows, images[0].cols, images[0].type());
-    for (auto&& image : images) {
-        debug(image.rows != averagedImage.rows || image.cols != averagedImage.cols);
-        averagedImage += image/numImages;
-    }
-    return averagedImage;
-}
-
-RealThreesBoard::RealThreesBoard(string portName) : ThreesBoardBase({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}), watcher(0) {
-    this->connectAndStart(portName);
-    this->image = this->getAveragedImage(8);
-    auto state = boardState(screenImage(this->image), canonicalTiles());
-    this->board = state.first;
-//TODO    this->cachedTileHint = state.second;
+    return make_shared<RealThreesBoard>(fd, watcher, state.first, state.second);
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -102,7 +84,7 @@ MoveResult RealThreesBoard::move(Direction d) {
     usleep(500000);
     
     //show old and new images
-    Mat newImage(this->getAveragedImage(8));;
+    Mat newImage(getAveragedImage(this->watcher, 8));;
     
     //show old new, and expected board
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
@@ -110,7 +92,7 @@ MoveResult RealThreesBoard::move(Direction d) {
     vector<BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
     
     BoardInfo newBoardInfo = boardState(screenImage(newImage), canonicalTiles());
-    SimulatedThreesBoard newBoardState(newBoardInfo.first);
+    SimulatedThreesBoard newBoardState(newBoardInfo.first, newBoardInfo.second);
 
     if (newBoardState.hasSameTilesAs(*this, {})) {
         //Movement failed, retry.
@@ -123,15 +105,28 @@ MoveResult RealThreesBoard::move(Direction d) {
         Log::imSave(this->image);
     }
     
-    //TODO: Check if the new tile matches the expected one from the hint
-    
     for (auto&& index : unknownIndexes) {
-        if (newBoardState.at(index) != 0) {
+        unsigned int newTile = newBoardState.at(index);
+        if (newTile != 0) {
             this->isGameOverCacheIsValid = false;
             this->image = newImage;
             this->board = newBoardState.board;
-            debug(newBoardState.at(index) == 0);
-            return {newBoardState.at(index), index, newBoardInfo.second};
+            
+            //Check if the newly appeared tile matches the hint
+            bool ok = false;
+            for (auto&& hint : this->lastMove.hint) {
+                if (newTile == hint) {
+                    ok = true;
+                }
+            }
+            if (!ok) {
+                Log::imSave(newImage);
+                Log::imSave(this->image);
+                debug();
+            }
+            this->lastMove = {newTile, index, newBoardInfo.second};
+            
+            return this->lastMove;
         }
     }
     Log::imSave(newImage);
@@ -147,5 +142,6 @@ MoveResult RealThreesBoard::move(Direction d) {
 }
 
 SimulatedThreesBoard RealThreesBoard::simulatedCopy() const {
-    return SimulatedThreesBoard(this->board);
+    //TODO: copy the whole move result, not just the hint
+    return SimulatedThreesBoard(this->board, this->lastMove.hint);
 }

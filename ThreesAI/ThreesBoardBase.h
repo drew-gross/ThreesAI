@@ -37,7 +37,7 @@ class ThreesBoardBase {
 public:
     typedef std::array<unsigned int, 16> Board;
     
-    explicit ThreesBoardBase(Board boardTiles);
+    ThreesBoardBase(Board boardTiles, std::deque<unsigned int> initialHint);
     
     bool isGameOver() const;
     unsigned int score() const;
@@ -59,6 +59,8 @@ public:
 protected:
     bool canMove(Direction d) const;
     bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
+    
+    MoveResult lastMove;
     
     unsigned int maxTile() const;
     
