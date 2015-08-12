@@ -23,8 +23,6 @@ ThreesBoardBase::ThreesBoardBase(Board boardTiles, deque<unsigned int> initialHi
             this->tileStack.twos--;
         } else if (initialHint[0] == 3) {
             this->tileStack.threes--;
-        } else {
-            debug();
         }
     }
 }
@@ -105,10 +103,12 @@ vector<BoardIndex> ThreesBoardBase::validIndicesForNewTile(Direction movedDirect
         default:
             break;
     }
-    auto endIterator = remove_if(indicies.begin(), indicies.end(), [this](BoardIndex tile) {
-        return this->at(tile) != 0;
-    });
-    vector<BoardIndex> result(indicies.begin(), endIterator);
+    vector<BoardIndex> result;
+    for (auto&& index : indicies) {
+        if (this->at(index) == 0) {
+            result.push_back(index);
+        }
+    }
     return result;
 }
 

@@ -30,7 +30,7 @@ TileInfo::TileInfo(cv::Mat image, int value, const SIFT& sifter) {
     sifter.compute(image, this->keypoints, this->descriptors);
 }
 
-RealThreesBoard::RealThreesBoard(int fd, shared_ptr<VideoCapture> watcher, Board b, deque<unsigned int> initialHint) : ThreesBoardBase(b, initialHint), watcher(watcher), fd(fd) {}
+RealThreesBoard::RealThreesBoard(int fd, shared_ptr<VideoCapture> watcher, Board b, deque<unsigned int> initialHint, Mat initialImage) : ThreesBoardBase(b, initialHint), watcher(watcher), fd(fd), image(initialImage) {}
 
 shared_ptr<RealThreesBoard> RealThreesBoard::boardFromPortName(string port) {
     int fd = serialport_init(port.c_str(), 9600);
@@ -41,7 +41,7 @@ shared_ptr<RealThreesBoard> RealThreesBoard::boardFromPortName(string port) {
     Mat initialImage = getAveragedImage(watcher, 8);
     auto state = boardState(screenImage(initialImage), canonicalTiles());
 
-    return make_shared<RealThreesBoard>(fd, watcher, state.first, state.second);
+    return make_shared<RealThreesBoard>(fd, watcher, state.first, state.second, initialImage);
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -60,8 +60,8 @@ RealThreesBoard::~RealThreesBoard() {
     }
 }
 
-bool boardTransitionIsValid(ThreesBoardBase const &oldBoard, MoveResult lastMove, ThreesBoardBase const &newBoard) {
-    auto unknownIndexes = oldBoard.validIndicesForNewTile(lastMove.direction);
+bool boardTransitionIsValid(ThreesBoardBase const &oldBoard, deque<unsigned int> const& oldHint, Direction d, ThreesBoardBase const &newBoard) {
+    auto unknownIndexes = oldBoard.validIndicesForNewTile(d);
     //Check if any of the moved tiles don't read the same
     if (!newBoard.hasSameTilesAs(oldBoard, unknownIndexes)) {
         return false;
@@ -69,7 +69,7 @@ bool boardTransitionIsValid(ThreesBoardBase const &oldBoard, MoveResult lastMove
     
     for (auto&& index : unknownIndexes) {
         if (newBoard.at(index) != 0) {
-            for (auto&& hint : lastMove.hint) {
+            for (auto&& hint : oldHint) {
                 if (newBoard.at(index) == hint) {
                     return true;
                 }
@@ -118,12 +118,19 @@ MoveResult RealThreesBoard::move(Direction d) {
         return this->move(d);
     }
     
-    bool ok = boardTransitionIsValid(*this, this->lastMove, newBoardState);
+    bool ok = boardTransitionIsValid(expectedBoardAfterMove, this->lastMove.hint, d, newBoardState);
     
     if (!ok) {
+        pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> oldState = {shared_ptr<ThreesBoardBase>(this), this->lastMove.hint};
+        pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> newState = {shared_ptr<ThreesBoardBase>(&newBoardState), newBoardInfo.second};
+        MYLOG(oldState);
+        MYLOG(newState);
+        MYSHOW(newImage);
         Log::imSave(newImage);
+        MYSHOW(this->image);
         Log::imSave(this->image);
         debug();
+        boardTransitionIsValid(expectedBoardAfterMove, this->lastMove.hint, d, newBoardState);
     }
     
     for (auto&& index : unknownIndexes) {

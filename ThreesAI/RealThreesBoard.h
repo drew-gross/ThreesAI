@@ -17,7 +17,7 @@
 
 class RealThreesBoard : public ThreesBoardBase {
 public:
-    RealThreesBoard(int fd, std::shared_ptr<cv::VideoCapture> watcher, Board b, std::deque<unsigned int> initialHint);
+    RealThreesBoard(int fd, std::shared_ptr<cv::VideoCapture> watcher, Board b, std::deque<unsigned int> initialHint, cv::Mat initialImage);
     static std::shared_ptr<RealThreesBoard> boardFromPortName(std::string serialPath);
     
     //Throws if move is invalid. Returns location and value of new tile if not.

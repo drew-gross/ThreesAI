@@ -63,7 +63,7 @@ unsigned int testImage(path p) {
     Mat screenImage = IMProc::screenImage(imread(p.string()));
     array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(screenImage));
     IMProc::BoardInfo boardState = IMProc::boardState(screenImage, IMProc::canonicalTiles());
-    if(boardState.second != nextTileHint && boardState.second.size() == 1) {
+    if (boardState.second != nextTileHint && nextTileHint.size() == 1) {
         MYSHOW(screenImage);
         failures++; 
         debug();
@@ -150,7 +150,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    //testImageProc(); debug();
+    testImageProc(); debug();
     
     for (;;) {
         auto p = RealThreesBoard::boardFromPortName("/dev/tty.usbmodem1411");
