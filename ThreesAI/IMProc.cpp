@@ -15,6 +15,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "Capture.h"
+
 #include "Debug.h"
 #include "Logging.h"
 #include "IMLog.h"
@@ -23,7 +25,7 @@ using namespace std;
 using namespace cv;
 using namespace IMLog;
 
-Mat screenImageToHintImage(Mat i) {
+Mat screenImageToHintImage(Mat const& i) {
     const float left = 375;
     const float right = 425;
     const float top = 80;
@@ -55,10 +57,12 @@ const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
 
 Mat IMProc::getAveragedImage(shared_ptr<VideoCapture> cam, unsigned char numImages) {
     vector<Mat> images;
-    for (unsigned char i = 0; i < numImages; i++) {
+    while (images.size() < 8) {
         Mat image;
         *cam >> image;
-        images.push_back(image);
+        if (image.rows != 0 && image.cols != 0) {
+            images.push_back(image);
+        }
     }
     Mat averagedImage;
     if (numImages == 0) {
@@ -577,7 +581,7 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
     }
     
     Scalar m = mean(iStdDev);
-    if (m[0] > 4) {
+    if (m[0] > Paramater::bonusMeanThreshold) {
         return 4; //Bonus
     }
     double d2 = norm(inputMean, mean(i2(flatRegionRect)));
@@ -590,7 +594,7 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
     }
 }
 
-IMProc::BoardInfo IMProc::boardState(Mat screenImage, const map<int, TileInfo>& canonicalTiles) {
+IMProc::BoardInfo IMProc::boardState(Mat const& screenImage, const map<int, TileInfo>& canonicalTiles) {
     ThreesBoardBase::Board board;
     array<Mat, 16> images = tileImages(boardImageFromScreen(screenImage));
     transform(images.begin(), images.end(), board.begin(), [&canonicalTiles](Mat image){

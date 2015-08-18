@@ -112,7 +112,7 @@ MoveResult RealThreesBoard::move(Direction d) {
     
     BoardInfo newBoardInfo = boardState(screenImage(newImage), canonicalTiles());
     SimulatedThreesBoard newBoardState(newBoardInfo.first, newBoardInfo.second);
-
+    
     if (newBoardState.hasSameTilesAs(*this, {})) {
         //Movement failed, retry.
         return this->move(d);
@@ -131,6 +131,8 @@ MoveResult RealThreesBoard::move(Direction d) {
         Log::imSave(this->image);
         debug();
         boardTransitionIsValid(expectedBoardAfterMove, this->lastMove.hint, d, newBoardState);
+        boardState(screenImage(newImage), canonicalTiles());
+        boardState(screenImage(this->image), canonicalTiles());
     }
     
     for (auto&& index : unknownIndexes) {

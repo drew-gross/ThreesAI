@@ -82,6 +82,8 @@ namespace IMProc {
         const int differenceErosionShape = cv::MORPH_ELLIPSE;
         const cv::Size differenceErosionSize = cv::Size(18,18);
         const float differenceMeanThreshold = 1.5; // Lower means more things that look like six are determined to be not 6.
+        
+        const float bonusMeanThreshold = 6; //Higher means less next tile hints get interpreted as a bonus tile.
     }
     
     typedef std::pair<ThreesBoardBase::Board, std::deque<unsigned int>> BoardInfo;
@@ -94,7 +96,7 @@ namespace IMProc {
     cv::Mat boardImageFromScreen(cv::Mat screenImage);
     cv::Mat screenImage(cv::Mat const& colorBoardImage);
     std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
-    BoardInfo boardState(cv::Mat screenImage, const std::map<int, TileInfo>& canonicalTiles);
+    BoardInfo boardState(cv::Mat const& screenImage, const std::map<int, TileInfo>& canonicalTiles);
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     

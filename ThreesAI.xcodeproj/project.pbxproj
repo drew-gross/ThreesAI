@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		793533141B814D9B0078E011 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533131B814D9A0078E011 /* CoreMedia.framework */; };
+		793533161B814DA50078E011 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533151B814DA50078E011 /* CoreVideo.framework */; };
+		793533181B815DC60078E011 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533171B815DC60078E011 /* Cocoa.framework */; };
+		7935331A1B8160CC0078E011 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533191B8160CC0078E011 /* CoreGraphics.framework */; };
 		7944F88F1A732BC300ED690E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F88E1A732BC300ED690E /* main.cpp */; };
 		7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */; };
 		7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7955D3CD1B74848B0034EE4F /* IMLog.cpp */; };
@@ -23,6 +27,8 @@
 		7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
 		7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
 		798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */; };
+		799391911B807784000BC4D4 /* Capture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 799391901B807784000BC4D4 /* Capture.mm */; };
+		799391941B8078C5000BC4D4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 799391931B8078C5000BC4D4 /* AVFoundation.framework */; };
 		79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */; };
 		79D022111B2C0E3D00624854 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
@@ -50,6 +56,10 @@
 
 /* Begin PBXFileReference section */
 		7927DD811A8068570049E9BB /* Logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
+		793533131B814D9A0078E011 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		793533151B814DA50078E011 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		793533171B815DC60078E011 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		793533191B8160CC0078E011 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		7944F88B1A732BC300ED690E /* ThreesAI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ThreesAI; sourceTree = BUILT_PRODUCTS_DIR; };
 		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = SimulatedThreesBoard.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -81,6 +91,9 @@
 		798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesBoardBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesBoardBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		798A74461AE0BE920073DAB3 /* Direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Direction.h; sourceTree = "<group>"; };
+		799391901B807784000BC4D4 /* Capture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Capture.mm; path = ../Capture.mm; sourceTree = "<group>"; };
+		799391921B807804000BC4D4 /* Capture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Capture.h; path = ../Capture.h; sourceTree = "<group>"; };
+		799391931B8078C5000BC4D4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RealThreesBoard.cpp; sourceTree = "<group>"; };
 		79CAF8EB1AE1E69300477988 /* RealThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RealThreesBoard.h; sourceTree = "<group>"; };
 		79D022101B2C0E3D00624854 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
@@ -103,6 +116,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7935331A1B8160CC0078E011 /* CoreGraphics.framework in Frameworks */,
+				793533181B815DC60078E011 /* Cocoa.framework in Frameworks */,
+				793533161B814DA50078E011 /* CoreVideo.framework in Frameworks */,
+				793533141B814D9B0078E011 /* CoreMedia.framework in Frameworks */,
+				799391941B8078C5000BC4D4 /* AVFoundation.framework in Frameworks */,
 				79EFBE351AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib in Frameworks */,
 				79E67A971B373CB6007D8C25 /* libboost_system.dylib in Frameworks */,
 				79DC795C1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib in Frameworks */,
@@ -120,6 +138,11 @@
 		7944F8821A732BC300ED690E = {
 			isa = PBXGroup;
 			children = (
+				793533191B8160CC0078E011 /* CoreGraphics.framework */,
+				793533171B815DC60078E011 /* Cocoa.framework */,
+				793533151B814DA50078E011 /* CoreVideo.framework */,
+				793533131B814D9A0078E011 /* CoreMedia.framework */,
+				799391931B8078C5000BC4D4 /* AVFoundation.framework */,
 				79E67A931B373C8A007D8C25 /* Boost */,
 				7967865B1AF0703B003DEF6C /* OpenCV */,
 				7944F88D1A732BC300ED690E /* ThreesAI */,
@@ -141,6 +164,8 @@
 				79664DB61B29517A002FCF52 /* ThreesPlayer */,
 				798A74401AE0BE140073DAB3 /* ThreesBoard */,
 				79D4AE0E1ADF999500DC5DFC /* LibSerial */,
+				799391921B807804000BC4D4 /* Capture.h */,
+				799391901B807784000BC4D4 /* Capture.mm */,
 				7944F88E1A732BC300ED690E /* main.cpp */,
 				79D022101B2C0E3D00624854 /* Logging.cpp */,
 				7927DD811A8068570049E9BB /* Logging.h */,
@@ -298,6 +323,7 @@
 				79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */,
 				79D022111B2C0E3D00624854 /* Logging.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
+				799391911B807784000BC4D4 /* Capture.mm in Sources */,
 				7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */,
 				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,

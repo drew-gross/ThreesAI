@@ -27,6 +27,7 @@ public:
     ~RealThreesBoard();
     
 private:
+    
     std::shared_ptr<cv::VideoCapture> watcher;
     
     cv::Mat image;

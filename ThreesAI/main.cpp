@@ -24,6 +24,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "Capture.h"
+
 using namespace std;
 using namespace boost::filesystem;
 using namespace boost;
@@ -63,8 +65,10 @@ unsigned int testImage(path p) {
     Mat screenImage = IMProc::screenImage(imread(p.string()));
     array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(screenImage));
     IMProc::BoardInfo boardState = IMProc::boardState(screenImage, IMProc::canonicalTiles());
-    if (boardState.second != nextTileHint && nextTileHint.size() == 1) {
+    if (boardState.second != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
         MYSHOW(screenImage);
+        MYLOG(nextTileHint);
+        MYLOG(boardState.second);
         failures++; 
         debug();
         IMProc::boardState(screenImage, IMProc::canonicalTiles());
@@ -88,7 +92,9 @@ unsigned int testImage(path p) {
 void testImageProc() {
     vector<path> paths;
     for (auto&& path : directory_iterator(Log::project_path + "TestCaseImages/")) {
-        paths.push_back(path.path());
+        if (path.path().extension() == ".png") {
+            paths.push_back(path.path());
+        }
     }
     sort(paths.begin(), paths.end(), [](path l, path r){
         return last_write_time(l) > last_write_time(r);
@@ -96,16 +102,16 @@ void testImageProc() {
     
     unsigned int num_tests = 0;
     for (auto&& path : paths) {
-        if (path.extension() == ".png") {
-            unsigned int failures = testImage(path);
-            if (failures > 0) {
-                
-                imwrite(path.string(), imread(path.string())); //Make most recently failed tests run first.
-                MYLOG(failures);
-            }
-            num_tests++;
-            cout << "Finished " << num_tests << "/" << paths.size() << endl;
+        cout << num_tests << "/" << paths.size() << " " << path.leaf() << endl;
+        unsigned int failures = testImage(path);
+        if (failures > 0) {
+            
+            imwrite(path.string(), imread(path.string())); //Make most recently failed tests run first.
+            MYLOG(failures);
+        } else {
         }
+        num_tests++;
+
     }
 }
 
@@ -150,7 +156,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     for (;;) {
         auto p = RealThreesBoard::boardFromPortName("/dev/tty.usbmodem1411");
