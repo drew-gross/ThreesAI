@@ -266,10 +266,13 @@ Mat IMProc::screenImage(Mat const& colorBoardImage) {
 }
 
 Mat IMProc::boardImageFromScreen(Mat screenImage) {
-    const int leftEdge = 100;
-    const int bottomEdge = 670;
-    const int topEdge = 220;
-    const int rightEdge = 700;
+    const int width = screenImage.cols;
+    const int height = screenImage.rows;
+    const float sideDistance = .121;
+    const float leftEdge = width*sideDistance;
+    const float rightEdge = width*(1-sideDistance);
+    const float bottomEdge = height*.843;
+    const float topEdge = height*.27;
     const Point2f fromScreenPoints[4] = {
         {leftEdge,topEdge},
         {leftEdge,bottomEdge},

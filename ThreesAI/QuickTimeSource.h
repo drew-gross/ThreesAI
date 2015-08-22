@@ -13,6 +13,8 @@
 
 class QuickTimeSource : public GameStateSource {
 public:
+    QuickTimeSource();
+    
     BoardInfo getGameState();
 };
 

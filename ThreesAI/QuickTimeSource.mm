@@ -58,7 +58,14 @@ cv::Mat getMostRecentFrame() {
     return Mat();
 }
 
-BoardInfo GameStateSource::getGameState() {
+QuickTimeSource::QuickTimeSource(){
+    static bool created = false;
+    debug(created);
+    created = true;
+}
+
+BoardInfo QuickTimeSource::getGameState() {
     //TODO: warp into screen image
-    return IMProc::boardState(getMostRecentFrame(), getMostRecentFrame(), IMProc::canonicalTiles());
+    Mat frame = getMostRecentFrame();
+    return IMProc::boardState(frame, frame, IMProc::canonicalTiles());
 }

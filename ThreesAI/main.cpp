@@ -21,6 +21,7 @@
 #include "ExpectimaxAI.h"
 #include "RealThreesBoard.h"
 #include "CameraSource.h"
+#include "QuickTimeSource.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -159,10 +160,10 @@ int main(int argc, const char * argv[]) {
     //testImageProc(); debug();
     
     for (;;) {
-        unique_ptr<GameStateSource> watcher = unique_ptr<GameStateSource>(new CameraSource(0));
+        unique_ptr<GameStateSource> watcher = unique_ptr<GameStateSource>(new QuickTimeSource());
         auto initialState = watcher->getGameState();
         
-        auto p = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411", unique_ptr<CameraSource>(new CameraSource(0)), initialState);
+        auto p = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411", move(watcher), initialState);
         ExpectimaxAI ai(p);
         ai.playGame();
         MYLOG("game over");

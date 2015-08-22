@@ -32,7 +32,7 @@ TileInfo::TileInfo(cv::Mat image, int value, const SIFT& sifter) {
 
 RealThreesBoard::RealThreesBoard(string port, unique_ptr<GameStateSource> source, BoardInfo initialState) : ThreesBoardBase(initialState.tiles, initialState.nextTileHint), source(std::move(source)), oldState(initialState) {
     this->fd = serialport_init(port.c_str(), 9600);
-    sleep(2); //Necessary to initialize the output for some
+    sleep(2); //Necessary to initialize the output
     debug(this->fd < 0);
 }
 
@@ -111,9 +111,9 @@ MoveResult RealThreesBoard::move(Direction d) {
     
     if (!ok) {
         MYLOG(this->oldState);
-        MYSHOW(this->oldState.image)
+        MYSHOWSMALL(this->oldState.image, 4);
         MYLOG(newBoardInfo);
-        MYSHOW(newBoardInfo.image);
+        MYSHOWSMALL(newBoardInfo.image, 4);
         debug();
         boardTransitionIsValid(expectedBoardAfterMove, this->lastMove.hint, d, newBoardState);
     }
