@@ -14,11 +14,11 @@
 #include <opencv2/opencv.hpp>
 
 #include "IMProc.h"
+#include "GameStateSource.h"
 
 class RealThreesBoard : public ThreesBoardBase {
 public:
-    RealThreesBoard(int fd, std::shared_ptr<cv::VideoCapture> watcher, Board b, std::deque<unsigned int> initialHint, cv::Mat initialImage);
-    static std::shared_ptr<RealThreesBoard> boardFromPortName(std::string serialPath);
+    RealThreesBoard(std::string port, std::unique_ptr<GameStateSource> source, BoardInfo initialState);
     
     //Throws if move is invalid. Returns location and value of new tile if not.
     MoveResult move(Direction d);
@@ -28,9 +28,8 @@ public:
     
 private:
     
-    std::shared_ptr<cv::VideoCapture> watcher;
-    
-    cv::Mat image;
+    std::unique_ptr<GameStateSource> source;
+    BoardInfo oldState;
     
     int fd;
     

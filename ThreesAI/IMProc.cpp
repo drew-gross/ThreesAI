@@ -15,8 +15,6 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "Capture.h"
-
 #include "Debug.h"
 #include "Logging.h"
 #include "IMLog.h"
@@ -55,11 +53,13 @@ const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
     return std::array<cv::Point2f, 4>{{getPoint("get rect"),getPoint("get rect"),getPoint("get rect"),getPoint("get rect")}};
 }
 
-Mat IMProc::getAveragedImage(shared_ptr<VideoCapture> cam, unsigned char numImages) {
+BoardInfo::BoardInfo(ThreesBoardBase::Board tiles, std::deque<unsigned int> nextTileHint, cv::Mat image) : tiles(tiles), nextTileHint(nextTileHint), image(image) {}
+
+Mat IMProc::getAveragedImage(VideoCapture& cam, unsigned char numImages) {
     vector<Mat> images;
     while (images.size() < 8) {
         Mat image;
-        *cam >> image;
+        cam >> image;
         if (image.rows != 0 && image.cols != 0) {
             images.push_back(image);
         }
@@ -594,7 +594,7 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
     }
 }
 
-IMProc::BoardInfo IMProc::boardState(Mat const& screenImage, const map<int, TileInfo>& canonicalTiles) {
+BoardInfo IMProc::boardState(Mat const& screenImage, Mat const& sourceImage, const map<int, TileInfo>& canonicalTiles) {
     ThreesBoardBase::Board board;
     array<Mat, 16> images = tileImages(boardImageFromScreen(screenImage));
     transform(images.begin(), images.end(), board.begin(), [&canonicalTiles](Mat image){
@@ -603,10 +603,10 @@ IMProc::BoardInfo IMProc::boardState(Mat const& screenImage, const map<int, Tile
 
     unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage));
     if (hint < 4) {
-        return {board, {hint}};
+        return BoardInfo(board, {hint}, sourceImage);
     } else {
         //TODO: get the real bonus tile hint here
-        return {board, {6,12,24,48,96,192,384,768,1536}};
+        return BoardInfo(board, {6,12,24,48,96,192,384,768,1536}, sourceImage);
     }
 }
 

@@ -30,18 +30,10 @@ TileInfo::TileInfo(cv::Mat image, int value, const SIFT& sifter) {
     sifter.compute(image, this->keypoints, this->descriptors);
 }
 
-RealThreesBoard::RealThreesBoard(int fd, shared_ptr<VideoCapture> watcher, Board b, deque<unsigned int> initialHint, Mat initialImage) : ThreesBoardBase(b, initialHint), watcher(watcher), fd(fd), image(initialImage) {}
-
-shared_ptr<RealThreesBoard> RealThreesBoard::boardFromPortName(string port) {
-    int fd = serialport_init(port.c_str(), 9600);
+RealThreesBoard::RealThreesBoard(string port, unique_ptr<GameStateSource> source, BoardInfo initialState) : ThreesBoardBase(initialState.tiles, initialState.nextTileHint), source(std::move(source)), oldState(initialState) {
+    this->fd = serialport_init(port.c_str(), 9600);
     sleep(2); //Necessary to initialize the output for some
-    debug(fd < 0);
-    
-    shared_ptr<VideoCapture> watcher = make_shared<VideoCapture>(0);
-    Mat initialImage = getAveragedImage(watcher, 8);
-    auto state = boardState(screenImage(initialImage), canonicalTiles());
-
-    return make_shared<RealThreesBoard>(fd, watcher, state.first, state.second, initialImage);
+    debug(this->fd < 0);
 }
 
 RealThreesBoard::~RealThreesBoard() {
@@ -102,16 +94,13 @@ MoveResult RealThreesBoard::move(Direction d) {
     //Wait 0.5s to allow image to stabilize
     usleep(500000);
     
-    //show old and new images
-    Mat newImage(getAveragedImage(this->watcher, 8));;
-    
-    //show old new, and expected board
     SimulatedThreesBoard expectedBoardAfterMove = this->simulatedCopy();
     expectedBoardAfterMove.moveWithoutAdd(d);
     vector<BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
     
-    BoardInfo newBoardInfo = boardState(screenImage(newImage), canonicalTiles());
-    SimulatedThreesBoard newBoardState(newBoardInfo.first, newBoardInfo.second);
+    BoardInfo newBoardInfo = this->source->getGameState();
+    
+    SimulatedThreesBoard newBoardState(newBoardInfo.tiles, newBoardInfo.nextTileHint);
     
     if (newBoardState.hasSameTilesAs(*this, {})) {
         //Movement failed, retry.
@@ -121,38 +110,24 @@ MoveResult RealThreesBoard::move(Direction d) {
     bool ok = boardTransitionIsValid(expectedBoardAfterMove, this->lastMove.hint, d, newBoardState);
     
     if (!ok) {
-        pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> oldState = {shared_ptr<ThreesBoardBase>(this), this->lastMove.hint};
-        pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> newState = {shared_ptr<ThreesBoardBase>(&newBoardState), newBoardInfo.second};
-        MYLOG(oldState);
-        MYLOG(newState);
-        MYSHOW(newImage);
-        Log::imSave(newImage);
-        MYSHOW(this->image);
-        Log::imSave(this->image);
+        MYLOG(this->oldState);
+        MYSHOW(this->oldState.image)
+        MYLOG(newBoardInfo);
+        MYSHOW(newBoardInfo.image);
         debug();
         boardTransitionIsValid(expectedBoardAfterMove, this->lastMove.hint, d, newBoardState);
-        boardState(screenImage(newImage), canonicalTiles());
-        boardState(screenImage(this->image), canonicalTiles());
     }
     
     for (auto&& index : unknownIndexes) {
         unsigned int newTile = newBoardState.at(index);
         if (newTile != 0) {
             this->isGameOverCacheIsValid = false;
-            this->image = newImage;
             this->board = newBoardState.board;
-            this->lastMove = MoveResult(newTile, index, newBoardInfo.second, d);
+            this->oldState = newBoardInfo;
+            this->lastMove = MoveResult(newTile, index, newBoardInfo.nextTileHint, d);
             return this->lastMove;
         }
     }
-    Log::imSave(newImage);
-    Log::imSave(this->image);
-    /*
-    MYSHOW(newImage);
-    MYSHOW(this->image)
-    MYLOG(newBoardState);
-    MYLOG(*this);
-    MYLOG(expectedBoardAfterMove);*/
     debug();
     return MoveResult(0,{0,0},{0},d);
 }

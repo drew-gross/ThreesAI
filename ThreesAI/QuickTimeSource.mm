@@ -1,17 +1,23 @@
 //
-//  Capture.m
+//  QuickTimeSource.cpp
 //  ThreesAI
 //
-//  Created by Drew Gross on 8/16/15.
+//  Created by Drew Gross on 8/18/15.
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //
 
-#import "Capture.h"
+#include "QuickTimeSource.h"
+
+#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+#import <AppKit/AppKit.h>
+#import <CoreServices/CoreServices.h>
+
+#import <opencv2/opencv.hpp>
 
 #import "Debug.h"
-#import "Logging.h"
 
-#import <CoreServices/CoreServices.h>
+using namespace cv;
 
 BOOL CGImageWriteToFile(CGImageRef image, NSString *path) {
     CFURLRef url = (__bridge CFURLRef)[NSURL fileURLWithPath:path];
@@ -49,5 +55,10 @@ cv::Mat getMostRecentFrame() {
         }
     }
     debug();
-    return cv::Mat();
+    return Mat();
+}
+
+BoardInfo GameStateSource::getGameState() {
+    //TODO: warp into screen image
+    return IMProc::boardState(getMostRecentFrame(), getMostRecentFrame(), IMProc::canonicalTiles());
 }

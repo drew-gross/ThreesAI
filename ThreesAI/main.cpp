@@ -20,11 +20,10 @@
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
 #include "RealThreesBoard.h"
+#include "CameraSource.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-
-#include "Capture.h"
 
 using namespace std;
 using namespace boost::filesystem;
@@ -62,21 +61,22 @@ unsigned int testImage(path p) {
         return stoi(s);
     });
     
-    Mat screenImage = IMProc::screenImage(imread(p.string()));
+    Mat camImage = imread(p.string());
+    Mat screenImage = IMProc::screenImage(camImage);
     array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(screenImage));
-    IMProc::BoardInfo boardState = IMProc::boardState(screenImage, IMProc::canonicalTiles());
-    if (boardState.second != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
+    BoardInfo state = IMProc::boardState(screenImage, camImage, IMProc::canonicalTiles());
+    if (state.nextTileHint != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
         MYSHOW(screenImage);
         MYLOG(nextTileHint);
-        MYLOG(boardState.second);
+        MYLOG(state.nextTileHint);
         failures++; 
         debug();
-        IMProc::boardState(screenImage, IMProc::canonicalTiles());
+        IMProc::boardState(screenImage, camImage, IMProc::canonicalTiles());
     }
     for (unsigned char i = 0; i < 16; i++) {
         MatchResult extracted = IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
         int expectedValue = expectedBoard.at({i%4,i/4});
-        if (boardState.first[i] != extracted.tile.value) {
+        if (state.tiles[i] != extracted.tile.value) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), tiles[i]);
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
@@ -159,7 +159,10 @@ int main(int argc, const char * argv[]) {
     //testImageProc(); debug();
     
     for (;;) {
-        auto p = RealThreesBoard::boardFromPortName("/dev/tty.usbmodem1411");
+        unique_ptr<GameStateSource> watcher = unique_ptr<GameStateSource>(new CameraSource(0));
+        auto initialState = watcher->getGameState();
+        
+        auto p = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411", unique_ptr<CameraSource>(new CameraSource(0)), initialState);
         ExpectimaxAI ai(p);
         ai.playGame();
         MYLOG("game over");

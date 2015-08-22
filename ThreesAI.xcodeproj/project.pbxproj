@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D931B837E0E009DA8B1 /* GameStateSource.cpp */; };
+		79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */; };
+		79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */; };
 		793533141B814D9B0078E011 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533131B814D9A0078E011 /* CoreMedia.framework */; };
 		793533161B814DA50078E011 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533151B814DA50078E011 /* CoreVideo.framework */; };
 		793533181B815DC60078E011 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533171B815DC60078E011 /* Cocoa.framework */; };
@@ -27,7 +30,6 @@
 		7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
 		7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
 		798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */; };
-		799391911B807784000BC4D4 /* Capture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 799391901B807784000BC4D4 /* Capture.mm */; };
 		799391941B8078C5000BC4D4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 799391931B8078C5000BC4D4 /* AVFoundation.framework */; };
 		79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */; };
 		79D022111B2C0E3D00624854 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.cpp */; };
@@ -55,6 +57,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		79085D931B837E0E009DA8B1 /* GameStateSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameStateSource.cpp; sourceTree = "<group>"; };
+		79085D941B837E0E009DA8B1 /* GameStateSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameStateSource.h; sourceTree = "<group>"; };
+		79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuickTimeSource.mm; sourceTree = "<group>"; };
+		79085D971B837EE1009DA8B1 /* QuickTimeSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickTimeSource.h; sourceTree = "<group>"; };
+		79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraSource.cpp; sourceTree = "<group>"; };
+		79085D9B1B837EF8009DA8B1 /* CameraSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraSource.h; sourceTree = "<group>"; };
 		7927DD811A8068570049E9BB /* Logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		793533131B814D9A0078E011 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		793533151B814DA50078E011 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
@@ -91,8 +99,6 @@
 		798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesBoardBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesBoardBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		798A74461AE0BE920073DAB3 /* Direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Direction.h; sourceTree = "<group>"; };
-		799391901B807784000BC4D4 /* Capture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Capture.mm; path = ../Capture.mm; sourceTree = "<group>"; };
-		799391921B807804000BC4D4 /* Capture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Capture.h; path = ../Capture.h; sourceTree = "<group>"; };
 		799391931B8078C5000BC4D4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RealThreesBoard.cpp; sourceTree = "<group>"; };
 		79CAF8EB1AE1E69300477988 /* RealThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RealThreesBoard.h; sourceTree = "<group>"; };
@@ -135,6 +141,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		79085D921B837D92009DA8B1 /* RealWorldInteraction */ = {
+			isa = PBXGroup;
+			children = (
+				79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */,
+				79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */,
+				79085D931B837E0E009DA8B1 /* GameStateSource.cpp */,
+				79085D941B837E0E009DA8B1 /* GameStateSource.h */,
+				79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */,
+				79085D971B837EE1009DA8B1 /* QuickTimeSource.h */,
+				79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */,
+				79085D9B1B837EF8009DA8B1 /* CameraSource.h */,
+			);
+			name = RealWorldInteraction;
+			sourceTree = "<group>";
+		};
 		7944F8821A732BC300ED690E = {
 			isa = PBXGroup;
 			children = (
@@ -161,11 +182,9 @@
 		7944F88D1A732BC300ED690E /* ThreesAI */ = {
 			isa = PBXGroup;
 			children = (
+				79085D921B837D92009DA8B1 /* RealWorldInteraction */,
 				79664DB61B29517A002FCF52 /* ThreesPlayer */,
 				798A74401AE0BE140073DAB3 /* ThreesBoard */,
-				79D4AE0E1ADF999500DC5DFC /* LibSerial */,
-				799391921B807804000BC4D4 /* Capture.h */,
-				799391901B807784000BC4D4 /* Capture.mm */,
 				7944F88E1A732BC300ED690E /* main.cpp */,
 				79D022101B2C0E3D00624854 /* Logging.cpp */,
 				7927DD811A8068570049E9BB /* Logging.h */,
@@ -241,15 +260,6 @@
 			name = ThreesBoard;
 			sourceTree = "<group>";
 		};
-		79D4AE0E1ADF999500DC5DFC /* LibSerial */ = {
-			isa = PBXGroup;
-			children = (
-				79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */,
-				79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */,
-			);
-			name = LibSerial;
-			sourceTree = "<group>";
-		};
 		79E67A931B373C8A007D8C25 /* Boost */ = {
 			isa = PBXGroup;
 			children = (
@@ -322,8 +332,9 @@
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
 				79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */,
 				79D022111B2C0E3D00624854 /* Logging.cpp in Sources */,
+				79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
-				799391911B807784000BC4D4 /* Capture.mm in Sources */,
+				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
 				7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */,
 				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
@@ -335,6 +346,7 @@
 				7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */,
 				79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */,
 				7963F4E21AA01F7E0081BEC8 /* HumanPlayer.cpp in Sources */,
+				79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

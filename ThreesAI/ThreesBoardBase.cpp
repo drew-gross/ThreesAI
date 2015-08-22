@@ -10,8 +10,12 @@
 
 #include <memory>
 
+#include "ThreesBoardBase.h"
+#include "SimulatedThreesBoard.h"
+
 #include "Debug.h"
 #include "Logging.h"
+#include "IMProc.h"
 
 using namespace std;
 
@@ -28,16 +32,16 @@ ThreesBoardBase::ThreesBoardBase(Board boardTiles, deque<unsigned int> initialHi
 }
 MoveResult::MoveResult(unsigned int value, BoardIndex location, std::deque<unsigned int> hint, Direction d) : value(value), location(location), hint(hint), direction(d) {};
 
-std::ostream& operator<<(std::ostream &os, pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> const& info) {
-    os << "Upcoming: " << info.second << endl;
-    if (info.first->isGameOver()) {
+std::ostream& operator<<(std::ostream &os, BoardInfo const& info) {
+    SimulatedThreesBoard s(info.tiles, info.nextTileHint);
+    os << "Upcoming: " << info.nextTileHint << endl;
+    if (s.isGameOver()) {
         os << "Final";
     } else {
         os << "Current";
     }
-    os << " Score: " << info.first->score() << std::endl;
-    os << "Number of turns: " << info.first->numTurns << std::endl;
-    os << info.first->board;
+    os << " Score: " << s.score() << std::endl;
+    os << info.tiles;
     return os;
 }
 

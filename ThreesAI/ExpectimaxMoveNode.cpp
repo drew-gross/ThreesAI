@@ -15,6 +15,7 @@
 #include "ThreesBoardBase.h"
 
 #include "Debug.h"
+#include "IMProc.h"
 
 using namespace std;
 
@@ -72,8 +73,8 @@ void ExpectimaxMoveNode::outputDotEdges(float p) const {
     cout << "Value=" << setprecision(7) << this->value() << endl;
     cout << "P=" << p << endl;
     //TODO: get the hint
-    pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> info(shared_ptr<const ThreesBoardBase>(&this->board),{});
-    cout << info << "\"";
+    BoardInfo b(this->board.board, {}, cv::Mat());
+    cout << b << "\"";
     if (this->board.isGameOver()) {
         cout << ",style=filled,color=red";
     }

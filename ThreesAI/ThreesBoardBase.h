@@ -16,6 +16,8 @@
 #include "Direction.h"
 #include "TileStack.h"
 
+class BoardInfo;
+
 class InvalidMoveException : public std::logic_error {
 public:
     InvalidMoveException() : logic_error("That move cannot be made"){};
@@ -71,9 +73,12 @@ protected:
     
     mutable bool scoreCacheIsValid;
     mutable unsigned int scoreCache;
-    friend std::ostream& operator<<(std::ostream &os, std::pair<std::shared_ptr<const ThreesBoardBase>, std::deque<unsigned int>> const& info);
+    friend std::ostream& operator<<(std::ostream &os, BoardInfo const& info);
+    friend class ExpectimaxMoveNode;
+    friend class ExpectimaxChanceNode;
 };
 
+std::ostream& operator<<(std::ostream &os, BoardInfo const& info);
 std::ostream& operator<<(std::ostream &os, ThreesBoardBase const& board);
 
 #endif /* defined(__ThreesAI__ThreesBoardBase__) */

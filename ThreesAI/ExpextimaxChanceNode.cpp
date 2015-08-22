@@ -12,6 +12,7 @@
 
 #include "Debug.h"
 #include "Logging.h"
+#include "IMProc.h"
 
 using namespace std;
 
@@ -81,8 +82,8 @@ void ExpectimaxChanceNode::outputDotEdges(float p) const {
     cout << "\t" << long(this) << " [label=\"";
     cout << "Value=" << this->value() << endl;
     //TODO: get the hint
-    pair<shared_ptr<const ThreesBoardBase>, deque<unsigned int>> info(shared_ptr<const ThreesBoardBase>(&this->board),{});
-    cout << info << "\"";
+    BoardInfo b(this->board.board, {}, cv::Mat());
+    cout << b << "\"";
     if (this->board.isGameOver()) {
         cout << ",style=filled,color=red";
     }
