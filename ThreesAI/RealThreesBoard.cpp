@@ -111,10 +111,11 @@ MoveResult RealThreesBoard::move(Direction d) {
     
     if (!ok) {
         MYLOG(this->oldState);
-        MYSHOWSMALL(this->oldState.image, 4);
+        MYSHOWSMALL(this->oldState.sourceImage, 4);
         MYLOG(newBoardInfo);
-        MYSHOWSMALL(newBoardInfo.image, 4);
+        MYSHOWSMALL(newBoardInfo.sourceImage, 4);
         debug();
+        boardFromAnyImage(newBoardInfo.sourceImage);
         boardTransitionIsValid(expectedBoardAfterMove, this->lastMove.hint, d, newBoardState);
     }
     

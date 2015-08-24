@@ -33,6 +33,7 @@ void Log::imShow(const string& winname, cv::InputArray image, double scale) {
     filename.append(winname);
     filename.append(".png");
     imwrite(filename, image);
+    waitKey(1);
 }
 
 void Log::imSave(Mat image) {

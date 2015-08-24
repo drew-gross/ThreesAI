@@ -15,5 +15,5 @@ CameraSource::CameraSource(int camNumber) : watcher(camNumber) {}
 
 BoardInfo CameraSource::getGameState() {
     Mat newImage(getAveragedImage(this->watcher, 8));
-    return boardState(screenImage(newImage), newImage, canonicalTiles());
+    return boardFromAnyImage(newImage);
 }

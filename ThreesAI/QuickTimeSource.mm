@@ -65,7 +65,5 @@ QuickTimeSource::QuickTimeSource(){
 }
 
 BoardInfo QuickTimeSource::getGameState() {
-    //TODO: warp into screen image
-    Mat frame = getMostRecentFrame();
-    return IMProc::boardState(frame, frame, IMProc::canonicalTiles());
+    return IMProc::boardFromAnyImage(getMostRecentFrame());
 }

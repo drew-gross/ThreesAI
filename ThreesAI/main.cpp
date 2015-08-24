@@ -31,6 +31,7 @@ using namespace boost::filesystem;
 using namespace boost;
 using namespace cv;
 using namespace IMLog;
+using namespace IMProc;
 
 void playOneGame() {
     ZeroDepthMaxScoreAI ai(move(SimulatedThreesBoard::randomBoard()));
@@ -63,16 +64,14 @@ unsigned int testImage(path p) {
     });
     
     Mat camImage = imread(p.string());
-    Mat screenImage = IMProc::screenImage(camImage);
-    array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(screenImage));
-    BoardInfo state = IMProc::boardState(screenImage, camImage, IMProc::canonicalTiles());
+    array<Mat, 16> tiles = tilesFromAnyImage(camImage);
+    BoardInfo state = IMProc::boardFromAnyImage(camImage);
     if (state.nextTileHint != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
-        MYSHOW(screenImage);
         MYLOG(nextTileHint);
         MYLOG(state.nextTileHint);
         failures++; 
         debug();
-        IMProc::boardState(screenImage, camImage, IMProc::canonicalTiles());
+        IMProc::boardFromAnyImage(camImage);
     }
     for (unsigned char i = 0; i < 16; i++) {
         MatchResult extracted = IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
@@ -82,6 +81,7 @@ unsigned int testImage(path p) {
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
+            MYSHOWSMALL(state.sourceImage, 4)
             debug();
             IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
             failures++;

@@ -23,18 +23,122 @@ using namespace std;
 using namespace cv;
 using namespace IMLog;
 
-Mat screenImageToHintImage(Mat const& i) {
-    const float left = 375;
-    const float right = 425;
-    const float top = 80;
-    const float bottom = 120;
+const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
+
+//TODO: refactor boardImageFromScreen and screenImageToHintImage to share code
+Mat boardImageFromScreen(Mat screenImage) {
+    const int width = screenImage.cols;
+    const int height = screenImage.rows;
+    
+    const float sideDistance = .121;
+    const float leftEdge = width*sideDistance;
+    const float rightEdge = width*(1-sideDistance);
+    const float bottomEdge = height*.843;
+    const float topEdge = height*.27;
+    
+    const Point2f fromScreenPoints[4] = {
+        {leftEdge,topEdge},
+        {leftEdge,bottomEdge},
+        {rightEdge,bottomEdge},
+        {rightEdge,topEdge}
+    };
+    
+    Mat boardImage;
+    warpPerspective(screenImage, boardImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
+    return boardImage;
+}
+
+Mat screenImageToHintImage(Mat const& screenImage) {
+    const int width = screenImage.cols;
+    const int height = screenImage.rows;
+    
+    const float sideDistance = 0.46;
+    const float leftEdge = width * sideDistance;
+    const float rightEdge = width * (1-sideDistance);
+    const float bottomEdge = height * 0.15;
+    const float topEdge = height * 0.11;
+    
+    const Point2f fromScreenPoints[4] = {
+        {leftEdge,topEdge},
+        {leftEdge,bottomEdge},
+        {rightEdge,bottomEdge},
+        {rightEdge,topEdge}
+    };
+    
     const float outputWidth = 100;
     const float outputHeight = 100;
-    const Point2f fromPointsHint[4] = {{left,top},{left,bottom},{right,bottom},{right,top}};
     const Point2f toPointsHint[4] = {{0,0},{0,outputHeight},{outputWidth,outputHeight},{outputWidth,0}};
+    
     Mat hintImage;
-    warpPerspective(i, hintImage, getPerspectiveTransform(fromPointsHint, toPointsHint), Size(outputWidth,outputHeight));
+    warpPerspective(screenImage, hintImage, getPerspectiveTransform(fromScreenPoints, toPointsHint), Size(outputWidth,outputHeight));
     return hintImage;
+}
+
+vector<Point> findScreenContour(Mat const& image) {
+    
+    Mat blurredCopy;
+    GaussianBlur(image, blurredCopy, Size(5,5), 2);
+    
+    Mat cannyCopy;
+    Canny(blurredCopy, cannyCopy, IMProc::Paramater::cannyRejectThreshold, IMProc::Paramater::cannyAcceptThreshold, IMProc::Paramater::cannyApertureSize, IMProc::Paramater::cannyUseL2);
+    
+    Mat contourCopy;
+    cannyCopy.copyTo(contourCopy);
+    vector<vector<Point>> contours;
+    findContours(contourCopy, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+    //TODO handle case where nothing is found
+    
+    sort(contours.begin(), contours.end(), [](vector<Point> &left, vector<Point> &right){
+        return contourArea(left) > contourArea(right);
+    });
+    transform(contours.begin(), contours.end(), contours.begin(), [](vector<Point> contour){
+        double perimeter = arcLength(contour, true);
+        vector<Point> approximatePoints;
+        approxPolyDP(contour, approximatePoints, 0.02*perimeter, true);
+        return approximatePoints;
+    });
+    
+    vector<Point> screenContour = *find_if(contours.begin(), contours.end(), [](vector<Point> contour){
+        return contour.size() == 4;
+    });
+    
+    Point sum = accumulate(screenContour.begin(), screenContour.end(), Point(0,0));
+    Point center(sum.x/screenContour.size(), sum.y/screenContour.size());
+    
+    vector<Point> orientedScreenContour(4);
+    for (auto&& point : screenContour) {
+        bool toLeft = point.x < center.x;
+        bool above = point.y < center.y;
+        if (toLeft && above) {
+            orientedScreenContour[0] = point;
+        }
+        if (!toLeft && above) {
+            orientedScreenContour[3] = point;
+        }
+        if (!toLeft && !above) {
+            orientedScreenContour[2] = point;
+        }
+        if (toLeft && !above) {
+            orientedScreenContour[1] = point;
+        }
+    }
+    return orientedScreenContour;
+}
+
+Mat screenImage(Mat const& colorBoardImage) {
+    Mat greyBoardImage;
+    Mat screenImage;
+    
+    cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
+    
+    vector<Point> screenContour = findScreenContour(greyBoardImage);
+    
+    //TODO: handle empty screenContour
+    const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
+    
+    warpPerspective(colorBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
+    
+    return screenImage;
 }
 
 const Point2f IMProc::getPoint(const string& window) {
@@ -53,7 +157,7 @@ const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
     return std::array<cv::Point2f, 4>{{getPoint("get rect"),getPoint("get rect"),getPoint("get rect"),getPoint("get rect")}};
 }
 
-BoardInfo::BoardInfo(ThreesBoardBase::Board tiles, std::deque<unsigned int> nextTileHint, cv::Mat image) : tiles(tiles), nextTileHint(nextTileHint), image(image) {}
+BoardInfo::BoardInfo(ThreesBoardBase::Board tiles, std::deque<unsigned int> nextTileHint, cv::Mat image) : tiles(tiles), nextTileHint(nextTileHint), sourceImage(image) {}
 
 Mat IMProc::getAveragedImage(VideoCapture& cam, unsigned char numImages) {
     vector<Mat> images;
@@ -85,26 +189,28 @@ const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
 
 const Mat IMProc::color1sample() {
     static Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint.png");
-    static array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(IMProc::screenImage(image)));
+    static array<Mat, 16> tiles = tilesFromAnyImage(boardImageFromScreen(screenImage(image)));
     return tiles[0];
 }
 
 const vector<Mat> IMProc::color1hints() {
-    static Mat image1 = screenImageToHintImage(IMProc::screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint1.png")));
-    static Mat image2 = screenImageToHintImage(IMProc::screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint2.png")));
-    return {image1, image2};
+    static Mat image1 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint1.png")));
+    static Mat image2 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint2.png")));
+    static Mat image3 = screenImageToHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint3.png"));
+    return {image1, image2, image3};
 }
 
 const Mat IMProc::color2sample() {
     static Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
-    static array<Mat, 16> tiles = IMProc::tileImages(IMProc::boardImageFromScreen(IMProc::screenImage(image)));
+    static array<Mat, 16> tiles = tilesFromAnyImage(image);
     return tiles[1];
 }
 
 const vector<Mat> IMProc::color3hints() {
-    static Mat image1 = screenImageToHintImage(IMProc::screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample3Hint1.png")));
-    static Mat image2 = screenImageToHintImage(IMProc::screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample3Hint2.png")));
-    return {image1, image2};
+    static Mat image1 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample3Hint1.png")));
+    static Mat image2 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample3Hint2.png")));
+    static Mat image3 = screenImageToHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample3Hint3.png"));
+    return {image1, image2, image3};
 }
 
 const Mat IMProc::color12(int which) {
@@ -194,94 +300,6 @@ const cv::SIFT& IMProc::imageSifter() {
 const map<int, TileInfo>& IMProc::canonicalTiles() {
     static const map<int, TileInfo>* tiles = loadCanonicalTiles();
     return *tiles;
-}
-
-vector<Point> IMProc::findScreenContour(Mat const& image) {
-    
-    Mat blurredCopy;
-    GaussianBlur(image, blurredCopy, Size(5,5), 2);
-    
-    Mat cannyCopy;
-    Canny(blurredCopy, cannyCopy, Paramater::cannyRejectThreshold, Paramater::cannyAcceptThreshold, Paramater::cannyApertureSize, Paramater::cannyUseL2);
-    
-    Mat contourCopy;
-    cannyCopy.copyTo(contourCopy);
-    vector<vector<Point>> contours;
-    findContours(contourCopy, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-    //TODO handle case where nothing is found
-    
-    sort(contours.begin(), contours.end(), [](vector<Point> &left, vector<Point> &right){
-        return contourArea(left) > contourArea(right);
-    });
-    transform(contours.begin(), contours.end(), contours.begin(), [](vector<Point> contour){
-        double perimeter = arcLength(contour, true);
-        vector<Point> approximatePoints;
-        approxPolyDP(contour, approximatePoints, 0.02*perimeter, true);
-        return approximatePoints;
-    });
-    
-    vector<Point> screenContour = *find_if(contours.begin(), contours.end(), [](vector<Point> contour){
-        return contour.size() == 4;
-    });
-    
-    Point sum = accumulate(screenContour.begin(), screenContour.end(), Point(0,0));
-    Point center(sum.x/screenContour.size(), sum.y/screenContour.size());
-
-    vector<Point> orientedScreenContour(4);
-    for (auto&& point : screenContour) {
-        bool toLeft = point.x < center.x;
-        bool above = point.y < center.y;
-        if (toLeft && above) {
-            orientedScreenContour[0] = point;
-        }
-        if (!toLeft && above) {
-            orientedScreenContour[3] = point;
-        }
-        if (!toLeft && !above) {
-            orientedScreenContour[2] = point;
-        }
-        if (toLeft && !above) {
-            orientedScreenContour[1] = point;
-        }
-    }
-    return orientedScreenContour;
-}
-
-const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
-
-Mat IMProc::screenImage(Mat const& colorBoardImage) {
-    Mat greyBoardImage;
-    Mat screenImage;
-    
-    cvtColor(colorBoardImage, greyBoardImage, CV_RGB2GRAY);
-    
-    vector<Point> screenContour = IMProc::findScreenContour(greyBoardImage);
-    
-    //TODO: handle empty screenContour
-    const Point2f fromCameraPoints[4] = {screenContour[0], screenContour[1], screenContour[2], screenContour[3]};
-    
-    warpPerspective(colorBoardImage, screenImage, getPerspectiveTransform(fromCameraPoints, toPoints), Size(800,800));
-    
-    return screenImage;
-}
-
-Mat IMProc::boardImageFromScreen(Mat screenImage) {
-    const int width = screenImage.cols;
-    const int height = screenImage.rows;
-    const float sideDistance = .121;
-    const float leftEdge = width*sideDistance;
-    const float rightEdge = width*(1-sideDistance);
-    const float bottomEdge = height*.843;
-    const float topEdge = height*.27;
-    const Point2f fromScreenPoints[4] = {
-        {leftEdge,topEdge},
-        {leftEdge,bottomEdge},
-        {rightEdge,bottomEdge},
-        {rightEdge,topEdge}
-    };
-    Mat boardImage;
-    warpPerspective(screenImage, boardImage, getPerspectiveTransform(fromScreenPoints, toPoints), Size(800,800));
-    return boardImage;
 }
 
 Mat MatchResult::knnDrawing() {
@@ -537,7 +555,7 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const map<int, TileInfo
     }
 }
 
-array<Mat, 16> IMProc::tileImages(Mat boardImage) {
+array<Mat, 16> tileImages(Mat boardImage) {
     array<Mat, 16> result;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
@@ -561,9 +579,11 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
     Scalar i3Mean;
     Scalar i3StdDev;
     
+    //TODO: refactor this to be more DRY
     double closestSample1distance = INFINITY;
     Mat closestSample1Mat;
-    for (auto&& sample : color1hints()) {
+    auto hints1 = color1hints();
+    for (auto&& sample : hints1) {
         Scalar sampleMean = mean(sample);
         double newDistance = norm(inputMean, sampleMean);
         if (newDistance < closestSample1distance) {
@@ -574,7 +594,8 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
     
     double closestSample3distance = INFINITY;
     Mat closestSample3Mat;
-    for (auto&& sample : color3hints()) {
+    auto hints3 = color3hints();
+    for (auto&& sample : hints3) {
         Scalar sampleMean = mean(sample);
         double newDistance = norm(inputMean, sampleMean);
         if (newDistance < closestSample3distance) {
@@ -597,11 +618,21 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
     }
 }
 
-BoardInfo IMProc::boardState(Mat const& screenImage, Mat const& sourceImage, const map<int, TileInfo>& canonicalTiles) {
+array<Mat, 16> IMProc::tilesFromAnyImage(Mat const& image) {
+    Mat screenImagee;
+    if (image.rows == 2272 && image.cols == 1280) {
+        screenImagee = image;
+    } else {
+        screenImagee = screenImage(image);
+    }
+    return tileImages(boardImageFromScreen(screenImagee));
+}
+
+BoardInfo boardState(Mat const& screenImage, Mat const& sourceImage, const map<int, TileInfo>& canonicalTiles) {
     ThreesBoardBase::Board board;
-    array<Mat, 16> images = tileImages(boardImageFromScreen(screenImage));
+    array<Mat, 16> images = IMProc::tilesFromAnyImage(sourceImage);
     transform(images.begin(), images.end(), board.begin(), [&canonicalTiles](Mat image){
-        return tileValue(image, canonicalTiles).tile.value;
+        return IMProc::tileValue(image, canonicalTiles).tile.value;
     });
 
     unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage));
@@ -611,5 +642,15 @@ BoardInfo IMProc::boardState(Mat const& screenImage, Mat const& sourceImage, con
         //TODO: get the real bonus tile hint here
         return BoardInfo(board, {6,12,24,48,96,192,384,768,1536}, sourceImage);
     }
+}
+
+BoardInfo IMProc::boardFromAnyImage(Mat const& image) {
+    Mat screenImagee;
+    if (image.rows == 2272 && image.cols == 1280) {
+        screenImagee = image;
+    } else {
+        screenImagee = screenImage(image);
+    }
+    return boardState(screenImagee, image, canonicalTiles());
 }
 

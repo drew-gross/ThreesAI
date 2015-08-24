@@ -53,7 +53,7 @@ public:
     BoardInfo(ThreesBoardBase::Board tiles, std::deque<unsigned int> nextTileHint, cv::Mat image);
     ThreesBoardBase::Board tiles;
     std::deque<unsigned int> nextTileHint;
-    cv::Mat image;
+    cv::Mat sourceImage;
 };
 
 namespace IMProc {
@@ -98,11 +98,9 @@ namespace IMProc {
     const std::array<cv::Point2f, 4> getQuadrilateral(cv::Mat m);
     cv::Mat getAveragedImage(cv::VideoCapture& cam, unsigned char numImages);
     
-    std::vector<cv::Point> findScreenContour(cv::Mat const& image);
-    cv::Mat boardImageFromScreen(cv::Mat screenImage);
-    cv::Mat screenImage(cv::Mat const& colorBoardImage);
-    std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
-    BoardInfo boardState(cv::Mat const& screenImage, cv::Mat const& sourceImage, const std::map<int, TileInfo>& canonicalTiles);
+    BoardInfo boardFromAnyImage(cv::Mat const& image);
+    std::array<cv::Mat, 16> tilesFromAnyImage(cv::Mat const& image);
+    
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     
