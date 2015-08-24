@@ -52,7 +52,7 @@ Mat screenImageToHintImage(Mat const& screenImage) {
     const int width = screenImage.cols;
     const int height = screenImage.rows;
     
-    const float sideDistance = 0.46;
+    const float sideDistance = 0.465;
     const float leftEdge = width * sideDistance;
     const float rightEdge = width * (1-sideDistance);
     const float bottomEdge = height * 0.15;
@@ -187,12 +187,6 @@ const int B12 = 630;
 const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
 const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
 
-const Mat IMProc::color1sample() {
-    static Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint.png");
-    static array<Mat, 16> tiles = tilesFromAnyImage(boardImageFromScreen(screenImage(image)));
-    return tiles[0];
-}
-
 const vector<Mat> IMProc::color1hints() {
     static Mat image1 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint1.png")));
     static Mat image2 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint2.png")));
@@ -200,10 +194,13 @@ const vector<Mat> IMProc::color1hints() {
     return {image1, image2, image3};
 }
 
-const Mat IMProc::color2sample() {
-    static Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
-    static array<Mat, 16> tiles = tilesFromAnyImage(image);
-    return tiles[1];
+const vector<Mat> IMProc::color2hints() {
+    static Mat nonHintImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
+    static array<Mat, 16> tiles = tilesFromAnyImage(nonHintImage);
+    static Mat image1 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Hint1.png")));
+    Rect flatRegionRect = Rect(0,0,40,100);
+    return {tiles[1](flatRegionRect), image1};
+    
 }
 
 const vector<Mat> IMProc::color3hints() {
@@ -565,53 +562,35 @@ array<Mat, 16> tileImages(Mat boardImage) {
     return result;
 }
 
+double distanceToNearestInVector(Mat query, vector<Mat> train) {
+    double closestDist = INFINITY;
+    Scalar queryMean = mean(query);
+    for (Mat sample : train) {
+        double newDistance = norm(queryMean, mean(sample));
+        if (newDistance < closestDist) {
+            closestDist = newDistance;
+        }
+    }
+    return closestDist;
+}
+
 unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
-    Rect flatRegionRect = Rect(0,0,40,100);
-    Mat i2 = IMProc::color2sample();
+
     Scalar inputMean;
     Scalar iStdDev;
     meanStdDev(input, inputMean, iStdDev);
-    
-    
-    Scalar i2Mean;
-    Scalar i2StdDev;
-    
-    Scalar i3Mean;
-    Scalar i3StdDev;
-    
-    //TODO: refactor this to be more DRY
-    double closestSample1distance = INFINITY;
-    Mat closestSample1Mat;
-    auto hints1 = color1hints();
-    for (auto&& sample : hints1) {
-        Scalar sampleMean = mean(sample);
-        double newDistance = norm(inputMean, sampleMean);
-        if (newDistance < closestSample1distance) {
-            closestSample1distance = newDistance;
-            closestSample1Mat = sample;
-        }
-    }
-    
-    double closestSample3distance = INFINITY;
-    Mat closestSample3Mat;
-    auto hints3 = color3hints();
-    for (auto&& sample : hints3) {
-        Scalar sampleMean = mean(sample);
-        double newDistance = norm(inputMean, sampleMean);
-        if (newDistance < closestSample3distance) {
-            closestSample3distance = newDistance;
-            closestSample3Mat = sample;
-        }
-    }
+    double closestSample1distance = distanceToNearestInVector(input, color1hints());
+    double closestSample2distance = distanceToNearestInVector(input, color2hints());
+    double closestSample3distance = distanceToNearestInVector(input, color3hints());
     
     Scalar m = mean(iStdDev);
+    MYSHOW(input);
     if (m[0] > Paramater::bonusMeanThreshold) {
         return 4; //Bonus
     }
-    double d2 = norm(inputMean, mean(i2(flatRegionRect)));
-    if (closestSample1distance < d2 && closestSample1distance < closestSample3distance) {
+    if (closestSample1distance < closestSample2distance && closestSample1distance < closestSample3distance) {
         return 1;
-    } else if (d2 < closestSample3distance) {
+    } else if (closestSample2distance < closestSample3distance) {
         return 2;
     } else {
         return 3;

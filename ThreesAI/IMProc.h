@@ -109,9 +109,8 @@ namespace IMProc {
     const cv::SIFT& imageSifter();
     
     const cv::Mat color12(int which);
-    const cv::Mat color1sample();
-    const cv::Mat color2sample();
     const std::vector<cv::Mat> color1hints();
+    const std::vector<cv::Mat> color2hints();
     const std::vector<cv::Mat> color3hints();
     unsigned int detect1or2or3orBonusByColor(cv::Mat i);
 }
