@@ -317,6 +317,10 @@ Mat MatchResult::noDupeDrawing() {
     return drawing;
 }
 
+TileInfo::TileInfo(){};
+
+MatchResult::MatchResult() : tile() {};
+
 MatchResult::MatchResult(TileInfo candidate, Mat colorImage, bool calculate) : tile(candidate), queryImage(), queryKeypoints(), knnMatches(), ratioPassMatches(), noDupeMatches(), averageDistance(INFINITY), matchingKeypointFraction(-INFINITY) {
     
     cvtColor(colorImage, this->queryImage, CV_RGB2GRAY);
@@ -487,7 +491,8 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const map<int, TileInfo
         //Probably either a zero or a 1, guess based on image variance
         Scalar mean;
         Scalar stdDev;
-        meanStdDev(greyTileImage, mean, stdDev);;
+        Rect chopSides(10,10,140,140);
+        meanStdDev(greyTileImage(chopSides), mean, stdDev);
         if (stdDev[0] < Paramater::zeroOrOneStdDevThreshold) {
             return MatchResult(TileInfo(canonicalTiles.at(0).image, 0, IMProc::imageSifter()), colorTileImage, false);
         } else {
@@ -606,29 +611,33 @@ array<Mat, 16> IMProc::tilesFromAnyImage(Mat const& image) {
     return tileImages(boardImageFromScreen(screenImagee));
 }
 
-BoardInfo boardState(Mat const& screenImage, Mat const& sourceImage, const map<int, TileInfo>& canonicalTiles) {
-    ThreesBoardBase::Board board;
-    array<Mat, 16> images = IMProc::tilesFromAnyImage(sourceImage);
-    transform(images.begin(), images.end(), board.begin(), [&canonicalTiles](Mat image){
-        return IMProc::tileValue(image, canonicalTiles).tile.value;
-    });
-
-    unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage));
-    if (hint < 4) {
-        return BoardInfo(board, {hint}, sourceImage);
-    } else {
-        //TODO: get the real bonus tile hint here
-        return BoardInfo(board, {6,12,24,48,96,192,384,768,1536}, sourceImage);
-    }
-}
-
-BoardInfo IMProc::boardFromAnyImage(Mat const& image) {
+pair<BoardInfo, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image) {
     Mat screenImagee;
     if (image.rows == 2272 && image.cols == 1280) {
         screenImagee = image;
     } else {
         screenImagee = screenImage(image);
     }
-    return boardState(screenImagee, image, canonicalTiles());
+    array<Mat, 16> images = IMProc::tilesFromAnyImage(screenImagee);
+    const map<int, TileInfo>& canonicalTiles = IMProc::canonicalTiles();
+    array<MatchResult, 16> matches;
+    transform(images.begin(), images.end(), matches.begin(), [&canonicalTiles](Mat image){
+        return IMProc::tileValue(image, canonicalTiles);
+    });
+    ThreesBoardBase::Board board;
+    transform(matches.begin(), matches.end(), board.begin(), [](MatchResult m) {
+        return m.tile.value;
+    });
+    unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImagee));
+    if (hint < 4) {
+        return {BoardInfo(board, {hint}, image), matches};
+    } else {
+        //TODO: get the real bonus tile hint here
+        return {BoardInfo(board, {6,12,24,48,96,192,384,768,1536}, image), matches};
+    }
+}
+
+BoardInfo IMProc::boardFromAnyImage(Mat const& image) {
+    return boardAndMatchFromAnyImage(image).first;
 }
 

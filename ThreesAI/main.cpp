@@ -65,23 +65,22 @@ unsigned int testImage(path p) {
     
     Mat camImage = imread(p.string());
     array<Mat, 16> tiles = tilesFromAnyImage(camImage);
-    BoardInfo state = IMProc::boardFromAnyImage(camImage);
-    if (state.nextTileHint != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
+    auto result = IMProc::boardAndMatchFromAnyImage(camImage);
+    if (result.first.nextTileHint != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
         MYLOG(nextTileHint);
-        MYLOG(state.nextTileHint);
+        MYLOG(result.first.nextTileHint);
         failures++; 
         debug();
         IMProc::boardFromAnyImage(camImage);
     }
     for (unsigned char i = 0; i < 16; i++) {
-        MatchResult extracted = IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
+        MatchResult extracted = result.second.at(i);
         int expectedValue = expectedBoard.at({i%4,i/4});
-        if (state.tiles[i] != extracted.tile.value) {
+        if (expectedValue != extracted.tile.value) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), tiles[i]);
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
-            MYSHOWSMALL(state.sourceImage, 4)
             debug();
             IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
             failures++;
@@ -157,7 +156,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    //testImageProc(); debug();
+    testImageProc(); debug();
     
     for (;;) {
         unique_ptr<GameStateSource> watcher = unique_ptr<GameStateSource>(new QuickTimeSource());

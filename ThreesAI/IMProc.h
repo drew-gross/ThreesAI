@@ -20,6 +20,7 @@
 
 class TileInfo {
 public:
+    TileInfo();
     TileInfo(cv::Mat image, int value, const cv::SIFT& sifter);
     
     cv::Mat image;
@@ -30,6 +31,7 @@ public:
 
 class MatchResult {
 public:
+    MatchResult();
     MatchResult(TileInfo t, cv::Mat image, bool calculate=true);
     
     cv::Mat knnDrawing();
@@ -91,7 +93,7 @@ namespace IMProc {
         const cv::Size differenceErosionSize = cv::Size(18,18);
         const float differenceMeanThreshold = 1.5; // Lower means more things that look like six are determined to be not 6.
         
-        const float bonusMeanThreshold = 6; //Higher means less next tile hints get interpreted as a bonus tile.
+        const float bonusMeanThreshold = 8; //Higher means less next tile hints get interpreted as a bonus tile.
     }
     
     const cv::Point2f getPoint(const std::string& window);
@@ -99,6 +101,7 @@ namespace IMProc {
     cv::Mat getAveragedImage(cv::VideoCapture& cam, unsigned char numImages);
     
     BoardInfo boardFromAnyImage(cv::Mat const& image);
+    std::pair<BoardInfo, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image);
     std::array<cv::Mat, 16> tilesFromAnyImage(cv::Mat const& image);
     
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
