@@ -59,9 +59,6 @@ cv::Mat getMostRecentFrame() {
 }
 
 QuickTimeSource::QuickTimeSource(){
-    static bool created = false;
-    debug(created);
-    created = true;
 }
 
 BoardInfo QuickTimeSource::getGameState() {

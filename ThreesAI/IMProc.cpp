@@ -584,7 +584,6 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
     double closestSample3distance = distanceToNearestInVector(input, color3hints());
     
     Scalar m = mean(iStdDev);
-    MYSHOW(input);
     if (m[0] > Paramater::bonusMeanThreshold) {
         return 4; //Bonus
     }
