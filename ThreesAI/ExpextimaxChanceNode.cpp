@@ -60,6 +60,7 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
 }
 
 void ExpectimaxChanceNode::pruneUnreachableChildren(deque<unsigned int> const & nextTileHint) {
+    //TODO: look for a bug here, maybe due to modifying the map in the iteration?
     float lostProbability = 0;
     for (auto it = this->children.begin(); it != this->children.end();) {
         auto old = it;

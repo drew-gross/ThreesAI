@@ -156,16 +156,15 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     for (;;) {
-        unique_ptr<GameStateSource> watcher = unique_ptr<GameStateSource>(new QuickTimeSource());
-        auto initialState = watcher->getGameState();
-        
-        auto p = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411", move(watcher), initialState);
+        auto p = SimulatedThreesBoard::randomBoard();
+        //unique_ptr<GameStateSource> watcher = unique_ptr<GameStateSource>(new QuickTimeSource()); auto initialState = watcher->getGameState(); auto p = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411", move(watcher), initialState);
         ExpectimaxAI ai(p);
         ai.playGame();
-        MYLOG("game over");
+        MYLOG(ai.board->maxTile());
+        MYLOG(ai.board->score());
     }
     return 0;
 }

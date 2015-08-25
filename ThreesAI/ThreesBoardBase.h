@@ -44,6 +44,7 @@ public:
     
     bool isGameOver() const;
     unsigned int score() const;
+    unsigned int maxTile() const;
     std::vector<Direction> validMoves() const;
     std::deque<std::pair<unsigned int, float>> possibleNextTiles() const;
     std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
@@ -63,7 +64,6 @@ protected:
     
     MoveResult lastMove;
     
-    unsigned int maxTile() const;
     
     TileStack tileStack;
     Board board;
