@@ -82,7 +82,8 @@ unsigned int testImage(path p) {
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
             debug();
-            IMProc::tileValue(tiles[i], IMProc::canonicalTiles());
+            IMProc::tileValue(tiles[i], canonicalTiles());
+            auto result = IMProc::boardAndMatchFromAnyImage(camImage);
             failures++;
         }
     }
@@ -156,7 +157,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    //testImageProc(); debug();
+    testImageProc(); debug();
     
     for (;;) {
         auto p = SimulatedThreesBoard::randomBoard();

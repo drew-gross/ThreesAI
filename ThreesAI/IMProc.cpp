@@ -187,19 +187,25 @@ const int B12 = 630;
 const Point2f fromPoints12[4] = {{L12,T12},{L12,B12},{R12,B12},{R12,T12}};
 const Point2f toPoints12[4] = {{0,0},{0,400},{200,400},{200,0}};
 
+Rect flatRegionRect = Rect(0,0,40,100);
+
 const vector<Mat> IMProc::color1hints() {
     static Mat image1 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint1.png")));
     static Mat image2 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint2.png")));
     static Mat image3 = screenImageToHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint3.png"));
-    return {image1, image2, image3};
+    static Mat image4 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Tile7.png"))[7](flatRegionRect);
+    static Mat image5 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Tile9.png"))[9](flatRegionRect);
+    return {image1, image2, image3, image4, image5};
 }
 
 const vector<Mat> IMProc::color2hints() {
     static Mat nonHintImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
     static array<Mat, 16> tiles = tilesFromAnyImage(nonHintImage);
     static Mat image1 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Hint1.png")));
-    Rect flatRegionRect = Rect(0,0,40,100);
-    return {tiles[1](flatRegionRect), image1};
+    static Mat image2 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile12.png"))[12](flatRegionRect);
+    static Mat image3 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile12-1.png"))[12](flatRegionRect);
+    static Mat image4 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile13.png"))[13](flatRegionRect);
+    return {tiles[1](flatRegionRect), image1, image2, image3, image4};
     
 }
 
@@ -417,17 +423,17 @@ bool mustDetect6vs96vs192(deque<MatchResult> matches) {
     
     auto end_it = matches.begin()+numElemsToCheck;
     
-    bool has6 = find_if(matches.begin(), end_it, [](MatchResult m){
+    bool no6 = !(find_if(matches.begin(), end_it, [](MatchResult m){
         return m.tile.value == 6;
-    }) != end_it;
-    bool has96 = find_if(matches.begin(), end_it, [](MatchResult m){
+    }) != end_it);
+    bool no96 = !(find_if(matches.begin(), end_it, [](MatchResult m){
         return m.tile.value == 96;
-    }) != end_it;
-    bool has192 = find_if(matches.begin(), end_it, [](MatchResult m){
+    }) != end_it);
+    bool no192 = !(find_if(matches.begin(), end_it, [](MatchResult m){
         return m.tile.value == 192;
-    }) != end_it;
+    }) != end_it);
     
-    if ((!has6 && !has96) || (!has6 && !has192) || (!has96 && !has192)) {
+    if ((no6 && no96) || (no6 && no192) || (no96 && no192)) {
         return false;
     }
     
@@ -443,7 +449,7 @@ bool mustDetect6vs96vs192(deque<MatchResult> matches) {
     // If keypoints fraction and average distance agree, and aren't even close
     // to disagreeing, don't need to diff
     if ((matches[0].averageDistance * 1.3 < matches[1].averageDistance) &&
-        (matches[0].matchingKeypointFraction * 0.8 > matches[1].matchingKeypointFraction)) {
+        (matches[0].matchingKeypointFraction * 0.6 > matches[1].matchingKeypointFraction)) {
         return false;
     }
     
@@ -460,8 +466,13 @@ MatchResult detect6vs96vs192(deque<MatchResult> matches, Mat greyTileImage) {
     return *min_element(matches.begin(), matches.begin()+numElemsToCheck, [&tileEroded](MatchResult l, MatchResult r){
         Mat differenceL;
         Mat differenceR;
-        subtract(tileEroded, l.tile.image, differenceL);
-        subtract(tileEroded, r.tile.image, differenceR);
+        
+        Mat lBinary;
+        Mat rBinary;
+        threshold(l.tile.image, lBinary, 0, 255, THRESH_OTSU);
+        threshold(r.tile.image, rBinary, 0, 255, THRESH_OTSU);
+        bitwise_xor(tileEroded, lBinary, differenceL);
+        bitwise_xor(tileEroded, rBinary, differenceR);
         
         Mat numeralsOnlyL = differenceL(Rect(0, 0, differenceL.cols, differenceL.rows-30));
         Mat numeralsOnlyR = differenceR(Rect(0, 0, differenceR.cols, differenceR.rows-30));
@@ -473,6 +484,8 @@ MatchResult detect6vs96vs192(deque<MatchResult> matches, Mat greyTileImage) {
         
         meanStdDev(numeralsOnlyL, meanL, stdDevL);
         meanStdDev(numeralsOnlyR, meanR, stdDevR);
+        MYSHOW(numeralsOnlyL);
+        MYSHOW(numeralsOnlyR);
         
         return meanL[0] < meanR[0];
     });
@@ -612,13 +625,7 @@ array<Mat, 16> IMProc::tilesFromAnyImage(Mat const& image) {
 }
 
 pair<BoardInfo, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image) {
-    Mat screenImagee;
-    if (image.rows == 2272 && image.cols == 1280) {
-        screenImagee = image;
-    } else {
-        screenImagee = screenImage(image);
-    }
-    array<Mat, 16> images = IMProc::tilesFromAnyImage(screenImagee);
+    array<Mat, 16> images = IMProc::tilesFromAnyImage(image);
     const map<int, TileInfo>& canonicalTiles = IMProc::canonicalTiles();
     array<MatchResult, 16> matches;
     transform(images.begin(), images.end(), matches.begin(), [&canonicalTiles](Mat image){
@@ -628,6 +635,13 @@ pair<BoardInfo, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat co
     transform(matches.begin(), matches.end(), board.begin(), [](MatchResult m) {
         return m.tile.value;
     });
+    
+    Mat screenImagee;
+    if (image.rows == 2272 && image.cols == 1280) {
+        screenImagee = image;
+    } else {
+        screenImagee = screenImage(image);
+    }
     unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImagee));
     if (hint < 4) {
         return {BoardInfo(board, {hint}, image), matches};

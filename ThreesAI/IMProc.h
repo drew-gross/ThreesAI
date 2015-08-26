@@ -90,7 +90,7 @@ namespace IMProc {
         const unsigned int ignoredEdgePadding = 25; // Number of pixels to chop off the edge of the each tile image
         
         const int differenceErosionShape = cv::MORPH_ELLIPSE;
-        const cv::Size differenceErosionSize = cv::Size(18,18);
+        const cv::Size differenceErosionSize = cv::Size(20,20);
         const float differenceMeanThreshold = 1.5; // Lower means more things that look like six are determined to be not 6.
         
         const float bonusMeanThreshold = 8; //Higher means less next tile hints get interpreted as a bonus tile.
