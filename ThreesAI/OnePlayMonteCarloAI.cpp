@@ -6,15 +6,15 @@
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //
 
-#include "ZeroDepthMonteCarloAI.h"
+#include "OnePlayMonteCarloAI.h"
 
 #include "SimulatedThreesBoard.h"
 
 using namespace std;
 
-ZeroDepthMonteCarloAI::ZeroDepthMonteCarloAI(shared_ptr<ThreesBoardBase> board) : ThreesAIBase(board) {}
+OnePlayMonteCarloAI::OnePlayMonteCarloAI(shared_ptr<ThreesBoardBase> board) : ThreesAIBase(board) {}
 
-Direction ZeroDepthMonteCarloAI::playTurn() {
+Direction OnePlayMonteCarloAI::playTurn() {
     int bestScore = 0;
     Direction bestDirection = LEFT;
     for (Direction d : board->validMoves()) {

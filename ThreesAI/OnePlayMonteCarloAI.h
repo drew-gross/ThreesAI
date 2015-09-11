@@ -13,13 +13,11 @@
 
 #include <memory>
 
-class ZeroDepthMonteCarloAI : public ThreesAIBase {
+class OnePlayMonteCarloAI : public ThreesAIBase {
     
 public:
-    
-    ZeroDepthMonteCarloAI(std::shared_ptr<ThreesBoardBase> board);
+    OnePlayMonteCarloAI(std::shared_ptr<ThreesBoardBase> board);
     Direction playTurn();
-    
 };
 
 #endif /* defined(__ThreesAI__ZeroDepthMonteCarloAI__) */

@@ -41,7 +41,7 @@
 		79E67A951B373C9A007D8C25 /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A941B373C9A007D8C25 /* libboost_filesystem.dylib */; };
 		79E67A971B373CB6007D8C25 /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A961B373CB6007D8C25 /* libboost_system.dylib */; };
 		79EFBE351AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */; };
-		79F037071BA1D5E500E3AB94 /* ZeroDepthMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F037051BA1D5E500E3AB94 /* ZeroDepthMonteCarloAI.cpp */; };
+		79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
 /* End PBXBuildFile section */
 
@@ -114,8 +114,8 @@
 		79E67A941B373C9A007D8C25 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libboost_filesystem.dylib; sourceTree = "<group>"; };
 		79E67A961B373CB6007D8C25 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libboost_system.dylib; sourceTree = "<group>"; };
 		79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_flann.2.4.11.dylib; sourceTree = "<group>"; };
-		79F037051BA1D5E500E3AB94 /* ZeroDepthMonteCarloAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZeroDepthMonteCarloAI.cpp; sourceTree = "<group>"; };
-		79F037061BA1D5E500E3AB94 /* ZeroDepthMonteCarloAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZeroDepthMonteCarloAI.h; sourceTree = "<group>"; };
+		79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnePlayMonteCarloAI.cpp; sourceTree = "<group>"; };
+		79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnePlayMonteCarloAI.h; sourceTree = "<group>"; };
 		79F98BB61AA3E95A0043C8BC /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
 		79F98BB71AA3E95B0043C8BC /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -230,8 +230,8 @@
 				7960E4461A88333B000622BC /* RandomAI.h */,
 				7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */,
 				7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */,
-				79F037051BA1D5E500E3AB94 /* ZeroDepthMonteCarloAI.cpp */,
-				79F037061BA1D5E500E3AB94 /* ZeroDepthMonteCarloAI.h */,
+				79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */,
+				79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */,
 			);
 			name = ThreesPlayer;
 			sourceTree = "<group>";
@@ -345,7 +345,7 @@
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
-				79F037071BA1D5E500E3AB94 /* ZeroDepthMonteCarloAI.cpp in Sources */,
+				79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */,
 				7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
 				7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */,
