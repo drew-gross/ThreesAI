@@ -14,6 +14,7 @@
 		793533161B814DA50078E011 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533151B814DA50078E011 /* CoreVideo.framework */; };
 		793533181B815DC60078E011 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533171B815DC60078E011 /* Cocoa.framework */; };
 		7935331A1B8160CC0078E011 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533191B8160CC0078E011 /* CoreGraphics.framework */; };
+		7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */; };
 		7944F88F1A732BC300ED690E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F88E1A732BC300ED690E /* main.cpp */; };
 		7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */; };
 		7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7955D3CD1B74848B0034EE4F /* IMLog.cpp */; };
@@ -69,6 +70,8 @@
 		793533151B814DA50078E011 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		793533171B815DC60078E011 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		793533191B8160CC0078E011 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyPlayMonteCarloAI.cpp; sourceTree = "<group>"; };
+		7944C1651BA26D82000F0A2C /* ManyPlayMonteCarloAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyPlayMonteCarloAI.h; sourceTree = "<group>"; };
 		7944F88B1A732BC300ED690E /* ThreesAI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ThreesAI; sourceTree = BUILT_PRODUCTS_DIR; };
 		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = SimulatedThreesBoard.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -232,6 +235,8 @@
 				7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */,
 				79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */,
 				79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */,
+				7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */,
+				7944C1651BA26D82000F0A2C /* ManyPlayMonteCarloAI.h */,
 			);
 			name = ThreesPlayer;
 			sourceTree = "<group>";
@@ -340,6 +345,7 @@
 				79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
 				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
+				7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */,
 				7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */,
 				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,

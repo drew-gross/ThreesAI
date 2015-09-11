@@ -25,6 +25,7 @@ Direction OnePlayMonteCarloAI::playTurn() {
         }
         if (copyToExplore.score() > bestScore) {
             bestDirection = d;
+            bestScore = copyToExplore.score();
         }
     }
     this->board->move(bestDirection);
