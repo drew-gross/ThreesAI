@@ -199,6 +199,12 @@ vector<Direction> ThreesBoardBase::validMoves() const {
     return result;
 }
 
+Direction ThreesBoardBase::randomValidMove() const {
+    vector<Direction> moves = this->validMoves();
+    shuffle(moves.begin(), moves.end(), TileStack::randomGenerator);
+    return moves[0];
+}
+
 deque<pair<unsigned int, float>> ThreesBoardBase::possibleNextTiles() const {
     return this->tileStack.possibleNextTiles(this->maxTile());
 }

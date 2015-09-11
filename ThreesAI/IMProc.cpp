@@ -391,8 +391,7 @@ MatchResult::MatchResult(TileInfo candidate, Mat colorImage, bool calculate) : t
     this->matchingKeypointFraction = float(noDupeMatches.size())/(this->tile.keypoints.size() + this->queryKeypoints.size());
     
     if (this->matchingKeypointFraction > -IMProc::Paramater::matchingKeypointFractionDiscount) {
-        this->quality = (
-        this->averageDistance)/(
+        this->quality = this->averageDistance/(
         (this->matchingKeypointFraction + IMProc::Paramater::matchingKeypointFractionDiscount)*
         pow(this->noDupeMatches.size(), 0.8));
     } else {
@@ -484,8 +483,6 @@ MatchResult detect6vs96vs192(deque<MatchResult> matches, Mat greyTileImage) {
         
         meanStdDev(numeralsOnlyL, meanL, stdDevL);
         meanStdDev(numeralsOnlyR, meanR, stdDevR);
-        MYSHOW(numeralsOnlyL);
-        MYSHOW(numeralsOnlyR);
         
         return meanL[0] < meanR[0];
     });

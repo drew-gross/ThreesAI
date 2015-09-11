@@ -19,6 +19,7 @@
 #include "SimulatedThreesBoard.h"
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
+#include "ZeroDepthMonteCarloAI.h"
 #include "RealThreesBoard.h"
 #include "CameraSource.h"
 #include "QuickTimeSource.h"
@@ -157,12 +158,12 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     for (;;) {
         auto p = SimulatedThreesBoard::randomBoard();
         //unique_ptr<GameStateSource> watcher = unique_ptr<GameStateSource>(new QuickTimeSource()); auto initialState = watcher->getGameState(); auto p = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411", move(watcher), initialState);
-        ExpectimaxAI ai(p);
+        ZeroDepthMonteCarloAI ai(p);
         ai.playGame();
         MYLOG(ai.board->maxTile());
         MYLOG(ai.board->score());

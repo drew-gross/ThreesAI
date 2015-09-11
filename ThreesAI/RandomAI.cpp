@@ -17,8 +17,7 @@ using namespace std;
 RandomAI::RandomAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {}
 
 Direction RandomAI::playTurn() {
-    vector<Direction> moves = this->board->validMoves();
-    shuffle(moves.begin(), moves.end(), TileStack::randomGenerator);
-    this->board->move(moves[0]);
-    return moves[0];
+    Direction move = this->board->randomValidMove();
+    this->board->move(move);
+    return move;
 }

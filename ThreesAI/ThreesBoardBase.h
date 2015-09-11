@@ -46,6 +46,7 @@ public:
     unsigned int score() const;
     unsigned int maxTile() const;
     std::vector<Direction> validMoves() const;
+    Direction randomValidMove() const;
     std::deque<std::pair<unsigned int, float>> possibleNextTiles() const;
     std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
     
