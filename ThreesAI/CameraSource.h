@@ -11,11 +11,13 @@
 
 #include "GameStateSource.h"
 
+#include "BoardState.h"
+
 class CameraSource : public GameStateSource {
 public:
     CameraSource(int camNumber);
     
-    BoardInfo getGameState();
+    BoardState getGameState();
     
 private:
     cv::VideoCapture watcher;

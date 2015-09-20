@@ -9,6 +9,8 @@
 #ifndef __ThreesAI__Direction__
 #define __ThreesAI__Direction__
 
+#include <iostream>
+
 typedef enum Direction {
     UP,
     DOWN,
@@ -16,5 +18,6 @@ typedef enum Direction {
     RIGHT
 } Direction;
 
+std::ostream& operator<<(std::ostream &os, Direction d);
 
 #endif /* defined(__ThreesAI__Direction__) */

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-ExpectimaxAI::ExpectimaxAI(shared_ptr<ThreesBoardBase> board) : ThreesAIBase(board), currentBoard(make_shared<ExpectimaxMoveNode>(this->board->simulatedCopy(), 0)) {
+ExpectimaxAI::ExpectimaxAI(BoardState board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)), currentBoard(make_shared<ExpectimaxMoveNode>(board, 0)) {
     this->unfilledChildren.push_back(this->currentBoard);
 }
 
@@ -49,18 +49,19 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
     return;
 }
 
-Direction ExpectimaxAI::playTurn() {
+void ExpectimaxAI::prepareDirection() {
     this->fillInChild(50);
-    
-    pair<Direction, shared_ptr<const ExpectimaxNodeBase>> bestChild = this->currentBoard->maxChild();
-    Direction bestDirection = bestChild.first;
-    shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(bestChild.second);
-    
-    MoveResult move = this->board->move(bestDirection);
-    shared_ptr<const ExpectimaxNodeBase> baseBoard = afterMoveBoard->child(ChanceNodeEdge(move.value, move.location));
-    shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(baseBoard);
-    
+}
+
+Direction ExpectimaxAI::getDirection() const {
+    return this->currentBoard->maxChild().first;
+}
+
+void ExpectimaxAI::receiveState(Direction d, BoardState afterMoveState) {
+    shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(this->currentBoard->child(d));
+    ChanceNodeEdge edge(afterMoveBoard->board, afterMoveState);
+    shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(afterMoveBoard->child(edge));
+    debug(!afterAddingTileBoard->board.hasSameTilesAs(afterMoveState, {}));
     this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterAddingTileBoard);
-    this->currentBoard->pruneUnreachableChildren(move.hint);
-    return bestDirection;
+    this->currentBoard->pruneUnreachableChildren(afterMoveState.nextTileHint());
 }

@@ -10,10 +10,18 @@
 
 using namespace std;
 
-ChanceNodeEdge::ChanceNodeEdge(unsigned int newTileValue, BoardIndex newTileLocation) :
+ChanceNodeEdge::ChanceNodeEdge(unsigned int newTileValue, BoardState::BoardIndex newTileLocation) :
 newTileValue(newTileValue),
-newTileLocation(newTileLocation) {
-    
+newTileLocation(newTileLocation) {}
+
+ChanceNodeEdge::ChanceNodeEdge(BoardState stateBeforeAdd, BoardState stateAfterAdd) {
+    for (auto&& index : BoardState::indexes()) {
+        if (stateBeforeAdd.at(index) != stateAfterAdd.at(index)) {
+            this->newTileValue = stateAfterAdd.at(index);
+            this->newTileLocation = index;
+            return;
+        }
+    }
 }
 
 bool operator<(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {

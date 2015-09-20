@@ -61,6 +61,6 @@ cv::Mat getMostRecentFrame() {
 QuickTimeSource::QuickTimeSource(){
 }
 
-BoardInfo QuickTimeSource::getGameState() {
+BoardState QuickTimeSource::getGameState() {
     return IMProc::boardFromAnyImage(getMostRecentFrame());
 }

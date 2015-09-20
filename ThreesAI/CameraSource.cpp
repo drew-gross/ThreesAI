@@ -13,7 +13,7 @@ using namespace IMProc;
 
 CameraSource::CameraSource(int camNumber) : watcher(camNumber) {}
 
-BoardInfo CameraSource::getGameState() {
+BoardState CameraSource::getGameState() {
     Mat newImage(getAveragedImage(this->watcher, 8));
     return boardFromAnyImage(newImage);
 }

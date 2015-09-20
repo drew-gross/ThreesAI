@@ -23,6 +23,13 @@ using namespace std;
 using namespace cv;
 using namespace IMLog;
 
+TileInfo::TileInfo(cv::Mat image, int value, const SIFT& sifter) {
+    this->image = image;
+    this->value = value;
+    sifter.detect(image, this->keypoints);
+    sifter.compute(image, this->keypoints, this->descriptors);
+}
+
 const Point2f toPoints[4] = {{0,0},{0,800},{800,800},{800,0}};
 
 //TODO: refactor boardImageFromScreen and screenImageToHintImage to share code
@@ -156,8 +163,6 @@ const std::array<Point2f, 4> IMProc::getQuadrilateral(Mat m) {
     imshow("get rect", m);
     return std::array<cv::Point2f, 4>{{getPoint("get rect"),getPoint("get rect"),getPoint("get rect"),getPoint("get rect")}};
 }
-
-BoardInfo::BoardInfo(ThreesBoardBase::Board tiles, std::deque<unsigned int> nextTileHint, cv::Mat image) : tiles(tiles), nextTileHint(nextTileHint), sourceImage(image) {}
 
 Mat IMProc::getAveragedImage(VideoCapture& cam, unsigned char numImages) {
     vector<Mat> images;
@@ -621,14 +626,14 @@ array<Mat, 16> IMProc::tilesFromAnyImage(Mat const& image) {
     return tileImages(boardImageFromScreen(screenImagee));
 }
 
-pair<BoardInfo, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image) {
+pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image) {
     array<Mat, 16> images = IMProc::tilesFromAnyImage(image);
     const map<int, TileInfo>& canonicalTiles = IMProc::canonicalTiles();
     array<MatchResult, 16> matches;
     transform(images.begin(), images.end(), matches.begin(), [&canonicalTiles](Mat image){
         return IMProc::tileValue(image, canonicalTiles);
     });
-    ThreesBoardBase::Board board;
+    BoardState::Board board;
     transform(matches.begin(), matches.end(), board.begin(), [](MatchResult m) {
         return m.tile.value;
     });
@@ -641,14 +646,14 @@ pair<BoardInfo, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat co
     }
     unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImagee));
     if (hint < 4) {
-        return {BoardInfo(board, {hint}, image), matches};
+        return {BoardState(board, 0, image, 4, 4, 4, {hint}), matches};
     } else {
         //TODO: get the real bonus tile hint here
-        return {BoardInfo(board, {6,12,24,48,96,192,384,768,1536}, image), matches};
+        return {BoardState(board, 0, image, 4, 4, 4, {6,12,24,48,96,192,384,768,1536}), matches};
     }
 }
 
-BoardInfo IMProc::boardFromAnyImage(Mat const& image) {
+BoardState IMProc::boardFromAnyImage(Mat const& image) {
     return boardAndMatchFromAnyImage(image).first;
 }
 

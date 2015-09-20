@@ -15,12 +15,12 @@
 #include <list>
 #include <map>
 
-#include "SimulatedThreesBoard.h"
+#include "BoardState.h"
 
 class ExpectimaxNodeBase {
 public:
     static int num_existing_nodes;
-    ExpectimaxNodeBase(SimulatedThreesBoard const& board, unsigned int depth);
+    ExpectimaxNodeBase(BoardState const& board, unsigned int depth);
     
     virtual void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     virtual float value() const = 0;
@@ -28,7 +28,7 @@ public:
     virtual void outputDotEdges(float p) const = 0;
     virtual void pruneUnreachableChildren(std::deque<unsigned int> const& nextTileHint) = 0;
     
-    const SimulatedThreesBoard board;
+    const BoardState board;
     
     const unsigned int depth;
 };
@@ -36,7 +36,7 @@ public:
 template <typename edge_type>
 class ExpectimaxNode : public ExpectimaxNodeBase {
 public:
-    ExpectimaxNode(SimulatedThreesBoard const& board, unsigned int depth);
+    ExpectimaxNode(BoardState const& board, unsigned int depth);
     
     virtual std::shared_ptr<const ExpectimaxNodeBase> child(edge_type const& edge) const = 0;
     std::map<edge_type, std::shared_ptr<ExpectimaxNodeBase>> children;
@@ -46,7 +46,7 @@ public:
 };
 
 template<typename edge_type>
-ExpectimaxNode<edge_type>::ExpectimaxNode(SimulatedThreesBoard const& board, unsigned int depth) : ExpectimaxNodeBase(board, depth) {}
+ExpectimaxNode<edge_type>::ExpectimaxNode(BoardState const& board, unsigned int depth) : ExpectimaxNodeBase(board, depth) {}
 
 template<typename edge_type>
 bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {

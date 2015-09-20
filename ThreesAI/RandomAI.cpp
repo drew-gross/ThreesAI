@@ -10,14 +10,11 @@
 
 #include <vector>
 
-#include "TileStack.h"
-
 using namespace std;
 
-RandomAI::RandomAI(unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {}
+RandomAI::RandomAI(BoardState board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
 
-Direction RandomAI::playTurn() {
-    Direction move = this->board->randomValidMove();
-    this->board->move(move);
-    return move;
+Direction RandomAI::getDirection() const {
+    default_random_engine generator;
+    return this->currentState().randomValidMove(generator);
 }

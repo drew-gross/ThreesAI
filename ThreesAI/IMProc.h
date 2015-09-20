@@ -16,7 +16,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/nonfree/nonfree.hpp>
 
-#include "ThreesBoardBase.h"
+#include "BoardState.h"
 
 class TileInfo {
 public:
@@ -48,14 +48,6 @@ public:
     float matchingKeypointFraction;
     float quality;
     float imageStdDev;
-};
-
-class BoardInfo {
-public:
-    BoardInfo(ThreesBoardBase::Board tiles, std::deque<unsigned int> nextTileHint, cv::Mat image);
-    ThreesBoardBase::Board tiles;
-    std::deque<unsigned int> nextTileHint;
-    cv::Mat sourceImage;
 };
 
 namespace IMProc {
@@ -100,8 +92,8 @@ namespace IMProc {
     const std::array<cv::Point2f, 4> getQuadrilateral(cv::Mat m);
     cv::Mat getAveragedImage(cv::VideoCapture& cam, unsigned char numImages);
     
-    BoardInfo boardFromAnyImage(cv::Mat const& image);
-    std::pair<BoardInfo, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image);
+    BoardState boardFromAnyImage(cv::Mat const& image);
+    std::pair<BoardState, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image);
     std::array<cv::Mat, 16> tilesFromAnyImage(cv::Mat const& image);
     
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);

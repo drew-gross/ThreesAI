@@ -16,7 +16,7 @@
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(SimulatedThreesBoard const& board, Direction d, unsigned int depth) : ExpectimaxNode<ChanceNodeEdge>(board, depth), directionMovedToGetHere(d){
+ExpectimaxChanceNode::ExpectimaxChanceNode(BoardState const& board, Direction d, unsigned int depth) : ExpectimaxNode<ChanceNodeEdge>(board, depth), directionMovedToGetHere(d){
 }
 
 shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge const& t) const {
@@ -40,14 +40,13 @@ float ExpectimaxChanceNode::value() const {
 
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     auto possibleNextTiles = this->board.possibleNextTiles();
-    vector<BoardIndex> possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
+    vector<BoardState::BoardIndex> possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
     
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     for (auto&& nextTile : possibleNextTiles) {
-        for (BoardIndex boardIndex : possibleNextLocations) {
-            SimulatedThreesBoard childBoard = this->board;
-            childBoard.set(boardIndex, nextTile.first);
+        for (BoardState::BoardIndex boardIndex : possibleNextLocations) {
+            BoardState childBoard = this->board.addSpecificTile(this->directionMovedToGetHere, boardIndex, nextTile.first);
             shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
             
             ChanceNodeEdge childIndex(nextTile.first, boardIndex);
@@ -59,16 +58,15 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     }
 }
 
-void ExpectimaxChanceNode::pruneUnreachableChildren(deque<unsigned int> const & nextTileHint) {
-    //TODO: look for a bug here, maybe due to modifying the map in the iteration?
+void ExpectimaxChanceNode::pruneUnreachableChildren(BoardState::Hint const & nextTileHint) {
     float lostProbability = 0;
-    for (auto it = this->children.begin(); it != this->children.end();) {
-        auto old = it;
-        it++;
-        if (find(nextTileHint.begin(), nextTileHint.end(), old->first.newTileValue) == nextTileHint.end()) {
-            this->children.erase(old);
-            lostProbability += this->childrenProbabilities[old->first];
-            this->childrenProbabilities.erase(old->first);
+    for (auto it = this->children.cbegin(); it != this->children.cend();) {
+        if (find(nextTileHint.begin(), nextTileHint.end(), it->first.newTileValue) == nextTileHint.end()) {
+            lostProbability += this->childrenProbabilities[it->first];
+            this->childrenProbabilities.erase(it->first);
+            this->children.erase(it++);
+        } else {
+            ++it;
         }
     }
     for (auto&& childProbability : this->childrenProbabilities) {
@@ -82,9 +80,7 @@ void ExpectimaxChanceNode::outputDotEdges(float p) const {
     }
     cout << "\t" << long(this) << " [label=\"";
     cout << "Value=" << this->value() << endl;
-    //TODO: get the hint
-    BoardInfo b(this->board.board, {}, cv::Mat());
-    cout << b << "\"";
+    cout << this->board << "\"";
     if (this->board.isGameOver()) {
         cout << ",style=filled,color=red";
     }

@@ -1,0 +1,26 @@
+//
+//  SimulatedBoardOutput.h
+//  ThreesAI
+//
+//  Created by Drew Gross on 9/15/15.
+//  Copyright (c) 2015 DrewGross. All rights reserved.
+//
+
+#ifndef __ThreesAI__SimulatedBoardOutput__
+#define __ThreesAI__SimulatedBoardOutput__
+
+#include "BoardOutput.h"
+
+#include "BoardState.h"
+
+class SimulatedBoardOutput : public BoardOutput {
+    BoardState state;
+public:
+    SimulatedBoardOutput(BoardState::Board otherBoard, unsigned int ones, unsigned int twos, unsigned int threes, BoardState::Hint hint);
+    
+    static std::unique_ptr<SimulatedBoardOutput> randomBoard();
+    void move(Direction d, BoardState const& originalBoard);
+    BoardState currentState() const;
+};
+
+#endif /* defined(__ThreesAI__SimulatedBoardOutput__) */

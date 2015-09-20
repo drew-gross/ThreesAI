@@ -8,26 +8,24 @@
 
 #include "OnePlayMonteCarloAI.h"
 
-#include "SimulatedThreesBoard.h"
-
 using namespace std;
 
-OnePlayMonteCarloAI::OnePlayMonteCarloAI(shared_ptr<ThreesBoardBase> board) : ThreesAIBase(board) {}
+OnePlayMonteCarloAI::OnePlayMonteCarloAI(BoardState board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
 
-Direction OnePlayMonteCarloAI::playTurn() {
+Direction OnePlayMonteCarloAI::getDirection() const {
     int bestScore = 0;
     Direction bestDirection = LEFT;
-    for (Direction d : board->validMoves()) {
-        SimulatedThreesBoard copyToExplore = board->simulatedCopy();
+    for (Direction d : this->currentState().validMoves()) {
+        BoardState copyToExplore = this->currentState().move(d);
         copyToExplore.move(d);
         while (!copyToExplore.isGameOver()) {
-            copyToExplore.move(copyToExplore.randomValidMove());
+            default_random_engine g;
+            copyToExplore.move(copyToExplore.randomValidMove(g));
         }
         if (copyToExplore.score() > bestScore) {
             bestDirection = d;
             bestScore = copyToExplore.score();
         }
     }
-    this->board->move(bestDirection);
     return bestDirection;
 }

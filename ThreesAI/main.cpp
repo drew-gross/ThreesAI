@@ -16,14 +16,17 @@
 #include "IMProc.h"
 #include "IMLog.h"
 
-#include "SimulatedThreesBoard.h"
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
 #include "OnePlayMonteCarloAI.h"
 #include "ManyPlayMonteCarloAI.h"
-#include "RealThreesBoard.h"
+#include "HumanPlayer.h"
+#include "RandomAI.h"
+
 #include "CameraSource.h"
 #include "QuickTimeSource.h"
+#include "RealBoardOutput.h"
+#include "SimulatedBoardOutput.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -35,23 +38,9 @@ using namespace cv;
 using namespace IMLog;
 using namespace IMProc;
 
-void playOneGame() {
-    ZeroDepthMaxScoreAI ai(move(SimulatedThreesBoard::randomBoard()));
-    clock_t startTime = clock();
-    while (!ai.board->isGameOver()) {
-        cout << &ai.board << endl;
-        Direction move = ai.playTurn();
-        cout << move << endl << endl;
-    }
-    cout << &ai.board << endl;
-    clock_t endTime = clock();
-    double elapsed_time = (endTime-startTime)/(double)CLOCKS_PER_SEC;
-    MYLOG(elapsed_time);
-}
-
 unsigned int testImage(path p) {
     unsigned int failures = 0;
-    SimulatedThreesBoard expectedBoard = SimulatedThreesBoard::fromString(p.stem().string());
+    BoardState expectedBoard = BoardState::fromString(p.stem().string());
     
     vector<string> splitName;
     split(splitName, p.stem().string(), is_any_of("-"));
@@ -68,9 +57,9 @@ unsigned int testImage(path p) {
     Mat camImage = imread(p.string());
     array<Mat, 16> tiles = tilesFromAnyImage(camImage);
     auto result = IMProc::boardAndMatchFromAnyImage(camImage);
-    if (result.first.nextTileHint != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
+    if (result.first.nextTileHint() != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
         MYLOG(nextTileHint);
-        MYLOG(result.first.nextTileHint);
+        MYLOG(result.first.nextTileHint());
         failures++; 
         debug();
         IMProc::boardFromAnyImage(camImage);
@@ -119,41 +108,41 @@ void testImageProc() {
 }
 
 void testBoardMovement() {
-    SimulatedThreesBoard b = SimulatedThreesBoard::fromString("0,0,0,0,\
-                                                               0,0,1,0,\
-                                                               0,0,0,0,\
-                                                               0,0,0,0-1");
-    b.moveWithoutAdd(LEFT);
-    debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
-                                                              0,1,0,0,\
-                                                              0,0,0,0,\
-                                                              0,0,0,0-1"), {}));
-    b.moveWithoutAdd(DOWN);
-    debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
-                                                              0,0,0,0,\
-                                                              0,1,0,0,\
-                                                              0,0,0,0-1"), {}));
-    b.moveWithoutAdd(RIGHT);
-    debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
-                                                              0,0,0,0,\
-                                                              0,0,1,0,\
-                                                              0,0,0,0-1"), {}));
-    b.moveWithoutAdd(UP);
-    debug(!b.hasSameTilesAs(SimulatedThreesBoard::fromString("0,0,0,0,\
-                                                              0,0,1,0,\
-                                                              0,0,0,0,\
-                                                              0,0,0,0-1"), {}));
+    BoardState b1 = BoardState::fromString("0,0,1,1,\
+                                            0,0,1,1,\
+                                            0,0,0,0,\
+                                            0,0,0,0-1");
+    auto b2 = b1.moveWithoutAdd(LEFT);
+    debug(!b2.hasSameTilesAs(BoardState::fromString("0,1,1,0,\
+                                                     0,1,1,0,\
+                                                     0,0,0,0,\
+                                                     0,0,0,0-1"), {}));
+    auto b3 = b2.moveWithoutAdd(DOWN);
+    debug(!b3.hasSameTilesAs(BoardState::fromString("0,0,0,0,\
+                                                     0,1,1,0,\
+                                                     0,1,1,0,\
+                                                     0,0,0,0-1"), {}));
+    auto b4 = b3.moveWithoutAdd(RIGHT);
+    debug(!b4.hasSameTilesAs(BoardState::fromString("0,0,0,0,\
+                                                     0,0,1,1,\
+                                                     0,0,1,1,\
+                                                     0,0,0,0-1"), {}));
+    auto b5 = b4.moveWithoutAdd(UP);
+    debug(!b5.hasSameTilesAs(BoardState::fromString("0,0,1,1,\
+                                                     0,0,1,1,\
+                                                     0,0,0,0,\
+                                                     0,0,0,0-1"), {}));
     
     
-    SimulatedThreesBoard x = SimulatedThreesBoard::fromString("6,0,0,0,\
-                                                               0,0,1,0,\
-                                                               0,0,6,0,\
-                                                               0,6,0,0-1");
+    BoardState x = BoardState::fromString("6,0,0,0,\
+                                           0,0,1,0,\
+                                           0,0,6,0,\
+                                           0,6,0,0-1");
     
-    SimulatedThreesBoard y = SimulatedThreesBoard::fromString("3,0,0,0,\
-                                                               0,0,1,0,\
-                                                               0,0,3,0,\
-                                                               0,0,2,0-1");
+    BoardState y = BoardState::fromString("3,0,0,0,\
+                                           0,0,1,0,\
+                                           0,0,3,0,\
+                                           0,0,2,0-1");
     debug(!x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}, {2,3}}));
 }
 
@@ -162,12 +151,14 @@ int main(int argc, const char * argv[]) {
     //testImageProc(); debug();
     
     for (;;) {
-        auto p = SimulatedThreesBoard::randomBoard();
-        //unique_ptr<GameStateSource> watcher = unique_ptr<GameStateSource>(new QuickTimeSource()); auto initialState = watcher->getGameState(); auto p = make_shared<RealThreesBoard>("/dev/tty.usbmodem1411", move(watcher), initialState);
-        ManyPlayMonteCarloAI ai(p, 50);
+        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
+        //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
+        auto initialState = watcher->getGameState();\
+        unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
+        ExpectimaxAI ai(p->currentState(), move(p));
+        //ManyPlayMonteCarloAI ai(p->currentState(), move(p), 50);
         ai.playGame();
-        MYLOG(ai.board->maxTile());
-        MYLOG(ai.board->score());
+        MYLOG(ai.currentState());
     }
     return 0;
 }

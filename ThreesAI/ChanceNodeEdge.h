@@ -9,14 +9,15 @@
 #ifndef __ThreesAI__ChanceNodeEdge__
 #define __ThreesAI__ChanceNodeEdge__
 
-#include "SimulatedThreesBoard.h"
+#include "BoardState.h"
 
 class ChanceNodeEdge {
 public:
-    ChanceNodeEdge(unsigned int newTileValue, BoardIndex newTileLocation);
+    ChanceNodeEdge(BoardState stateBeforeAdd, BoardState stateAfterAdd);
+    ChanceNodeEdge(unsigned int newTileValue, BoardState::BoardIndex newTileLocation);
     
     unsigned int newTileValue;
-    BoardIndex newTileLocation;
+    BoardState::BoardIndex newTileLocation;
 };
 
 //implemented for use as key in std::map

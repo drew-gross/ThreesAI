@@ -8,5 +8,5 @@
 
 #include "ExpectimaxNode.h"
 
-ExpectimaxNodeBase::ExpectimaxNodeBase(SimulatedThreesBoard const& board, unsigned int depth) : board(board), depth(depth) {
+ExpectimaxNodeBase::ExpectimaxNodeBase(BoardState const& board, unsigned int depth) : board(board), depth(depth) {
 }

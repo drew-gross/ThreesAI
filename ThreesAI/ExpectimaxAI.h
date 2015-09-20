@@ -11,6 +11,7 @@
 
 #include <map>
 #include <list>
+#include <memory>
 
 #include "ThreesAIBase.h"
 #include "ExpectimaxNode.h"
@@ -27,9 +28,11 @@ private:
     void fillInChild(unsigned int n=1);
     
 public:
-    ExpectimaxAI(std::shared_ptr<ThreesBoardBase> board);
+    ExpectimaxAI(BoardState board, std::unique_ptr<BoardOutput> output);
     
-    Direction playTurn();
+    Direction getDirection() const;
+    void prepareDirection();
+    void receiveState(Direction d, BoardState afterMoveState);
     
 };
 

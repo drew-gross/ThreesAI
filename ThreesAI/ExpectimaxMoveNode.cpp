@@ -12,14 +12,13 @@
 #include <iomanip>
 
 #include "ExpextimaxChanceNode.h"
-#include "ThreesBoardBase.h"
 
 #include "Debug.h"
 #include "IMProc.h"
 
 using namespace std;
 
-ExpectimaxMoveNode::ExpectimaxMoveNode(SimulatedThreesBoard const& board, unsigned int depth): ExpectimaxNode<Direction>(board, depth) {
+ExpectimaxMoveNode::ExpectimaxMoveNode(BoardState const& board, unsigned int depth): ExpectimaxNode<Direction>(board, depth) {
     
 }
 
@@ -35,8 +34,7 @@ void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unf
     debug(this->childrenAreFilledIn());
     vector<Direction> validMoves = this->board.validMoves();
     for (auto&& d : validMoves) {
-        SimulatedThreesBoard childBoard = this->board;
-        childBoard.moveWithoutAdd(d);
+        BoardState childBoard = this->board.moveWithoutAdd(d);
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d, this->depth+1);
         this->children.insert({d, child});
         unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));
@@ -72,9 +70,7 @@ void ExpectimaxMoveNode::outputDotEdges(float p) const {
     cout << "\t" << long(this) << " [label=\"";
     cout << "Value=" << setprecision(7) << this->value() << endl;
     cout << "P=" << p << endl;
-    //TODO: get the hint
-    BoardInfo b(this->board.board, {}, cv::Mat());
-    cout << b << "\"";
+    cout << this->board << "\"";
     if (this->board.isGameOver()) {
         cout << ",style=filled,color=red";
     }

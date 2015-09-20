@@ -8,31 +8,28 @@
 
 #include "ManyPlayMonteCarloAI.h"
 
-#include "SimulatedThreesBoard.h"
-
 using namespace std;
 
-ManyPlayMonteCarloAI::ManyPlayMonteCarloAI(shared_ptr<ThreesBoardBase> board, unsigned int numPlays) : ThreesAIBase(board), numPlays(numPlays) {}
+ManyPlayMonteCarloAI::ManyPlayMonteCarloAI(BoardState board, unique_ptr<BoardOutput> output, unsigned int numPlays) : ThreesAIBase(board, move(output)), numPlays(numPlays) {}
 
-Direction ManyPlayMonteCarloAI::playTurn() {
-    int bestScore = 0;
+Direction ManyPlayMonteCarloAI::getDirection() const {
+    unsigned long bestScore = 0;
     Direction bestDirection = LEFT;
-    for (Direction d : board->validMoves()) {
+    for (Direction d : this->currentState().validMoves()) {
         unsigned int playsRemaining = this->numPlays;
         unsigned long currentDirectionTotalScore = 0;
         while (playsRemaining--) {
-            SimulatedThreesBoard copyToExplore = board->simulatedCopy();
-            copyToExplore.move(d);
-            while (!copyToExplore.isGameOver()) {
-                copyToExplore.move(copyToExplore.randomValidMove());
+            BoardState boardCopy = this->currentState().copyWithDifferentFuture();
+            while (!boardCopy.isGameOver()) {
+                default_random_engine g;
+                boardCopy = boardCopy.move(boardCopy.randomValidMove(g));
             }
-            currentDirectionTotalScore += copyToExplore.score();
+            currentDirectionTotalScore += boardCopy.score();
         }
         if (currentDirectionTotalScore > bestScore) {
             bestDirection = d;
             bestScore = currentDirectionTotalScore;
         }
     }
-    this->board->move(bestDirection);
     return bestDirection;
 }

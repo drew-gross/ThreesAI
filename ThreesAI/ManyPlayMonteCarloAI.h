@@ -17,8 +17,8 @@ class ManyPlayMonteCarloAI : public ThreesAIBase {
     const unsigned int numPlays;
     
 public:
-    ManyPlayMonteCarloAI(std::shared_ptr<ThreesBoardBase> board, unsigned int numPlays);
-    Direction playTurn();
+    ManyPlayMonteCarloAI(BoardState board, std::unique_ptr<BoardOutput> output, unsigned int numPlays);
+    Direction getDirection() const;
 };
 
 

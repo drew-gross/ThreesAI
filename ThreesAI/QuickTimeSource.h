@@ -15,7 +15,7 @@ class QuickTimeSource : public GameStateSource {
 public:
     QuickTimeSource();
     
-    BoardInfo getGameState();
+    BoardState getGameState();
 };
 
 #endif /* defined(__ThreesAI__QuickTimeSource__) */

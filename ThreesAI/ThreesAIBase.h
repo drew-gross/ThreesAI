@@ -11,16 +11,29 @@
 
 #include <memory>
 
-#include "ThreesBoardBase.h"
+#include "BoardState.h"
+#include "BoardOutput.h"
+
 #include "Direction.h"
 
 class ThreesAIBase {
 public:
-    ThreesAIBase(std::shared_ptr<ThreesBoardBase> board);
-    virtual Direction playTurn() = 0;
+    ThreesAIBase(BoardState board, std::unique_ptr<BoardOutput> output);
+    void playTurn();
     void playGame();
     
-    std::shared_ptr<ThreesBoardBase> board;
+    virtual Direction getDirection() const = 0;
+    std::unique_ptr<BoardOutput> boardOutput;
+    
+    BoardState currentState() const;
+    
+protected:
+    virtual void receiveState(Direction d, BoardState newState) = 0;
+    virtual void prepareDirection() = 0;
+    
+private:
+    BoardState boardState;
+    
 };
 
 #endif /* defined(__ThreesAI__ThreesAIBase__) */

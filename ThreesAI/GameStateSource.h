@@ -13,7 +13,7 @@
 
 class GameStateSource {
 public:
-    virtual BoardInfo getGameState() = 0;
+    virtual BoardState getGameState() = 0;
 };
 
 #endif /* defined(__ThreesAI__GameStateSource__) */

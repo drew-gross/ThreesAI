@@ -15,12 +15,13 @@
 		793533181B815DC60078E011 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533171B815DC60078E011 /* Cocoa.framework */; };
 		7935331A1B8160CC0078E011 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533191B8160CC0078E011 /* CoreGraphics.framework */; };
 		7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */; };
+		7944C1691BA32398000F0A2C /* BoardState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1671BA32398000F0A2C /* BoardState.cpp */; };
+		7944C1721BA3FAFC000F0A2C /* RealBoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1701BA3FAFC000F0A2C /* RealBoardOutput.cpp */; };
+		7944C1761BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1741BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp */; };
 		7944F88F1A732BC300ED690E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F88E1A732BC300ED690E /* main.cpp */; };
-		7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */; };
 		7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7955D3CD1B74848B0034EE4F /* IMLog.cpp */; };
 		7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4421A883278000622BC /* ThreesAIBase.cpp */; };
 		7960E4471A88333B000622BC /* RandomAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4451A88333B000622BC /* RandomAI.cpp */; };
-		7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4DD1AA00CA70081BEC8 /* TileStack.cpp */; };
 		7963F4E21AA01F7E0081BEC8 /* HumanPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4E01AA01F7E0081BEC8 /* HumanPlayer.cpp */; };
 		7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4E31AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp */; };
 		7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4E71AA0408E0081BEC8 /* ExpectimaxNode.cpp */; };
@@ -30,9 +31,8 @@
 		7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */; };
 		7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
 		7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
-		798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */; };
+		797CB4B11BAAA1D0001A61D2 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 797CB4B01BAAA1D0001A61D2 /* Direction.cpp */; };
 		799391941B8078C5000BC4D4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 799391931B8078C5000BC4D4 /* AVFoundation.framework */; };
-		79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */; };
 		79D022111B2C0E3D00624854 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
@@ -72,18 +72,22 @@
 		793533191B8160CC0078E011 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyPlayMonteCarloAI.cpp; sourceTree = "<group>"; };
 		7944C1651BA26D82000F0A2C /* ManyPlayMonteCarloAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyPlayMonteCarloAI.h; sourceTree = "<group>"; };
+		7944C1671BA32398000F0A2C /* BoardState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoardState.cpp; sourceTree = "<group>"; };
+		7944C1681BA32398000F0A2C /* BoardState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoardState.h; sourceTree = "<group>"; };
+		7944C16B1BA32AA8000F0A2C /* BoardOutput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoardOutput.h; sourceTree = "<group>"; };
+		7944C1701BA3FAFC000F0A2C /* RealBoardOutput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RealBoardOutput.cpp; sourceTree = "<group>"; };
+		7944C1711BA3FAFC000F0A2C /* RealBoardOutput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RealBoardOutput.h; sourceTree = "<group>"; };
+		7944C1731BA7F0AF000F0A2C /* InvalidMoveException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InvalidMoveException.h; sourceTree = "<group>"; };
+		7944C1741BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimulatedBoardOutput.cpp; sourceTree = "<group>"; };
+		7944C1751BA8E0F3000F0A2C /* SimulatedBoardOutput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulatedBoardOutput.h; sourceTree = "<group>"; };
 		7944F88B1A732BC300ED690E /* ThreesAI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ThreesAI; sourceTree = BUILT_PRODUCTS_DIR; };
 		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = SimulatedThreesBoard.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		7944F8961A732C1200ED690E /* SimulatedThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SimulatedThreesBoard.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7955D3CD1B74848B0034EE4F /* IMLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IMLog.cpp; sourceTree = "<group>"; };
 		7955D3CE1B74848B0034EE4F /* IMLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMLog.h; sourceTree = "<group>"; };
 		7960E4421A883278000622BC /* ThreesAIBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesAIBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7960E4431A883278000622BC /* ThreesAIBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesAIBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7960E4451A88333B000622BC /* RandomAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = RandomAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7960E4461A88333B000622BC /* RandomAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = RandomAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		7963F4DD1AA00CA70081BEC8 /* TileStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileStack.cpp; sourceTree = "<group>"; };
-		7963F4DE1AA00CA70081BEC8 /* TileStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileStack.h; sourceTree = "<group>"; };
 		7963F4E01AA01F7E0081BEC8 /* HumanPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = HumanPlayer.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7963F4E11AA01F7E0081BEC8 /* HumanPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = HumanPlayer.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7963F4E31AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpextimaxChanceNode.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -100,12 +104,9 @@
 		7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ZeroDepthMaxScoreAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_highgui.2.4.11.dylib; sourceTree = "<group>"; };
 		7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_core.2.4.11.dylib; sourceTree = "<group>"; };
-		798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesBoardBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ThreesBoardBase.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		797CB4B01BAAA1D0001A61D2 /* Direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Direction.cpp; sourceTree = "<group>"; };
 		798A74461AE0BE920073DAB3 /* Direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Direction.h; sourceTree = "<group>"; };
 		799391931B8078C5000BC4D4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RealThreesBoard.cpp; sourceTree = "<group>"; };
-		79CAF8EB1AE1E69300477988 /* RealThreesBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RealThreesBoard.h; sourceTree = "<group>"; };
 		79D022101B2C0E3D00624854 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -257,15 +258,16 @@
 		798A74401AE0BE140073DAB3 /* ThreesBoard */ = {
 			isa = PBXGroup;
 			children = (
-				7944F8951A732C1200ED690E /* SimulatedThreesBoard.cpp */,
-				7944F8961A732C1200ED690E /* SimulatedThreesBoard.h */,
-				798A74411AE0BE2D0073DAB3 /* ThreesBoardBase.cpp */,
-				798A74421AE0BE2D0073DAB3 /* ThreesBoardBase.h */,
+				797CB4B01BAAA1D0001A61D2 /* Direction.cpp */,
 				798A74461AE0BE920073DAB3 /* Direction.h */,
-				79CAF8EA1AE1E69300477988 /* RealThreesBoard.cpp */,
-				79CAF8EB1AE1E69300477988 /* RealThreesBoard.h */,
-				7963F4DD1AA00CA70081BEC8 /* TileStack.cpp */,
-				7963F4DE1AA00CA70081BEC8 /* TileStack.h */,
+				7944C1671BA32398000F0A2C /* BoardState.cpp */,
+				7944C1681BA32398000F0A2C /* BoardState.h */,
+				7944C16B1BA32AA8000F0A2C /* BoardOutput.h */,
+				7944C1701BA3FAFC000F0A2C /* RealBoardOutput.cpp */,
+				7944C1711BA3FAFC000F0A2C /* RealBoardOutput.h */,
+				7944C1731BA7F0AF000F0A2C /* InvalidMoveException.h */,
+				7944C1741BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp */,
+				7944C1751BA8E0F3000F0A2C /* SimulatedBoardOutput.h */,
 			);
 			name = ThreesBoard;
 			sourceTree = "<group>";
@@ -305,7 +307,7 @@
 		7944F8831A732BC300ED690E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = DrewGross;
 				TargetAttributes = {
 					7944F88A1A732BC300ED690E = {
@@ -340,25 +342,25 @@
 				7960E4471A88333B000622BC /* RandomAI.cpp in Sources */,
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
-				79CAF8EC1AE1E69300477988 /* RealThreesBoard.cpp in Sources */,
 				79D022111B2C0E3D00624854 /* Logging.cpp in Sources */,
 				79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
 				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
 				7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */,
-				7944F8971A732C1200ED690E /* SimulatedThreesBoard.cpp in Sources */,
-				798A74431AE0BE2D0073DAB3 /* ThreesBoardBase.cpp in Sources */,
+				7944C1761BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
 				79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */,
-				7963F4DF1AA00CA70081BEC8 /* TileStack.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
+				7944C1721BA3FAFC000F0A2C /* RealBoardOutput.cpp in Sources */,
 				7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */,
 				7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */,
+				7944C1691BA32398000F0A2C /* BoardState.cpp in Sources */,
 				79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */,
 				7963F4E21AA01F7E0081BEC8 /* HumanPlayer.cpp in Sources */,
 				79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */,
+				797CB4B11BAAA1D0001A61D2 /* Direction.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,6 +386,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;

@@ -8,12 +8,29 @@
 
 #include "ThreesAIBase.h"
 
+#include "Debug.h"
+#include "Logging.h"
+
 using namespace::std;
 
-ThreesAIBase::ThreesAIBase(shared_ptr<ThreesBoardBase> new_board) : board(new_board) {}
+ThreesAIBase::ThreesAIBase(BoardState new_board, unique_ptr<BoardOutput> output) : boardState(new_board), boardOutput(move(output)) {}
+
+BoardState ThreesAIBase::currentState() const {
+    return this->boardState;
+}
 
 void ThreesAIBase::playGame() {
-    while (!this->board->isGameOver()) {
+    while (!this->boardState.isGameOver()) {
         this->playTurn();
     }
+}
+
+void ThreesAIBase::playTurn() {
+    this->prepareDirection();
+    Direction d = this->getDirection();
+    this->boardOutput->move(d, this->boardState);
+    BoardState newState = this->boardOutput->currentState();
+    MYLOG(newState);
+    this->receiveState(d, newState);
+    this->boardState = newState;
 }
