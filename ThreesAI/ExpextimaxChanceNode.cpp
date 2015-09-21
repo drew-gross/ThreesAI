@@ -56,12 +56,15 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
             unfilledList.push_back(child);
         }
     }
+    debug(this->children.empty());
 }
 
-void ExpectimaxChanceNode::pruneUnreachableChildren(BoardState::Hint const & nextTileHint) {
+void ExpectimaxChanceNode::pruneUnreachableChildren(Hint const & nextTileHint) {
     float lostProbability = 0;
+    debug(this->children.empty());
+    debug(nextTileHint != this->board.getHint());
     for (auto it = this->children.cbegin(); it != this->children.cend();) {
-        if (find(nextTileHint.begin(), nextTileHint.end(), it->first.newTileValue) == nextTileHint.end()) {
+        if (!nextTileHint.contains(it->first.newTileValue)) {
             lostProbability += this->childrenProbabilities[it->first];
             this->childrenProbabilities.erase(it->first);
             this->children.erase(it++);
@@ -69,6 +72,7 @@ void ExpectimaxChanceNode::pruneUnreachableChildren(BoardState::Hint const & nex
             ++it;
         }
     }
+    debug(this->children.empty());
     for (auto&& childProbability : this->childrenProbabilities) {
         childProbability.second /= (1-lostProbability);
     }

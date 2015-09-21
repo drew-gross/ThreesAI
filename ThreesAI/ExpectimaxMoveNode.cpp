@@ -18,9 +18,7 @@
 
 using namespace std;
 
-ExpectimaxMoveNode::ExpectimaxMoveNode(BoardState const& board, unsigned int depth): ExpectimaxNode<Direction>(board, depth) {
-    
-}
+ExpectimaxMoveNode::ExpectimaxMoveNode(BoardState const& board, unsigned int depth): ExpectimaxNode<Direction>(board, depth) {}
 
 pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() const {
     return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> right){
@@ -37,11 +35,11 @@ void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unf
         BoardState childBoard = this->board.moveWithoutAdd(d);
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d, this->depth+1);
         this->children.insert({d, child});
-        unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));
+        child->fillInChildren(unfilledList);
     }
 }
 
-void ExpectimaxMoveNode::pruneUnreachableChildren(deque<unsigned int> const& nextTileHint) {
+void ExpectimaxMoveNode::pruneUnreachableChildren(Hint const& nextTileHint) {
     for (auto&& child : this->children) {
         child.second->pruneUnreachableChildren(nextTileHint);
     }

@@ -25,7 +25,7 @@ public:
     std::pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> maxChild() const;
     
     void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
-    void pruneUnreachableChildren(std::deque<unsigned int> const& nextTileHint);
+    void pruneUnreachableChildren(Hint const& nextTileHint);
     void outputDotEdges(float p) const;
 };
 

@@ -48,18 +48,14 @@ unsigned int testImage(path p) {
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
     
-    deque<unsigned int> nextTileHint;
-    nextTileHint.resize(nextTileHintStrings.size());
-    transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), nextTileHint.begin(), [](string s){
-        return stoi(s);
-    });
+    Hint nextTileHint(stoi(nextTileHintStrings[0]), nextTileHintStrings.size() > 1 ? stoi(nextTileHintStrings[1]) : 0, nextTileHintStrings.size() > 2 ? stoi(nextTileHintStrings[2]) : 0);
     
     Mat camImage = imread(p.string());
     array<Mat, 16> tiles = tilesFromAnyImage(camImage);
     auto result = IMProc::boardAndMatchFromAnyImage(camImage);
-    if (result.first.nextTileHint() != nextTileHint && nextTileHint.size() == 1 && nextTileHint[0] != 6) {
+    if (result.first.getHint() != nextTileHint && nextTileHint.isNonBonus()) {
         MYLOG(nextTileHint);
-        MYLOG(result.first.nextTileHint());
+        MYLOG(result.first.getHint());
         failures++; 
         debug();
         IMProc::boardFromAnyImage(camImage);

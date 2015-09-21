@@ -646,10 +646,10 @@ pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat c
     }
     unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImagee));
     if (hint < 4) {
-        return {BoardState(board, 0, image, 4, 4, 4, {hint}), matches};
+        return {BoardState(board, Hint(hint), 0, image, 4, 4, 4), matches};
     } else {
         //TODO: get the real bonus tile hint here
-        return {BoardState(board, 0, image, 4, 4, 4, {6,12,24,48,96,192,384,768,1536}), matches};
+        return {BoardState(board, Hint::unknownBonus(), 0, image, 4, 4, 4), matches};
     }
 }
 

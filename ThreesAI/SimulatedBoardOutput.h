@@ -16,7 +16,7 @@
 class SimulatedBoardOutput : public BoardOutput {
     BoardState state;
 public:
-    SimulatedBoardOutput(BoardState::Board otherBoard, unsigned int ones, unsigned int twos, unsigned int threes, BoardState::Hint hint);
+    SimulatedBoardOutput(BoardState::Board otherBoard, std::default_random_engine hintGen, unsigned int ones, unsigned int twos, unsigned int threes);
     
     static std::unique_ptr<SimulatedBoardOutput> randomBoard();
     void move(Direction d, BoardState const& originalBoard);

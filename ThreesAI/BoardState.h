@@ -15,18 +15,20 @@
 #include <deque>
 
 #include "Direction.h"
+#include "Hint.h"
 
 #include <opencv2/opencv.hpp>
 
 class BoardState {
 public:
+    typedef unsigned int Tile;
     typedef std::pair<unsigned int, unsigned int> BoardIndex;
     static std::array<BoardIndex, 16> indexes();
     
-    typedef std::array<unsigned int, 16> Board;
-    typedef std::deque<unsigned int> Hint;
+    typedef std::array<Tile, 16> Board;
     
-    BoardState(Board b, unsigned int numTurns, cv::Mat sourceImage, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack, std::deque<unsigned int> hint);
+    BoardState(Board b, Hint hint, unsigned int numTurns, cv::Mat sourceImage, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack);
+    BoardState(Board b, std::default_random_engine hintGen, unsigned int numTurns, cv::Mat sourceImage, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack);
     static BoardState fromString(const std::string s);
     
     unsigned int numTurns;
@@ -55,10 +57,11 @@ public:
     bool hasSameTilesAs(BoardState const& otherBoard, std::vector<BoardIndex> excludedIndices) const;
     
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
+    friend class Hint;
     unsigned int maxBonusTile() const;
     float nonBonusTileProbability(unsigned int tile, bool canHaveBonus) const;
     unsigned int stackSize() const;
-    Hint nextTileHint() const;
+    Hint getHint() const;
     
     cv::Mat sourceImage;
 private:
@@ -67,8 +70,6 @@ private:
     mutable unsigned int scoreCache;
     mutable bool scoreCacheIsValid;
     std::default_random_engine generator;
-    
-    Hint forcedHint;
     
     BoardState mutableCopy() const;
     

@@ -33,6 +33,8 @@
 		7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
 		797CB4B11BAAA1D0001A61D2 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 797CB4B01BAAA1D0001A61D2 /* Direction.cpp */; };
 		799391941B8078C5000BC4D4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 799391931B8078C5000BC4D4 /* AVFoundation.framework */; };
+		79A1B3A81BAFB29900FC2EDB /* Hint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A61BAFB29900FC2EDB /* Hint.cpp */; settings = {ASSET_TAGS = (); }; };
+		79A1B3AB1BAFDB0D00FC2EDB /* Tile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */; settings = {ASSET_TAGS = (); }; };
 		79D022111B2C0E3D00624854 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
@@ -107,6 +109,10 @@
 		797CB4B01BAAA1D0001A61D2 /* Direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Direction.cpp; sourceTree = "<group>"; };
 		798A74461AE0BE920073DAB3 /* Direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Direction.h; sourceTree = "<group>"; };
 		799391931B8078C5000BC4D4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		79A1B3A61BAFB29900FC2EDB /* Hint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hint.cpp; sourceTree = "<group>"; };
+		79A1B3A71BAFB29900FC2EDB /* Hint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hint.h; sourceTree = "<group>"; };
+		79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tile.cpp; sourceTree = "<group>"; };
+		79A1B3AA1BAFDB0D00FC2EDB /* Tile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tile.hpp; sourceTree = "<group>"; };
 		79D022101B2C0E3D00624854 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -268,6 +274,10 @@
 				7944C1731BA7F0AF000F0A2C /* InvalidMoveException.h */,
 				7944C1741BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp */,
 				7944C1751BA8E0F3000F0A2C /* SimulatedBoardOutput.h */,
+				79A1B3A61BAFB29900FC2EDB /* Hint.cpp */,
+				79A1B3A71BAFB29900FC2EDB /* Hint.h */,
+				79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */,
+				79A1B3AA1BAFDB0D00FC2EDB /* Tile.hpp */,
 			);
 			name = ThreesBoard;
 			sourceTree = "<group>";
@@ -341,6 +351,8 @@
 				79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */,
 				7960E4471A88333B000622BC /* RandomAI.cpp in Sources */,
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,
+				79A1B3A81BAFB29900FC2EDB /* Hint.cpp in Sources */,
+				79A1B3AB1BAFDB0D00FC2EDB /* Tile.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
 				79D022111B2C0E3D00624854 /* Logging.cpp in Sources */,
 				79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */,

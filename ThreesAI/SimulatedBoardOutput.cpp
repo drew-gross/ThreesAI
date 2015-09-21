@@ -14,14 +14,13 @@
 using namespace std;
 using namespace cv;
 
-//TODO: real maxTile for hint
-SimulatedBoardOutput::SimulatedBoardOutput(BoardState::Board otherBoard, unsigned int ones, unsigned int twos, unsigned int threes, BoardState::Hint hint) : BoardOutput(), state(otherBoard, 0, Mat(), ones, twos, threes, hint) {};
+SimulatedBoardOutput::SimulatedBoardOutput(BoardState::Board otherBoard, default_random_engine hintGen, unsigned int ones, unsigned int twos, unsigned int threes) : BoardOutput(), state(otherBoard, hintGen, 0, Mat(), ones, twos, threes) {};
 
 unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard() {
     static default_random_engine shuffler;
     std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
     shuffle(initialTiles.begin(), initialTiles.end(), shuffler);
-    return unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(initialTiles, 4, 4, 4, {}));
+    return unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(initialTiles, shuffler, 4, 4, 4));
 }
 
 BoardState SimulatedBoardOutput::currentState() const {

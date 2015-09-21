@@ -20,12 +20,12 @@ using namespace std;
 using namespace boost;
 
 BoardState::BoardState(Board b,
+                       Hint hint,
                        unsigned int numTurns,
                        cv::Mat sourceImage,
                        unsigned int onesInStack,
                        unsigned int twosInStack,
-                       unsigned int threesInStack,
-                       std::deque<unsigned int> hint) :
+                       unsigned int threesInStack) :
 board(b),
 isGameOverCacheIsValid(false),
 scoreCacheIsValid(false),
@@ -33,9 +33,28 @@ numTurns(numTurns),
 onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
-forcedHint(hint),
 sourceImage(sourceImage)
 {}
+
+BoardState::BoardState(Board b,
+                       default_random_engine hintGen,
+                       unsigned int numTurns,
+                       cv::Mat sourceImage,
+                       unsigned int onesInStack,
+                       unsigned int twosInStack,
+                       unsigned int threesInStack) :
+board(b),
+isGameOverCacheIsValid(false),
+scoreCacheIsValid(false),
+numTurns(numTurns),
+onesInStack(onesInStack),
+twosInStack(twosInStack),
+threesInStack(threesInStack),
+sourceImage(sourceImage) {}
+
+Hint BoardState::getHint() const {
+    return Hint(this->upcomingTile(), this->maxBonusTile(), this->generator);
+}
 
 array<BoardState::BoardIndex, 16> BoardState::indexes() {
     static bool initialized = false;
@@ -77,7 +96,12 @@ BoardState BoardState::fromString(const string s) {
     });
     
     //TODO: get numTurns and source image and values in stack from somewhere
-    return BoardState(tileList, 0, cv::Mat(), 4, 4, 4, hint);
+    if (hint.size() == 1) {
+        return BoardState(tileList, Hint(hint[0]), 0, cv::Mat(), 4, 4, 4);
+    } else {
+        debug(hint.size() != 3);
+        return BoardState(tileList, Hint(hint[0], hint[1], hint[2]), 0, cv::Mat(), 4, 4, 4);
+    }
 }
 
 unsigned int BoardState::at(BoardIndex const& p) const {
@@ -149,6 +173,22 @@ bool BoardState::canMove(Direction d) const {
     return false;
 }
 
+bool Hint::operator!=(Hint other) const {
+    if (this->isAnyBonus != other.isAnyBonus) {
+        return true;
+    }
+    if (this->hint1 != other.hint1) {
+        return true;
+    }
+    if (this->hint2 != other.hint2) {
+        return true;
+    }
+    if (this->hint3 != other.hint3) {
+        return true;
+    }
+    return false;
+}
+
 unsigned int BoardState::upcomingTile() const {
     default_random_engine genCopy = this->generator;
     uniform_real_distribution<> r(0,1);
@@ -170,60 +210,6 @@ unsigned int BoardState::upcomingTile() const {
 unsigned int BoardState::maxBonusTile() const {
     return this->maxTile()/8;
 }
-
-BoardState::Hint BoardState::nextTileHint() const {
-    if (this->forcedHint.size() != 0) {
-        return this->forcedHint;
-    }
-    deque<unsigned int> inRangeTiles;
-    unsigned int actualTile = this->upcomingTile();
-    default_random_engine genCopy = this->generator;
-    if (actualTile <= 3) {
-        inRangeTiles.push_back(actualTile);
-    } else {
-        //bonus tile
-        
-        //add possible values to the list
-        if (actualTile / 4 >= 6) {
-            inRangeTiles.push_back(actualTile/4);
-        }
-        if (actualTile / 2 >= 6) {
-            inRangeTiles.push_back(actualTile/2);
-        }
-        inRangeTiles.push_back(actualTile);
-        if (actualTile * 2 <= this->maxBonusTile()) {
-            inRangeTiles.push_back(actualTile*2);
-        }
-        if (actualTile * 4 <= this->maxBonusTile()) {
-            inRangeTiles.push_back(actualTile*4);
-        }
-        
-        //trim the list down to size
-        if (inRangeTiles.size() <= 3) {
-            return inRangeTiles;
-        }
-        if (inRangeTiles.size() == 4) {
-            if (uniform_int_distribution<>(0,1)(genCopy) == 1) {
-                inRangeTiles.pop_back();
-            } else {
-                inRangeTiles.pop_front();
-            }
-        } else {
-            int rand = uniform_int_distribution<>(0,2)(genCopy);
-            if (rand == 0) {
-                inRangeTiles.pop_back();
-                inRangeTiles.pop_back();
-            } else if (rand == 1) {
-                inRangeTiles.pop_back();
-                inRangeTiles.pop_front();
-            } else {
-                inRangeTiles.pop_front();
-                inRangeTiles.pop_front();
-            }
-        }
-    }
-    return inRangeTiles;
-};
 
 bool BoardState::hasSameTilesAs(BoardState const& otherBoard, vector<BoardState::BoardIndex> excludedIndices) const {
     for (unsigned char i = 0; i < 4; i++) {
@@ -301,6 +287,22 @@ unsigned int int_log2(unsigned int x) {
     return result;
 }
 
+bool Hint::contains(unsigned int query) const {
+    if (query == 0) {
+        return false;
+    }
+    if (query == this->hint1) {
+        return true;
+    }
+    if (query == this->hint2) {
+        return true;
+    }
+    if (query == this->hint3) {
+        return true;
+    }
+    return this->isAnyBonus && query >= 6;
+}
+
 deque<pair<unsigned int, float>> BoardState::possibleNextTiles() const {
     unsigned int maxBoardTile = this->maxTile();
     bool canHaveBonus = this->maxTile() >= 48;
@@ -334,7 +336,7 @@ ostream& outputTile(ostream &os, unsigned int tile) {
 }
 
 ostream& operator<<(ostream &os, BoardState const& board) {
-    os << "Upcoming: " << board.nextTileHint() << endl;
+    os << "Upcoming: " << board.getHint() << endl;
     if (board.isGameOver()) {
         os << "Final";
     } else {
@@ -397,7 +399,28 @@ const BoardState BoardState::moveWithoutAdd(Direction d) const {
 BoardState BoardState::addSpecificTile(Direction d, BoardIndex const& p, const unsigned int t) const {
     BoardState copy = this->addTile(d); //force RNG to advance the same number of times as if the tile had been added the natural way.
     copy.board = this->board;
+    copy.onesInStack = this->onesInStack;
+    copy.twosInStack = this->twosInStack;
+    copy.threesInStack = this->threesInStack;
     copy.board[p.first+p.second*4] = t;
+    switch (t) {
+        case 1:
+            copy.onesInStack--;
+            break;
+        case 2:
+            copy.twosInStack--;
+            break;
+        case 3:
+            copy.threesInStack--;
+            break;
+        default:
+            break;
+    }
+    if (copy.onesInStack + copy.twosInStack + copy.threesInStack == 0) {
+        copy.onesInStack = 4;
+        copy.twosInStack = 4;
+        copy.threesInStack = 4;
+    }
     return copy;
 }
 

@@ -31,7 +31,7 @@ RealBoardOutput::~RealBoardOutput() {
     }
 }
 
-bool boardTransitionIsValid(BoardState const &oldBoard, deque<unsigned int> const& oldHint, Direction d, BoardState const &newBoard) {
+bool boardTransitionIsValid(BoardState const &oldBoard, Hint const& oldHint, Direction d, BoardState const &newBoard) {
     auto unknownIndexes = oldBoard.validIndicesForNewTile(d);
     //Check if any of the moved tiles don't read the same
     if (!newBoard.hasSameTilesAs(oldBoard, unknownIndexes)) {
@@ -40,11 +40,7 @@ bool boardTransitionIsValid(BoardState const &oldBoard, deque<unsigned int> cons
     
     for (auto&& index : unknownIndexes) {
         if (newBoard.at(index) != 0) {
-            for (auto&& hint : oldHint) {
-                if (newBoard.at(index) == hint) {
-                    return true;
-                }
-            }
+            return (oldHint.contains(newBoard.at(index)));
         }
     }
     return false;
@@ -83,7 +79,7 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         return this->move(d, originalBoard);
     }
     
-    bool ok = boardTransitionIsValid(expectedBoardAfterMove, originalBoard.nextTileHint(), d, newState);
+    bool ok = boardTransitionIsValid(expectedBoardAfterMove, originalBoard.getHint(), d, newState);
     
     if (!ok) {
         MYLOG(originalBoard);
@@ -93,7 +89,7 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         debug();
         IMProc::boardFromAnyImage(originalBoard.sourceImage);
         IMProc::boardFromAnyImage(newState.sourceImage);
-        boardTransitionIsValid(expectedBoardAfterMove, originalBoard.nextTileHint(), d, newState);
+        boardTransitionIsValid(expectedBoardAfterMove, originalBoard.getHint(), d, newState);
     }
 }
 
