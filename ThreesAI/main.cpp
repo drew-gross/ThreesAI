@@ -150,7 +150,7 @@ int main(int argc, const char * argv[]) {
     testBoardMovement();
     //testImageProc(); debug();
     
-    for (;;) {
+    for (int i = 0; i < 3; i++) {
         unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
         //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         auto initialState = watcher->getGameState();\

@@ -48,12 +48,14 @@ cv::Mat getMostRecentFrame() {
             CGRect bounds;
             CGRectMakeWithDictionaryRepresentation((CFDictionaryRef)window[(__bridge id)kCGWindowBounds], &bounds);
             CGImageRef screenShot = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, [window[@"kCGWindowNumber"] unsignedIntValue], kCGWindowImageBoundsIgnoreFraming);
-            
             BOOL r = CGImageWriteToFile(screenShot, @"/tmp/blah.png");
+            CGImageRelease(screenShot);
             debug(!r);
+            CFRelease(windows);
             return cv::imread("/tmp/blah.png");
         }
     }
+    CFRelease(windows);
     debug();
     return Mat();
 }

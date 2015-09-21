@@ -16,7 +16,7 @@ using namespace std;
 
 HumanPlayer::HumanPlayer(BoardState board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
 
-void HumanPlayer::receiveState(Direction d, BoardState newState) {}
+void HumanPlayer::receiveState(Direction d, BoardState const & newState) {}
 void HumanPlayer::prepareDirection() {}
 
 Direction getMove() {

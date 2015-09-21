@@ -32,7 +32,7 @@ public:
     
     Direction getDirection() const;
     void prepareDirection();
-    void receiveState(Direction d, BoardState afterMoveState);
+    void receiveState(Direction d, BoardState const & afterMoveState);
     
 };
 

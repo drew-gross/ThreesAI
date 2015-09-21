@@ -28,7 +28,7 @@ public:
     BoardState currentState() const;
     
 protected:
-    virtual void receiveState(Direction d, BoardState newState) = 0;
+    virtual void receiveState(Direction d, BoardState const & newState) = 0;
     virtual void prepareDirection() = 0;
     
 private:

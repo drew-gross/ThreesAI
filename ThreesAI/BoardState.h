@@ -73,7 +73,6 @@ private:
     BoardState mutableCopy() const;
     
     bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
-    bool tryMerge(BoardIndex const& target, BoardIndex const& other) const;
     unsigned int upcomingTile() const;
     
     unsigned int onesInStack;

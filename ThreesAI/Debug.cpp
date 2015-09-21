@@ -14,6 +14,5 @@
 void debug(bool cond) {
     if (cond) {
         cv::waitKey(1);
-        cond=!cond;
     }
 }

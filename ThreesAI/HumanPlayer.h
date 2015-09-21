@@ -17,7 +17,7 @@ public:
     
     void prepareDirection();
     Direction getDirection() const;
-    void receiveState(Direction d, BoardState newState);
+    void receiveState(Direction d, BoardState const& newState);
 };
 
 #endif /* defined(__ThreesAI__HumanPlayer__) */

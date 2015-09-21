@@ -30,7 +30,6 @@ void ThreesAIBase::playTurn() {
     Direction d = this->getDirection();
     this->boardOutput->move(d, this->boardState);
     BoardState newState = this->boardOutput->currentState();
-    MYLOG(newState);
     this->receiveState(d, newState);
     this->boardState = newState;
 }

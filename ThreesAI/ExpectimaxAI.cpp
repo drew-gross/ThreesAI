@@ -50,14 +50,14 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 }
 
 void ExpectimaxAI::prepareDirection() {
-    this->fillInChild(50);
+    this->fillInChild(20);
 }
 
 Direction ExpectimaxAI::getDirection() const {
     return this->currentBoard->maxChild().first;
 }
 
-void ExpectimaxAI::receiveState(Direction d, BoardState afterMoveState) {
+void ExpectimaxAI::receiveState(Direction d, BoardState const & afterMoveState) {
     shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(this->currentBoard->child(d));
     ChanceNodeEdge edge(afterMoveBoard->board, afterMoveState);
     shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(afterMoveBoard->child(edge));

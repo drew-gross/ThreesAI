@@ -93,19 +93,16 @@ bool BoardState::isGameOver() const {
 }
 
 bool BoardState::canMerge(BoardIndex const& target, BoardIndex const& here) const {
-    if (this->at(here) == 0) {
-        return false;
+    if (this->at(target) == 0) {
+        return this->at(here) != 0;
     }
-    if (this->at(target) == 0 and this->at(here) != 0) {
-        return true;
+    if (this->at(target) == 1) {
+        return this->at(here) == 2;
     }
-    if (this->at(target) == this->at(here) && this->at(target) != 1 && this->at(target) != 2) {
-        return true;
+    if (this->at(target) == 2) {
+        return this->at(here) == 1;
     }
-    if ((this->at(target) == 1 and this->at(here) == 2) or (this->at(target) == 2 and this->at(here) == 1)) {
-        return true;
-    }
-    return false;
+    return this->at(target) == this->at(here);
 }
 
 bool BoardState::canMove(Direction d) const {
@@ -306,16 +303,17 @@ unsigned int int_log2(unsigned int x) {
 
 deque<pair<unsigned int, float>> BoardState::possibleNextTiles() const {
     unsigned int maxBoardTile = this->maxTile();
+    bool canHaveBonus = this->maxTile() >= 48;
     deque<pair<unsigned int, float>> result;
     //should be able to only add 1,2,3 if they are in the stack
     if (this->onesInStack > 0) {
-        result.push_back({1, this->nonBonusTileProbability(1, this->maxTile() >= 48)});
+        result.push_back({1, this->nonBonusTileProbability(1, canHaveBonus)});
     }
     if (this->twosInStack > 0) {
-        result.push_back({2, this->nonBonusTileProbability(2, this->maxTile() >= 48)});
+        result.push_back({2, this->nonBonusTileProbability(2, canHaveBonus)});
     }
     if (this->threesInStack > 0) {
-        result.push_back({3, this->nonBonusTileProbability(3, this->maxTile() >= 48)});
+        result.push_back({3, this->nonBonusTileProbability(3, canHaveBonus)});
     }
     maxBoardTile /= 8;
     unsigned int numPossibleBonusTiles = int_log2(maxBoardTile) - 2;
@@ -359,43 +357,35 @@ const BoardState BoardState::moveWithoutAdd(Direction d) const {
     vector<pair<BoardIndex, BoardIndex>> movements;
     
     bool successfulMerge = false;
+    bool countUp;
+    bool countFirst;
     switch (d) {
         case UP:
-            for (unsigned i = 0; i < 4; i++) {
-                movements.push_back({{i, 0}, {i, 1}});
-                movements.push_back({{i, 1}, {i, 2}});
-                movements.push_back({{i, 2}, {i, 3}});
-            }
+            countUp = true;
+            countFirst = false;
             break;
         case DOWN:
-            for (unsigned i = 0; i < 4; i++) {
-                movements.push_back({{i, 3}, {i, 2}});
-                movements.push_back({{i, 2}, {i, 1}});
-                movements.push_back({{i, 1}, {i, 0}});
-            }
+            countUp = false;
+            countFirst = false;
             break;
         case LEFT:
-            for (unsigned i = 0; i < 4; i++) {
-                movements.push_back({{0, i}, {1, i}});
-                movements.push_back({{1, i}, {2, i}});
-                movements.push_back({{2, i}, {3, i}});
-            }
+            countUp = true;
+            countFirst = true;
             break;
         case RIGHT:
-            for (unsigned i = 0; i < 4; i++) {
-                movements.push_back({{3, i}, {2, i}});
-                movements.push_back({{2, i}, {1, i}});
-                movements.push_back({{1, i}, {0, i}});
-            }
-            break;
-        default:
+            countUp = false;
+            countFirst = true;
             break;
     }
-    for (auto&& movement : movements) {
-        if (copy.canMerge(movement.first, movement.second)) {
-            successfulMerge = true;
-            copy.board[movement.first.first+movement.first.second*4] = copy.at(movement.first) + copy.at(movement.second);
-            copy.board[movement.second.first+movement.second.second*4] = 0;
+    for (unsigned i = 0; i < 4; i++) {
+        for (unsigned j = countUp ? 0 : 3; (countUp && j < 3) || (!countUp && j > 0); j += countUp? 1 : -1) {
+            BoardIndex target = countFirst ? BoardIndex(j, i) : BoardIndex(i, j);
+            BoardIndex here = countFirst ? BoardIndex(j + (countUp ? 1 : -1), i) : BoardIndex(i, j + (countUp ? 1 : -1));
+            if (copy.canMerge(target, here)) {
+                successfulMerge = true;
+                copy.board[target.first + target.second*4] = copy.at(target) + copy.at(here);
+                copy.board[here.first + here.second*4] = 0;
+            }
         }
     }
     if (!successfulMerge) {
