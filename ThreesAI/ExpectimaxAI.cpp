@@ -50,7 +50,7 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 }
 
 void ExpectimaxAI::prepareDirection() {
-    this->fillInChild(4);
+    this->fillInChild(20);
 }
 
 Direction ExpectimaxAI::getDirection() const {
@@ -65,6 +65,6 @@ void ExpectimaxAI::receiveState(Direction d, BoardState const & afterMoveState) 
     debug(!afterAddingTileBoard->board.hasSameTilesAs(afterMoveState, {}));
     debug(afterAddingTileBoard->board.getHint() != afterMoveState.getHint());
     this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterAddingTileBoard);
-    this->currentBoard->pruneUnreachableChildren(afterMoveState.getHint());
+    this->currentBoard->pruneUnreachableChildren(afterMoveState.getHint(), this->unfilledChildren);
     MYLOG(afterMoveState);
 }

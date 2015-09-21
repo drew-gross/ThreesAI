@@ -26,7 +26,7 @@ public:
     virtual float value() const = 0;
     virtual void outputDot() const = 0;
     virtual void outputDotEdges(float p) const = 0;
-    virtual void pruneUnreachableChildren(Hint const& nextTileHint) = 0;
+    virtual void pruneUnreachableChildren(Hint const& nextTileHint, std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     
     const BoardState board;
     

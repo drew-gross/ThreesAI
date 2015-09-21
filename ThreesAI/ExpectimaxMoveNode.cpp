@@ -14,6 +14,7 @@
 #include "ExpextimaxChanceNode.h"
 
 #include "Debug.h"
+#include "Logging.h"
 #include "IMProc.h"
 
 using namespace std;
@@ -35,13 +36,13 @@ void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unf
         BoardState childBoard = this->board.moveWithoutAdd(d);
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d, this->depth+1);
         this->children.insert({d, child});
-        child->fillInChildren(unfilledList);
+        unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));
     }
 }
 
-void ExpectimaxMoveNode::pruneUnreachableChildren(Hint const& nextTileHint) {
+void ExpectimaxMoveNode::pruneUnreachableChildren(Hint const& nextTileHint, std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     for (auto&& child : this->children) {
-        child.second->pruneUnreachableChildren(nextTileHint);
+        child.second->pruneUnreachableChildren(nextTileHint, unfilledList);
     }
 }
 
