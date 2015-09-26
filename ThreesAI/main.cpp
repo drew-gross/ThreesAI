@@ -152,8 +152,8 @@ int main(int argc, const char * argv[]) {
         auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), move(p));
-        OnePlayMonteCarloAI ai(p->currentState(), move(p));
-        ai.playGame();
+        ManyPlayMonteCarloAI ai(p->currentState(), move(p), 5000);
+        ai.playGame(true);
         MYLOG(ai.currentState());
     }
     return 0;

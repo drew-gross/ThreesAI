@@ -23,7 +23,6 @@ Direction OnePlayMonteCarloAI::getDirection() const {
     vector<Direction> validMoves = this->currentState().validMoves();
     for (Direction d : validMoves) {
         BoardState copyToExplore = this->currentState().move(d).copyWithDifferentFuture();
-        copyToExplore.upcomingTile();
         while (!copyToExplore.isGameOver()) {
             copyToExplore = copyToExplore.move(copyToExplore.randomValidMoveFromInternalGenerator());
         }

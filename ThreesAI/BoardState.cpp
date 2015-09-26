@@ -189,7 +189,7 @@ bool Hint::operator!=(Hint other) const {
     return false;
 }
 
-unsigned int BoardState::upcomingTile() const {
+Tile BoardState::upcomingTile() const {
     default_random_engine genCopy = this->generator;
     uniform_real_distribution<> r(0,1);
     float tileFinder = r(genCopy);
@@ -203,11 +203,13 @@ unsigned int BoardState::upcomingTile() const {
             tileFinder -= p;
         }
     }
-    debug();
-    return 0;
+    // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
+    // which means if a 1 is generated, we get here. In this case, return the final element,
+    // which would have been returned had there been no floating point error.
+    return possibleUpcomingTiles.end()->first;
 }
 
-unsigned int BoardState::maxBonusTile() const {
+Tile BoardState::maxBonusTile() const {
     return this->maxTile()/8;
 }
 

@@ -58,14 +58,13 @@ public:
     
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
     friend class Hint;
-    unsigned int maxBonusTile() const;
+    Tile maxBonusTile() const;
     float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     unsigned int stackSize() const;
     Hint getHint() const;
     
     cv::Mat sourceImage;
 private:
-public://TODO: not public
     mutable bool isGameOverCache;
     mutable bool isGameOverCacheIsValid;
     mutable unsigned int scoreCache;
@@ -75,7 +74,7 @@ public://TODO: not public
     BoardState mutableCopy() const;
     
     bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
-    unsigned int upcomingTile() const;
+    Tile upcomingTile() const;
     
     unsigned int onesInStack;
     unsigned int twosInStack;
