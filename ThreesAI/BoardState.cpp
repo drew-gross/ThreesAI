@@ -429,6 +429,7 @@ const BoardState BoardState::addTile(Direction d) const {
     default_random_engine genCopy = this->generator;
     
     shuffle(indices.begin(), indices.end(), genCopy);
+    genCopy.discard(1); // If there is only one valid move, then the shuffle won't modify the generator, and the state will get stuck
     unsigned int nextTileValue = this->upcomingTile();
     
     BoardState copy = this->mutableCopy();
@@ -470,9 +471,10 @@ vector<Direction> BoardState::validMoves() const {
     return result;
 }
 
-Direction BoardState::randomValidMove(default_random_engine generator) const {
+Direction BoardState::randomValidMoveFromInternalGenerator() const {
     vector<Direction> moves = this->validMoves();
-    shuffle(moves.begin(), moves.end(), generator);
+    default_random_engine genCopy = this->generator;
+    shuffle(moves.begin(), moves.end(), genCopy);
     return moves[0];
 }
 
@@ -483,11 +485,14 @@ BoardState BoardState::mutableCopy() const {
     return result;
 }
 
+default_random_engine getGenerator() {
+    static default_random_engine metaGenerator;
+    return default_random_engine(metaGenerator());
+}
+
 const BoardState BoardState::copyWithDifferentFuture() const {
-    static seed_seq seeder({1,2,3});
     BoardState copy = *this;
-    copy.generator = default_random_engine();
-    copy.generator.seed(seeder);
+    copy.generator = getGenerator();
     return copy;
 }
 

@@ -18,6 +18,9 @@ class OnePlayMonteCarloAI : public ThreesAIBase {
 public:
     OnePlayMonteCarloAI(BoardState board, std::unique_ptr<BoardOutput> output);
     Direction getDirection() const;
+    
+    void receiveState(Direction d, BoardState const & newState);
+    void prepareDirection();
 };
 
 #endif /* defined(__ThreesAI__ZeroDepthMonteCarloAI__) */

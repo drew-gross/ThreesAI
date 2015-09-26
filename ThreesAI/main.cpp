@@ -151,8 +151,8 @@ int main(int argc, const char * argv[]) {
         //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
-        ExpectimaxAI ai(p->currentState(), move(p));
-        //ManyPlayMonteCarloAI ai(p->currentState(), move(p), 50);
+        //HumanPlayer ai(p->currentState(), move(p));
+        OnePlayMonteCarloAI ai(p->currentState(), move(p));
         ai.playGame();
         MYLOG(ai.currentState());
     }

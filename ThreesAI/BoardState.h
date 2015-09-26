@@ -40,7 +40,7 @@ public:
     bool isGameOver() const;
     
     std::vector<Direction> validMoves() const;
-    Direction randomValidMove(std::default_random_engine generator) const;
+    Direction randomValidMoveFromInternalGenerator() const;
     bool canMove(Direction d) const;
     const BoardState move(Direction d) const;
     const BoardState moveWithoutAdd(Direction d) const;
@@ -59,12 +59,13 @@ public:
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
     friend class Hint;
     unsigned int maxBonusTile() const;
-    float nonBonusTileProbability(unsigned int tile, bool canHaveBonus) const;
+    float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     unsigned int stackSize() const;
     Hint getHint() const;
     
     cv::Mat sourceImage;
 private:
+public://TODO: not public
     mutable bool isGameOverCache;
     mutable bool isGameOverCacheIsValid;
     mutable unsigned int scoreCache;

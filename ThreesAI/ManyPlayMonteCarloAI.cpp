@@ -8,9 +8,14 @@
 
 #include "ManyPlayMonteCarloAI.h"
 
+#include "Logging.h"
+
 using namespace std;
 
 ManyPlayMonteCarloAI::ManyPlayMonteCarloAI(BoardState board, unique_ptr<BoardOutput> output, unsigned int numPlays) : ThreesAIBase(board, move(output)), numPlays(numPlays) {}
+
+void ManyPlayMonteCarloAI::receiveState(Direction d, BoardState const & newState) {};
+void ManyPlayMonteCarloAI::prepareDirection() {};
 
 Direction ManyPlayMonteCarloAI::getDirection() const {
     unsigned long bestScore = 0;
@@ -19,10 +24,10 @@ Direction ManyPlayMonteCarloAI::getDirection() const {
         unsigned int playsRemaining = this->numPlays;
         unsigned long currentDirectionTotalScore = 0;
         while (playsRemaining--) {
-            BoardState boardCopy = this->currentState().copyWithDifferentFuture();
+            BoardState boardCopy = this->currentState().move(d).copyWithDifferentFuture();
             while (!boardCopy.isGameOver()) {
-                default_random_engine g;
-                boardCopy = boardCopy.move(boardCopy.randomValidMove(g));
+                Direction random = boardCopy.randomValidMoveFromInternalGenerator();
+                boardCopy = boardCopy.move(random);
             }
             currentDirectionTotalScore += boardCopy.score();
         }

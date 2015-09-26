@@ -50,7 +50,7 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 }
 
 void ExpectimaxAI::prepareDirection() {
-    this->fillInChild(20);
+    this->fillInChild(50);
 }
 
 Direction ExpectimaxAI::getDirection() const {
