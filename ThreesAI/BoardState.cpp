@@ -189,26 +189,6 @@ bool Hint::operator!=(Hint other) const {
     return false;
 }
 
-Tile BoardState::upcomingTile() const {
-    default_random_engine genCopy = this->generator;
-    uniform_real_distribution<> r(0,1);
-    float tileFinder = r(genCopy);
-    auto possibleUpcomingTiles = this->possibleNextTiles();
-    for (auto&& possibleUpcomingTile : possibleUpcomingTiles) {
-        float p = possibleUpcomingTile.second;
-        unsigned int tile = possibleUpcomingTile.first;
-        if (tileFinder < p) {
-            return tile;
-        } else {
-            tileFinder -= p;
-        }
-    }
-    // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
-    // which means if a 1 is generated, we get here. In this case, return the final element,
-    // which would have been returned had there been no floating point error.
-    return possibleUpcomingTiles.end()->first;
-}
-
 Tile BoardState::maxBonusTile() const {
     return this->maxTile()/8;
 }
@@ -306,8 +286,8 @@ bool Hint::contains(unsigned int query) const {
 }
 
 deque<pair<unsigned int, float>> BoardState::possibleNextTiles() const {
-    unsigned int maxBoardTile = this->maxTile();
-    bool canHaveBonus = this->maxTile() >= 48;
+    Tile maxBoardTile = this->maxTile();
+    bool canHaveBonus = maxBoardTile >= 48;
     deque<pair<unsigned int, float>> result;
     //should be able to only add 1,2,3 if they are in the stack
     if (this->onesInStack > 0) {
@@ -322,11 +302,63 @@ deque<pair<unsigned int, float>> BoardState::possibleNextTiles() const {
     maxBoardTile /= 8;
     unsigned int numPossibleBonusTiles = int_log2(maxBoardTile) - 2;
     while (maxBoardTile >= 6) {
-        debug(float(1)/numPossibleBonusTiles/21 > 1);
         result.push_back({maxBoardTile, float(1)/numPossibleBonusTiles/21});
         maxBoardTile /= 2;
     }
     return result;
+}
+
+Tile BoardState::upcomingTile() const {
+    //This function contains an inlined version of possibleNextTiles, for performance reasons (to avoid creating a deque)
+    Tile maxBoardTile = this->maxTile();
+    bool canHaveBonus = maxBoardTile >= 48;
+    default_random_engine genCopy = this->generator;
+    uniform_real_distribution<> r(0,1);
+    float tileFinder = r(genCopy);
+        
+    if (this->onesInStack > 0) {
+        float pOne = this->nonBonusTileProbability(1, canHaveBonus);
+        if (tileFinder < pOne) {
+            return 1;
+        } else {
+            tileFinder -= pOne;
+        }
+    }
+    
+    if (this->twosInStack > 0) {
+        float pTwo = this->nonBonusTileProbability(2, canHaveBonus);
+        if (tileFinder < pTwo) {
+            return 2;
+        } else {
+            tileFinder -= pTwo;
+        }
+    }
+    
+    if (this->threesInStack > 0) {
+        float pThree = this->nonBonusTileProbability(3, canHaveBonus);
+        if (tileFinder < pThree) {
+            return 3;
+        } else {
+            tileFinder -= pThree;
+        }
+    }
+    
+    Tile currentBonus = maxBoardTile / 8;
+    unsigned int numPossibleBonusTiles = int_log2(currentBonus) - 2;
+    while (currentBonus >= 6) {
+        float pThisBonus = float(1)/numPossibleBonusTiles/21;
+        if (tileFinder < pThisBonus) {
+            return currentBonus;
+        } else {
+            tileFinder -= pThisBonus;
+            currentBonus /=2;
+        }
+    }
+    
+    // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
+    // which means if a 1 is generated for tileFinder, we get here. In this case, return 6,
+    // which would have been returned had there been no floating point error.
+    return 6;
 }
 
 ostream& outputTile(ostream &os, unsigned int tile) {
