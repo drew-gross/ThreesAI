@@ -9,8 +9,11 @@
 #include "BoardState.h"
 
 #include "InvalidMoveException.h"
+#include "RandomHint.hpp"
+#include "ForcedHint.hpp"
 
 #include <iostream>
+#include <memory>
 #include <boost/algorithm/string.hpp>
 
 #include "Debug.h"
@@ -20,7 +23,7 @@ using namespace std;
 using namespace boost;
 
 BoardState::BoardState(Board b,
-                       Hint hint,
+                       std::shared_ptr<Hint const> hint,
                        unsigned int numTurns,
                        cv::Mat sourceImage,
                        unsigned int onesInStack,
@@ -33,8 +36,11 @@ numTurns(numTurns),
 onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
-sourceImage(sourceImage)
-{}
+sourceImage(sourceImage),
+hint(hint)
+{
+    debug(!this->hint);
+}
 
 BoardState::BoardState(Board b,
                        default_random_engine hintGen,
@@ -50,10 +56,13 @@ numTurns(numTurns),
 onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
-sourceImage(sourceImage) {}
+sourceImage(sourceImage),
+hint(new RandomHint(this->upcomingTile(), this->maxBonusTile(), this->generator)) {
+    debug(!this->hint);
+}
 
-Hint BoardState::getHint() const {
-    return Hint(this->upcomingTile(), this->maxBonusTile(), this->generator);
+std::shared_ptr<Hint const> BoardState::getHint() const {
+    return this->hint;
 }
 
 array<BoardState::BoardIndex, 16> BoardState::indexes() {
@@ -97,10 +106,13 @@ BoardState BoardState::fromString(const string s) {
     
     //TODO: get numTurns and source image and values in stack from somewhere
     if (hint.size() == 1) {
-        return BoardState(tileList, Hint(hint[0]), 0, cv::Mat(), 4, 4, 4);
+        return BoardState(tileList, make_shared<ForcedHint>(hint[0]), 0, cv::Mat(), 4, 4, 4);
+    } else if (hint.size() == 2) {
+        
+        return BoardState(tileList, make_shared<ForcedHint>(hint[0], hint[1]), 0, cv::Mat(), 4, 4, 4);
     } else {
         debug(hint.size() != 3);
-        return BoardState(tileList, Hint(hint[0], hint[1], hint[2]), 0, cv::Mat(), 4, 4, 4);
+        return BoardState(tileList, make_shared<ForcedHint>(hint[0], hint[1], hint[2]), 0, cv::Mat(), 4, 4, 4);
     }
 }
 
@@ -169,22 +181,6 @@ bool BoardState::canMove(Direction d) const {
             break;
         default:
             break;
-    }
-    return false;
-}
-
-bool Hint::operator!=(Hint other) const {
-    if (this->isAnyBonus != other.isAnyBonus) {
-        return true;
-    }
-    if (this->hint1 != other.hint1) {
-        return true;
-    }
-    if (this->hint2 != other.hint2) {
-        return true;
-    }
-    if (this->hint3 != other.hint3) {
-        return true;
     }
     return false;
 }
@@ -267,22 +263,6 @@ unsigned int int_log2(unsigned int x) {
         x >>= 1;
     }
     return result;
-}
-
-bool Hint::contains(unsigned int query) const {
-    if (query == 0) {
-        return false;
-    }
-    if (query == this->hint1) {
-        return true;
-    }
-    if (query == this->hint2) {
-        return true;
-    }
-    if (query == this->hint3) {
-        return true;
-    }
-    return this->isAnyBonus && query >= 6;
 }
 
 deque<pair<unsigned int, float>> BoardState::possibleNextTiles() const {
@@ -370,7 +350,7 @@ ostream& outputTile(ostream &os, unsigned int tile) {
 }
 
 ostream& operator<<(ostream &os, BoardState const& board) {
-    os << "Upcoming: " << board.getHint() << endl;
+    os << "Upcoming: " << *board.getHint() << endl;
     if (board.isGameOver()) {
         os << "Final";
     } else {

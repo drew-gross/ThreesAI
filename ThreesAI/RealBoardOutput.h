@@ -18,6 +18,7 @@ public:
     RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, BoardState initialState);
     ~RealBoardOutput();
     void move(Direction d, BoardState const& originalBoard);
+    BoardState currentState() const;
 private:
     int fd;
     std::shared_ptr<GameStateSource> source;

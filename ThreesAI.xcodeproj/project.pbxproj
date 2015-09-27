@@ -19,6 +19,8 @@
 		7944C1721BA3FAFC000F0A2C /* RealBoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1701BA3FAFC000F0A2C /* RealBoardOutput.cpp */; };
 		7944C1761BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1741BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp */; };
 		7944F88F1A732BC300ED690E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944F88E1A732BC300ED690E /* main.cpp */; };
+		7953BBF61BB761F20083AC3A /* RandomHint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7953BBF41BB761F20083AC3A /* RandomHint.cpp */; settings = {ASSET_TAGS = (); }; };
+		7953BBF91BB762DC0083AC3A /* ForcedHint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7953BBF71BB762DC0083AC3A /* ForcedHint.cpp */; settings = {ASSET_TAGS = (); }; };
 		7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7955D3CD1B74848B0034EE4F /* IMLog.cpp */; };
 		7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4421A883278000622BC /* ThreesAIBase.cpp */; };
 		7960E4471A88333B000622BC /* RandomAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4451A88333B000622BC /* RandomAI.cpp */; };
@@ -84,6 +86,10 @@
 		7944C1751BA8E0F3000F0A2C /* SimulatedBoardOutput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulatedBoardOutput.h; sourceTree = "<group>"; };
 		7944F88B1A732BC300ED690E /* ThreesAI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ThreesAI; sourceTree = BUILT_PRODUCTS_DIR; };
 		7944F88E1A732BC300ED690E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = main.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7953BBF41BB761F20083AC3A /* RandomHint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomHint.cpp; sourceTree = "<group>"; };
+		7953BBF51BB761F20083AC3A /* RandomHint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomHint.hpp; sourceTree = "<group>"; };
+		7953BBF71BB762DC0083AC3A /* ForcedHint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ForcedHint.cpp; sourceTree = "<group>"; };
+		7953BBF81BB762DC0083AC3A /* ForcedHint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ForcedHint.hpp; sourceTree = "<group>"; };
 		7955D3CD1B74848B0034EE4F /* IMLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IMLog.cpp; sourceTree = "<group>"; };
 		7955D3CE1B74848B0034EE4F /* IMLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMLog.h; sourceTree = "<group>"; };
 		7960E4421A883278000622BC /* ThreesAIBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ThreesAIBase.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -211,6 +217,31 @@
 			path = ThreesAI;
 			sourceTree = "<group>";
 		};
+		7953BBF21BB761B40083AC3A /* BoardOutput */ = {
+			isa = PBXGroup;
+			children = (
+				7944C16B1BA32AA8000F0A2C /* BoardOutput.h */,
+				7944C1701BA3FAFC000F0A2C /* RealBoardOutput.cpp */,
+				7944C1711BA3FAFC000F0A2C /* RealBoardOutput.h */,
+				7944C1741BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp */,
+				7944C1751BA8E0F3000F0A2C /* SimulatedBoardOutput.h */,
+			);
+			name = BoardOutput;
+			sourceTree = "<group>";
+		};
+		7953BBF31BB761DA0083AC3A /* Hint */ = {
+			isa = PBXGroup;
+			children = (
+				79A1B3A61BAFB29900FC2EDB /* Hint.cpp */,
+				79A1B3A71BAFB29900FC2EDB /* Hint.h */,
+				7953BBF41BB761F20083AC3A /* RandomHint.cpp */,
+				7953BBF51BB761F20083AC3A /* RandomHint.hpp */,
+				7953BBF71BB762DC0083AC3A /* ForcedHint.cpp */,
+				7953BBF81BB762DC0083AC3A /* ForcedHint.hpp */,
+			);
+			name = Hint;
+			sourceTree = "<group>";
+		};
 		7963F4E61AA0405E0081BEC8 /* ExpectimaxAI */ = {
 			isa = PBXGroup;
 			children = (
@@ -264,18 +295,13 @@
 		798A74401AE0BE140073DAB3 /* ThreesBoard */ = {
 			isa = PBXGroup;
 			children = (
+				7953BBF31BB761DA0083AC3A /* Hint */,
+				7953BBF21BB761B40083AC3A /* BoardOutput */,
 				797CB4B01BAAA1D0001A61D2 /* Direction.cpp */,
 				798A74461AE0BE920073DAB3 /* Direction.h */,
 				7944C1671BA32398000F0A2C /* BoardState.cpp */,
 				7944C1681BA32398000F0A2C /* BoardState.h */,
-				7944C16B1BA32AA8000F0A2C /* BoardOutput.h */,
-				7944C1701BA3FAFC000F0A2C /* RealBoardOutput.cpp */,
-				7944C1711BA3FAFC000F0A2C /* RealBoardOutput.h */,
 				7944C1731BA7F0AF000F0A2C /* InvalidMoveException.h */,
-				7944C1741BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp */,
-				7944C1751BA8E0F3000F0A2C /* SimulatedBoardOutput.h */,
-				79A1B3A61BAFB29900FC2EDB /* Hint.cpp */,
-				79A1B3A71BAFB29900FC2EDB /* Hint.h */,
 				79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */,
 				79A1B3AA1BAFDB0D00FC2EDB /* Tile.hpp */,
 			);
@@ -365,8 +391,10 @@
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
 				79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
+				7953BBF61BB761F20083AC3A /* RandomHint.cpp in Sources */,
 				7944C1721BA3FAFC000F0A2C /* RealBoardOutput.cpp in Sources */,
 				7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */,
+				7953BBF91BB762DC0083AC3A /* ForcedHint.cpp in Sources */,
 				7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */,
 				7944C1691BA32398000F0A2C /* BoardState.cpp in Sources */,
 				79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */,

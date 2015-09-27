@@ -31,7 +31,11 @@ RealBoardOutput::~RealBoardOutput() {
     }
 }
 
-bool boardTransitionIsValid(BoardState const &oldBoard, Hint const& oldHint, Direction d, BoardState const &newBoard) {
+BoardState RealBoardOutput::currentState() const {
+    return this->source->getGameState();
+}
+
+bool boardTransitionIsValid(BoardState const &oldBoard, shared_ptr<Hint const> oldHint, Direction d, BoardState const &newBoard) {
     auto unknownIndexes = oldBoard.validIndicesForNewTile(d);
     //Check if any of the moved tiles don't read the same
     if (!newBoard.hasSameTilesAs(oldBoard, unknownIndexes)) {
@@ -40,7 +44,7 @@ bool boardTransitionIsValid(BoardState const &oldBoard, Hint const& oldHint, Dir
     
     for (auto&& index : unknownIndexes) {
         if (newBoard.at(index) != 0) {
-            return (oldHint.contains(newBoard.at(index)));
+            return (oldHint->contains(newBoard.at(index)));
         }
     }
     return false;

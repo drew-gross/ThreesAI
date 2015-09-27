@@ -28,6 +28,8 @@
 #include "RealBoardOutput.h"
 #include "SimulatedBoardOutput.h"
 
+#include "ForcedHint.hpp"
+
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -48,12 +50,12 @@ unsigned int testImage(path p) {
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
     
-    Hint nextTileHint(stoi(nextTileHintStrings[0]), nextTileHintStrings.size() > 1 ? stoi(nextTileHintStrings[1]) : 0, nextTileHintStrings.size() > 2 ? stoi(nextTileHintStrings[2]) : 0);
+    ForcedHint nextTileHint(stoi(nextTileHintStrings[0]), nextTileHintStrings.size() > 1 ? stoi(nextTileHintStrings[1]) : 0, nextTileHintStrings.size() > 2 ? stoi(nextTileHintStrings[2]) : 0);
     
     Mat camImage = imread(p.string());
     array<Mat, 16> tiles = tilesFromAnyImage(camImage);
     auto result = IMProc::boardAndMatchFromAnyImage(camImage);
-    if (result.first.getHint() != nextTileHint && nextTileHint.isNonBonus()) {
+    if (result.first.getHint()->operator!=(nextTileHint) && nextTileHint.isNonBonus()) {
         MYLOG(nextTileHint);
         MYLOG(result.first.getHint());
         failures++; 
@@ -147,12 +149,12 @@ int main(int argc, const char * argv[]) {
     //testImageProc(); debug();
     
     for (int i = 0; i < 1; i++) {
-        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
-        //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
+        //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
+        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), move(p));
-        ManyPlayMonteCarloAI ai(p->currentState(), move(p), 200);
+        ManyPlayMonteCarloAI ai(p->currentState(), move(p), 100);
         ai.playGame(true);
         MYLOG(ai.currentState());
     }

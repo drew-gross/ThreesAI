@@ -14,23 +14,23 @@
 #include "Tile.hpp"
 
 class Hint {
-    unsigned int hint1;
-    unsigned int hint2;
-    unsigned int hint3;
-    bool isAnyBonus;
-public:
-    explicit Hint(unsigned int hint);
-    Hint(unsigned int hint1, unsigned int hint2, unsigned int hint3);
-    Hint(Tile upcomingTile, Tile maxBonusTile, std::default_random_engine rng);
-    static Hint unknownBonus();
-    bool contains(unsigned int query) const;
-    bool operator!=(Hint other) const;
-    bool exists() const;
-    bool isNonBonus() const;
+protected:
+    Tile hint1;
+    Tile hint2;
+    Tile hint3;
     
-    friend std::ostream& operator<<(std::ostream &os, Hint h);
+public:
+    bool contains(Tile query) const;
+    bool operator!=(Hint const& other) const;
+    bool isNonBonus() const;
+    virtual bool isAnyBonus() const = 0;
+    
+    friend std::ostream& operator<<(std::ostream &os, Hint const& h);
+
+private:
+    virtual std::ostream& print(std::ostream &os) const = 0;
 };
 
-std::ostream& operator<<(std::ostream &os, Hint h);
+std::ostream& operator<<(std::ostream &os, Hint const& h);
 
 #endif /* Hint_h */

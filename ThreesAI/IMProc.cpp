@@ -15,6 +15,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "ForcedHint.hpp"
+
 #include "Debug.h"
 #include "Logging.h"
 #include "IMLog.h"
@@ -646,10 +648,10 @@ pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat c
     }
     unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImagee));
     if (hint < 4) {
-        return {BoardState(board, Hint(hint), 0, image, 4, 4, 4), matches};
+        return {BoardState(board, make_shared<ForcedHint const>(hint), 0, image, 4, 4, 4), matches};
     } else {
         //TODO: get the real bonus tile hint here
-        return {BoardState(board, Hint::unknownBonus(), 0, image, 4, 4, 4), matches};
+        return {BoardState(board, ForcedHint::unknownBonus(), 0, image, 4, 4, 4), matches};
     }
 }
 

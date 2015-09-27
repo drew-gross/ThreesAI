@@ -16,6 +16,7 @@
 
 #include "Direction.h"
 #include "Hint.h"
+#include "ForcedHint.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -27,8 +28,20 @@ public:
     
     typedef std::array<Tile, 16> Board;
     
-    BoardState(Board b, Hint hint, unsigned int numTurns, cv::Mat sourceImage, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack);
-    BoardState(Board b, std::default_random_engine hintGen, unsigned int numTurns, cv::Mat sourceImage, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack);
+    BoardState(Board b,
+               std::shared_ptr<Hint const> hint,
+               unsigned int numTurns,
+               cv::Mat sourceImage,
+               unsigned int onesInStack,
+               unsigned int twosInStack,
+               unsigned int threesInStack);
+    BoardState(Board b,
+               std::default_random_engine hintGen,
+               unsigned int numTurns,
+               cv::Mat sourceImage,
+               unsigned int onesInStack,
+               unsigned int twosInStack,
+               unsigned int threesInStack);
     static BoardState fromString(const std::string s);
     
     unsigned int numTurns;
@@ -61,7 +74,7 @@ public:
     Tile maxBonusTile() const;
     float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     unsigned int stackSize() const;
-    Hint getHint() const;
+    std::shared_ptr<Hint const> getHint() const;
     
     cv::Mat sourceImage;
 private:
@@ -80,6 +93,7 @@ private:
     unsigned int twosInStack;
     unsigned int threesInStack;
     Board board;
+    std::shared_ptr<Hint const> hint;
 };
 
 std::ostream& operator<<(std::ostream &os, const BoardState::BoardIndex e);

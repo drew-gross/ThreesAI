@@ -59,13 +59,13 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     debug(this->children.empty());
 }
 
-void ExpectimaxChanceNode::pruneUnreachableChildren(Hint const & nextTileHint, list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
+void ExpectimaxChanceNode::pruneUnreachableChildren(shared_ptr<Hint const> nextTileHint, list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     float lostProbability = 0;
     if (!this->childrenAreFilledIn()) {
         this->fillInChildren(unfilledList);
     }
     for (auto it = this->children.cbegin(); it != this->children.cend();) {
-        if (!nextTileHint.contains(it->first.newTileValue)) {
+        if (!nextTileHint->contains(it->first.newTileValue)) {
             lostProbability += this->childrenProbabilities[it->first];
             this->childrenProbabilities.erase(it->first);
             this->children.erase(it++);
@@ -77,7 +77,7 @@ void ExpectimaxChanceNode::pruneUnreachableChildren(Hint const & nextTileHint, l
     for (auto&& childProbability : this->childrenProbabilities) {
         childProbability.second /= (1-lostProbability);
     }
-    debug(nextTileHint != this->board.getHint());
+    debug(*this->board.getHint() != *nextTileHint);
 }
 
 void ExpectimaxChanceNode::outputDotEdges(float p) const {
