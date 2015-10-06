@@ -75,7 +75,7 @@ unsigned int testImage(path p) {
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
-            //debug();
+            debug();
             IMProc::tileValue(tiles[i], canonicalTiles());
             auto result = IMProc::boardAndMatchFromAnyImage(camImage);
             failures++;
