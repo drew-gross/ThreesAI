@@ -53,13 +53,18 @@ unsigned int testImage(path p) {
     ForcedHint nextTileHint(stoi(nextTileHintStrings[0]), nextTileHintStrings.size() > 1 ? stoi(nextTileHintStrings[1]) : 0, nextTileHintStrings.size() > 2 ? stoi(nextTileHintStrings[2]) : 0);
     
     Mat camImage = imread(p.string());
-    array<Mat, 16> tiles = tilesFromAnyImage(camImage);
+    array<Mat, 16> tiles;
+    if (camImage.rows == 2272 && camImage.cols == 1280) {
+        tiles = tilesFromScreenImage(camImage);
+    } else {
+        tiles = tilesFromScreenImage(IMProc::screenImage(camImage));
+    }
     auto result = IMProc::boardAndMatchFromAnyImage(camImage);
     if (result.first.getHint()->operator!=(nextTileHint) && nextTileHint.isNonBonus()) {
         MYLOG(nextTileHint);
         MYLOG(result.first.getHint());
         failures++; 
-        debug();
+        //debug();
         IMProc::boardFromAnyImage(camImage);
     }
     for (unsigned char i = 0; i < 16; i++) {
@@ -70,7 +75,7 @@ unsigned int testImage(path p) {
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
-            debug();
+            //debug();
             IMProc::tileValue(tiles[i], canonicalTiles());
             auto result = IMProc::boardAndMatchFromAnyImage(camImage);
             failures++;
@@ -146,7 +151,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    //testImageProc(); debug();
+    testImageProc(); debug();
     
     for (int i = 0; i < 1; i++) {
         //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();

@@ -94,10 +94,15 @@ namespace IMProc {
     
     BoardState boardFromAnyImage(cv::Mat const& image);
     std::pair<BoardState, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image);
-    std::array<cv::Mat, 16> tilesFromAnyImage(cv::Mat const& image);
+    std::pair<BoardState, std::array<MatchResult, 16>> boardAndMatchFromScreenShot(cv::Mat const& ss);
+    std::array<cv::Mat, 16> tilesFromScreenImage(cv::Mat const& image);
+    cv::Mat screenImage(cv::Mat const& colorBoardImage);
     
     MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
+    MatchResult tileValueFromScreenShot(cv::Mat const& image, const std::map<int, TileInfo>& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
+    
+    std::shared_ptr<Hint const> getHintFromScreenShot(cv::Mat const& ss);
     
     const std::map<int, TileInfo>& canonicalTiles();
     const cv::SIFT& canonicalSifter();

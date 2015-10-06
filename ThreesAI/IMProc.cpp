@@ -134,7 +134,7 @@ vector<Point> findScreenContour(Mat const& image) {
     return orientedScreenContour;
 }
 
-Mat screenImage(Mat const& colorBoardImage) {
+Mat IMProc::screenImage(Mat const& colorBoardImage) {
     Mat greyBoardImage;
     Mat screenImage;
     
@@ -200,18 +200,18 @@ const vector<Mat> IMProc::color1hints() {
     static Mat image1 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint1.png")));
     static Mat image2 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint2.png")));
     static Mat image3 = screenImageToHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Hint3.png"));
-    static Mat image4 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Tile7.png"))[7](flatRegionRect);
-    static Mat image5 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Tile9.png"))[9](flatRegionRect);
+    static Mat image4 = tilesFromScreenImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Tile7.png")))[7](flatRegionRect);
+    static Mat image5 = tilesFromScreenImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Tile9.png")))[9](flatRegionRect);
     return {image1, image2, image3, image4, image5};
 }
 
 const vector<Mat> IMProc::color2hints() {
     static Mat nonHintImage = imread("/Users/drewgross/Projects/ThreesAI/SampleData/1,2,1,6,6,24,1,6,1,48,96,2,3,2,12,6.png");
-    static array<Mat, 16> tiles = tilesFromAnyImage(nonHintImage);
+    static array<Mat, 16> tiles = tilesFromScreenImage(screenImage(nonHintImage));
     static Mat image1 = screenImageToHintImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Hint1.png")));
-    static Mat image2 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile12.png"))[12](flatRegionRect);
-    static Mat image3 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile12-1.png"))[12](flatRegionRect);
-    static Mat image4 = tilesFromAnyImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile13.png"))[13](flatRegionRect);
+    static Mat image2 = tilesFromScreenImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile12.png")))[12](flatRegionRect);
+    static Mat image3 = tilesFromScreenImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile12-1.png")))[12](flatRegionRect);
+    static Mat image4 = tilesFromScreenImage(screenImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Tile13.png")))[13](flatRegionRect);
     return {tiles[1](flatRegionRect), image1, image2, image3, image4};
     
 }
@@ -618,35 +618,81 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat input) {
     }
 }
 
-array<Mat, 16> IMProc::tilesFromAnyImage(Mat const& image) {
-    Mat screenImagee;
-    if (image.rows == 2272 && image.cols == 1280) {
-        screenImagee = image;
-    } else {
-        screenImagee = screenImage(image);
-    }
-    return tileImages(boardImageFromScreen(screenImagee));
+array<Mat, 16> IMProc::tilesFromScreenImage(Mat const& image) {
+    return tileImages(boardImageFromScreen(image));
 }
 
-pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image) {
-    array<Mat, 16> images = IMProc::tilesFromAnyImage(image);
+MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo> const& canonicalTiles) {
+    Mat greyTile;
+    cvtColor(tileSS, greyTile, CV_RGB2GRAY);
+    
+    Mat binaryTileSS;
+    threshold(greyTile, binaryTileSS, 0, 255, THRESH_OTSU);
+    
+    pair<int, TileInfo> bestMatch = *min_element(canonicalTiles.begin(), canonicalTiles.end(), [&binaryTileSS](pair<int, TileInfo> l, pair<int, TileInfo> r){
+        Mat binaryCanonicalTileL;
+        Mat binaryCanonicalTileR;
+        threshold(l.second.image, binaryCanonicalTileL, 0, 255, THRESH_OTSU);
+        threshold(r.second.image, binaryCanonicalTileR, 0, 255, THRESH_OTSU);
+        
+        Mat diffL;
+        Mat diffR;
+        
+        absdiff(binaryCanonicalTileL, binaryTileSS, diffL);
+        absdiff(binaryCanonicalTileR, binaryTileSS, diffR);
+        
+        Scalar meanL;
+        Scalar meanR;
+        Scalar stdDevL;
+        Scalar stdDevR;
+        
+        meanStdDev(diffL, meanL, stdDevL);
+        meanStdDev(diffR, meanR, stdDevR);
+        
+        return meanL[0] < meanR[0];
+    });
+    return MatchResult(bestMatch.second, tileSS);
+}
+
+pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss) {
+    auto tileImages = tilesFromScreenImage(ss);
     const map<int, TileInfo>& canonicalTiles = IMProc::canonicalTiles();
     array<MatchResult, 16> matches;
-    transform(images.begin(), images.end(), matches.begin(), [&canonicalTiles](Mat image){
-        return IMProc::tileValue(image, canonicalTiles);
+    
+    transform(tileImages.begin(), tileImages.end(), matches.begin(), [&canonicalTiles](Mat image){
+        return tileValueFromScreenShot(image, canonicalTiles);
     });
+    
     BoardState::Board board;
     transform(matches.begin(), matches.end(), board.begin(), [](MatchResult m) {
         return m.tile.value;
     });
     
-    Mat screenImagee;
+    return {BoardState(board, getHintFromScreenShot(ss), 0, ss, 4, 4, 4), matches};
+}
+
+shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
+    return make_shared<ForcedHint const>(1);
+}
+
+pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image) {
     if (image.rows == 2272 && image.cols == 1280) {
-        screenImagee = image;
-    } else {
-        screenImagee = screenImage(image);
+        return boardAndMatchFromScreenShot(image);
     }
-    unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImagee));
+    
+    array<Mat, 16> images = IMProc::tilesFromScreenImage(screenImage(image));
+    const map<int, TileInfo>& canonicalTiles = IMProc::canonicalTiles();
+    array<MatchResult, 16> matches;
+    transform(images.begin(), images.end(), matches.begin(), [&canonicalTiles](Mat image){
+        return IMProc::tileValue(image, canonicalTiles);
+    });
+    
+    BoardState::Board board;
+    transform(matches.begin(), matches.end(), board.begin(), [](MatchResult m) {
+        return m.tile.value;
+    });
+    
+    unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage(image)));
     if (hint < 4) {
         return {BoardState(board, make_shared<ForcedHint const>(hint), 0, image, 4, 4, 4), matches};
     } else {
