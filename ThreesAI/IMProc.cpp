@@ -647,8 +647,8 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo
     pair<int, TileInfo> bestMatch = *min_element(canonicalTiles.begin(), canonicalTiles.end(), [&binaryTileSS](pair<int, TileInfo> l, pair<int, TileInfo> r){
         Mat binaryCanonicalTileL;
         Mat binaryCanonicalTileR;
-        threshold(l.second.image, binaryCanonicalTileL, 1, 255, THRESH_OTSU);
-        threshold(r.second.image, binaryCanonicalTileR, 1, 255, THRESH_OTSU);
+        threshold(l.second.image, binaryCanonicalTileL, 200, 255, THRESH_BINARY);
+        threshold(r.second.image, binaryCanonicalTileR, 200, 255, THRESH_BINARY);
         
         Mat diffL;
         Mat diffR;
@@ -664,16 +664,34 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo
         meanStdDev(diffL, meanL, stdDevL);
         meanStdDev(diffR, meanR, stdDevR);
         
+        MYSHOW(diffL);\
+        MYSHOW(diffR);\
+        MYSHOW(binaryTileSS);
+        
         return meanL[0] < meanR[0];
     });
+    if (bestMatch.second.value == 768 || bestMatch.second.value == 384) {
+        MatchResult SIFTresult = IMProc::tileValue(tileSS, canonicalTiles);
+        //768 and 384 get confused less often in the SIFT scheme.
+        if (SIFTresult.tile.value == 768 || SIFTresult.tile.value == 384) {
+            return SIFTresult;
+        }
+    }
     return MatchResult(bestMatch.second, tileSS);
 }
 
 shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
     static vector<pair<shared_ptr<ForcedHint const>, Mat>> hintImages({
         {make_shared<ForcedHint const>(12,24,48), imread("/Users/drewgross/Projects/ThreesAI/SampleData/12,24,48.png", 0)},
-        {make_shared<ForcedHint const>(6,12), imread("/Users/drewgross/Projects/ThreesAI/SampleData/6,12.png", 0)}
+        {make_shared<ForcedHint const>(6,12), imread("/Users/drewgross/Projects/ThreesAI/SampleData/6,12.png", 0)},
+        {make_shared<ForcedHint const>(6), imread("/Users/drewgross/Projects/ThreesAI/SampleData/6.png", 0)},
+        
     });
+    Mat narrowHint = screenImageToHintImage(ss);
+    unsigned int narrowHintResult = detect1or2or3orBonusByColor(narrowHint);
+    if (narrowHintResult <= 3) {
+        return make_shared<ForcedHint const>(narrowHintResult);
+    }
     
     Mat greyHint;
     cvtColor(screenImageToBonusHintImage(ss), greyHint, CV_RGB2GRAY);
