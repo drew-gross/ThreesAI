@@ -85,7 +85,7 @@ namespace IMProc {
         const cv::Size differenceErosionSize = cv::Size(20,20);
         const float differenceMeanThreshold = 1.5; // Lower means more things that look like six are determined to be not 6.
         
-        const float bonusMeanThreshold = 8; //Higher means less next tile hints get interpreted as a bonus tile.
+        const float bonusMeanThreshold = 10; //Higher means less next tile hints get interpreted as a bonus tile.
     }
     
     const cv::Point2f getPoint(const std::string& window);
@@ -112,7 +112,8 @@ namespace IMProc {
     const std::vector<cv::Mat> color1hints();
     const std::vector<cv::Mat> color2hints();
     const std::vector<cv::Mat> color3hints();
-    unsigned int detect1or2or3orBonusByColor(cv::Mat i);
+    unsigned int detect1or2orHigherByColor(cv::Mat const &input);
+    unsigned int detect1or2or3orBonusByColor(cv::Mat const& i);
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */

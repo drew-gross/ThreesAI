@@ -59,12 +59,12 @@ unsigned int testImage(path p) {
     } else {
         tiles = tilesFromScreenImage(IMProc::screenImage(camImage));
     }
-    auto result = IMProc::boardAndMatchFromAnyImage(camImage);
-    if (result.first.getHint()->operator!=(nextTileHint) && nextTileHint.isNonBonus()) {
+    pair<BoardState, array<MatchResult, 16>> result = IMProc::boardAndMatchFromAnyImage(camImage);
+    if (result.first.getHint()->operator!=(nextTileHint)) {
         MYLOG(nextTileHint);
-        MYLOG(result.first.getHint());
+        MYLOG(*result.first.getHint());
         failures++; 
-        //debug();
+        debug();
         IMProc::boardFromAnyImage(camImage);
     }
     for (unsigned char i = 0; i < 16; i++) {
@@ -76,7 +76,7 @@ unsigned int testImage(path p) {
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
             debug();
-            IMProc::tileValue(tiles[i], canonicalTiles());
+            IMProc::tileValueFromScreenShot(tiles[i], canonicalTiles());
             auto result = IMProc::boardAndMatchFromAnyImage(camImage);
             failures++;
         }
