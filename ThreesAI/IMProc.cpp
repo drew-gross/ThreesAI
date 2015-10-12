@@ -607,10 +607,6 @@ unsigned int IMProc::detect1or2orHigherByColor(Mat const &input) {
 }
 
 unsigned int IMProc::detect1or2or3orBonusByColor(Mat const &input) {
-    unsigned int checkColor = detect1or2orHigherByColor(input);
-    if (checkColor < 3) {
-        return checkColor;
-    }
     Scalar inputMean;
     Scalar iStdDev;
     meanStdDev(input, inputMean, iStdDev);
@@ -619,7 +615,7 @@ unsigned int IMProc::detect1or2or3orBonusByColor(Mat const &input) {
     if (m[0] > Paramater::bonusMeanThreshold) {
         return 4;
     } else {
-        return 3;
+        return detect1or2orHigherByColor(input);
     }
 }
 
@@ -664,7 +660,7 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo
         meanStdDev(diffL, meanL, stdDevL);
         meanStdDev(diffR, meanR, stdDevR);
         
-        MYSHOW(diffL);\
+        //MYSHOW(diffL);\
         MYSHOW(diffR);\
         MYSHOW(binaryTileSS);
         
@@ -688,6 +684,8 @@ shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
         
     });
     Mat narrowHint = screenImageToHintImage(ss);
+    MYSHOW(narrowHint);
+    MYSHOW(screenImageToBonusHintImage(ss));
     unsigned int narrowHintResult = detect1or2or3orBonusByColor(narrowHint);
     if (narrowHintResult <= 3) {
         return make_shared<ForcedHint const>(narrowHintResult);
@@ -698,7 +696,6 @@ shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
     
     Mat binaryHintSS;
     threshold(greyHint, binaryHintSS, 200, 255, THRESH_BINARY);
-    MYSHOW(screenImageToBonusHintImage(ss));
     
     pair<shared_ptr<ForcedHint const>, Mat> bestMatch = *min_element(hintImages.begin(), hintImages.end(), [&binaryHintSS](pair<shared_ptr<ForcedHint const>, Mat> l, pair<shared_ptr<ForcedHint const>, Mat> r){
         
