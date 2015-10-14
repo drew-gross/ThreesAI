@@ -151,7 +151,7 @@ void testBoardMovement() {
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     for (int i = 0; i < 1; i++) {
         //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();

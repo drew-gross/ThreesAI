@@ -623,6 +623,33 @@ array<Mat, 16> IMProc::tilesFromScreenImage(Mat const& image) {
     return tileImages(boardImageFromScreen(image));
 }
 
+float minShiftedMean(Mat const& query, Mat const& train) {
+    Mat t(2,3,CV_32F);
+    
+    t.at<float>(0,0) = 1;
+    t.at<float>(0,1) = 0;
+    t.at<float>(0,2) = 0;
+    
+    t.at<float>(1,0) = 0;
+    t.at<float>(1,1) = 1;
+    t.at<float>(1,2) = 0;
+    
+    float minMean = INFINITY;
+    for (int i = -5; i <= 5; i += 5) {
+        for (int j = -5; j <= 5; j += 5) {
+            t.at<float>(0,2) = i;
+            t.at<float>(1,2) = j;
+            Mat shiftedQuery;
+            warpAffine(query, shiftedQuery, t, Size(query.rows, query.cols), INTER_LINEAR, BORDER_REPLICATE);
+            Mat diff;
+            absdiff(shiftedQuery, train, diff);
+            
+            minMean = MIN(minMean, mean(diff)[0]);
+        }
+    }
+    return minMean;
+}
+
 MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo> const& canonicalTiles) {
     Scalar mean;
     Scalar stdDev;
@@ -652,19 +679,10 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo
         absdiff(binaryCanonicalTileL, binaryTileSS, diffL);
         absdiff(binaryCanonicalTileR, binaryTileSS, diffR);
         
-        Scalar meanL;
-        Scalar meanR;
-        Scalar stdDevL;
-        Scalar stdDevR;
+        float meanL = minShiftedMean(binaryTileSS, binaryCanonicalTileL);
+        float meanR = minShiftedMean(binaryTileSS, binaryCanonicalTileR);
         
-        meanStdDev(diffL, meanL, stdDevL);
-        meanStdDev(diffR, meanR, stdDevR);
-        
-        //MYSHOW(diffL);\
-        MYSHOW(diffR);\
-        MYSHOW(binaryTileSS);
-        
-        return meanL[0] < meanR[0];
+        return meanL < meanR;
     });
     if (bestMatch.second.value == 768 || bestMatch.second.value == 384) {
         MatchResult SIFTresult = IMProc::tileValue(tileSS, canonicalTiles);

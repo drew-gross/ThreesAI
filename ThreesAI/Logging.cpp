@@ -25,7 +25,7 @@ string gen_random(const int len) {
 
 void Log::imShow(const string& winname, cv::InputArray image, double scale) {
     Mat smaller;
-    resize(image, smaller, Size(), 1/scale, 1/scale);
+    resize(image, smaller, Size(), 1/scale, 1/scale, INTER_NEAREST);
     imshow(winname, smaller);
     
     string filename = "/tmp/threesAIdata/";
