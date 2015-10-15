@@ -640,9 +640,12 @@ float minShiftedMean(Mat const& query, Mat const& train) {
             t.at<float>(0,2) = i;
             t.at<float>(1,2) = j;
             Mat shiftedQuery;
-            warpAffine(query, shiftedQuery, t, Size(query.rows, query.cols), INTER_LINEAR, BORDER_REPLICATE);
+            warpAffine(query, shiftedQuery, t, Size(query.cols, query.rows), INTER_LINEAR, BORDER_REPLICATE);
             Mat diff;
             absdiff(shiftedQuery, train, diff);
+            //MYSHOW(diff);\
+            MYSHOW(shiftedQuery);\
+            MYSHOW(train);
             
             minMean = MIN(minMean, mean(diff)[0]);
         }
@@ -673,16 +676,7 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo
         threshold(l.second.image, binaryCanonicalTileL, 200, 255, THRESH_BINARY);
         threshold(r.second.image, binaryCanonicalTileR, 200, 255, THRESH_BINARY);
         
-        Mat diffL;
-        Mat diffR;
-        
-        absdiff(binaryCanonicalTileL, binaryTileSS, diffL);
-        absdiff(binaryCanonicalTileR, binaryTileSS, diffR);
-        
-        float meanL = minShiftedMean(binaryTileSS, binaryCanonicalTileL);
-        float meanR = minShiftedMean(binaryTileSS, binaryCanonicalTileR);
-        
-        return meanL < meanR;
+        return minShiftedMean(binaryTileSS, binaryCanonicalTileL) < minShiftedMean(binaryTileSS, binaryCanonicalTileR);
     });
     if (bestMatch.second.value == 768 || bestMatch.second.value == 384) {
         MatchResult SIFTresult = IMProc::tileValue(tileSS, canonicalTiles);
@@ -696,14 +690,13 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo
 
 shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
     static vector<pair<shared_ptr<ForcedHint const>, Mat>> hintImages({
-        {make_shared<ForcedHint const>(12,24,48), imread("/Users/drewgross/Projects/ThreesAI/SampleData/12,24,48.png", 0)},
-        {make_shared<ForcedHint const>(6,12), imread("/Users/drewgross/Projects/ThreesAI/SampleData/6,12.png", 0)},
-        {make_shared<ForcedHint const>(6), imread("/Users/drewgross/Projects/ThreesAI/SampleData/6.png", 0)},
+        {make_shared<ForcedHint const>(12,24,48), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-12-24-48.png", 0))},
+        {make_shared<ForcedHint const>(6,12,24), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12-24.png", 0))},
+        {make_shared<ForcedHint const>(6,12), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12.png", 0))},
+        {make_shared<ForcedHint const>(6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
         
     });
     Mat narrowHint = screenImageToHintImage(ss);
-    MYSHOW(narrowHint);
-    MYSHOW(screenImageToBonusHintImage(ss));
     unsigned int narrowHintResult = detect1or2or3orBonusByColor(narrowHint);
     if (narrowHintResult <= 3) {
         return make_shared<ForcedHint const>(narrowHintResult);
@@ -717,32 +710,21 @@ shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
     
     pair<shared_ptr<ForcedHint const>, Mat> bestMatch = *min_element(hintImages.begin(), hintImages.end(), [&binaryHintSS](pair<shared_ptr<ForcedHint const>, Mat> l, pair<shared_ptr<ForcedHint const>, Mat> r){
         
-        
         Mat binaryCanonicalTileL;
         Mat binaryCanonicalTileR;
         threshold(l.second, binaryCanonicalTileL, 1, 255, THRESH_OTSU);
         threshold(r.second, binaryCanonicalTileR, 1, 255, THRESH_OTSU);
+        //MYSHOW(binaryHintSS);\
+        MYSHOW(binaryCanonicalTileL);\
+        MYSHOW(binaryCanonicalTileR);
         
-        Mat diffL;
-        Mat diffR;
-        
-        absdiff(binaryCanonicalTileL, binaryHintSS, diffL);
-        absdiff(binaryCanonicalTileR, binaryHintSS, diffR);
-        
-        Scalar meanL;
-        Scalar meanR;
-        Scalar stdDevL;
-        Scalar stdDevR;
-        
-        meanStdDev(diffL, meanL, stdDevL);
-        meanStdDev(diffR, meanR, stdDevR);
-        
-        return meanL[0] < meanR[0];
+        return minShiftedMean(binaryHintSS, binaryCanonicalTileL) < minShiftedMean(binaryHintSS, binaryCanonicalTileR);
     });
     return bestMatch.first;
 }
 
 pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss) {
+    shared_ptr<Hint const> hint = getHintFromScreenShot(ss);
     auto tileImages = tilesFromScreenImage(ss);
     const map<int, TileInfo>& canonicalTiles = IMProc::canonicalTiles();
     array<MatchResult, 16> matches;
@@ -756,7 +738,7 @@ pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat
         return m.tile.value;
     });
     
-    return {BoardState(board, getHintFromScreenShot(ss), 0, ss, 4, 4, 4), matches};
+    return {BoardState(board, hint, 0, ss, 4, 4, 4), matches};
 }
 
 pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image) {
