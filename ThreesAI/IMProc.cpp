@@ -676,7 +676,11 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, map<int, TileInfo
         threshold(l.second.image, binaryCanonicalTileL, 200, 255, THRESH_BINARY);
         threshold(r.second.image, binaryCanonicalTileR, 200, 255, THRESH_BINARY);
         
-        return minShiftedMean(binaryTileSS, binaryCanonicalTileL) < minShiftedMean(binaryTileSS, binaryCanonicalTileR);
+        //MYSHOW(binaryCanonicalTileR);\
+        MYSHOW(binaryCanonicalTileL);\
+        MYSHOW(binaryTileSS);
+        
+        return minShiftedMean(binaryTileSS(Rect(0,0,150,120)), binaryCanonicalTileL(Rect(0,0,150,120))) < minShiftedMean(binaryTileSS(Rect(0,0,150,120)), binaryCanonicalTileR(Rect(0,0,150,120)));
     });
     if (bestMatch.second.value == 768 || bestMatch.second.value == 384) {
         MatchResult SIFTresult = IMProc::tileValue(tileSS, canonicalTiles);
