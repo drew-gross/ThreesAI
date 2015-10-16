@@ -22,8 +22,18 @@
 using namespace std;
 using namespace boost;
 
+unsigned int int_log2(unsigned int x) {
+    unsigned int result = 0;
+    while (x > 0) {
+        result++;
+        x >>= 1;
+    }
+    return result;
+}
+
 BoardState::BoardState(Board b,
-                       std::shared_ptr<Hint const> hint,
+                       Tile upcomingTile,
+                       default_random_engine gen,
                        unsigned int numTurns,
                        cv::Mat sourceImage,
                        unsigned int onesInStack,
@@ -37,9 +47,31 @@ onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
 sourceImage(sourceImage),
-hint(hint)
+generator(gen),
+upcomingTile(upcomingTile)
 {
-    debug(!this->hint);
+    this->hint = make_shared<RandomHint>(upcomingTile, this->maxBonusTile(), this->generator);
+}
+
+BoardState::BoardState(Board b,
+                       std::default_random_engine gen,
+                       std::shared_ptr<Hint const> hint,
+                       unsigned int numTurns,
+                       cv::Mat sourceImage,
+                       unsigned int onesInStack,
+                       unsigned int twosInStack,
+                       unsigned int threesInStack) :
+board(b),
+hint(hint),
+isGameOverCacheIsValid(false),
+scoreCacheIsValid(false),
+numTurns(numTurns),
+sourceImage(sourceImage),
+onesInStack(onesInStack),
+twosInStack(twosInStack),
+threesInStack(threesInStack),
+generator(gen) {
+    this->upcomingTile = hint->actualTile(gen);
 }
 
 BoardState::BoardState(Board b,
@@ -57,8 +89,61 @@ onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
 sourceImage(sourceImage),
-hint(new RandomHint(this->upcomingTile(), this->maxBonusTile(), this->generator)) {
-    debug(!this->hint);
+generator(hintGen) {
+    //This function contains an inlined version of possibleNextTiles, for performance reasons (to avoid creating a deque)
+    
+    
+    
+    // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
+    // which means if a 1 is generated for tileFinder, we get here. In this case, use 6,
+    // which would have been returned had there been no floating point error.
+    int upcomingTile = 6;
+    Tile maxBoardTile = this->maxTile();
+    bool canHaveBonus = maxBoardTile >= 48;
+    default_random_engine genCopy = this->generator;
+    uniform_real_distribution<> r(0,1);
+    float tileFinder = r(genCopy);
+    
+    if (this->onesInStack > 0) {
+        float pOne = this->nonBonusTileProbability(1, canHaveBonus);
+        if (tileFinder < pOne) {
+            upcomingTile = 1;
+        } else {
+            tileFinder -= pOne;
+        }
+    }
+    
+    if (this->twosInStack > 0) {
+        float pTwo = this->nonBonusTileProbability(2, canHaveBonus);
+        if (tileFinder < pTwo) {
+            upcomingTile = 2;
+        } else {
+            tileFinder -= pTwo;
+        }
+    }
+    
+    if (this->threesInStack > 0) {
+        float pThree = this->nonBonusTileProbability(3, canHaveBonus);
+        if (tileFinder < pThree) {
+            upcomingTile = 3;
+        } else {
+            tileFinder -= pThree;
+        }
+    }
+    
+    Tile currentBonus = maxBoardTile / 8;
+    unsigned int numPossibleBonusTiles = int_log2(currentBonus) - 2;
+    while (currentBonus >= 6) {
+        float pThisBonus = float(1)/numPossibleBonusTiles/21;
+        if (tileFinder < pThisBonus) {
+            upcomingTile = currentBonus;
+        } else {
+            tileFinder -= pThisBonus;
+            currentBonus /=2;
+        }
+    }
+    this->upcomingTile = upcomingTile;
+    this->hint = make_shared<RandomHint>(upcomingTile, this->maxBonusTile(), this->generator);
 }
 
 std::shared_ptr<Hint const> BoardState::getHint() const {
@@ -106,13 +191,12 @@ BoardState BoardState::fromString(const string s) {
     
     //TODO: get numTurns and source image and values in stack from somewhere
     if (hint.size() == 1) {
-        return BoardState(tileList, make_shared<ForcedHint>(hint[0]), 0, cv::Mat(), 4, 4, 4);
+        return BoardState(tileList, default_random_engine(0), make_shared<ForcedHint>(hint[0]), 0, cv::Mat(), 4, 4, 4);
     } else if (hint.size() == 2) {
-        
-        return BoardState(tileList, make_shared<ForcedHint>(hint[0], hint[1]), 0, cv::Mat(), 4, 4, 4);
+        return BoardState(tileList, default_random_engine(0), make_shared<ForcedHint>(hint[0], hint[1]), 0, cv::Mat(), 4, 4, 4);
     } else {
         debug(hint.size() != 3);
-        return BoardState(tileList, make_shared<ForcedHint>(hint[0], hint[1], hint[2]), 0, cv::Mat(), 4, 4, 4);
+        return BoardState(tileList, default_random_engine(0), make_shared<ForcedHint>(hint[0], hint[1], hint[2]), 0, cv::Mat(), 4, 4, 4);
     }
 }
 
@@ -256,15 +340,6 @@ float BoardState::nonBonusTileProbability(unsigned int tile, bool canHaveBonus) 
     return nonBonusProbability;
 }
 
-unsigned int int_log2(unsigned int x) {
-    unsigned int result = 0;
-    while (x > 0) {
-        result++;
-        x >>= 1;
-    }
-    return result;
-}
-
 deque<pair<unsigned int, float>> BoardState::possibleNextTiles() const {
     Tile maxBoardTile = this->maxTile();
     bool canHaveBonus = maxBoardTile >= 48;
@@ -286,59 +361,6 @@ deque<pair<unsigned int, float>> BoardState::possibleNextTiles() const {
         maxBoardTile /= 2;
     }
     return result;
-}
-
-Tile BoardState::upcomingTile() const {
-    //This function contains an inlined version of possibleNextTiles, for performance reasons (to avoid creating a deque)
-    Tile maxBoardTile = this->maxTile();
-    bool canHaveBonus = maxBoardTile >= 48;
-    default_random_engine genCopy = this->generator;
-    uniform_real_distribution<> r(0,1);
-    float tileFinder = r(genCopy);
-        
-    if (this->onesInStack > 0) {
-        float pOne = this->nonBonusTileProbability(1, canHaveBonus);
-        if (tileFinder < pOne) {
-            return 1;
-        } else {
-            tileFinder -= pOne;
-        }
-    }
-    
-    if (this->twosInStack > 0) {
-        float pTwo = this->nonBonusTileProbability(2, canHaveBonus);
-        if (tileFinder < pTwo) {
-            return 2;
-        } else {
-            tileFinder -= pTwo;
-        }
-    }
-    
-    if (this->threesInStack > 0) {
-        float pThree = this->nonBonusTileProbability(3, canHaveBonus);
-        if (tileFinder < pThree) {
-            return 3;
-        } else {
-            tileFinder -= pThree;
-        }
-    }
-    
-    Tile currentBonus = maxBoardTile / 8;
-    unsigned int numPossibleBonusTiles = int_log2(currentBonus) - 2;
-    while (currentBonus >= 6) {
-        float pThisBonus = float(1)/numPossibleBonusTiles/21;
-        if (tileFinder < pThisBonus) {
-            return currentBonus;
-        } else {
-            tileFinder -= pThisBonus;
-            currentBonus /=2;
-        }
-    }
-    
-    // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
-    // which means if a 1 is generated for tileFinder, we get here. In this case, return 6,
-    // which would have been returned had there been no floating point error.
-    return 6;
 }
 
 ostream& outputTile(ostream &os, unsigned int tile) {
@@ -444,11 +466,10 @@ const BoardState BoardState::addTile(Direction d) const {
     
     shuffle(indices.begin(), indices.end(), genCopy);
     genCopy.discard(1); // If there is only one valid move, then the shuffle won't modify the generator, and the state will get stuck
-    unsigned int nextTileValue = this->upcomingTile();
     
     BoardState copy = this->mutableCopy();
-    copy.board[indices.begin()->first + indices.begin()->second*4] = nextTileValue;
-    switch (nextTileValue) {
+    copy.board[indices.begin()->first + indices.begin()->second*4] = this->upcomingTile;
+    switch (this->upcomingTile) {
         case 1:
             copy.onesInStack--;
             break;

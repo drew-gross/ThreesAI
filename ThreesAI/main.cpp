@@ -149,17 +149,25 @@ void testBoardMovement() {
     debug(!x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}, {2,3}}));
 }
 
+void testMonteCarloAI() {
+    auto board = std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(BoardState::fromString("2,6,3,1,3,24,384,6,6,24,96,192,3,6,1,3-2")));
+    ManyPlayMonteCarloAI ai(board->currentState(), move(board), 2);
+    debug(ai.getDirection() == DOWN);
+    ai.getDirection();
+}
+
 int main(int argc, const char * argv[]) {
     testBoardMovement();
+    testMonteCarloAI();
     //testImageProc(); debug();
     
     for (int i = 0; i < 1; i++) {
-        //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
-        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
+        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
+        //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), move(p));
-        ManyPlayMonteCarloAI ai(p->currentState(), move(p), 100);
+        ManyPlayMonteCarloAI ai(p->currentState(), move(p), 500);
         ai.playGame(true);
         MYLOG(ai.currentState());
     }

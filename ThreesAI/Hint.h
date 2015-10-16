@@ -23,7 +23,7 @@ public:
     bool contains(Tile query) const;
     bool operator!=(Hint const& other) const;
     bool isNonBonus() const;
-    virtual bool isAnyBonus() const = 0;
+    Tile actualTile(std::default_random_engine gen) const;
     
     friend std::ostream& operator<<(std::ostream &os, Hint const& h);
 

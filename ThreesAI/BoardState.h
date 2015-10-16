@@ -29,12 +29,14 @@ public:
     typedef std::array<Tile, 16> Board;
     
     BoardState(Board b,
-               std::shared_ptr<Hint const> hint,
+               Tile upcomingTile,
+               std::default_random_engine gen,
                unsigned int numTurns,
                cv::Mat sourceImage,
                unsigned int onesInStack,
                unsigned int twosInStack,
                unsigned int threesInStack);
+    
     BoardState(Board b,
                std::default_random_engine hintGen,
                unsigned int numTurns,
@@ -42,6 +44,16 @@ public:
                unsigned int onesInStack,
                unsigned int twosInStack,
                unsigned int threesInStack);
+    
+    BoardState(Board b,
+               std::default_random_engine gen,
+               std::shared_ptr<Hint const> hint,
+               unsigned int numTurns,
+               cv::Mat sourceImage,
+               unsigned int onesInStack,
+               unsigned int twosInStack,
+               unsigned int threesInStack);
+    
     static BoardState fromString(const std::string s);
     
     unsigned int numTurns;
@@ -87,12 +99,13 @@ private:
     BoardState mutableCopy() const;
     
     bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
-    Tile upcomingTile() const;
+    Tile nextBoardUpcomingTile() const;
     
     unsigned int onesInStack;
     unsigned int twosInStack;
     unsigned int threesInStack;
     Board board;
+    Tile upcomingTile;
     std::shared_ptr<Hint const> hint;
 };
 

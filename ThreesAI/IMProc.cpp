@@ -742,7 +742,7 @@ pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat
         return m.tile.value;
     });
     
-    return {BoardState(board, hint, 0, ss, 4, 4, 4), matches};
+    return {BoardState(board, default_random_engine(0), hint, 0, ss, 4, 4, 4), matches};
 }
 
 pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image) {
@@ -764,10 +764,10 @@ pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat c
     
     unsigned int hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage(image)));
     if (hint < 4) {
-        return {BoardState(board, make_shared<ForcedHint const>(hint), 0, image, 4, 4, 4), matches};
+        return {BoardState(board, default_random_engine(0), make_shared<ForcedHint const>(hint), 0, image, 4, 4, 4), matches};
     } else {
         //TODO: get the real bonus tile hint here
-        return {BoardState(board, ForcedHint::unknownBonus(), 0, image, 4, 4, 4), matches};
+        return {BoardState(board, default_random_engine(0), ForcedHint::unknownBonus(), 0, image, 4, 4, 4), matches};
     }
 }
 

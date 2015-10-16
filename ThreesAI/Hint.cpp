@@ -20,10 +20,18 @@ bool Hint::isNonBonus() const {
     return this->contains(1) || this->contains(2) || this->contains(3);
 }
 
-bool Hint::operator!=(Hint const& other) const {
-    if (this->isAnyBonus() != other.isAnyBonus()) {
-        return true;
+Tile Hint::actualTile(default_random_engine gen) const {
+    uniform_int_distribution<> r(1, this->hint3 ? 3 : this->hint2 ? 2 : this->hint1);
+    switch (r(gen)) {
+        case 1: return this->hint1;
+        case 2: return this->hint2;
+        case 3: return this->hint3;
     }
+    debug();
+    return 0;
+}
+
+bool Hint::operator!=(Hint const& other) const {
     if (!other.contains(this->hint1)) {
         return true;
     }
@@ -49,7 +57,7 @@ bool Hint::contains(unsigned int query) const {
     if (query == this->hint3) {
         return true;
     }
-    return this->isAnyBonus() && query >= 6;
+    return false;
 }
 
 ostream& operator<<(ostream &os, Hint const& h) {
