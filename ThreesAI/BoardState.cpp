@@ -22,15 +22,6 @@
 using namespace std;
 using namespace boost;
 
-unsigned int int_log2(unsigned int x) {
-    unsigned int result = 0;
-    while (x > 0) {
-        result++;
-        x >>= 1;
-    }
-    return result;
-}
-
 BoardState::BoardState(Board b,
                        Tile upcomingTile,
                        default_random_engine gen,
@@ -97,49 +88,54 @@ generator(hintGen) {
     // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
     // which means if a 1 is generated for tileFinder, we get here. In this case, use 6,
     // which would have been returned had there been no floating point error.
-    int upcomingTile = 6;
+    Tile upcomingTile = Tile::TILE_6;
     Tile maxBoardTile = this->maxTile();
-    bool canHaveBonus = maxBoardTile >= 48;
+    bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
     default_random_engine genCopy = this->generator;
     uniform_real_distribution<> r(0,1);
     float tileFinder = r(genCopy);
     
     if (this->onesInStack > 0) {
-        float pOne = this->nonBonusTileProbability(1, canHaveBonus);
+        float pOne = this->nonBonusTileProbability(Tile::TILE_1, canHaveBonus);
         if (tileFinder < pOne) {
-            upcomingTile = 1;
+            upcomingTile = Tile::TILE_1;
         } else {
             tileFinder -= pOne;
         }
     }
     
     if (this->twosInStack > 0) {
-        float pTwo = this->nonBonusTileProbability(2, canHaveBonus);
+        float pTwo = this->nonBonusTileProbability(Tile::TILE_2, canHaveBonus);
         if (tileFinder < pTwo) {
-            upcomingTile = 2;
+            upcomingTile = Tile::TILE_2;
         } else {
             tileFinder -= pTwo;
         }
     }
     
     if (this->threesInStack > 0) {
-        float pThree = this->nonBonusTileProbability(3, canHaveBonus);
+        float pThree = this->nonBonusTileProbability(Tile::TILE_3, canHaveBonus);
         if (tileFinder < pThree) {
-            upcomingTile = 3;
+            upcomingTile = Tile::TILE_3;
         } else {
             tileFinder -= pThree;
         }
     }
     
-    Tile currentBonus = maxBoardTile / 8;
-    unsigned int numPossibleBonusTiles = int_log2(currentBonus) - 2;
-    while (currentBonus >= 6) {
+    Tile currentBonus = pred(pred(pred(maxBoardTile)));
+    Tile possibleBonusCounter = currentBonus;
+    unsigned int numPossibleBonusTiles = 0;
+    while (possibleBonusCounter > Tile::TILE_3) {
+        possibleBonusCounter = pred(possibleBonusCounter);
+        numPossibleBonusTiles++;
+    }
+    while (currentBonus >= Tile::TILE_6) {
         float pThisBonus = float(1)/numPossibleBonusTiles/21;
         if (tileFinder < pThisBonus) {
             upcomingTile = currentBonus;
         } else {
             tileFinder -= pThisBonus;
-            currentBonus /=2;
+            currentBonus  = pred(currentBonus);
         }
     }
     this->upcomingTile = upcomingTile;
@@ -179,14 +175,14 @@ BoardState BoardState::fromString(const string s) {
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
     
-    std::array<unsigned int, 16> tileList;
+    std::array<Tile, 16> tileList;
     transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
-        return stoi(s);
+        return tileFromString(s);
     });
     
-    deque<unsigned int> hint(nextTileHintStrings.size());
+    deque<Tile> hint(nextTileHintStrings.size());
     transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), hint.begin(), [](string s) {
-        return stoi(s);
+        return tileFromString(s);
     });
     
     //TODO: get numTurns and source image and values in stack from somewhere
@@ -200,7 +196,7 @@ BoardState BoardState::fromString(const string s) {
     }
 }
 
-unsigned int BoardState::at(BoardIndex const& p) const {
+Tile BoardState::at(BoardIndex const& p) const {
     return this->board[p.first+p.second*4];
 }
 
@@ -212,53 +208,40 @@ bool BoardState::isGameOver() const {
     return this->isGameOverCache;
 }
 
-bool BoardState::canMerge(BoardIndex const& target, BoardIndex const& here) const {
-    if (this->at(target) == 0) {
-        return this->at(here) != 0;
-    }
-    if (this->at(target) == 1) {
-        return this->at(here) == 2;
-    }
-    if (this->at(target) == 2) {
-        return this->at(here) == 1;
-    }
-    return this->at(target) == this->at(here);
-}
-
 bool BoardState::canMove(Direction d) const {
     switch (d) {
-        case UP:
+        case Direction::UP:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({i, 0}, {i, 1}) ||
-                    this->canMerge({i, 1}, {i, 2}) ||
-                    this->canMerge({i, 2}, {i, 3})) {
+                if (mergeResult(this->at({i, 0}), this->at({i, 1})) ||
+                    mergeResult(this->at({i, 1}), this->at({i, 2})) ||
+                    mergeResult(this->at({i, 2}), this->at({i, 3}))) {
                     return true;
                 }
             }
             break;
-        case DOWN:
+        case Direction::DOWN:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({i, 3}, {i, 2}) ||
-                    this->canMerge({i, 2}, {i, 1}) ||
-                    this->canMerge({i, 1}, {i, 0})) {
+                if (mergeResult(this->at({i, 3}), this->at({i, 2})) ||
+                    mergeResult(this->at({i, 2}), this->at({i, 1})) ||
+                    mergeResult(this->at({i, 1}), this->at({i, 0}))) {
                     return true;
                 }
             }
             break;
-        case LEFT:
+        case Direction::LEFT:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({0, i}, {1, i}) ||
-                    this->canMerge({1, i}, {2, i}) ||
-                    this->canMerge({2, i}, {3, i})) {
+                if (mergeResult(this->at({0, i}), this->at({1, i})) ||
+                    mergeResult(this->at({1, i}), this->at({2, i})) ||
+                    mergeResult(this->at({2, i}), this->at({3, i}))) {
                     return true;
                 }
             }
             break;
-        case RIGHT:
+        case Direction::RIGHT:
             for (unsigned i = 0; i < 4; i++) {
-                if (this->canMerge({3, i}, {2, i}) ||
-                    this->canMerge({2, i}, {1, i}) ||
-                    this->canMerge({1, i}, {0, i})) {
+                if (mergeResult(this->at({3, i}), this->at({2, i})) ||
+                    mergeResult(this->at({2, i}), this->at({1, i})) ||
+                    mergeResult(this->at({1, i}), this->at({0, i}))) {
                     return true;
                 }
             }
@@ -270,7 +253,7 @@ bool BoardState::canMove(Direction d) const {
 }
 
 Tile BoardState::maxBonusTile() const {
-    return this->maxTile()/8;
+    return pred(pred(pred(this->maxTile())));
 }
 
 bool BoardState::hasSameTilesAs(BoardState const& otherBoard, vector<BoardState::BoardIndex> excludedIndices) const {
@@ -278,8 +261,8 @@ bool BoardState::hasSameTilesAs(BoardState const& otherBoard, vector<BoardState:
         for (unsigned char j = 0; j < 4; j++) {
             BoardIndex curIndex(i,j);
             if (find(excludedIndices.begin(), excludedIndices.end(), curIndex) == excludedIndices.end()) {
-                unsigned int tile = this->at(curIndex);
-                unsigned int otherTile = otherBoard.at(curIndex);
+                Tile tile = this->at(curIndex);
+                Tile otherTile = otherBoard.at(curIndex);
                 if (tile != otherTile) {
                     return false;
                 }
@@ -292,16 +275,16 @@ bool BoardState::hasSameTilesAs(BoardState const& otherBoard, vector<BoardState:
 vector<BoardState::BoardIndex> BoardState::validIndicesForNewTile(Direction movedDirection) const {
     std::array<BoardIndex, 4> indicies;
     switch (movedDirection) {
-        case LEFT:
+        case Direction::LEFT:
             indicies = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
             break;
-        case RIGHT:
+        case Direction::RIGHT:
             indicies = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
             break;
-        case UP:
+        case Direction::UP:
             indicies = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
             break;
-        case DOWN:
+        case Direction::DOWN:
             indicies = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
             break;
         default:
@@ -309,7 +292,7 @@ vector<BoardState::BoardIndex> BoardState::validIndicesForNewTile(Direction move
     }
     vector<BoardIndex> result;
     for (auto&& index : indicies) {
-        if (this->at(index) == 0) {
+        if (this->at(index) == Tile::EMPTY) {
             result.push_back(index);
         }
     }
@@ -320,18 +303,20 @@ unsigned int BoardState::stackSize() const {
     return this->onesInStack + this->twosInStack + this->threesInStack;
 }
 
-float BoardState::nonBonusTileProbability(unsigned int tile, bool canHaveBonus) const {
+float BoardState::nonBonusTileProbability(Tile tile, bool canHaveBonus) const {
     unsigned int count = 0;
     switch (tile) {
-        case 1:
+        case Tile::TILE_1:
             count = this->onesInStack;
             break;
-        case 2:
+        case Tile::TILE_2:
             count = this->twosInStack;
             break;
-        case 3:
+        case Tile::TILE_3:
             count = this->threesInStack;
             break;
+        default:
+            debug();
     }
     float nonBonusProbability = float(count)/this->stackSize();
     if (canHaveBonus) {
@@ -340,31 +325,37 @@ float BoardState::nonBonusTileProbability(unsigned int tile, bool canHaveBonus) 
     return nonBonusProbability;
 }
 
-deque<pair<unsigned int, float>> BoardState::possibleNextTiles() const {
+deque<pair<Tile, float>> BoardState::possibleNextTiles() const {
     Tile maxBoardTile = this->maxTile();
-    bool canHaveBonus = maxBoardTile >= 48;
-    deque<pair<unsigned int, float>> result;
+    bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
+    deque<pair<Tile, float>> result;
     //should be able to only add 1,2,3 if they are in the stack
     if (this->onesInStack > 0) {
-        result.push_back({1, this->nonBonusTileProbability(1, canHaveBonus)});
+        result.push_back({Tile::TILE_1, this->nonBonusTileProbability(Tile::TILE_1, canHaveBonus)});
     }
     if (this->twosInStack > 0) {
-        result.push_back({2, this->nonBonusTileProbability(2, canHaveBonus)});
+        result.push_back({Tile::TILE_2, this->nonBonusTileProbability(Tile::TILE_2, canHaveBonus)});
     }
     if (this->threesInStack > 0) {
-        result.push_back({3, this->nonBonusTileProbability(3, canHaveBonus)});
+        result.push_back({Tile::TILE_3, this->nonBonusTileProbability(Tile::TILE_3, canHaveBonus)});
     }
-    maxBoardTile /= 8;
-    unsigned int numPossibleBonusTiles = int_log2(maxBoardTile) - 2;
-    while (maxBoardTile >= 6) {
-        result.push_back({maxBoardTile, float(1)/numPossibleBonusTiles/21});
-        maxBoardTile /= 2;
+    Tile possibleBonusTileCounter = pred(pred(pred(maxBoardTile)));
+    unsigned int numPossibleBonusTiles = 0;
+    while (possibleBonusTileCounter > Tile::TILE_3) {
+        possibleBonusTileCounter = pred(possibleBonusTileCounter);
+        numPossibleBonusTiles++;
+    }
+    
+    Tile availableBonusTile = pred(pred(pred(maxBoardTile)));
+    while (availableBonusTile > Tile::TILE_3) {
+        result.push_back({availableBonusTile, float(1)/numPossibleBonusTiles/21});
+        availableBonusTile = pred(availableBonusTile);
     }
     return result;
 }
 
-ostream& outputTile(ostream &os, unsigned int tile) {
-    if (tile != 0) {
+ostream& outputTile(ostream &os, Tile tile) {
+    if (tile != Tile::EMPTY) {
         return os << setw(4) << tile;
     } else {
         return os << "    ";
@@ -392,25 +383,23 @@ const BoardState BoardState::moveWithoutAdd(Direction d) const {
     BoardState copy = this->mutableCopy();
     copy.numTurns++;
     
-    vector<pair<BoardIndex, BoardIndex>> movements;
-    
     bool successfulMerge = false;
     bool countUp;
     bool countFirst;
     switch (d) {
-        case UP:
+        case Direction::UP:
             countUp = true;
             countFirst = false;
             break;
-        case DOWN:
+        case Direction::DOWN:
             countUp = false;
             countFirst = false;
             break;
-        case LEFT:
+        case Direction::LEFT:
             countUp = true;
             countFirst = true;
             break;
-        case RIGHT:
+        case Direction::RIGHT:
             countUp = false;
             countFirst = true;
             break;
@@ -419,10 +408,11 @@ const BoardState BoardState::moveWithoutAdd(Direction d) const {
         for (unsigned j = countUp ? 0 : 3; (countUp && j < 3) || (!countUp && j > 0); j += countUp? 1 : -1) {
             BoardIndex target = countFirst ? BoardIndex(j, i) : BoardIndex(i, j);
             BoardIndex here = countFirst ? BoardIndex(j + (countUp ? 1 : -1), i) : BoardIndex(i, j + (countUp ? 1 : -1));
-            if (copy.canMerge(target, here)) {
+            optional<Tile> merged = mergeResult(copy.at(target), copy.at(here));
+            if (merged) {
                 successfulMerge = true;
-                copy.board[target.first + target.second*4] = copy.at(target) + copy.at(here);
-                copy.board[here.first + here.second*4] = 0;
+                copy.board[target.first + target.second*4] = merged.value();
+                copy.board[here.first + here.second*4] = Tile::EMPTY;
             }
         }
     }
@@ -432,7 +422,7 @@ const BoardState BoardState::moveWithoutAdd(Direction d) const {
     return copy;
 }
 
-BoardState BoardState::addSpecificTile(Direction d, BoardIndex const& p, const unsigned int t) const {
+BoardState BoardState::addSpecificTile(Direction d, BoardIndex const& p, const Tile t) const {
     BoardState copy = this->addTile(d); //force RNG to advance the same number of times as if the tile had been added the natural way.
     copy.board = this->board;
     copy.onesInStack = this->onesInStack;
@@ -440,13 +430,13 @@ BoardState BoardState::addSpecificTile(Direction d, BoardIndex const& p, const u
     copy.threesInStack = this->threesInStack;
     copy.board[p.first+p.second*4] = t;
     switch (t) {
-        case 1:
+        case Tile::TILE_1:
             copy.onesInStack--;
             break;
-        case 2:
+        case Tile::TILE_2:
             copy.twosInStack--;
             break;
-        case 3:
+        case Tile::TILE_3:
             copy.threesInStack--;
             break;
         default:
@@ -470,13 +460,13 @@ const BoardState BoardState::addTile(Direction d) const {
     BoardState copy = this->mutableCopy();
     copy.board[indices.begin()->first + indices.begin()->second*4] = this->upcomingTile;
     switch (this->upcomingTile) {
-        case 1:
+        case Tile::TILE_1:
             copy.onesInStack--;
             break;
-        case 2:
+        case Tile::TILE_2:
             copy.twosInStack--;
             break;
-        case 3:
+        case Tile::TILE_3:
             copy.threesInStack--;
             break;
         default:
@@ -498,7 +488,7 @@ const BoardState BoardState::move(Direction d) const {
 vector<Direction> BoardState::validMoves() const {
     vector<Direction> result;
     result.reserve(4);
-    for (auto&& d : {DOWN, UP, LEFT, RIGHT}) {
+    for (auto&& d : {Direction::DOWN, Direction::UP, Direction::LEFT, Direction::RIGHT}) {
         if (this->canMove(d)) {
             result.push_back(d);
         }
@@ -531,24 +521,8 @@ const BoardState BoardState::copyWithDifferentFuture() const {
     return copy;
 }
 
-unsigned int BoardState::maxTile() const {
+Tile BoardState::maxTile() const {
     return *max_element(board.begin(), board.end());
-}
-
-unsigned int tileScore(unsigned int tileValue) {
-    switch (tileValue) {
-        case 0: return 0;
-        case 1: return 0;
-        case 2: return 0;
-        default:
-            unsigned int result = 3;
-            tileValue /= 3;
-            while (tileValue > 1) {
-                result *= 3;
-                tileValue /= 2;
-            }
-            return result;
-    }
 }
 
 unsigned int BoardState::score() const {
@@ -556,7 +530,7 @@ unsigned int BoardState::score() const {
         return this->scoreCache;
     } else {
         this->scoreCacheIsValid = true;
-        this->scoreCache = accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc, unsigned int tile){
+        this->scoreCache = accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc, Tile tile){
             return acc + tileScore(tile);
         });
         return this->scoreCache;

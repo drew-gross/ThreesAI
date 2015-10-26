@@ -24,13 +24,13 @@ Direction getMove() {
     for (;;) {
         switch (getchar()) {
             case 'w':
-                return UP;
+                return Direction::UP;
             case 'a':
-                return LEFT;
+                return Direction::LEFT;
             case 's':
-                return DOWN;
+                return Direction::DOWN;
             case 'd':
-                return RIGHT;
+                return Direction::RIGHT;
             case '\n':
                 break;
             default:

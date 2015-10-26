@@ -21,10 +21,10 @@ ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(BoardState board, unique_ptr<BoardOutpu
 Direction ZeroDepthMaxScoreAI::playTurn() {
     vector<pair<Direction, unsigned int>> scoresForMoves;
     
-    scoresForMoves.push_back({LEFT, this->currentState().moveWithoutAdd(LEFT).score()});
-    scoresForMoves.push_back({RIGHT, this->currentState().moveWithoutAdd(RIGHT).score()});
-    scoresForMoves.push_back({UP, this->currentState().moveWithoutAdd(UP).score()});
-    scoresForMoves.push_back({DOWN, this->currentState().moveWithoutAdd(DOWN).score()});
+    scoresForMoves.push_back({Direction::LEFT, this->currentState().moveWithoutAdd(Direction::LEFT).score()});
+    scoresForMoves.push_back({Direction::RIGHT, this->currentState().moveWithoutAdd(Direction::RIGHT).score()});
+    scoresForMoves.push_back({Direction::UP, this->currentState().moveWithoutAdd(Direction::UP).score()});
+    scoresForMoves.push_back({Direction::DOWN, this->currentState().moveWithoutAdd(Direction::DOWN).score()});
     debug(scoresForMoves.empty());
     return max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){
         return left.second < right.second;

@@ -19,7 +19,7 @@ void ManyPlayMonteCarloAI::prepareDirection() {};
 
 Direction ManyPlayMonteCarloAI::getDirection() const {
     unsigned long bestScore = 0;
-    Direction bestDirection = LEFT;
+    Direction bestDirection = Direction::LEFT;
     for (Direction d : this->currentState().validMoves()) {
         unsigned int playsRemaining = this->numPlays;
         unsigned long currentDirectionTotalScore = 0;

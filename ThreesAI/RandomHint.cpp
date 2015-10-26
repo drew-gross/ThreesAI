@@ -15,26 +15,26 @@
 using namespace std;
 
 RandomHint::RandomHint(Tile upcomingTile, Tile maxBonusTile, default_random_engine rng) {
-    deque<unsigned int> inRangeTiles;
-    unsigned int actualTile = upcomingTile;
-    if (actualTile <= 3) {
+    deque<Tile> inRangeTiles;
+    Tile actualTile = upcomingTile;
+    if (actualTile <= Tile::TILE_3) {
         this->hint1 = actualTile;
-        this->hint2 = 0;
-        this->hint3 = 0;
+        this->hint2 = Tile::EMPTY;
+        this->hint3 = Tile::EMPTY;
     } else {
         //Add tiles that could show up
-        if (actualTile / 4 >= 6) {
-            inRangeTiles.push_back(actualTile/4);
+        if (pred(pred(actualTile)) >= Tile::TILE_6) {
+            inRangeTiles.push_back(pred(pred(actualTile)));
         }
-        if (actualTile / 2 >= 6) {
-            inRangeTiles.push_back(actualTile/2);
+        if (pred(actualTile) >= Tile::TILE_6) {
+            inRangeTiles.push_back(pred(actualTile));
         }
         inRangeTiles.push_back(actualTile);
-        if (actualTile * 2 <= maxBonusTile) {
-            inRangeTiles.push_back(actualTile*2);
+        if (succ(actualTile) <= maxBonusTile) {
+            inRangeTiles.push_back(succ(actualTile));
         }
-        if (actualTile * 4 <= maxBonusTile) {
-            inRangeTiles.push_back(actualTile*4);
+        if (succ(succ(actualTile)) <= maxBonusTile) {
+            inRangeTiles.push_back(succ(succ(actualTile)));
         }
         
         //Trim list down to 3
@@ -67,10 +67,10 @@ bool RandomHint::isAnyBonus() const {
 
 ostream& RandomHint::print(ostream& os) const {
     os << this->hint1;
-    if (this->hint2 > 0) {
+    if (this->hint2 > Tile::EMPTY) {
         os << " " << this->hint2;
     }
-    if (this->hint3 > 0) {
+    if (this->hint3 > Tile::EMPTY) {
         os << " " << this->hint3;
     }
     return os;

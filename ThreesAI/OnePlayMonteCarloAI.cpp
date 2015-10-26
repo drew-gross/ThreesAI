@@ -19,7 +19,7 @@ void OnePlayMonteCarloAI::prepareDirection(){}
 
 Direction OnePlayMonteCarloAI::getDirection() const {
     int bestScore = 0;
-    Direction bestDirection = LEFT;
+    Direction bestDirection = Direction::LEFT;
     vector<Direction> validMoves = this->currentState().validMoves();
     for (Direction d : validMoves) {
         BoardState copyToExplore = this->currentState().move(d).copyWithDifferentFuture();

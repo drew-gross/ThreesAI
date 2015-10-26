@@ -16,17 +16,19 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/nonfree/nonfree.hpp>
 
+#include <boost/optional/optional.hpp>
+
 #include "BoardState.h"
 
 class TileInfo {
 public:
     TileInfo();
-    TileInfo(cv::Mat image, int value, const cv::SIFT& sifter);
+    TileInfo(cv::Mat image, Tile value, const cv::SIFT& sifter);
     
     cv::Mat image;
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
-    int value;
+    Tile value;
 };
 
 class MatchResult {
@@ -49,6 +51,8 @@ public:
     float quality;
     float imageStdDev;
 };
+
+typedef std::map<Tile, TileInfo> CanonicalTiles;
 
 namespace IMProc {
     namespace Paramater {
@@ -98,13 +102,13 @@ namespace IMProc {
     std::array<cv::Mat, 16> tilesFromScreenImage(cv::Mat const& image);
     cv::Mat screenImage(cv::Mat const& colorBoardImage);
     
-    MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
-    MatchResult tileValueFromScreenShot(cv::Mat const& image, const std::map<int, TileInfo>& canonicalTiles);
+    MatchResult tileValue(const cv::Mat& tileImage, const CanonicalTiles& canonicalTiles);
+    MatchResult tileValueFromScreenShot(cv::Mat const& image, const CanonicalTiles& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     
     std::shared_ptr<Hint const> getHintFromScreenShot(cv::Mat const& ss);
     
-    const std::map<int, TileInfo>& canonicalTiles();
+    const std::map<Tile, TileInfo>& canonicalTiles();
     const cv::SIFT& canonicalSifter();
     const cv::SIFT& imageSifter();
     
@@ -112,8 +116,8 @@ namespace IMProc {
     const std::vector<cv::Mat> color1hints();
     const std::vector<cv::Mat> color2hints();
     const std::vector<cv::Mat> color3hints();
-    unsigned int detect1or2orHigherByColor(cv::Mat const &input);
-    unsigned int detect1or2or3orBonusByColor(cv::Mat const& i);
+    boost::optional<Tile> detect1or2orHigherByColor(cv::Mat const &input);
+    boost::optional<Tile> detect1or2or3orBonusByColor(cv::Mat const& i);
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */

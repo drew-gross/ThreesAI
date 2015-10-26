@@ -43,7 +43,7 @@ bool boardTransitionIsValid(BoardState const &oldBoard, shared_ptr<Hint const> o
     }
     
     for (auto&& index : unknownIndexes) {
-        if (newBoard.at(index) != 0) {
+        if (newBoard.at(index) != Tile::EMPTY) {
             return (oldHint->contains(newBoard.at(index)));
         }
     }
@@ -53,16 +53,16 @@ bool boardTransitionIsValid(BoardState const &oldBoard, shared_ptr<Hint const> o
 void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     if (this->fd >= 0) {
         switch (d) {
-            case LEFT:
+            case Direction::LEFT:
                 serialport_write(this->fd, "l");
                 break;
-            case RIGHT:
+            case Direction::RIGHT:
                 serialport_write(this->fd, "r");
                 break;
-            case UP:
+            case Direction::UP:
                 serialport_write(this->fd, "u");
                 break;
-            case DOWN:
+            case Direction::DOWN:
                 serialport_write(this->fd, "d");
                 break;
         }

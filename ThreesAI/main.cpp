@@ -50,7 +50,7 @@ unsigned int testImage(path p) {
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
     
-    ForcedHint nextTileHint(stoi(nextTileHintStrings[0]), nextTileHintStrings.size() > 1 ? stoi(nextTileHintStrings[1]) : 0, nextTileHintStrings.size() > 2 ? stoi(nextTileHintStrings[2]) : 0);
+    ForcedHint nextTileHint(tileFromString(nextTileHintStrings[0]), nextTileHintStrings.size() > 1 ? tileFromString(nextTileHintStrings[1]) : Tile::EMPTY, nextTileHintStrings.size() > 2 ? tileFromString(nextTileHintStrings[2]) : Tile::EMPTY);
     
     Mat camImage = imread(p.string());
     array<Mat, 16> tiles;
@@ -69,7 +69,7 @@ unsigned int testImage(path p) {
     }
     for (unsigned char i = 0; i < 16; i++) {
         MatchResult extracted = result.second.at(i);
-        int expectedValue = expectedBoard.at({i%4,i/4});
+        Tile expectedValue = expectedBoard.at({i%4,i/4});
         if (expectedValue != extracted.tile.value) {
             MatchResult expected(IMProc::canonicalTiles().at(expectedValue), tiles[i]);
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
@@ -115,22 +115,22 @@ void testBoardMovement() {
                                             0,0,1,1,\
                                             0,0,0,0,\
                                             0,0,0,0-1");
-    auto b2 = b1.moveWithoutAdd(LEFT);
+    auto b2 = b1.moveWithoutAdd(Direction::LEFT);
     debug(!b2.hasSameTilesAs(BoardState::fromString("0,1,1,0,\
                                                      0,1,1,0,\
                                                      0,0,0,0,\
                                                      0,0,0,0-1"), {}));
-    auto b3 = b2.moveWithoutAdd(DOWN);
+    auto b3 = b2.moveWithoutAdd(Direction::DOWN);
     debug(!b3.hasSameTilesAs(BoardState::fromString("0,0,0,0,\
                                                      0,1,1,0,\
                                                      0,1,1,0,\
                                                      0,0,0,0-1"), {}));
-    auto b4 = b3.moveWithoutAdd(RIGHT);
+    auto b4 = b3.moveWithoutAdd(Direction::RIGHT);
     debug(!b4.hasSameTilesAs(BoardState::fromString("0,0,0,0,\
                                                      0,0,1,1,\
                                                      0,0,1,1,\
                                                      0,0,0,0-1"), {}));
-    auto b5 = b4.moveWithoutAdd(UP);
+    auto b5 = b4.moveWithoutAdd(Direction::UP);
     debug(!b5.hasSameTilesAs(BoardState::fromString("0,0,1,1,\
                                                      0,0,1,1,\
                                                      0,0,0,0,\
@@ -150,24 +150,27 @@ void testBoardMovement() {
 }
 
 void testMonteCarloAI() {
-    auto board = std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(BoardState::fromString("2,6,3,1,3,24,384,6,6,24,96,192,3,6,1,3-2")));
-    ManyPlayMonteCarloAI ai(board->currentState(), move(board), 2);
-    debug(ai.getDirection() == DOWN);
+    auto board = std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(BoardState::fromString("2,6,3,1,\
+                                                                                                        3,24,384,6,\
+                                                                                                        6,24,96,192,\
+                                                                                                        3,6,1,3-2")));
+    ManyPlayMonteCarloAI ai(board->currentState(), std::move(board), 2);
+    debug(ai.getDirection() == Direction::DOWN);
     ai.getDirection();
 }
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
     testMonteCarloAI();
-    //testImageProc(); debug();
+    testImageProc(); debug();
     
     for (int i = 0; i < 1; i++) {
-        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
-        //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
+        //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
+        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), move(p));
-        ManyPlayMonteCarloAI ai(p->currentState(), move(p), 500);
+        ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), 500);
         ai.playGame(true);
         MYLOG(ai.currentState());
     }

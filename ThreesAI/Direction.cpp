@@ -12,16 +12,16 @@ using namespace std;
 
 ostream& operator<<(ostream &os, Direction d){
     switch (d) {
-        case UP:
+        case Direction::UP:
             os << "UP";
             break;
-        case DOWN:
+        case Direction::DOWN:
             os << "DOWN";
             break;
-        case RIGHT:
+        case Direction::RIGHT:
             os << "RIGHT";
             break;
-        case LEFT:
+        case Direction::LEFT:
             os << "LEFT";
             break;
     }

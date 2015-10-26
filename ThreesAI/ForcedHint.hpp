@@ -12,10 +12,7 @@
 #include "Hint.h"
 
 class ForcedHint : public Hint {
-    bool isThisAnyBonus;
-    
 public:
-    bool isAnyBonus() const;
     std::ostream& print(std::ostream&) const;
     
     static std::shared_ptr<ForcedHint const>  unknownBonus();

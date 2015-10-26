@@ -10,7 +10,7 @@
 
 using namespace std;
 
-ChanceNodeEdge::ChanceNodeEdge(unsigned int newTileValue, BoardState::BoardIndex newTileLocation) :
+ChanceNodeEdge::ChanceNodeEdge(Tile newTileValue, BoardState::BoardIndex newTileLocation) :
 newTileValue(newTileValue),
 newTileLocation(newTileLocation) {}
 

@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-typedef enum Direction {
+typedef enum class Direction {
     UP,
     DOWN,
     LEFT,

@@ -17,18 +17,26 @@
 using namespace std;
 
 bool Hint::isNonBonus() const {
-    return this->contains(1) || this->contains(2) || this->contains(3);
+    return this->contains(Tile(1)) || this->contains(Tile(2)) || this->contains(Tile(3));
 }
 
 Tile Hint::actualTile(default_random_engine gen) const {
-    uniform_int_distribution<> r(1, this->hint3 ? 3 : this->hint2 ? 2 : this->hint1);
+    int num_options = 0;
+    if (this->hint3 != Tile::EMPTY) {
+        num_options = 3;
+    } else if (this->hint2 != Tile::EMPTY) {
+        num_options = 2;
+    } else {
+        num_options = 1;
+    }
+    uniform_int_distribution<> r(1, num_options);
     switch (r(gen)) {
         case 1: return this->hint1;
         case 2: return this->hint2;
         case 3: return this->hint3;
     }
     debug();
-    return 0;
+    return Tile::EMPTY;
 }
 
 bool Hint::operator!=(Hint const& other) const {
@@ -44,8 +52,8 @@ bool Hint::operator!=(Hint const& other) const {
     return false;
 }
 
-bool Hint::contains(unsigned int query) const {
-    if (query == 0) {
+bool Hint::contains(Tile query) const {
+    if (query == Tile::EMPTY) {
         return false;
     }
     if (query == this->hint1) {

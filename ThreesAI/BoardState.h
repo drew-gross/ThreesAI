@@ -19,10 +19,8 @@
 #include "ForcedHint.hpp"
 
 #include <opencv2/opencv.hpp>
-
 class BoardState {
 public:
-    typedef unsigned int Tile;
     typedef std::pair<unsigned int, unsigned int> BoardIndex;
     static std::array<BoardIndex, 16> indexes();
     
@@ -58,9 +56,9 @@ public:
     
     unsigned int numTurns;
     
-    unsigned int at(BoardIndex const& p) const;
+    Tile at(BoardIndex const& p) const;
     //Advances the RNG like how is normally done when adding a tile, but pretends the tile was actually added in the specified place.
-    BoardState addSpecificTile(Direction d, BoardState::BoardIndex const& i, const unsigned int t) const;
+    BoardState addSpecificTile(Direction d, BoardState::BoardIndex const& i, const Tile t) const;
     
     bool isGameOver() const;
     
@@ -73,12 +71,12 @@ public:
     
     const BoardState copyWithDifferentFuture() const;
     
-    std::deque<std::pair<unsigned int, float>> possibleNextTiles() const;
+    std::deque<std::pair<Tile, float>> possibleNextTiles() const;
     std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
     
     unsigned int score() const;
     
-    unsigned int maxTile() const;
+    Tile maxTile() const;
     bool hasSameTilesAs(BoardState const& otherBoard, std::vector<BoardIndex> excludedIndices) const;
     
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
@@ -98,7 +96,6 @@ private:
     
     BoardState mutableCopy() const;
     
-    bool canMerge(BoardIndex const& target, BoardIndex const& here) const;
     Tile nextBoardUpcomingTile() const;
     
     unsigned int onesInStack;

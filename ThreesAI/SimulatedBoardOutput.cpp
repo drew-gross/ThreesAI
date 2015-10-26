@@ -20,7 +20,7 @@ SimulatedBoardOutput::SimulatedBoardOutput(BoardState b) : state(b) {}
 
 unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard() {
     static default_random_engine shuffler;
-    std::array<unsigned int, 16> initialTiles = {3,3,3,2,2,2,1,1,1,0,0,0,0,0,0,0};
+    std::array<Tile, 16> initialTiles = {Tile::TILE_3,Tile::TILE_3,Tile::TILE_3,Tile::TILE_2,Tile::TILE_2,Tile::TILE_2,Tile::TILE_1,Tile::TILE_1,Tile::TILE_1,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY};
     shuffle(initialTiles.begin(), initialTiles.end(), shuffler);
     return unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(initialTiles, shuffler, 4, 4, 4));
 }

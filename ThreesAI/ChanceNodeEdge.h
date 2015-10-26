@@ -14,9 +14,9 @@
 class ChanceNodeEdge {
 public:
     ChanceNodeEdge(BoardState stateBeforeAdd, BoardState stateAfterAdd);
-    ChanceNodeEdge(unsigned int newTileValue, BoardState::BoardIndex newTileLocation);
+    ChanceNodeEdge(Tile newTileValue, BoardState::BoardIndex newTileLocation);
     
-    unsigned int newTileValue;
+    Tile newTileValue;
     BoardState::BoardIndex newTileLocation;
 };
 
