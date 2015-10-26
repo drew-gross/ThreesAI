@@ -642,7 +642,7 @@ float minShiftedMean(Mat const& query, Mat const& train) {
     
     float minMean = INFINITY;
     for (int i = -5; i <= 5; i += 5) {
-        for (int j = -5; j <= 5; j += 5) {
+        for (int j = -10; j <= 5; j += 5) {
             t.at<float>(0,2) = i;
             t.at<float>(1,2) = j;
             Mat shiftedQuery;
