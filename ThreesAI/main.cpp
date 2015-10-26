@@ -159,12 +159,30 @@ void testMonteCarloAI() {
     ai.getDirection();
 }
 
+void testMoveAndFindIndexes() {
+    BoardState preMove = BoardState::fromString("0,0,1,0,\
+                                                 0,0,3,0,\
+                                                 3,0,24,0,\
+                                                 6,3,2,1-2");
+    BoardState postMove = preMove.moveWithoutAdd(Direction::LEFT);
+    MYLOG(postMove);
+    BoardState expected = BoardState::fromString("0,1,0,0,\
+                                                 0,3,0,0,\
+                                                 3,24,0,0,\
+                                                 6,3,3,0-3");
+    MYLOG(expected);
+    debug(!postMove.hasSameTilesAs(expected, {}));
+    preMove.moveWithoutAdd(Direction::LEFT);
+    
+}
+
 int main(int argc, const char * argv[]) {
     testBoardMovement();
     testMonteCarloAI();
-    testImageProc(); debug();
+    testMoveAndFindIndexes();
+    //testImageProc(); debug();
     
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 3; i++) {
         //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         auto initialState = watcher->getGameState();\

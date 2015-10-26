@@ -17,6 +17,7 @@ public:
     //Throws if move is invalid. Returns location and value of new tile if not.
     virtual void move(Direction d, BoardState const& originalBoard) = 0;
     virtual BoardState currentState() const = 0;
+    virtual ~BoardOutput() {};
 };
 
 #endif /* defined(__ThreesAI__BoardOutput__) */

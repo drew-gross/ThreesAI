@@ -61,7 +61,7 @@ optional<Tile> mergeResult(Tile t1, Tile t2) {
     switch (t1) {
         case Tile::EMPTY: return t2 == Tile::EMPTY ? none : make_optional(t2);
         case Tile::TILE_1: return t2 == Tile::TILE_2 ? make_optional(Tile::TILE_3) : none;
-        case Tile::TILE_2: return t1 == Tile::TILE_1 ? make_optional(Tile::TILE_3) : none;
+        case Tile::TILE_2: return t2 == Tile::TILE_1 ? make_optional(Tile::TILE_3) : none;
         case Tile::TILE_3: return t2 == Tile::TILE_3 ? make_optional(Tile::TILE_6) : none;
         case Tile::TILE_6: return t2 == Tile::TILE_6 ? make_optional(Tile::TILE_12) : none;
         case Tile::TILE_12: return t2 == Tile::TILE_12 ? make_optional(Tile::TILE_24) : none;
