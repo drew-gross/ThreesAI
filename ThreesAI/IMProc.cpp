@@ -219,33 +219,11 @@ const vector<Mat> IMProc::color3hints() {
     static Mat image3 = screenImageToHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample3Hint3.png"));
     return {image1, image2, image3};
 }
-
-const Mat IMProc::color12(int which) {
-    static bool hasBoard = false;
-    static Mat board12;
-    if (hasBoard) {
-        return tileFromIntersection(board12, 0, which == 1 ? 200 : 0);
-    }
-    Mat image12 = imread("/Users/drewgross/Projects/ThreesAI/SampleData/12.png");
-
-    
-    warpPerspective(image12, board12, getPerspectiveTransform(fromPoints12, toPoints12), Size(200,400));
-    hasBoard = true;
-    return color12(which);
-}
-
 const map<Tile, TileInfo>* loadCanonicalTiles() {
     Mat image = imread("/Users/drewgross/Projects/ThreesAI/SampleData/Tiles.png", 0);
     Mat boardImage;
     
     map<Tile, TileInfo>* results = new map<Tile, TileInfo>();
-    
-    Mat grey1;
-    Mat grey2;
-    cvtColor(IMProc::color12(1), grey1, COLOR_RGB2GRAY);
-    cvtColor(IMProc::color12(2), grey2, COLOR_RGB2GRAY);
-    results->emplace(piecewise_construct, forward_as_tuple(Tile::TILE_1), forward_as_tuple(grey1, Tile::TILE_1, IMProc::canonicalSifter()));
-    results->emplace(piecewise_construct, forward_as_tuple(Tile::TILE_2), forward_as_tuple(grey2, Tile::TILE_2, IMProc::canonicalSifter()));
     
     const int L = 80;
     const int R = 560;
@@ -259,17 +237,11 @@ const map<Tile, TileInfo>* loadCanonicalTiles() {
     warpPerspective(image, boardImage, transform, Size(800,600));
     
     
-    const std::array<Tile, 14> indexToTile = {Tile::TILE_1,Tile::TILE_2,Tile::TILE_3,Tile::TILE_6,Tile::TILE_12,Tile::TILE_24,Tile::TILE_48,Tile::TILE_96,Tile::TILE_192,Tile::TILE_384,Tile::TILE_768,Tile::TILE_1536,Tile::TILE_3072,Tile::TILE_6144};
+    const std::array<Tile, 12> indexToTile = {Tile::TILE_3,Tile::TILE_6,Tile::TILE_12,Tile::TILE_24,Tile::TILE_48,Tile::TILE_96,Tile::TILE_192,Tile::TILE_384,Tile::TILE_768,Tile::TILE_1536,Tile::TILE_3072,Tile::EMPTY};//TODO: empty is only empty until I get a 6144 tile
     
     for (unsigned char i = 0; i < 3; i++) {
         for (unsigned char j = 0; j < 4; j++) {
-            Tile value = indexToTile[results->size()];
-            //dirty hack to get an empty tile into the map
-            //TODO: fix this.
-            if (value == Tile::TILE_6144) {
-                value = Tile::EMPTY;
-            }
-            
+            Tile value = indexToTile[i*4+j];
             results->emplace(piecewise_construct, forward_as_tuple(value), forward_as_tuple(IMProc::tileFromIntersection(boardImage, 200*j, 200*i), value, IMProc::canonicalSifter()));
         }
     }
@@ -548,14 +520,17 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const CanonicalTiles& c
         return detect6vs96vs192(goodMatchResults, greyTileImage);
     }
     
+    //If we think it's a 1 or 2, double check against the color of tile
     if (goodMatchResults[0].tile.value == Tile::TILE_1 ||
         goodMatchResults[0].tile.value == Tile::TILE_2)
     {
         Rect flatRegionRect = Rect(0,0,40,100);
-        optional<Tile> result = detect1or2or3orBonusByColor(colorTileImage(flatRegionRect));
-        for (auto&& m : matchResults) {
-            if (m.tile.value == result) {
-                return m;
+        optional<MatchResult> result = detect1or2or3orBonusByColor(colorTileImage(flatRegionRect));
+        if (result) {
+            for (auto&& m : matchResults) {
+                if (m.tile.value == result.value().tile.value) {
+                    return m;
+                }
             }
         }
     }
@@ -569,6 +544,16 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const CanonicalTiles& c
     } else {
         return goodMatchResults[0];
     }
+}
+
+const TileInfo TileInfo::Tile1Info() {
+    static TileInfo i = TileInfo(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Only.png"), Tile::TILE_1, IMProc::canonicalSifter());
+    return i;
+}
+
+const TileInfo TileInfo::Tile2Info() {
+    static TileInfo i = TileInfo(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Only.png"), Tile::TILE_2, IMProc::canonicalSifter());
+    return i;
 }
 
 array<Mat, 16> tileImages(Mat boardImage) {
@@ -593,21 +578,21 @@ double distanceToNearestInVector(Mat query, vector<Mat> train) {
     return closestDist;
 }
 
-optional<Tile> IMProc::detect1or2orHigherByColor(Mat const &input) {
+optional<MatchResult> IMProc::detect1or2orHigherByColor(Mat const &input) {
     double closestSample1distance = distanceToNearestInVector(input, color1hints());
     double closestSample2distance = distanceToNearestInVector(input, color2hints());
     double closestSample3distance = distanceToNearestInVector(input, color3hints());
     
     if (closestSample1distance < closestSample2distance && closestSample1distance < closestSample3distance) {
-        return Tile::TILE_1;
+        return MatchResult(TileInfo::Tile1Info(), input);
     } else if (closestSample2distance < closestSample3distance) {
-        return Tile::TILE_2;
+        return MatchResult(TileInfo::Tile2Info(), input);
     } else {
         return none;
     }
 }
 
-optional<Tile> IMProc::detect1or2or3orBonusByColor(Mat const &input) {
+optional<MatchResult> IMProc::detect1or2or3orBonusByColor(Mat const &input) {
     Scalar inputMean;
     Scalar iStdDev;
     meanStdDev(input, inputMean, iStdDev);
@@ -616,11 +601,11 @@ optional<Tile> IMProc::detect1or2or3orBonusByColor(Mat const &input) {
     if (m[0] > Paramater::bonusMeanThreshold) {
         return boost::none;
     } else {
-        optional<Tile> nonBonusResult = detect1or2orHigherByColor(input);
+        optional<MatchResult> nonBonusResult = detect1or2orHigherByColor(input);
         if (nonBonusResult) {
             return nonBonusResult;
         } else {
-            return make_optional(Tile::TILE_3);
+            return make_optional(MatchResult(canonicalTiles().at(Tile::TILE_3), input));
         }
     }
 }
@@ -666,9 +651,13 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, const CanonicalTi
     if (stdDev[0] <= 1) {
         return MatchResult(canonicalTiles.at(Tile::EMPTY), tileSS);
     }
-    optional<Tile> colorDetectionResult = IMProc::detect1or2orHigherByColor(tileSS);
+    optional<MatchResult> colorDetectionResult = IMProc::detect1or2orHigherByColor(tileSS);
     if (colorDetectionResult) {
-        return MatchResult(canonicalTiles.at(colorDetectionResult.value()), tileSS);
+        switch (colorDetectionResult.value().tile.value) {
+            case Tile::TILE_1: return MatchResult(TileInfo::Tile1Info(), tileSS);
+            case Tile::TILE_2: return MatchResult(TileInfo::Tile2Info(), tileSS);
+            default: break;
+        }
     }
     Mat greyTile;
     cvtColor(tileSS, greyTile, CV_RGB2GRAY);
@@ -707,9 +696,9 @@ std::shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
         
     });
     Mat narrowHint = screenImageToHintImage(ss);
-    optional<Tile> narrowHintResult = detect1or2or3orBonusByColor(narrowHint);
+    optional<MatchResult> narrowHintResult = detect1or2or3orBonusByColor(narrowHint);
     if (narrowHintResult) {
-        return make_shared<ForcedHint const>(narrowHintResult.value());
+        return make_shared<ForcedHint const>(narrowHintResult.value().tile.value);
     }
     
     Mat greyHint;
@@ -766,9 +755,9 @@ pair<BoardState, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat c
         return m.tile.value;
     });
     
-    optional<Tile> hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage(image)));
+    optional<MatchResult> hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage(image)));
     if (hint) {
-        return {BoardState(board, default_random_engine(0), make_shared<ForcedHint const>(hint.value()), 0, image, 4, 4, 4), matches};
+        return {BoardState(board, default_random_engine(0), make_shared<ForcedHint const>(hint.value().tile.value), 0, image, 4, 4, 4), matches};
     } else {
         //TODO: get the real bonus tile hint here
         return {BoardState(board, default_random_engine(0), ForcedHint::unknownBonus(), 0, image, 4, 4, 4), matches};

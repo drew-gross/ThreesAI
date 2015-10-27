@@ -1,4 +1,4 @@
-//
+it//
 //  main.cpp
 //  ThreesAI
 //
@@ -180,7 +180,8 @@ int main(int argc, const char * argv[]) {
     testBoardMovement();
     testMonteCarloAI();
     testMoveAndFindIndexes();
-    //testImageProc(); debug();
+    testImageProc(); debug();
+    
     
     for (int i = 0; i < 3; i++) {
         //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();

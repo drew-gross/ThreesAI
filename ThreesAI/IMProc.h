@@ -29,6 +29,9 @@ public:
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
     Tile value;
+    
+    static const TileInfo Tile1Info();
+    static const TileInfo Tile2Info();
 };
 
 class MatchResult {
@@ -112,12 +115,11 @@ namespace IMProc {
     const cv::SIFT& canonicalSifter();
     const cv::SIFT& imageSifter();
     
-    const cv::Mat color12(int which);
     const std::vector<cv::Mat> color1hints();
     const std::vector<cv::Mat> color2hints();
     const std::vector<cv::Mat> color3hints();
-    boost::optional<Tile> detect1or2orHigherByColor(cv::Mat const &input);
-    boost::optional<Tile> detect1or2or3orBonusByColor(cv::Mat const& i);
+    boost::optional<MatchResult> detect1or2orHigherByColor(cv::Mat const &input);
+    boost::optional<MatchResult> detect1or2or3orBonusByColor(cv::Mat const& i);
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */
