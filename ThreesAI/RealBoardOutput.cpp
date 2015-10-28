@@ -69,9 +69,9 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         
         serialport_flush(fd);
     }
-    
-    //Wait 0.5s to allow image to stabilize
-    usleep(500000);
+    char buf[2];
+    /*int success = */serialport_read_until(this->fd, buf, ' ', 2, 1000);
+    //debug(success != 0 || buf[0] != 'x'); Reads are failing for some reason... but the timeout solves the same problem.
     
     BoardState expectedBoardAfterMove = originalBoard.moveWithoutAdd(d);
     vector<BoardState::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
@@ -80,8 +80,10 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     
     if (newState.hasSameTilesAs(originalBoard, {})) {
         //Movement failed, retry.
+        MYLOG("Movement failed, retrying");
         return this->move(d, originalBoard);
     }
+    //TODO: Detect if some other move was made accidentally, and just go with it.
     
     bool ok = boardTransitionIsValid(expectedBoardAfterMove, originalBoard.getHint(), d, newState);
     
@@ -90,6 +92,8 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         MYSHOWSMALL(originalBoard.sourceImage, 4);
         MYLOG(newState);
         MYSHOWSMALL(newState.sourceImage, 4);
+        MYLOG(d);
+        MYLOG(expectedBoardAfterMove);
         debug();
         IMProc::boardFromAnyImage(originalBoard.sourceImage);
         IMProc::boardFromAnyImage(newState.sourceImage);

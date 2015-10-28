@@ -1,4 +1,4 @@
-it//
+//
 //  main.cpp
 //  ThreesAI
 //
@@ -165,22 +165,18 @@ void testMoveAndFindIndexes() {
                                                  3,0,24,0,\
                                                  6,3,2,1-2");
     BoardState postMove = preMove.moveWithoutAdd(Direction::LEFT);
-    MYLOG(postMove);
     BoardState expected = BoardState::fromString("0,1,0,0,\
                                                  0,3,0,0,\
                                                  3,24,0,0,\
                                                  6,3,3,0-3");
-    MYLOG(expected);
     debug(!postMove.hasSameTilesAs(expected, {}));
-    preMove.moveWithoutAdd(Direction::LEFT);
-    
 }
 
 int main(int argc, const char * argv[]) {
     testBoardMovement();
     testMonteCarloAI();
     testMoveAndFindIndexes();
-    testImageProc(); debug();
+    //testImageProc(); debug();
     
     
     for (int i = 0; i < 3; i++) {

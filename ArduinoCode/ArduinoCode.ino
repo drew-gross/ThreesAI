@@ -51,5 +51,6 @@ void loop() {
         delay(500);
         buttonPresser.write(180);
     }
+    Serial.write('x');
   }
 }
