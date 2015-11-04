@@ -92,6 +92,8 @@ private:
     mutable bool isGameOverCacheIsValid;
     mutable unsigned int scoreCache;
     mutable bool scoreCacheIsValid;
+    mutable bool validMovesCacheIsValid;
+    mutable std::vector<Direction> validMovesCache;
     std::default_random_engine generator;
     
     BoardState mutableCopy() const;

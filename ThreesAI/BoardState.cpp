@@ -478,6 +478,7 @@ const BoardState BoardState::addTile(Direction d) const {
         copy.threesInStack = 4;
     }
     copy.generator = genCopy;
+    copy.upcomingTile = copy.hint->actualTile(genCopy);
     return copy;
 }
 
@@ -486,14 +487,17 @@ const BoardState BoardState::move(Direction d) const {
 }
 
 vector<Direction> BoardState::validMoves() const {
-    vector<Direction> result;
-    result.reserve(4);
+    if (this->validMovesCacheIsValid) {
+        return this->validMovesCache;
+    }
+    this->validMovesCache.clear();
+    this->validMovesCache.reserve(4);
     for (auto&& d : {Direction::DOWN, Direction::UP, Direction::LEFT, Direction::RIGHT}) {
         if (this->canMove(d)) {
-            result.push_back(d);
+            this->validMovesCache.push_back(d);
         }
     }
-    return result;
+    return this->validMovesCache;
 }
 
 Direction BoardState::randomValidMoveFromInternalGenerator() const {
@@ -507,6 +511,7 @@ BoardState BoardState::mutableCopy() const {
     BoardState result = *this;
     result.scoreCacheIsValid = false;
     result.isGameOverCacheIsValid = false;
+    result.validMovesCacheIsValid = false;
     return result;
 }
 

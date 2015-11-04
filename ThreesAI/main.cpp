@@ -173,20 +173,20 @@ void testMoveAndFindIndexes() {
 }
 
 int main(int argc, const char * argv[]) {
-    testBoardMovement();
-    testMonteCarloAI();
-    testMoveAndFindIndexes();
+    //testBoardMovement();
+    //testMonteCarloAI();
+    //testMoveAndFindIndexes();
     //testImageProc(); debug();
     
     
-    for (int i = 0; i < 3; i++) {
-        //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
+    for (int i = 0; i < 1; i++) {
+        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
-        auto initialState = watcher->getGameState();\
+        //auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), move(p));
-        ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), 10000);
-        ai.playGame(false); //Passed bool used to print move.
+        ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), 100);
+        ai.playGame(true); //Passed bool used to print move.
         MYLOG(ai.currentState());
     }
     return 0;
