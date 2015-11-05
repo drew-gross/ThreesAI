@@ -81,14 +81,21 @@ twosInStack(twosInStack),
 threesInStack(threesInStack),
 sourceImage(sourceImage),
 generator(hintGen) {
+    if (onesInStack + twosInStack + threesInStack == 0) {
+        this->onesInStack = 4;
+        this->twosInStack = 4;
+        this->threesInStack = 4;
+    }
+    this->upcomingTile = this->genUpcomingTile();
+    this->hint = make_shared<RandomHint>(upcomingTile, this->maxBonusTile(), this->generator);
+}
+
+Tile BoardState::genUpcomingTile() const {
     //This function contains an inlined version of possibleNextTiles, for performance reasons (to avoid creating a deque)
-    
-    
     
     // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
     // which means if a 1 is generated for tileFinder, we get here. In this case, use 6,
     // which would have been returned had there been no floating point error.
-    Tile upcomingTile = Tile::TILE_6;
     Tile maxBoardTile = this->maxTile();
     bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
     default_random_engine genCopy = this->generator;
@@ -98,7 +105,7 @@ generator(hintGen) {
     if (this->onesInStack > 0) {
         float pOne = this->nonBonusTileProbability(Tile::TILE_1, canHaveBonus);
         if (tileFinder < pOne) {
-            upcomingTile = Tile::TILE_1;
+            return Tile::TILE_1;
         } else {
             tileFinder -= pOne;
         }
@@ -107,7 +114,7 @@ generator(hintGen) {
     if (this->twosInStack > 0) {
         float pTwo = this->nonBonusTileProbability(Tile::TILE_2, canHaveBonus);
         if (tileFinder < pTwo) {
-            upcomingTile = Tile::TILE_2;
+            return Tile::TILE_2;
         } else {
             tileFinder -= pTwo;
         }
@@ -116,7 +123,7 @@ generator(hintGen) {
     if (this->threesInStack > 0) {
         float pThree = this->nonBonusTileProbability(Tile::TILE_3, canHaveBonus);
         if (tileFinder < pThree) {
-            upcomingTile = Tile::TILE_3;
+            return Tile::TILE_3;
         } else {
             tileFinder -= pThree;
         }
@@ -132,14 +139,13 @@ generator(hintGen) {
     while (currentBonus >= Tile::TILE_6) {
         float pThisBonus = float(1)/numPossibleBonusTiles/21;
         if (tileFinder < pThisBonus) {
-            upcomingTile = currentBonus;
+            return currentBonus;
         } else {
             tileFinder -= pThisBonus;
-            currentBonus  = pred(currentBonus);
+            currentBonus = pred(currentBonus);
         }
     }
-    this->upcomingTile = upcomingTile;
-    this->hint = make_shared<RandomHint>(upcomingTile, this->maxBonusTile(), this->generator);
+    return Tile::TILE_6;
 }
 
 std::shared_ptr<Hint const> BoardState::getHint() const {
@@ -457,28 +463,18 @@ const BoardState BoardState::addTile(Direction d) const {
     shuffle(indices.begin(), indices.end(), genCopy);
     genCopy.discard(1); // If there is only one valid move, then the shuffle won't modify the generator, and the state will get stuck
     
-    BoardState copy = this->mutableCopy();
+    BoardState copy(
+        this->board,
+        genCopy,
+        this->numTurns + 1,
+        this->sourceImage,
+        this->onesInStack - (this->upcomingTile == Tile::TILE_1 ? 1 : 0),
+        this->twosInStack - (this->upcomingTile == Tile::TILE_2 ? 1 : 0),
+        this->threesInStack - (this->upcomingTile == Tile::TILE_3 ? 1 : 0)
+    );
+    
     copy.board[indices.begin()->first + indices.begin()->second*4] = this->upcomingTile;
-    switch (this->upcomingTile) {
-        case Tile::TILE_1:
-            copy.onesInStack--;
-            break;
-        case Tile::TILE_2:
-            copy.twosInStack--;
-            break;
-        case Tile::TILE_3:
-            copy.threesInStack--;
-            break;
-        default:
-            break;
-    }
-    if (copy.onesInStack + copy.twosInStack + copy.threesInStack == 0) {
-        copy.onesInStack = 4;
-        copy.twosInStack = 4;
-        copy.threesInStack = 4;
-    }
     copy.generator = genCopy;
-    copy.upcomingTile = copy.hint->actualTile(genCopy);
     return copy;
 }
 

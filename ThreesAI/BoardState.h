@@ -88,6 +88,8 @@ public:
     
     cv::Mat sourceImage;
 private:
+    Tile genUpcomingTile() const;
+    
     mutable bool isGameOverCache;
     mutable bool isGameOverCacheIsValid;
     mutable unsigned int scoreCache;
@@ -97,8 +99,6 @@ private:
     std::default_random_engine generator;
     
     BoardState mutableCopy() const;
-    
-    Tile nextBoardUpcomingTile() const;
     
     unsigned int onesInStack;
     unsigned int twosInStack;
