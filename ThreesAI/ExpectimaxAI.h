@@ -28,11 +28,11 @@ private:
     void fillInChild(unsigned int n=1);
     
 public:
-    ExpectimaxAI(BoardState board, std::unique_ptr<BoardOutput> output);
+    ExpectimaxAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output);
     
     Direction getDirection() const;
     void prepareDirection();
-    void receiveState(Direction d, BoardState const & afterMoveState);
+    void receiveState(Direction d, std::shared_ptr<BoardState const> afterMoveState);
     
 };
 

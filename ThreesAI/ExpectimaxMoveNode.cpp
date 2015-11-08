@@ -19,7 +19,7 @@
 
 using namespace std;
 
-ExpectimaxMoveNode::ExpectimaxMoveNode(BoardState const& board, unsigned int depth): ExpectimaxNode<Direction>(board, depth) {}
+ExpectimaxMoveNode::ExpectimaxMoveNode(std::shared_ptr<BoardState const> board, unsigned int depth): ExpectimaxNode<Direction>(board, depth) {}
 
 pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() const {
     return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> right){
@@ -31,9 +31,9 @@ pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChi
 
 void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList){
     debug(this->childrenAreFilledIn());
-    vector<Direction> validMoves = this->board.validMoves();
+    vector<Direction> validMoves = this->board->validMoves();
     for (auto&& d : validMoves) {
-        BoardState childBoard = this->board.moveWithoutAdd(d);
+        std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::MoveWithoutAdd(d), *this->board);
         shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d, this->depth+1);
         this->children.insert({d, child});
         unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));
@@ -47,13 +47,13 @@ void ExpectimaxMoveNode::pruneUnreachableChildren(shared_ptr<Hint const> nextTil
 }
 
 float ExpectimaxMoveNode::value() const {
-    if (this->board.isGameOver()) {
+    if (this->board->isGameOver()) {
         return 0;
     }
     if (this->childrenAreFilledIn()) {
         return this->maxChild().second->value();
     }
-    return this->board.score();
+    return this->board->score();
 }
 
 std::shared_ptr<const ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction const& d) const {
@@ -70,7 +70,7 @@ void ExpectimaxMoveNode::outputDotEdges(float p) const {
     cout << "Value=" << setprecision(7) << this->value() << endl;
     cout << "P=" << p << endl;
     cout << this->board << "\"";
-    if (this->board.isGameOver()) {
+    if (this->board->isGameOver()) {
         cout << ",style=filled,color=red";
     }
     cout << "]" << endl;

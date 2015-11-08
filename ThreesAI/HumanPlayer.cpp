@@ -14,7 +14,7 @@
 
 using namespace std;
 
-HumanPlayer::HumanPlayer(BoardState board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
+HumanPlayer::HumanPlayer(std::shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
 
 void HumanPlayer::receiveState(Direction d, BoardState const & newState) {}
 void HumanPlayer::prepareDirection() {}
@@ -41,10 +41,10 @@ Direction getMove() {
 }
 
 Direction HumanPlayer::getDirection() const {
-    cout << this->currentState() << endl;
+    cout << *this->currentState() << endl;
     for (;;) {
         Direction d = getMove();
-        if (this->currentState().canMove(d)) {
+        if (this->currentState()->canMove(d)) {
             return d;
         } else {
             cout << "Illegal move!" << endl;

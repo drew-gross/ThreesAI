@@ -13,11 +13,13 @@
 
 #include "BoardState.h"
 
+#include <memory>
+
 class CameraSource : public GameStateSource {
 public:
     CameraSource(int camNumber);
     
-    BoardState getGameState();
+    std::shared_ptr<BoardState const> getGameState();
     
 private:
     cv::VideoCapture watcher;

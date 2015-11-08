@@ -10,6 +10,7 @@
 #define __ThreesAI__Direction__
 
 #include <iostream>
+#include <array>
 
 typedef enum class Direction {
     UP,
@@ -17,6 +18,8 @@ typedef enum class Direction {
     LEFT,
     RIGHT
 } Direction;
+
+const std::array<Direction,4> directions = {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
 
 std::ostream& operator<<(std::ostream &os, Direction d);
 

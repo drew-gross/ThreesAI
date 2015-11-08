@@ -59,6 +59,9 @@ RandomHint::RandomHint(Tile upcomingTile, Tile maxBonusTile, default_random_engi
         this->hint1 = inRangeTiles[0];
     }
     debug(!this->contains(upcomingTile));
+    debug(this->hint1 > Tile::TILE_6144);
+    debug(this->hint2 > Tile::TILE_6144);
+    debug(this->hint3 > Tile::TILE_6144);
 }
 
 bool RandomHint::isAnyBonus() const {

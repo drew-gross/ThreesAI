@@ -14,10 +14,10 @@ ChanceNodeEdge::ChanceNodeEdge(Tile newTileValue, BoardState::BoardIndex newTile
 newTileValue(newTileValue),
 newTileLocation(newTileLocation) {}
 
-ChanceNodeEdge::ChanceNodeEdge(BoardState stateBeforeAdd, BoardState stateAfterAdd) {
+ChanceNodeEdge::ChanceNodeEdge(std::shared_ptr<BoardState const> stateBeforeAdd, std::shared_ptr<BoardState const> stateAfterAdd) {
     for (auto&& index : BoardState::indexes()) {
-        if (stateBeforeAdd.at(index) != stateAfterAdd.at(index)) {
-            this->newTileValue = stateAfterAdd.at(index);
+        if (stateBeforeAdd->at(index) != stateAfterAdd->at(index)) {
+            this->newTileValue = stateAfterAdd->at(index);
             this->newTileLocation = index;
             return;
         }

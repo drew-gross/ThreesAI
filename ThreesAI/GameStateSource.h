@@ -11,9 +11,11 @@
 
 #include "IMProc.h"
 
+#include <memory>
+
 class GameStateSource {
 public:
-    virtual BoardState getGameState() = 0;
+    virtual std::shared_ptr<BoardState const> getGameState() = 0;
 };
 
 #endif /* defined(__ThreesAI__GameStateSource__) */

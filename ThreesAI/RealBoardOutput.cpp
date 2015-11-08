@@ -31,20 +31,20 @@ RealBoardOutput::~RealBoardOutput() {
     }
 }
 
-BoardState RealBoardOutput::currentState() const {
+std::shared_ptr<BoardState const> RealBoardOutput::currentState() const {
     return this->source->getGameState();
 }
 
-bool boardTransitionIsValid(BoardState const &oldBoard, shared_ptr<Hint const> oldHint, Direction d, BoardState const &newBoard) {
+bool boardTransitionIsValid(BoardState const& oldBoard, shared_ptr<Hint const> oldHint, Direction d, std::shared_ptr<BoardState const> newBoard) {
     auto unknownIndexes = oldBoard.validIndicesForNewTile(d);
     //Check if any of the moved tiles don't read the same
-    if (!newBoard.hasSameTilesAs(oldBoard, unknownIndexes)) {
+    if (!newBoard->hasSameTilesAs(oldBoard, unknownIndexes)) {
         return false;
     }
     
     for (auto&& index : unknownIndexes) {
-        if (newBoard.at(index) != Tile::EMPTY) {
-            return (oldHint->contains(newBoard.at(index)));
+        if (newBoard->at(index) != Tile::EMPTY) {
+            return (oldHint->contains(newBoard->at(index)));
         }
     }
     return false;
@@ -73,31 +73,31 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     /*int success = */serialport_read_until(this->fd, buf, ' ', 2, 1000);
     //debug(success != 0 || buf[0] != 'x'); Reads are failing for some reason... but the timeout solves the same problem.
     
-    BoardState expectedBoardAfterMove = originalBoard.moveWithoutAdd(d);
-    vector<BoardState::BoardIndex> unknownIndexes = expectedBoardAfterMove.validIndicesForNewTile(d);
+    std::shared_ptr<BoardState const> expectedBoardAfterMove = make_shared<BoardState const>(BoardState::MoveWithoutAdd(d), originalBoard);
+    vector<BoardState::BoardIndex> unknownIndexes = expectedBoardAfterMove->validIndicesForNewTile(d);
     
-    BoardState newState = this->source->getGameState();
+    std::shared_ptr<BoardState const> newState = this->source->getGameState();
     
-    if (newState.hasSameTilesAs(originalBoard, {})) {
+    if (newState->hasSameTilesAs(originalBoard, {})) {
         //Movement failed, retry.
         MYLOG("Movement failed, retrying");
         return this->move(d, originalBoard);
     }
     //TODO: Detect if some other move was made accidentally, and just go with it.
     
-    bool ok = boardTransitionIsValid(expectedBoardAfterMove, originalBoard.getHint(), d, newState);
+    bool ok = boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), d, newState);
     
     if (!ok) {
         MYLOG(originalBoard);
         MYSHOWSMALL(originalBoard.sourceImage, 4);
         MYLOG(newState);
-        MYSHOWSMALL(newState.sourceImage, 4);
+        MYSHOWSMALL(newState->sourceImage, 4);
         MYLOG(d);
         MYLOG(expectedBoardAfterMove);
         debug();
         IMProc::boardFromAnyImage(originalBoard.sourceImage);
-        IMProc::boardFromAnyImage(newState.sourceImage);
-        boardTransitionIsValid(expectedBoardAfterMove, originalBoard.getHint(), d, newState);
+        IMProc::boardFromAnyImage(newState->sourceImage);
+        boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), d, newState);
     }
 }
 

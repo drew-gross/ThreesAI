@@ -12,7 +12,7 @@
 
 using namespace std;
 
-OnePlayMonteCarloAI::OnePlayMonteCarloAI(BoardState board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
+OnePlayMonteCarloAI::OnePlayMonteCarloAI(shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
 
 void OnePlayMonteCarloAI::receiveState(Direction d, BoardState const & newState){}
 void OnePlayMonteCarloAI::prepareDirection(){}
@@ -20,15 +20,16 @@ void OnePlayMonteCarloAI::prepareDirection(){}
 Direction OnePlayMonteCarloAI::getDirection() const {
     int bestScore = 0;
     Direction bestDirection = Direction::LEFT;
-    vector<Direction> validMoves = this->currentState().validMoves();
+    vector<Direction> validMoves = this->currentState()->validMoves();
     for (Direction d : validMoves) {
-        BoardState copyToExplore = this->currentState().move(d).copyWithDifferentFuture();
-        while (!copyToExplore.isGameOver()) {
-            copyToExplore = copyToExplore.move(copyToExplore.randomValidMoveFromInternalGenerator());
+        shared_ptr<BoardState> copyToExplore = make_shared<BoardState>(BoardState::CopyType::WITH_DIFFERENT_FUTURE, *this->currentState());
+        copyToExplore = make_shared<BoardState>(BoardState::Move(d), *copyToExplore);
+        while (!copyToExplore->isGameOver()) {
+            copyToExplore = make_shared<BoardState>(BoardState::Move(copyToExplore->randomValidMoveFromInternalGenerator()), *copyToExplore);
         }
-        if (copyToExplore.score() > bestScore) {
+        if (copyToExplore->score() > bestScore) {
             bestDirection = d;
-            bestScore = copyToExplore.score();
+            bestScore = copyToExplore->score();
         }
     }
     return bestDirection;

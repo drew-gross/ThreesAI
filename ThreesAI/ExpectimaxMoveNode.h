@@ -17,7 +17,7 @@ class ExpectimaxChanceNode;
 
 class ExpectimaxMoveNode : public ExpectimaxNode<Direction> {
 public:
-    ExpectimaxMoveNode(BoardState const& board, unsigned int depth);
+    ExpectimaxMoveNode(std::shared_ptr<BoardState const> board, unsigned int depth);
     float value() const;
     
     std::shared_ptr<const ExpectimaxNodeBase> child(Direction const& d) const ;

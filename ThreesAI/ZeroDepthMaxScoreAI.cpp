@@ -16,15 +16,14 @@
 
 using namespace std;
 
-ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(BoardState board, unique_ptr<BoardOutput> output) : ThreesAIBase(move(board), move(output)) {}
+ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(move(board), move(output)) {}
 
 Direction ZeroDepthMaxScoreAI::playTurn() {
     vector<pair<Direction, unsigned int>> scoresForMoves;
     
-    scoresForMoves.push_back({Direction::LEFT, this->currentState().moveWithoutAdd(Direction::LEFT).score()});
-    scoresForMoves.push_back({Direction::RIGHT, this->currentState().moveWithoutAdd(Direction::RIGHT).score()});
-    scoresForMoves.push_back({Direction::UP, this->currentState().moveWithoutAdd(Direction::UP).score()});
-    scoresForMoves.push_back({Direction::DOWN, this->currentState().moveWithoutAdd(Direction::DOWN).score()});
+    for (auto&& d : directions) {
+        scoresForMoves.push_back({d, BoardState(BoardState::MoveWithoutAdd(d), *this->currentState()).score()});
+    }
     debug(scoresForMoves.empty());
     return max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){
         return left.second < right.second;

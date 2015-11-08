@@ -13,7 +13,7 @@ using namespace IMProc;
 
 CameraSource::CameraSource(int camNumber) : watcher(camNumber) {}
 
-BoardState CameraSource::getGameState() {
+std::shared_ptr<BoardState const> CameraSource::getGameState() {
     Mat newImage(getAveragedImage(this->watcher, 8));
     return boardFromAnyImage(newImage);
 }

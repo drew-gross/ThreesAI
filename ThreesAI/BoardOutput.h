@@ -16,7 +16,7 @@ class BoardOutput {
 public:
     //Throws if move is invalid. Returns location and value of new tile if not.
     virtual void move(Direction d, BoardState const& originalBoard) = 0;
-    virtual BoardState currentState() const = 0;
+    virtual std::shared_ptr<BoardState const> currentState() const = 0;
     virtual ~BoardOutput() {};
 };
 

@@ -15,7 +15,7 @@ class QuickTimeSource : public GameStateSource {
 public:
     QuickTimeSource();
     
-    BoardState getGameState();
+    std::shared_ptr<BoardState const> getGameState();
 };
 
 #endif /* defined(__ThreesAI__QuickTimeSource__) */

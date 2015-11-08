@@ -13,15 +13,17 @@
 
 #include "BoardState.h"
 
+#include <memory>
+
 class SimulatedBoardOutput : public BoardOutput {
-    BoardState state;
+    std::shared_ptr<BoardState const> state;
 public:
     SimulatedBoardOutput(BoardState::Board otherBoard, std::default_random_engine hintGen, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack);
-    SimulatedBoardOutput(BoardState b);
+    SimulatedBoardOutput(std::shared_ptr<BoardState const> b);
     
     static std::unique_ptr<SimulatedBoardOutput> randomBoard();
     void move(Direction d, BoardState const& originalBoard);
-    BoardState currentState() const;
+    std::shared_ptr<BoardState const> currentState() const;
 };
 
 #endif /* defined(__ThreesAI__SimulatedBoardOutput__) */

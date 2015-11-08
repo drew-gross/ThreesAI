@@ -19,14 +19,61 @@
 #include "ForcedHint.hpp"
 
 #include <opencv2/opencv.hpp>
-class BoardState {
+
+#include <boost/core/noncopyable.hpp>
+
+class BoardState : boost::noncopyable {
 public:
     typedef std::pair<unsigned int, unsigned int> BoardIndex;
+    
+    enum class CopyType {
+        RAW,
+        WITH_DIFFERENT_FUTURE,
+    };
+    
+    class AddSpecificTile {
+    public:
+        AddSpecificTile(Direction d, BoardIndex const& i, const Tile t) : d(d), i(i), t(t) {};
+        Direction const d;
+        BoardIndex const i;
+        Tile const t;
+    };
+    
+    class AddTile {
+    public:
+        AddTile(Direction d) : d(d) {};
+        Direction const d;
+    };
+    
+    class MoveWithoutAdd {
+    public:
+        MoveWithoutAdd(Direction d) : d(d) {};
+        Direction const d;
+    };
+    
+    class Move {
+    public:
+        Move(Direction d) : d(d) {};
+        Direction const d;
+    };
+    
+    class FromString {
+    public:
+        FromString(std::string s) : s(s) {};
+        std::string const s;
+    };
+    
     static std::array<BoardIndex, 16> indexes();
     
     typedef std::array<Tile, 16> Board;
     
-    BoardState(Board b,
+    BoardState(AddSpecificTile t, BoardState const& other);
+    BoardState(MoveWithoutAdd d, BoardState const& other);
+    BoardState(Move m, BoardState const& other);
+    BoardState(AddTile t, BoardState const& other);
+    BoardState(FromString s);
+    
+    /*BoardState(Board b,
                Tile upcomingTile,
                std::default_random_engine gen,
                unsigned int numTurns,
@@ -35,7 +82,7 @@ public:
                unsigned int twosInStack,
                unsigned int threesInStack);
     
-    BoardState(Board b,
+    */BoardState(Board b,
                std::default_random_engine hintGen,
                unsigned int numTurns,
                cv::Mat sourceImage,
@@ -52,53 +99,51 @@ public:
                unsigned int twosInStack,
                unsigned int threesInStack);
     
-    static BoardState fromString(const std::string s);
+    BoardState(CopyType, BoardState const& b);
     
     unsigned int numTurns;
     
     Tile at(BoardIndex const& p) const;
-    //Advances the RNG like how is normally done when adding a tile, but pretends the tile was actually added in the specified place.
-    BoardState addSpecificTile(Direction d, BoardState::BoardIndex const& i, const Tile t) const;
     
     bool isGameOver() const;
     
     std::vector<Direction> validMoves() const;
     Direction randomValidMoveFromInternalGenerator() const;
     bool canMove(Direction d) const;
-    const BoardState move(Direction d) const;
-    const BoardState moveWithoutAdd(Direction d) const;
-    const BoardState addTile(Direction d) const;
-    
-    const BoardState copyWithDifferentFuture() const;
     
     std::deque<std::pair<Tile, float>> possibleNextTiles() const;
     std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
     
     unsigned int score() const;
-    
-    Tile maxTile() const;
     bool hasSameTilesAs(BoardState const& otherBoard, std::vector<BoardIndex> excludedIndices) const;
     
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
-    friend class Hint;
-    Tile maxBonusTile() const;
-    float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
-    unsigned int stackSize() const;
     std::shared_ptr<Hint const> getHint() const;
     
     cv::Mat sourceImage;
 private:
+    //mutator methods, should only be called inside constructors
+    void set(BoardIndex i, Tile t);
+    BoardIndex indexForNextTile(Direction d);
+    void removeFromStack(Tile t);
+    void copy(BoardState const &other);
+    void move(Direction d);
+    void addTile(Direction d);
+
+    //non-mutators that aren't used extarnally
     Tile genUpcomingTile() const;
+    unsigned int stackSize() const;
+    Tile maxBonusTile() const;
+    Tile maxTile() const;
+    float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     
     mutable bool isGameOverCache;
-    mutable bool isGameOverCacheIsValid;
+    mutable bool isGameOverCacheIsValid = false;
     mutable unsigned int scoreCache;
-    mutable bool scoreCacheIsValid;
-    mutable bool validMovesCacheIsValid;
+    mutable bool scoreCacheIsValid = false;
+    mutable bool validMovesCacheIsValid = false;
     mutable std::vector<Direction> validMovesCache;
     std::default_random_engine generator;
-    
-    BoardState mutableCopy() const;
     
     unsigned int onesInStack;
     unsigned int twosInStack;

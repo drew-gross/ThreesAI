@@ -15,7 +15,7 @@
 
 class RandomAI : public ThreesAIBase {
 public:
-    RandomAI(BoardState board, std::unique_ptr<BoardOutput> output);
+    RandomAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output);
     Direction getDirection() const;
 };
 

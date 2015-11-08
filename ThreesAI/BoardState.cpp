@@ -22,6 +22,132 @@
 using namespace std;
 using namespace boost;
 
+void BoardState::set(BoardState::BoardIndex i, Tile t) {
+    this->board[i.first + i.second*4] = t;
+}
+
+void BoardState::move(Direction d) {
+    bool successfulMerge = false;
+    bool countUp;
+    bool countFirst;
+    switch (d) {
+        case Direction::UP:
+            countUp = true;
+            countFirst = false;
+            break;
+        case Direction::DOWN:
+            countUp = false;
+            countFirst = false;
+            break;
+        case Direction::LEFT:
+            countUp = true;
+            countFirst = true;
+            break;
+        case Direction::RIGHT:
+            countUp = false;
+            countFirst = true;
+            break;
+    }
+    for (unsigned i = 0; i < 4; i++) {
+        for (unsigned j = countUp ? 0 : 3; (countUp && j < 3) || (!countUp && j > 0); j += countUp? 1 : -1) {
+            BoardIndex target = countFirst ? BoardIndex(j, i) : BoardIndex(i, j);
+            BoardIndex here = countFirst ? BoardIndex(j + (countUp ? 1 : -1), i) : BoardIndex(i, j + (countUp ? 1 : -1));
+            optional<Tile> merged = mergeResult(this->at(target), this->at(here));
+            if (merged) {
+                successfulMerge = true;
+                this->set(target, merged.value());
+                this->set(here, Tile::EMPTY);
+            }
+        }
+    }
+    if (!successfulMerge) {
+        throw InvalidMoveException();
+    }
+}
+
+BoardState::BoardState(BoardState::MoveWithoutAdd m, BoardState const& other) {
+    this->copy(other);
+    this->move(m.d);
+}
+
+BoardState::BoardState(BoardState::AddSpecificTile t, BoardState const& other) {
+    this->copy(other);
+    this->indexForNextTile(t.d); //force RNG to advance the same number of times as if the tile had been added the natural way.
+    this->set(t.i, t.t);
+    this->removeFromStack(t.t);
+}
+
+void BoardState::removeFromStack(Tile t) {
+    switch (t) {
+        case Tile::TILE_1:
+            this->onesInStack--;
+            break;
+        case Tile::TILE_2:
+            this->twosInStack--;
+            break;
+        case Tile::TILE_3:
+            this->threesInStack--;
+            break;
+        default:
+            break;
+    }
+    if (this->stackSize() == 0) {
+        this->onesInStack = 4;
+        this->twosInStack = 4;
+        this->threesInStack = 4;
+    }
+}
+
+BoardState::BoardIndex BoardState::indexForNextTile(Direction d) {
+    //Inlined in AddSpecificTile constructor
+    auto indices = this->validIndicesForNewTile(d);
+    shuffle(indices.begin(), indices.end(), this->generator);
+    this->generator.discard(1); // If there is only one valid move, then the shuffle won't modify the generator, and the state will get stuck
+    debug(indices.size() == 0);
+    return *indices.begin();
+}
+
+void BoardState::addTile(Direction d) {
+    BoardIndex i = this->indexForNextTile(d);
+    this->numTurns++;
+    this->removeFromStack(this->upcomingTile);
+    this->set(i, this->upcomingTile);
+}
+
+BoardState::BoardState(BoardState::AddTile t, BoardState const& other) {
+    this->copy(other);
+    this->addTile(t.d);
+}
+
+BoardState::BoardState(BoardState::Move m, BoardState const& other) {
+    this->copy(other);
+    this->move(m.d);
+    this->addTile(m.d);
+}
+
+void BoardState::copy(BoardState const &other) {
+    this->numTurns = other.numTurns;
+    this->sourceImage = other.sourceImage;
+    this->generator = other.generator;
+    this->onesInStack = other.onesInStack;
+    this->twosInStack = other.twosInStack;
+    this->threesInStack = other.threesInStack;
+    this->board = other.board;
+    this->upcomingTile = other.upcomingTile;
+    this->hint = other.hint;
+}
+
+BoardState::BoardState(BoardState::CopyType c, BoardState const& other) {
+    this->copy(other);
+    switch (c) {
+        case BoardState::CopyType::WITH_DIFFERENT_FUTURE:
+            this->generator.discard(1);
+            break;
+        case BoardState::CopyType::RAW:
+            break;
+    }
+}
+/*
 BoardState::BoardState(Board b,
                        Tile upcomingTile,
                        default_random_engine gen,
@@ -31,8 +157,6 @@ BoardState::BoardState(Board b,
                        unsigned int twosInStack,
                        unsigned int threesInStack) :
 board(b),
-isGameOverCacheIsValid(false),
-scoreCacheIsValid(false),
 numTurns(numTurns),
 onesInStack(onesInStack),
 twosInStack(twosInStack),
@@ -42,7 +166,7 @@ generator(gen),
 upcomingTile(upcomingTile)
 {
     this->hint = make_shared<RandomHint>(upcomingTile, this->maxBonusTile(), this->generator);
-}
+}*/
 
 BoardState::BoardState(Board b,
                        std::default_random_engine gen,
@@ -54,8 +178,6 @@ BoardState::BoardState(Board b,
                        unsigned int threesInStack) :
 board(b),
 hint(hint),
-isGameOverCacheIsValid(false),
-scoreCacheIsValid(false),
 numTurns(numTurns),
 sourceImage(sourceImage),
 onesInStack(onesInStack),
@@ -73,21 +195,60 @@ BoardState::BoardState(Board b,
                        unsigned int twosInStack,
                        unsigned int threesInStack) :
 board(b),
-isGameOverCacheIsValid(false),
-scoreCacheIsValid(false),
 numTurns(numTurns),
 onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
 sourceImage(sourceImage),
 generator(hintGen) {
-    if (onesInStack + twosInStack + threesInStack == 0) {
+    if (this->stackSize() == 0) {
         this->onesInStack = 4;
         this->twosInStack = 4;
         this->threesInStack = 4;
     }
     this->upcomingTile = this->genUpcomingTile();
     this->hint = make_shared<RandomHint>(upcomingTile, this->maxBonusTile(), this->generator);
+}
+
+
+BoardState::BoardState(FromString s) :
+generator(0),
+onesInStack(4),
+twosInStack(4),
+threesInStack(4)
+{
+    vector<string> splitName;
+    split(splitName, s.s, is_any_of("-"));
+    
+    deque<string> nums;
+    split(nums, splitName[0], is_any_of(","));
+    debug(nums.size() != 16);
+    
+    deque<string> nextTileHintStrings;
+    split(nextTileHintStrings, splitName[1], is_any_of(","));
+    debug(nextTileHintStrings.size() > 3);
+    
+    std::array<Tile, 16> tileList;
+    transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
+        return tileFromString(s);
+    });
+    
+    deque<Tile> hint(nextTileHintStrings.size());
+    transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), hint.begin(), [](string s) {
+        return tileFromString(s);
+    });
+    
+    if (hint.size() == 1) {
+        this->board = tileList;
+        this->hint = make_shared<ForcedHint>(hint[0]);
+    } else if (hint.size() == 2) {
+        this->board = tileList;
+        this->hint = make_shared<ForcedHint>(hint[0], hint[1]);
+    } else {
+        debug(hint.size() != 3);
+        this->board = tileList;
+        this->hint = make_shared<ForcedHint>(hint[0], hint[1], hint[2]);
+    }
 }
 
 Tile BoardState::genUpcomingTile() const {
@@ -166,40 +327,6 @@ array<BoardState::BoardIndex, 16> BoardState::indexes() {
 ostream& operator<<(ostream &os, const BoardState::BoardIndex i){
     os << "{" << i.first << ", " << i.second << "}";
     return os;
-}
-
-BoardState BoardState::fromString(const string s) {
-    
-    vector<string> splitName;
-    split(splitName, s, is_any_of("-"));
-    
-    deque<string> nums;
-    split(nums, splitName[0], is_any_of(","));
-    debug(nums.size() != 16);
-    
-    deque<string> nextTileHintStrings;
-    split(nextTileHintStrings, splitName[1], is_any_of(","));
-    debug(nextTileHintStrings.size() > 3);
-    
-    std::array<Tile, 16> tileList;
-    transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
-        return tileFromString(s);
-    });
-    
-    deque<Tile> hint(nextTileHintStrings.size());
-    transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), hint.begin(), [](string s) {
-        return tileFromString(s);
-    });
-    
-    //TODO: get numTurns and source image and values in stack from somewhere
-    if (hint.size() == 1) {
-        return BoardState(tileList, default_random_engine(0), make_shared<ForcedHint>(hint[0]), 0, cv::Mat(), 4, 4, 4);
-    } else if (hint.size() == 2) {
-        return BoardState(tileList, default_random_engine(0), make_shared<ForcedHint>(hint[0], hint[1]), 0, cv::Mat(), 4, 4, 4);
-    } else {
-        debug(hint.size() != 3);
-        return BoardState(tileList, default_random_engine(0), make_shared<ForcedHint>(hint[0], hint[1], hint[2]), 0, cv::Mat(), 4, 4, 4);
-    }
 }
 
 Tile BoardState::at(BoardIndex const& p) const {
@@ -385,103 +512,6 @@ ostream& operator<<(ostream &os, BoardState const& board) {
     return os;
 }
 
-const BoardState BoardState::moveWithoutAdd(Direction d) const {
-    BoardState copy = this->mutableCopy();
-    copy.numTurns++;
-    
-    bool successfulMerge = false;
-    bool countUp;
-    bool countFirst;
-    switch (d) {
-        case Direction::UP:
-            countUp = true;
-            countFirst = false;
-            break;
-        case Direction::DOWN:
-            countUp = false;
-            countFirst = false;
-            break;
-        case Direction::LEFT:
-            countUp = true;
-            countFirst = true;
-            break;
-        case Direction::RIGHT:
-            countUp = false;
-            countFirst = true;
-            break;
-    }
-    for (unsigned i = 0; i < 4; i++) {
-        for (unsigned j = countUp ? 0 : 3; (countUp && j < 3) || (!countUp && j > 0); j += countUp? 1 : -1) {
-            BoardIndex target = countFirst ? BoardIndex(j, i) : BoardIndex(i, j);
-            BoardIndex here = countFirst ? BoardIndex(j + (countUp ? 1 : -1), i) : BoardIndex(i, j + (countUp ? 1 : -1));
-            optional<Tile> merged = mergeResult(copy.at(target), copy.at(here));
-            if (merged) {
-                successfulMerge = true;
-                copy.board[target.first + target.second*4] = merged.value();
-                copy.board[here.first + here.second*4] = Tile::EMPTY;
-            }
-        }
-    }
-    if (!successfulMerge) {
-        throw InvalidMoveException();
-    }
-    return copy;
-}
-
-BoardState BoardState::addSpecificTile(Direction d, BoardIndex const& p, const Tile t) const {
-    BoardState copy = this->addTile(d); //force RNG to advance the same number of times as if the tile had been added the natural way.
-    copy.board = this->board;
-    copy.onesInStack = this->onesInStack;
-    copy.twosInStack = this->twosInStack;
-    copy.threesInStack = this->threesInStack;
-    copy.board[p.first+p.second*4] = t;
-    switch (t) {
-        case Tile::TILE_1:
-            copy.onesInStack--;
-            break;
-        case Tile::TILE_2:
-            copy.twosInStack--;
-            break;
-        case Tile::TILE_3:
-            copy.threesInStack--;
-            break;
-        default:
-            break;
-    }
-    if (copy.onesInStack + copy.twosInStack + copy.threesInStack == 0) {
-        copy.onesInStack = 4;
-        copy.twosInStack = 4;
-        copy.threesInStack = 4;
-    }
-    return copy;
-}
-
-const BoardState BoardState::addTile(Direction d) const {
-    auto indices = this->validIndicesForNewTile(d);
-    default_random_engine genCopy = this->generator;
-    
-    shuffle(indices.begin(), indices.end(), genCopy);
-    genCopy.discard(1); // If there is only one valid move, then the shuffle won't modify the generator, and the state will get stuck
-    
-    BoardState copy(
-        this->board,
-        genCopy,
-        this->numTurns + 1,
-        this->sourceImage,
-        this->onesInStack - (this->upcomingTile == Tile::TILE_1 ? 1 : 0),
-        this->twosInStack - (this->upcomingTile == Tile::TILE_2 ? 1 : 0),
-        this->threesInStack - (this->upcomingTile == Tile::TILE_3 ? 1 : 0)
-    );
-    
-    copy.board[indices.begin()->first + indices.begin()->second*4] = this->upcomingTile;
-    copy.generator = genCopy;
-    return copy;
-}
-
-const BoardState BoardState::move(Direction d) const {
-    return this->moveWithoutAdd(d).addTile(d);
-}
-
 vector<Direction> BoardState::validMoves() const {
     if (this->validMovesCacheIsValid) {
         return this->validMovesCache;
@@ -493,6 +523,7 @@ vector<Direction> BoardState::validMoves() const {
             this->validMovesCache.push_back(d);
         }
     }
+    this->validMovesCacheIsValid = true;
     return this->validMovesCache;
 }
 
@@ -503,23 +534,9 @@ Direction BoardState::randomValidMoveFromInternalGenerator() const {
     return moves[0];
 }
 
-BoardState BoardState::mutableCopy() const {
-    BoardState result = *this;
-    result.scoreCacheIsValid = false;
-    result.isGameOverCacheIsValid = false;
-    result.validMovesCacheIsValid = false;
-    return result;
-}
-
 default_random_engine getGenerator() {
     static default_random_engine metaGenerator;
     return default_random_engine(metaGenerator());
-}
-
-const BoardState BoardState::copyWithDifferentFuture() const {
-    BoardState copy = *this;
-    copy.generator = getGenerator();
-    return copy;
 }
 
 Tile BoardState::maxTile() const {

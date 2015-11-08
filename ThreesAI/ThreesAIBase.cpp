@@ -13,26 +13,27 @@
 
 using namespace std;
 
-ThreesAIBase::ThreesAIBase(BoardState new_board, unique_ptr<BoardOutput> output) : boardState(new_board), boardOutput(move(output)) {}
+ThreesAIBase::ThreesAIBase(shared_ptr<BoardState const> new_board, unique_ptr<BoardOutput> output) : boardState(new_board), boardOutput(move(output)) {}
 
-BoardState ThreesAIBase::currentState() const {
+shared_ptr<BoardState const> ThreesAIBase::currentState() const {
     return this->boardState;
 }
 
 void ThreesAIBase::playGame(bool printMove) {
-    while (!this->boardState.isGameOver()) {
+    while (!this->boardState->isGameOver()) {
         this->playTurn();
         if (printMove) {
             cout << this->currentState() << endl;
         }
     }
+    debug();
+    this->boardState->isGameOver();
 }
 
 void ThreesAIBase::playTurn() {
     this->prepareDirection();
     Direction d = this->getDirection();
-    this->boardOutput->move(d, this->boardState);
-    BoardState newState = this->boardOutput->currentState();
-    this->receiveState(d, newState);
-    this->boardState = newState;
+    this->boardOutput->move(d, *this->boardState);
+    this->boardState = this->boardOutput->currentState();
+    this->receiveState(d, *this->boardState);
 }
