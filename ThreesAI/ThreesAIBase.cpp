@@ -23,7 +23,7 @@ void ThreesAIBase::playGame(bool printMove) {
     while (!this->boardState->isGameOver()) {
         this->playTurn();
         if (printMove) {
-            cout << this->currentState() << endl;
+            cout << *this->currentState() << endl;
         }
     }
     debug();
