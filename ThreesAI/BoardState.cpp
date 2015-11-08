@@ -71,6 +71,7 @@ BoardState::BoardState(BoardState::MoveWithoutAdd m, BoardState const& other) {
 BoardState::BoardState(BoardState::AddSpecificTile t, BoardState const& other) {
     this->copy(other);
     this->indexForNextTile(t.d); //force RNG to advance the same number of times as if the tile had been added the natural way.
+    this->upcomingTile = none;
     this->set(t.i, t.t);
     this->removeFromStack(t.t);
 }
@@ -108,8 +109,9 @@ BoardState::BoardIndex BoardState::indexForNextTile(Direction d) {
 void BoardState::addTile(Direction d) {
     BoardIndex i = this->indexForNextTile(d);
     this->numTurns++;
-    this->removeFromStack(this->upcomingTile);
-    this->set(i, this->upcomingTile);
+    this->removeFromStack(this->getUpcomingTile());
+    this->upcomingTile = none;
+    this->set(i, this->getUpcomingTile());
 }
 
 BoardState::BoardState(BoardState::AddTile t, BoardState const& other) {
@@ -289,13 +291,13 @@ Tile BoardState::genUpcomingTile() const {
 
 Hint BoardState::getHint() const {
     if (this->hint) {
-        return this->hint.get();
+        return this->hint.value();
     } else {
         deque<Tile> inRangeTiles;
         Tile hint1 = Tile::EMPTY;
         Tile hint2 = Tile::EMPTY;
         Tile hint3 = Tile::EMPTY;
-        Tile actualTile = this->upcomingTile;
+        Tile actualTile = this->upcomingTile.value_or(this->genUpcomingTile());
         if (actualTile <= Tile::TILE_3) {
             return Hint(actualTile);
         } else {
@@ -338,12 +340,20 @@ Hint BoardState::getHint() const {
         }
         
         Hint result(hint1, hint2, hint3);
-        debug(!result.contains(upcomingTile));
+        debug(!result.contains(actualTile));
         debug(hint1 > Tile::TILE_6144);
         debug(hint2 > Tile::TILE_6144);
         debug(hint3 > Tile::TILE_6144);
         
         return result;
+    }
+}
+
+Tile BoardState::getUpcomingTile() {
+    if (this->upcomingTile) {
+        return this->upcomingTile.value();
+    } else {
+        return this->getHint().actualTile(this->generator);
     }
 }
 

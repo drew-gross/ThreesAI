@@ -126,6 +126,7 @@ private:
     Tile maxBonusTile() const;
     Tile maxTile() const;
     float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
+    Tile getUpcomingTile();
     
     mutable bool isGameOverCache;
     mutable bool isGameOverCacheIsValid = false;
@@ -139,7 +140,7 @@ private:
     unsigned int twosInStack;
     unsigned int threesInStack;
     Board board;
-    Tile upcomingTile;
+    boost::optional<Tile> upcomingTile;
     boost::optional<Hint> hint;
 };
 
