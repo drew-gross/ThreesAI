@@ -107,11 +107,12 @@ BoardState::BoardIndex BoardState::indexForNextTile(Direction d) {
 }
 
 void BoardState::addTile(Direction d) {
+    Tile upcomingTile = this->getUpcomingTile();
     BoardIndex i = this->indexForNextTile(d);
     this->numTurns++;
-    this->removeFromStack(this->getUpcomingTile());
+    this->removeFromStack(upcomingTile);
+    this->set(i, upcomingTile);
     this->upcomingTile = none;
-    this->set(i, this->getUpcomingTile());
 }
 
 BoardState::BoardState(BoardState::AddTile t, BoardState const& other) {
@@ -164,7 +165,11 @@ onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
 generator(gen) {
-    this->upcomingTile = hint.actualTile(gen);
+    if (this->stackSize() == 0) {
+        this->onesInStack = 4;
+        this->twosInStack = 4;
+        this->threesInStack = 4;
+    }
 }
 
 BoardState::BoardState(Board b,
@@ -187,7 +192,6 @@ hint(none) {
         this->twosInStack = 4;
         this->threesInStack = 4;
     }
-    this->upcomingTile = this->genUpcomingTile();
 }
 
 
