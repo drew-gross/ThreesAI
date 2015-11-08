@@ -9,8 +9,6 @@
 #include "BoardState.h"
 
 #include "InvalidMoveException.h"
-#include "RandomHint.hpp"
-#include "ForcedHint.hpp"
 
 #include <iostream>
 #include <memory>
@@ -170,7 +168,7 @@ upcomingTile(upcomingTile)
 
 BoardState::BoardState(Board b,
                        std::default_random_engine gen,
-                       std::shared_ptr<Hint const> hint,
+                       Hint hint,
                        unsigned int numTurns,
                        cv::Mat sourceImage,
                        unsigned int onesInStack,
@@ -184,7 +182,7 @@ onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
 generator(gen) {
-    this->upcomingTile = hint->actualTile(gen);
+    this->upcomingTile = hint.actualTile(gen);
 }
 
 BoardState::BoardState(Board b,
@@ -200,14 +198,14 @@ onesInStack(onesInStack),
 twosInStack(twosInStack),
 threesInStack(threesInStack),
 sourceImage(sourceImage),
-generator(hintGen) {
+generator(hintGen),
+hint(none) {
     if (this->stackSize() == 0) {
         this->onesInStack = 4;
         this->twosInStack = 4;
         this->threesInStack = 4;
     }
     this->upcomingTile = this->genUpcomingTile();
-    this->hint = make_shared<RandomHint>(upcomingTile, this->maxBonusTile(), this->generator);
 }
 
 
@@ -240,14 +238,14 @@ threesInStack(4)
     
     if (hint.size() == 1) {
         this->board = tileList;
-        this->hint = make_shared<ForcedHint>(hint[0]);
+        this->hint = Hint(hint[0]);
     } else if (hint.size() == 2) {
         this->board = tileList;
-        this->hint = make_shared<ForcedHint>(hint[0], hint[1]);
+        this->hint = Hint(hint[0], hint[1]);
     } else {
         debug(hint.size() != 3);
         this->board = tileList;
-        this->hint = make_shared<ForcedHint>(hint[0], hint[1], hint[2]);
+        this->hint = Hint(hint[0], hint[1], hint[2]);
     }
 }
 
@@ -309,8 +307,64 @@ Tile BoardState::genUpcomingTile() const {
     return Tile::TILE_6;
 }
 
-std::shared_ptr<Hint const> BoardState::getHint() const {
-    return this->hint;
+Hint BoardState::getHint() const {
+    if (this->hint) {
+        return this->hint.get();
+    } else {
+        deque<Tile> inRangeTiles;
+        Tile hint1 = Tile::EMPTY;
+        Tile hint2 = Tile::EMPTY;
+        Tile hint3 = Tile::EMPTY;
+        Tile actualTile = this->upcomingTile;
+        if (actualTile <= Tile::TILE_3) {
+            return Hint(actualTile);
+        } else {
+            //Add tiles that could show up
+            if (pred(pred(actualTile)) >= Tile::TILE_6) {
+                inRangeTiles.push_back(pred(pred(actualTile)));
+            }
+            if (pred(actualTile) >= Tile::TILE_6) {
+                inRangeTiles.push_back(pred(actualTile));
+            }
+            inRangeTiles.push_back(actualTile);
+            if (succ(actualTile) <= this->maxBonusTile()) {
+                inRangeTiles.push_back(succ(actualTile));
+            }
+            if (succ(succ(actualTile)) <= this->maxBonusTile()) {
+                inRangeTiles.push_back(succ(succ(actualTile)));
+            }
+            
+            default_random_engine rngCopy = this->generator;
+            //Trim list down to 3
+            while (inRangeTiles.size() > 3) {
+                if (upcomingTile == *inRangeTiles.end()) {
+                    inRangeTiles.pop_front();
+                } else if (upcomingTile == *inRangeTiles.begin()) {
+                    inRangeTiles.pop_back();
+                } else if (uniform_int_distribution<>(0,1)(rngCopy) == 1) {
+                    inRangeTiles.pop_back();
+                } else {
+                    inRangeTiles.pop_front();
+                }
+            }
+            
+            if (inRangeTiles.size() == 3) {
+                hint3 = inRangeTiles[2];
+            }
+            if (inRangeTiles.size() >= 2) {
+                hint2 = inRangeTiles[1];
+            }
+            hint1 = inRangeTiles[0];
+        }
+        
+        Hint result(hint1, hint2, hint3);
+        debug(!result.contains(upcomingTile));
+        debug(hint1 > Tile::TILE_6144);
+        debug(hint2 > Tile::TILE_6144);
+        debug(hint3 > Tile::TILE_6144);
+        
+        return result;
+    }
 }
 
 array<BoardState::BoardIndex, 16> BoardState::indexes() {
@@ -496,7 +550,7 @@ ostream& outputTile(ostream &os, Tile tile) {
 }
 
 ostream& operator<<(ostream &os, BoardState const& board) {
-    os << "Upcoming: " << *board.getHint() << endl;
+    os << "Upcoming: " << board.getHint() << endl;
     if (board.isGameOver()) {
         os << "Final";
     } else {

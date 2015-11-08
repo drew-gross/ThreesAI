@@ -15,8 +15,6 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "ForcedHint.hpp"
-
 #include "Debug.h"
 #include "Logging.h"
 #include "IMLog.h"
@@ -687,19 +685,19 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, const CanonicalTi
     return MatchResult(bestMatch.second, tileSS);
 }
 
-std::shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
-    static vector<pair<std::shared_ptr<ForcedHint const>, Mat>> hintImages({
-        {make_shared<ForcedHint const>(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
-        {make_shared<ForcedHint const>(Tile::TILE_12,Tile::TILE_24,Tile::TILE_48), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-12-24-48.png", 0))},
-        {make_shared<ForcedHint const>(Tile::TILE_6,Tile::TILE_12,Tile::TILE_24), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12-24.png", 0))},
-        {make_shared<ForcedHint const>(Tile::TILE_6,Tile::TILE_12), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12.png", 0))},
-        {make_shared<ForcedHint const>(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
+Hint IMProc::getHintFromScreenShot(Mat const& ss) {
+    static vector<pair<Hint, Mat>> hintImages({
+        {Hint(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
+        {Hint(Tile::TILE_12,Tile::TILE_24,Tile::TILE_48), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-12-24-48.png", 0))},
+        {Hint(Tile::TILE_6,Tile::TILE_12,Tile::TILE_24), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12-24.png", 0))},
+        {Hint(Tile::TILE_6,Tile::TILE_12), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12.png", 0))},
+        {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
         
     });
     Mat narrowHint = screenImageToHintImage(ss);
     optional<MatchResult> narrowHintResult = detect1or2or3orBonusByColor(narrowHint);
     if (narrowHintResult) {
-        return make_shared<ForcedHint const>(narrowHintResult.value().tile.value);
+        return Hint(narrowHintResult.value().tile.value);
     }
     
     Mat greyHint;
@@ -708,7 +706,7 @@ std::shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
     Mat binaryHintSS;
     threshold(greyHint, binaryHintSS, 200, 255, THRESH_BINARY);
     
-    pair<std::shared_ptr<ForcedHint const>, Mat> bestMatch = *min_element(hintImages.begin(), hintImages.end(), [&binaryHintSS](pair<std::shared_ptr<ForcedHint const>, Mat> l, pair<std::shared_ptr<ForcedHint const>, Mat> r){
+    pair<Hint, Mat> bestMatch = *min_element(hintImages.begin(), hintImages.end(), [&binaryHintSS](pair<Hint, Mat> l, pair<Hint, Mat> r){
         
         Mat binaryCanonicalTileL;
         Mat binaryCanonicalTileR;
@@ -724,7 +722,7 @@ std::shared_ptr<Hint const> IMProc::getHintFromScreenShot(Mat const& ss) {
 }
 
 pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss) {
-    std::shared_ptr<Hint const> hint = getHintFromScreenShot(ss);
+    Hint hint = getHintFromScreenShot(ss);
     auto tileImages = tilesFromScreenImage(ss);
     array<MatchResult, 16> matches;
     
@@ -758,10 +756,11 @@ pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAnd
     
     optional<MatchResult> hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage(image)));
     if (hint) {
-        return {make_shared<BoardState const>(board, default_random_engine(0), make_shared<ForcedHint const>(hint.value().tile.value), 0, image, 4, 4, 4), matches};
+        return {make_shared<BoardState const>(board, default_random_engine(0), Hint(hint.value().tile.value), 0, image, 4, 4, 4), matches};
     } else {
-        //TODO: get the real bonus tile hint here
-        return {make_shared<BoardState const>(board, default_random_engine(0), ForcedHint::unknownBonus(), 0, image, 4, 4, 4), matches};
+        //TODO: get the real bonus tile hint here instead of passing EMPTY
+        debug();
+        return {make_shared<BoardState const>(board, default_random_engine(0), Hint(Tile::EMPTY), 0, image, 4, 4, 4), matches};
     }
 }
 

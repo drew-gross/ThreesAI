@@ -16,7 +16,6 @@
 
 #include "Direction.h"
 #include "Hint.h"
-#include "ForcedHint.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -92,7 +91,7 @@ public:
     
     BoardState(Board b,
                std::default_random_engine gen,
-               std::shared_ptr<Hint const> hint,
+               Hint hint,
                unsigned int numTurns,
                cv::Mat sourceImage,
                unsigned int onesInStack,
@@ -118,7 +117,7 @@ public:
     bool hasSameTilesAs(BoardState const& otherBoard, std::vector<BoardIndex> excludedIndices) const;
     
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
-    std::shared_ptr<Hint const> getHint() const;
+    Hint getHint() const;
     
     cv::Mat sourceImage;
 private:
@@ -150,7 +149,7 @@ private:
     unsigned int threesInStack;
     Board board;
     Tile upcomingTile;
-    std::shared_ptr<Hint const> hint;
+    boost::optional<Hint> hint;
 };
 
 std::ostream& operator<<(std::ostream &os, const BoardState::BoardIndex e);

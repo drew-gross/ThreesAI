@@ -109,7 +109,7 @@ namespace IMProc {
     MatchResult tileValueFromScreenShot(cv::Mat const& image, const CanonicalTiles& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     
-    std::shared_ptr<Hint const> getHintFromScreenShot(cv::Mat const& ss);
+    Hint getHintFromScreenShot(cv::Mat const& ss);
     
     const std::map<Tile, TileInfo>& canonicalTiles();
     const cv::SIFT& canonicalSifter();

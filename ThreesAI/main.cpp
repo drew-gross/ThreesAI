@@ -28,8 +28,6 @@
 #include "RealBoardOutput.h"
 #include "SimulatedBoardOutput.h"
 
-#include "ForcedHint.hpp"
-
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -50,7 +48,10 @@ unsigned int testImage(path p) {
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
     
-    ForcedHint nextTileHint(tileFromString(nextTileHintStrings[0]), nextTileHintStrings.size() > 1 ? tileFromString(nextTileHintStrings[1]) : Tile::EMPTY, nextTileHintStrings.size() > 2 ? tileFromString(nextTileHintStrings[2]) : Tile::EMPTY);
+    Tile tile1 = tileFromString(nextTileHintStrings[0]);
+    Tile tile2 = nextTileHintStrings.size() > 1 ? tileFromString(nextTileHintStrings[1]) : Tile::EMPTY;
+    Tile tile3 = nextTileHintStrings.size() > 2 ? tileFromString(nextTileHintStrings[2]) : Tile::EMPTY;
+    Hint nextTileHint(tile1, tile2, tile3);
     
     Mat camImage = imread(p.string());
     array<Mat, 16> tiles;
@@ -60,9 +61,9 @@ unsigned int testImage(path p) {
         tiles = tilesFromScreenImage(IMProc::screenImage(camImage));
     }
     pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> result = IMProc::boardAndMatchFromAnyImage(camImage);
-    if (result.first->getHint()->operator!=(nextTileHint)) {
+    if (result.first->getHint() != nextTileHint) {
         MYLOG(nextTileHint);
-        MYLOG(*result.first->getHint());
+        MYLOG(result.first->getHint());
         failures++; 
         debug();
         IMProc::boardFromAnyImage(camImage);

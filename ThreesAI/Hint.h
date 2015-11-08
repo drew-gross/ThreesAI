@@ -26,9 +26,11 @@ public:
     Tile actualTile(std::default_random_engine gen) const;
     
     friend std::ostream& operator<<(std::ostream &os, Hint const& h);
-
-private:
-    virtual std::ostream& print(std::ostream &os) const = 0;
+    std::ostream& print(std::ostream&) const;
+    
+    explicit Hint(Tile hint1);
+    Hint(Tile hint1, Tile hint2);
+    Hint(Tile hint1, Tile hint2, Tile hint3);
 };
 
 std::ostream& operator<<(std::ostream &os, Hint const& h);
