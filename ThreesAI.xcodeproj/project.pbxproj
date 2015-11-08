@@ -276,9 +276,9 @@
 		798A74401AE0BE140073DAB3 /* ThreesBoard */ = {
 			isa = PBXGroup;
 			children = (
+				7953BBF21BB761B40083AC3A /* BoardOutput */,
 				79A1B3A61BAFB29900FC2EDB /* Hint.cpp */,
 				79A1B3A71BAFB29900FC2EDB /* Hint.h */,
-				7953BBF21BB761B40083AC3A /* BoardOutput */,
 				797CB4B01BAAA1D0001A61D2 /* Direction.cpp */,
 				798A74461AE0BE920073DAB3 /* Direction.h */,
 				7944C1671BA32398000F0A2C /* BoardState.cpp */,

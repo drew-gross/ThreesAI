@@ -72,16 +72,7 @@ public:
     BoardState(AddTile t, BoardState const& other);
     BoardState(FromString s);
     
-    /*BoardState(Board b,
-               Tile upcomingTile,
-               std::default_random_engine gen,
-               unsigned int numTurns,
-               cv::Mat sourceImage,
-               unsigned int onesInStack,
-               unsigned int twosInStack,
-               unsigned int threesInStack);
-    
-    */BoardState(Board b,
+    BoardState(Board b,
                std::default_random_engine hintGen,
                unsigned int numTurns,
                cv::Mat sourceImage,

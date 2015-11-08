@@ -145,26 +145,6 @@ BoardState::BoardState(BoardState::CopyType c, BoardState const& other) {
             break;
     }
 }
-/*
-BoardState::BoardState(Board b,
-                       Tile upcomingTile,
-                       default_random_engine gen,
-                       unsigned int numTurns,
-                       cv::Mat sourceImage,
-                       unsigned int onesInStack,
-                       unsigned int twosInStack,
-                       unsigned int threesInStack) :
-board(b),
-numTurns(numTurns),
-onesInStack(onesInStack),
-twosInStack(twosInStack),
-threesInStack(threesInStack),
-sourceImage(sourceImage),
-generator(gen),
-upcomingTile(upcomingTile)
-{
-    this->hint = make_shared<RandomHint>(upcomingTile, this->maxBonusTile(), this->generator);
-}*/
 
 BoardState::BoardState(Board b,
                        std::default_random_engine gen,
