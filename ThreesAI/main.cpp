@@ -68,16 +68,16 @@ unsigned int testImage(path p) {
         debug();
         IMProc::boardFromAnyImage(camImage);
     }
-    for (unsigned char i = 0; i < 16; i++) {
-        MatchResult extracted = result.second.at(i);
-        Tile expectedValue = expectedBoard.at({i%4,i/4});
+    for (BoardIndex i : allIndices) {
+        MatchResult extracted = result.second.at(i.toRegularIndex());
+        Tile expectedValue = expectedBoard.at(i);
         if (expectedValue != extracted.tile.value) {
-            MatchResult expected(IMProc::canonicalTiles().at(expectedValue), tiles[i]);
+            MatchResult expected(IMProc::canonicalTiles().at(expectedValue), tiles[i.toRegularIndex()]);
             vector<Mat> expectedV = {expected.knnDrawing(), expected.ratioPassDrawing(), expected.noDupeDrawing()};
             vector<Mat> extractedV = {extracted.knnDrawing(), extracted.ratioPassDrawing(), extracted.noDupeDrawing()};
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
             debug();
-            IMProc::tileValueFromScreenShot(tiles[i], canonicalTiles());
+            IMProc::tileValueFromScreenShot(tiles[i.toRegularIndex()], canonicalTiles());
             auto result = IMProc::boardAndMatchFromAnyImage(camImage);
             failures++;
         }
@@ -178,8 +178,7 @@ int main(int argc, const char * argv[]) {
     //testMonteCarloAI();
     //testMoveAndFindIndexes();
     //testImageProc(); debug();
-    
-    
+
     for (int i = 1; i < 2; i++) {
         unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\

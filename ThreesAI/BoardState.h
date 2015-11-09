@@ -16,6 +16,7 @@
 
 #include "Direction.h"
 #include "Hint.h"
+#include "EnabledIndices.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -23,7 +24,6 @@
 
 class BoardState : boost::noncopyable {
 public:
-    typedef std::pair<unsigned int, unsigned int> BoardIndex;
     
     class AddSpecificTile {
     public:
@@ -63,8 +63,6 @@ public:
         unsigned int howDifferent;
     };
     
-    static std::array<BoardIndex, 16> indexes();
-    
     typedef std::array<Tile, 16> Board;
     
     BoardState(AddSpecificTile t, BoardState const& other);
@@ -103,10 +101,10 @@ public:
     bool canMove(Direction d) const;
     
     std::deque<std::pair<Tile, float>> possibleNextTiles() const;
-    std::vector<BoardIndex> validIndicesForNewTile(Direction movedDirection) const;
+    EnabledIndices validIndicesForNewTile(Direction movedDirection) const;
     
     unsigned int score() const;
-    bool hasSameTilesAs(BoardState const& otherBoard, std::vector<BoardIndex> excludedIndices) const;
+    bool hasSameTilesAs(BoardState const& otherBoard, EnabledIndices excludedIndices) const;
     
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
     Hint getHint() const;
@@ -147,7 +145,7 @@ private:
     boost::optional<Hint> hint;
 };
 
-std::ostream& operator<<(std::ostream &os, const BoardState::BoardIndex e);
+std::ostream& operator<<(std::ostream &os, const BoardIndex e);
 std::ostream& operator<<(std::ostream &os, BoardState const& info);
 
 #endif /* defined(__ThreesAI__BoardState__) */

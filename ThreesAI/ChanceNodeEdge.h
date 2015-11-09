@@ -14,10 +14,10 @@
 class ChanceNodeEdge {
 public:
     ChanceNodeEdge(std::shared_ptr<BoardState const> stateBeforeAdd, std::shared_ptr<BoardState const> stateAfterAdd);
-    ChanceNodeEdge(Tile newTileValue, BoardState::BoardIndex newTileLocation);
+    ChanceNodeEdge(Tile newTileValue, BoardIndex newTileLocation);
     
     Tile newTileValue;
-    BoardState::BoardIndex newTileLocation;
+    BoardIndex newTileLocation;
 };
 
 //implemented for use as key in std::map

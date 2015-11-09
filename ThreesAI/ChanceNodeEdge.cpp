@@ -10,12 +10,12 @@
 
 using namespace std;
 
-ChanceNodeEdge::ChanceNodeEdge(Tile newTileValue, BoardState::BoardIndex newTileLocation) :
+ChanceNodeEdge::ChanceNodeEdge(Tile newTileValue, BoardIndex newTileLocation) :
 newTileValue(newTileValue),
 newTileLocation(newTileLocation) {}
 
-ChanceNodeEdge::ChanceNodeEdge(std::shared_ptr<BoardState const> stateBeforeAdd, std::shared_ptr<BoardState const> stateAfterAdd) {
-    for (auto&& index : BoardState::indexes()) {
+ChanceNodeEdge::ChanceNodeEdge(std::shared_ptr<BoardState const> stateBeforeAdd, std::shared_ptr<BoardState const> stateAfterAdd) : newTileLocation(0,0) {
+    for (auto&& index : allIndices) {
         if (stateBeforeAdd->at(index) != stateAfterAdd->at(index)) {
             this->newTileValue = stateAfterAdd->at(index);
             this->newTileLocation = index;
@@ -28,12 +28,16 @@ bool operator<(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
     if (left.newTileValue != right.newTileValue) {
         return left.newTileValue < right.newTileValue;
     }
-    return left.newTileLocation < right.newTileLocation;
+    if (left.newTileLocation.first != right.newTileLocation.first) {
+        return left.newTileLocation.first < right.newTileLocation.first;
+    }
+    return left.newTileLocation.second < right.newTileLocation.second;
 }
 
 bool operator==(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
     return left.newTileValue == right.newTileValue &&
-           left.newTileLocation == right.newTileLocation;
+           left.newTileLocation.first == right.newTileLocation.first &&
+           left.newTileLocation.second == right.newTileLocation.second;
 }
 
 ostream& operator<<(ostream &os, const ChanceNodeEdge e){

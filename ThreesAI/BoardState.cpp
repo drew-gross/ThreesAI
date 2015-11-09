@@ -20,8 +20,8 @@
 using namespace std;
 using namespace boost;
 
-void BoardState::set(BoardState::BoardIndex i, Tile t) {
-    this->board[i.first + i.second*4] = t;
+void BoardState::set(BoardIndex i, Tile t) {
+    this->board[i.toRegularIndex()] = t;
 }
 
 void BoardState::takeTurnInPlace(Direction d) {
@@ -105,14 +105,25 @@ void BoardState::removeFromStack(Tile t) {
     }
 }
 
-BoardState::BoardIndex BoardState::indexForNextTile(Direction d) {
-    auto indices = this->validIndicesForNewTile(d);
-    debug(indices.size() == 0);
-    uniform_int_distribution<unsigned long> dist(0,indices.size() - 1);
-    unsigned long index = dist(this->generator);
-    return indices[index];
+BoardIndex BoardState::indexForNextTile(Direction d) {
+    EnabledIndices validIndexes = this->validIndicesForNewTile(d);
+    debug(validIndexes.size() == 0);
+    uniform_int_distribution<unsigned long> dist(0,validIndexes.size() - 1);
+    unsigned long indexWithinValid = dist(this->generator);
+    for (BoardIndex i : allIndices) {
+        if (validIndexes.isEnabled(i)) {
+            if (indexWithinValid > 0) {
+                indexWithinValid--;
+            } else {
+                return i;
+            }
+        }
+    }
+    debug();
+    return BoardIndex(0,0);
 }
 
+__attribute__((noinline))
 void BoardState::addTile(Direction d) {
     Tile upcomingTile = this->getUpcomingTile();
     BoardIndex i = this->indexForNextTile(d);
@@ -361,18 +372,7 @@ Tile BoardState::getUpcomingTile() {
     }
 }
 
-array<BoardState::BoardIndex, 16> BoardState::indexes() {
-    static bool initialized = false;
-    static array<BoardIndex, 16> results;
-    if (!initialized) {
-        for (int i = 0; i < 16; i++) {
-            results[i] = {i/4,i%4};
-        }
-    }
-    return results;
-}
-
-ostream& operator<<(ostream &os, const BoardState::BoardIndex i){
+ostream& operator<<(ostream &os, const BoardIndex i){
     os << "{" << i.first << ", " << i.second << "}";
     return os;
 }
@@ -403,36 +403,36 @@ bool BoardState::canMove(Direction d) const {
     switch (d) {
         case Direction::UP:
             for (unsigned i = 0; i < 4; i++) {
-                if (canMerge(this->at({i, 0}), this->at({i, 1})) ||
-                    canMerge(this->at({i, 1}), this->at({i, 2})) ||
-                    canMerge(this->at({i, 2}), this->at({i, 3}))) {
+                if (canMerge(this->at(BoardIndex(i, 0)), this->at(BoardIndex(i, 1))) ||
+                    canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 2))) ||
+                    canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 3)))) {
                     return true;
                 }
             }
             break;
         case Direction::DOWN:
             for (unsigned i = 0; i < 4; i++) {
-                if (canMerge(this->at({i, 3}), this->at({i, 2})) ||
-                    canMerge(this->at({i, 2}), this->at({i, 1})) ||
-                    canMerge(this->at({i, 1}), this->at({i, 0}))) {
+                if (canMerge(this->at(BoardIndex(i, 3)), this->at(BoardIndex(i, 2))) ||
+                    canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 1))) ||
+                    canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 0)))) {
                     return true;
                 }
             }
             break;
         case Direction::LEFT:
             for (unsigned i = 0; i < 4; i++) {
-                if (canMerge(this->at({0, i}), this->at({1, i})) ||
-                    canMerge(this->at({1, i}), this->at({2, i})) ||
-                    canMerge(this->at({2, i}), this->at({3, i}))) {
+                if (canMerge(this->at(BoardIndex(0, i)), this->at(BoardIndex(1, i))) ||
+                    canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(2, i))) ||
+                    canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(3, i)))) {
                     return true;
                 }
             }
             break;
         case Direction::RIGHT:
             for (unsigned i = 0; i < 4; i++) {
-                if (mergeResult(this->at({3, i}), this->at({2, i})) ||
-                    mergeResult(this->at({2, i}), this->at({1, i})) ||
-                    mergeResult(this->at({1, i}), this->at({0, i}))) {
+                if (canMerge(this->at(BoardIndex(3, i)), this->at(BoardIndex(2, i))) ||
+                    canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(1, i))) ||
+                    canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(0, i)))) {
                     return true;
                 }
             }
@@ -447,23 +447,20 @@ Tile BoardState::maxBonusTile() const {
     return pred(pred(pred(this->maxTile())));
 }
 
-bool BoardState::hasSameTilesAs(BoardState const& otherBoard, vector<BoardState::BoardIndex> excludedIndices) const {
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 0; j < 4; j++) {
-            BoardIndex curIndex(i,j);
-            if (find(excludedIndices.begin(), excludedIndices.end(), curIndex) == excludedIndices.end()) {
-                Tile tile = this->at(curIndex);
-                Tile otherTile = otherBoard.at(curIndex);
-                if (tile != otherTile) {
-                    return false;
-                }
+bool BoardState::hasSameTilesAs(BoardState const& otherBoard, EnabledIndices excludedIndices) const {
+    for (BoardIndex i : allIndices) {
+        if (!excludedIndices.isEnabled(i)) {
+            Tile tile = this->at(i);
+            Tile otherTile = otherBoard.at(i);
+            if (tile != otherTile) {
+                return false;
             }
         }
     }
     return true;
 }
 
-vector<BoardState::BoardIndex> BoardState::validIndicesForNewTile(Direction movedDirection) const {
+EnabledIndices BoardState::validIndicesForNewTile(Direction movedDirection) const {
     static std::array<BoardIndex, 4> left = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
     static std::array<BoardIndex, 4> right = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
     static std::array<BoardIndex, 4> up = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
@@ -486,11 +483,10 @@ vector<BoardState::BoardIndex> BoardState::validIndicesForNewTile(Direction move
         default:
             break;
     }
-    vector<BoardIndex> result;
-    result.reserve(4);
+    EnabledIndices result({});
     for (auto&& index : *indices) {
         if (this->at(index) == Tile::EMPTY) {
-            result.push_back(index);
+            result.set(index);
         }
     }
     return result;

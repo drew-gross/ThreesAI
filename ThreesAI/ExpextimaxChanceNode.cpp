@@ -40,20 +40,22 @@ float ExpectimaxChanceNode::value() const {
 
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     auto possibleNextTiles = this->board->possibleNextTiles();
-    vector<BoardState::BoardIndex> possibleNextLocations = this->board->validIndicesForNewTile(this->directionMovedToGetHere);
+    EnabledIndices possibleNextLocations = this->board->validIndicesForNewTile(this->directionMovedToGetHere);
     
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     for (auto&& nextTile : possibleNextTiles) {
-        for (BoardState::BoardIndex boardIndex : possibleNextLocations) {
-            std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::AddSpecificTile(this->directionMovedToGetHere, boardIndex, nextTile.first), *this->board);
-            shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
-            
-            ChanceNodeEdge childIndex(nextTile.first, boardIndex);
-            this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});
-            this->children.insert({childIndex, child});
-            
-            unfilledList.push_back(child);
+        for (BoardIndex i : allIndices) {
+            if (possibleNextLocations.isEnabled(i)) {
+                std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::AddSpecificTile(this->directionMovedToGetHere, i, nextTile.first), *this->board);
+                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
+                
+                ChanceNodeEdge childIndex(nextTile.first, i);
+                this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});
+                this->children.insert({childIndex, child});
+                
+                unfilledList.push_back(child);
+            }
         }
     }
     debug(this->children.empty());

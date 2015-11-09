@@ -35,6 +35,8 @@
 		799391941B8078C5000BC4D4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 799391931B8078C5000BC4D4 /* AVFoundation.framework */; };
 		79A1B3A81BAFB29900FC2EDB /* Hint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A61BAFB29900FC2EDB /* Hint.cpp */; };
 		79A1B3AB1BAFDB0D00FC2EDB /* Tile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */; };
+		79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792C1BF076C500531415 /* EnabledIndices.cpp */; };
+		79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792F1BF077FB00531415 /* BoardIndex.cpp */; };
 		79D022111B2C0E3D00624854 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
@@ -113,6 +115,10 @@
 		79A1B3A71BAFB29900FC2EDB /* Hint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hint.h; sourceTree = "<group>"; };
 		79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tile.cpp; sourceTree = "<group>"; };
 		79A1B3AA1BAFDB0D00FC2EDB /* Tile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tile.hpp; sourceTree = "<group>"; };
+		79A7792C1BF076C500531415 /* EnabledIndices.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnabledIndices.cpp; sourceTree = "<group>"; };
+		79A7792D1BF076C500531415 /* EnabledIndices.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnabledIndices.hpp; sourceTree = "<group>"; };
+		79A7792F1BF077FB00531415 /* BoardIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoardIndex.cpp; sourceTree = "<group>"; };
+		79A779301BF077FB00531415 /* BoardIndex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BoardIndex.hpp; sourceTree = "<group>"; };
 		79D022101B2C0E3D00624854 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -277,6 +283,8 @@
 			isa = PBXGroup;
 			children = (
 				7953BBF21BB761B40083AC3A /* BoardOutput */,
+				79A7792F1BF077FB00531415 /* BoardIndex.cpp */,
+				79A779301BF077FB00531415 /* BoardIndex.hpp */,
 				79A1B3A61BAFB29900FC2EDB /* Hint.cpp */,
 				79A1B3A71BAFB29900FC2EDB /* Hint.h */,
 				797CB4B01BAAA1D0001A61D2 /* Direction.cpp */,
@@ -286,6 +294,8 @@
 				7944C1731BA7F0AF000F0A2C /* InvalidMoveException.h */,
 				79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */,
 				79A1B3AA1BAFDB0D00FC2EDB /* Tile.hpp */,
+				79A7792C1BF076C500531415 /* EnabledIndices.cpp */,
+				79A7792D1BF076C500531415 /* EnabledIndices.hpp */,
 			);
 			name = ThreesBoard;
 			sourceTree = "<group>";
@@ -362,6 +372,7 @@
 				79A1B3A81BAFB29900FC2EDB /* Hint.cpp in Sources */,
 				79A1B3AB1BAFDB0D00FC2EDB /* Tile.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
+				79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */,
 				79D022111B2C0E3D00624854 /* Logging.cpp in Sources */,
 				79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
@@ -377,6 +388,7 @@
 				7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */,
 				7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */,
 				7944C1691BA32398000F0A2C /* BoardState.cpp in Sources */,
+				79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */,
 				79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */,
 				7963F4E21AA01F7E0081BEC8 /* HumanPlayer.cpp in Sources */,
 				79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */,

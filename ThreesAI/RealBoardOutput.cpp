@@ -36,15 +36,15 @@ std::shared_ptr<BoardState const> RealBoardOutput::currentState() const {
 }
 
 bool boardTransitionIsValid(BoardState const& oldBoard, Hint oldHint, Direction d, std::shared_ptr<BoardState const> newBoard) {
-    auto unknownIndexes = oldBoard.validIndicesForNewTile(d);
+    EnabledIndices unknownIndexes = oldBoard.validIndicesForNewTile(d);
     //Check if any of the moved tiles don't read the same
     if (!newBoard->hasSameTilesAs(oldBoard, unknownIndexes)) {
         return false;
     }
     
-    for (auto&& index : unknownIndexes) {
-        if (newBoard->at(index) != Tile::EMPTY) {
-            return (oldHint.contains(newBoard->at(index)));
+    for (BoardIndex i : allIndices) {
+        if (unknownIndexes.isEnabled(i) && newBoard->at(i) != Tile::EMPTY) {
+            return oldHint.contains(newBoard->at(i));
         }
     }
     return false;
@@ -74,7 +74,6 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     //debug(success != 0 || buf[0] != 'x'); Reads are failing for some reason... but the timeout solves the same problem.
     
     std::shared_ptr<BoardState const> expectedBoardAfterMove = make_shared<BoardState const>(BoardState::MoveWithoutAdd(d), originalBoard);
-    vector<BoardState::BoardIndex> unknownIndexes = expectedBoardAfterMove->validIndicesForNewTile(d);
     
     std::shared_ptr<BoardState const> newState = this->source->getGameState();
     
