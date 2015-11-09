@@ -24,6 +24,14 @@ void BoardState::set(BoardState::BoardIndex i, Tile t) {
     this->board[i.first + i.second*4] = t;
 }
 
+void BoardState::takeTurnInPlace(Direction d) {
+    this->move(d);
+    this->addTile(d);
+    this->isGameOverCacheIsValid = false;
+    this->scoreCacheIsValid = false;
+    this->validMovesCacheIsValid = false;
+}
+
 void BoardState::move(Direction d) {
     bool successfulMerge = false;
     bool countUp;
@@ -98,12 +106,11 @@ void BoardState::removeFromStack(Tile t) {
 }
 
 BoardState::BoardIndex BoardState::indexForNextTile(Direction d) {
-    //Inlined in AddSpecificTile constructor
     auto indices = this->validIndicesForNewTile(d);
-    shuffle(indices.begin(), indices.end(), this->generator);
-    this->generator.discard(1); // If there is only one valid move, then the shuffle won't modify the generator, and the state will get stuck
     debug(indices.size() == 0);
-    return *indices.begin();
+    uniform_int_distribution<unsigned long> dist(0,indices.size() - 1);
+    unsigned long index = dist(this->generator);
+    return indices[index];
 }
 
 void BoardState::addTile(Direction d) {
@@ -122,8 +129,7 @@ BoardState::BoardState(BoardState::AddTile t, BoardState const& other) {
 
 BoardState::BoardState(BoardState::Move m, BoardState const& other) {
     this->copy(other);
-    this->move(m.d);
-    this->addTile(m.d);
+    this->takeTurnInPlace(m.d);
 }
 
 void BoardState::copy(BoardState const &other) {
@@ -138,15 +144,9 @@ void BoardState::copy(BoardState const &other) {
     this->hint = other.hint;
 }
 
-BoardState::BoardState(BoardState::CopyType c, BoardState const& other) {
+BoardState::BoardState(BoardState::DifferentFuture d, BoardState const& other) {
     this->copy(other);
-    switch (c) {
-        case BoardState::CopyType::WITH_DIFFERENT_FUTURE:
-            this->generator.discard(1);
-            break;
-        case BoardState::CopyType::RAW:
-            break;
-    }
+    this->generator.discard(d.howDifferent);
 }
 
 BoardState::BoardState(Board b,
@@ -454,25 +454,30 @@ bool BoardState::hasSameTilesAs(BoardState const& otherBoard, vector<BoardState:
 }
 
 vector<BoardState::BoardIndex> BoardState::validIndicesForNewTile(Direction movedDirection) const {
-    std::array<BoardIndex, 4> indicies;
+    static std::array<BoardIndex, 4> left = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
+    static std::array<BoardIndex, 4> right = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
+    static std::array<BoardIndex, 4> up = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
+    static std::array<BoardIndex, 4> down = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
+    
+    std::array<BoardIndex, 4>* indices;
     switch (movedDirection) {
         case Direction::LEFT:
-            indicies = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
+            indices = &left;
             break;
         case Direction::RIGHT:
-            indicies = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
+            indices = &right;
             break;
         case Direction::UP:
-            indicies = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
+            indices = &up;
             break;
         case Direction::DOWN:
-            indicies = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
+            indices = &down;
             break;
         default:
             break;
     }
     vector<BoardIndex> result;
-    for (auto&& index : indicies) {
+    for (auto&& index : *indices) {
         if (this->at(index) == Tile::EMPTY) {
             result.push_back(index);
         }

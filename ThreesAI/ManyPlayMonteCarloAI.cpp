@@ -9,6 +9,7 @@
 #include "ManyPlayMonteCarloAI.h"
 
 #include "Logging.h"
+#include "Debug.h"
 
 using namespace std;
 
@@ -24,13 +25,12 @@ Direction ManyPlayMonteCarloAI::getDirection() const {
         unsigned int playsRemaining = this->numPlays;
         unsigned long currentDirectionTotalScore = 0;
         while (playsRemaining--) {
-            shared_ptr<BoardState> boardCopy = make_shared<BoardState>(BoardState::CopyType::WITH_DIFFERENT_FUTURE, *this->currentState());
-            boardCopy = make_shared<BoardState>(BoardState::Move(d), *boardCopy);
-            while (!boardCopy->isGameOver()) {
-                Direction random = boardCopy->randomValidMoveFromInternalGenerator();
-                boardCopy = make_shared<BoardState>(BoardState::Move(random), *boardCopy);
+            BoardState boardCopy(BoardState::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
+            boardCopy.takeTurnInPlace(d);
+            while (!boardCopy.isGameOver()) {
+                boardCopy.takeTurnInPlace(boardCopy.randomValidMoveFromInternalGenerator());
             }
-            currentDirectionTotalScore += boardCopy->score();
+            currentDirectionTotalScore += boardCopy.score();
         }
         if (currentDirectionTotalScore > bestScore) {
             bestDirection = d;

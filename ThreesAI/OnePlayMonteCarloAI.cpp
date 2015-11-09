@@ -22,7 +22,7 @@ Direction OnePlayMonteCarloAI::getDirection() const {
     Direction bestDirection = Direction::LEFT;
     vector<Direction> validMoves = this->currentState()->validMoves();
     for (Direction d : validMoves) {
-        shared_ptr<BoardState> copyToExplore = make_shared<BoardState>(BoardState::CopyType::WITH_DIFFERENT_FUTURE, *this->currentState());
+        shared_ptr<BoardState> copyToExplore = make_shared<BoardState>(BoardState::DifferentFuture(1), *this->currentState());
         copyToExplore = make_shared<BoardState>(BoardState::Move(d), *copyToExplore);
         while (!copyToExplore->isGameOver()) {
             copyToExplore = make_shared<BoardState>(BoardState::Move(copyToExplore->randomValidMoveFromInternalGenerator()), *copyToExplore);

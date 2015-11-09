@@ -25,11 +25,6 @@ class BoardState : boost::noncopyable {
 public:
     typedef std::pair<unsigned int, unsigned int> BoardIndex;
     
-    enum class CopyType {
-        RAW,
-        WITH_DIFFERENT_FUTURE,
-    };
-    
     class AddSpecificTile {
     public:
         AddSpecificTile(Direction d, BoardIndex const& i, const Tile t) : d(d), i(i), t(t) {};
@@ -62,6 +57,12 @@ public:
         std::string const s;
     };
     
+    class DifferentFuture {
+    public:
+        DifferentFuture(unsigned int howDifferent) : howDifferent(howDifferent) {};
+        unsigned int howDifferent;
+    };
+    
     static std::array<BoardIndex, 16> indexes();
     
     typedef std::array<Tile, 16> Board;
@@ -71,6 +72,7 @@ public:
     BoardState(Move m, BoardState const& other);
     BoardState(AddTile t, BoardState const& other);
     BoardState(FromString s);
+    BoardState(DifferentFuture, BoardState const& other);
     
     BoardState(Board b,
                std::default_random_engine hintGen,
@@ -89,7 +91,6 @@ public:
                unsigned int twosInStack,
                unsigned int threesInStack);
     
-    BoardState(CopyType, BoardState const& b);
     
     unsigned int numTurns;
     
@@ -111,14 +112,16 @@ public:
     Hint getHint() const;
     
     cv::Mat sourceImage;
+public:
+    void takeTurnInPlace(Direction d); //exposed to make monte carlo ai faster
 private:
     //mutator methods, should only be called inside constructors
     void set(BoardIndex i, Tile t);
     BoardIndex indexForNextTile(Direction d);
     void removeFromStack(Tile t);
     void copy(BoardState const &other);
-    void move(Direction d);
     void addTile(Direction d);
+    void move(Direction d);//making public so MonteCarlo doesn't have to copy state around a lot
 
     //non-mutators that aren't used extarnally
     Tile genUpcomingTile() const;
