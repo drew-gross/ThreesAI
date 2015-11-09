@@ -36,6 +36,7 @@ Tile succ(Tile t);
 unsigned int tileScore(Tile t);
 Tile tileFromString(std::string s);
 boost::optional<Tile> mergeResult(Tile t1, Tile t2);
+bool canMerge(Tile t1, Tile t2);
 
 std::ostream& operator<<(std::ostream &os, Tile t);
 

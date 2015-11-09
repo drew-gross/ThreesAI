@@ -383,7 +383,17 @@ Tile BoardState::at(BoardIndex const& p) const {
 
 bool BoardState::isGameOver() const {
     if (!this->isGameOverCacheIsValid) {
-        this->isGameOverCache = this->validMoves().empty();
+        if (this->validMovesCacheIsValid) {
+            return this->validMovesCache.empty();
+        }
+        for (auto&& d : directions) {
+            if (this->canMove(d)) {
+                this->isGameOverCacheIsValid = true;
+                this->isGameOverCache = false;
+                return this->isGameOverCache;
+            }
+        }
+        this->isGameOverCache = true;
         this->isGameOverCacheIsValid = true;
     }
     return this->isGameOverCache;
@@ -393,27 +403,27 @@ bool BoardState::canMove(Direction d) const {
     switch (d) {
         case Direction::UP:
             for (unsigned i = 0; i < 4; i++) {
-                if (mergeResult(this->at({i, 0}), this->at({i, 1})) ||
-                    mergeResult(this->at({i, 1}), this->at({i, 2})) ||
-                    mergeResult(this->at({i, 2}), this->at({i, 3}))) {
+                if (canMerge(this->at({i, 0}), this->at({i, 1})) ||
+                    canMerge(this->at({i, 1}), this->at({i, 2})) ||
+                    canMerge(this->at({i, 2}), this->at({i, 3}))) {
                     return true;
                 }
             }
             break;
         case Direction::DOWN:
             for (unsigned i = 0; i < 4; i++) {
-                if (mergeResult(this->at({i, 3}), this->at({i, 2})) ||
-                    mergeResult(this->at({i, 2}), this->at({i, 1})) ||
-                    mergeResult(this->at({i, 1}), this->at({i, 0}))) {
+                if (canMerge(this->at({i, 3}), this->at({i, 2})) ||
+                    canMerge(this->at({i, 2}), this->at({i, 1})) ||
+                    canMerge(this->at({i, 1}), this->at({i, 0}))) {
                     return true;
                 }
             }
             break;
         case Direction::LEFT:
             for (unsigned i = 0; i < 4; i++) {
-                if (mergeResult(this->at({0, i}), this->at({1, i})) ||
-                    mergeResult(this->at({1, i}), this->at({2, i})) ||
-                    mergeResult(this->at({2, i}), this->at({3, i}))) {
+                if (canMerge(this->at({0, i}), this->at({1, i})) ||
+                    canMerge(this->at({1, i}), this->at({2, i})) ||
+                    canMerge(this->at({2, i}), this->at({3, i}))) {
                     return true;
                 }
             }
@@ -477,6 +487,7 @@ vector<BoardState::BoardIndex> BoardState::validIndicesForNewTile(Direction move
             break;
     }
     vector<BoardIndex> result;
+    result.reserve(4);
     for (auto&& index : *indices) {
         if (this->at(index) == Tile::EMPTY) {
             result.push_back(index);
