@@ -73,7 +73,7 @@ bool canMerge(Tile t1, Tile t2) {
         case Tile::TILE_768: return t2 == Tile::TILE_768;
         case Tile::TILE_1536: return t2 == Tile::TILE_1536;
         case Tile::TILE_3072: return t2 == Tile::TILE_3072;
-        case Tile::TILE_6144: return t2 == Tile::TILE_6144;
+        case Tile::TILE_6144: return false;
     }
 }
 
@@ -93,7 +93,7 @@ optional<Tile> mergeResult(Tile t1, Tile t2) {
         case Tile::TILE_768: return t2 == Tile::TILE_768 ? make_optional(Tile::TILE_1536) : none;
         case Tile::TILE_1536: return t2 == Tile::TILE_1536 ? make_optional(Tile::TILE_3072) : none;
         case Tile::TILE_3072: return t2 == Tile::TILE_3072 ? make_optional(Tile::TILE_6144) : none;
-        case Tile::TILE_6144: return t2 == Tile::TILE_6144 ? make_optional(Tile::TILE_6144) : none;
+        case Tile::TILE_6144: return none;
     }
 }
 

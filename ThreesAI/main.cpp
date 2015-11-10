@@ -186,7 +186,7 @@ int main(int argc, const char * argv[]) {
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), std::move(p)); bool print = false;
         //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
-        ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), 1000); bool print = true;
+        ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), 20); bool print = true;
         ai.playGame(print); //Passed bool used to print move.
         MYLOG(*ai.currentState());
     }

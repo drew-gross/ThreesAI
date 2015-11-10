@@ -19,18 +19,16 @@ void ManyPlayMonteCarloAI::receiveState(Direction d, BoardState const & newState
 void ManyPlayMonteCarloAI::prepareDirection() {};
 
 Direction ManyPlayMonteCarloAI::getDirection() const {
-    unsigned long bestScore = 0;
+    BoardState::Score bestScore = 0;
     Direction bestDirection = Direction::LEFT;
     for (Direction d : this->currentState()->validMoves()) {
         unsigned int playsRemaining = this->numPlays;
         unsigned long currentDirectionTotalScore = 0;
         while (playsRemaining--) {
             BoardState boardCopy(BoardState::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
+            BoardState movedCopy(BoardState::Move(d), boardCopy);
             boardCopy.takeTurnInPlace(d);
-            while (!boardCopy.isGameOver()) {
-                boardCopy.takeTurnInPlace(boardCopy.randomValidMoveFromInternalGenerator());
-            }
-            currentDirectionTotalScore += boardCopy.score();
+            currentDirectionTotalScore += boardCopy.runRandomSimulation(this->numPlays - playsRemaining);
         }
         if (currentDirectionTotalScore > bestScore) {
             bestDirection = d;

@@ -24,6 +24,7 @@
 
 class BoardState : boost::noncopyable {
 public:
+    typedef unsigned long Score;
     
     class AddSpecificTile {
     public:
@@ -57,6 +58,7 @@ public:
         std::string const s;
     };
     
+    //TODO: verify that DifferentFuture doesn't change the hint/upcoming.
     class DifferentFuture {
     public:
         DifferentFuture(unsigned int howDifferent) : howDifferent(howDifferent) {};
@@ -103,13 +105,15 @@ public:
     std::deque<std::pair<Tile, float>> possibleNextTiles() const;
     EnabledIndices validIndicesForNewTile(Direction movedDirection) const;
     
-    unsigned int score() const;
+    Score score() const;
     bool hasSameTilesAs(BoardState const& otherBoard, EnabledIndices excludedIndices) const;
     
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
     Hint getHint() const;
     
     cv::Mat sourceImage;
+    
+    Score runRandomSimulation(unsigned int simNumber) const;
 public:
     void takeTurnInPlace(Direction d); //exposed to make monte carlo ai faster
 private:

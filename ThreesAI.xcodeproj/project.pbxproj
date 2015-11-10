@@ -37,6 +37,7 @@
 		79A1B3AB1BAFDB0D00FC2EDB /* Tile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */; };
 		79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792C1BF076C500531415 /* EnabledIndices.cpp */; };
 		79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792F1BF077FB00531415 /* BoardIndex.cpp */; };
+		79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A779321BF0FC6600531415 /* UCTSearchAI.cpp */; };
 		79D022111B2C0E3D00624854 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.cpp */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
@@ -119,6 +120,8 @@
 		79A7792D1BF076C500531415 /* EnabledIndices.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnabledIndices.hpp; sourceTree = "<group>"; };
 		79A7792F1BF077FB00531415 /* BoardIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoardIndex.cpp; sourceTree = "<group>"; };
 		79A779301BF077FB00531415 /* BoardIndex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BoardIndex.hpp; sourceTree = "<group>"; };
+		79A779321BF0FC6600531415 /* UCTSearchAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UCTSearchAI.cpp; sourceTree = "<group>"; };
+		79A779331BF0FC6600531415 /* UCTSearchAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UCTSearchAI.hpp; sourceTree = "<group>"; };
 		79D022101B2C0E3D00624854 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -262,6 +265,8 @@
 				79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */,
 				7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */,
 				7944C1651BA26D82000F0A2C /* ManyPlayMonteCarloAI.h */,
+				79A779321BF0FC6600531415 /* UCTSearchAI.cpp */,
+				79A779331BF0FC6600531415 /* UCTSearchAI.hpp */,
 			);
 			name = ThreesPlayer;
 			sourceTree = "<group>";
@@ -379,6 +384,7 @@
 				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
 				7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */,
 				7944C1761BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp in Sources */,
+				79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,

@@ -110,7 +110,7 @@ BoardIndex BoardState::indexForNextTile(Direction d) {
     debug(validIndexes.size() == 0);
     uniform_int_distribution<unsigned long> dist(0,validIndexes.size() - 1);
     unsigned long indexWithinValid = dist(this->generator);
-    for (BoardIndex i : allIndices) {
+    for (auto&& i : allIndices) {
         if (validIndexes.isEnabled(i)) {
             if (indexWithinValid > 0) {
                 indexWithinValid--;
@@ -378,7 +378,7 @@ ostream& operator<<(ostream &os, const BoardIndex i){
 }
 
 Tile BoardState::at(BoardIndex const& p) const {
-    return this->board[p.first+p.second*4];
+    return this->board[p.toRegularIndex()];
 }
 
 bool BoardState::isGameOver() const {
@@ -594,6 +594,18 @@ Direction BoardState::randomValidMoveFromInternalGenerator() const {
     return moves[0];
 }
 
+BoardState::Score BoardState::runRandomSimulation(unsigned int simNumber) const {
+    BoardState copy(BoardState::DifferentFuture(simNumber), *this);
+    bool print = false;
+    while (!copy.isGameOver()) {
+        if (print) {
+            MYLOG(copy);
+        }
+        copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());
+    }
+    return copy.score();
+}
+
 default_random_engine getGenerator() {
     static default_random_engine metaGenerator;
     return default_random_engine(metaGenerator());
@@ -603,7 +615,7 @@ Tile BoardState::maxTile() const {
     return *max_element(board.begin(), board.end());
 }
 
-unsigned int BoardState::score() const {
+BoardState::Score BoardState::score() const {
     if (this->scoreCacheIsValid) {
         return this->scoreCache;
     } else {
