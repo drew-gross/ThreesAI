@@ -180,7 +180,8 @@ int main(int argc, const char * argv[]) {
     //testImageProc(); debug();
 
     for (int i = 1; i < 2; i++) {
-        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard();
+        default_random_engine rng(1);
+        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(rng);
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         //auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
