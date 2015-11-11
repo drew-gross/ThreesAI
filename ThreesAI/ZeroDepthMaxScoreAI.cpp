@@ -21,7 +21,7 @@ ZeroDepthMaxScoreAI::ZeroDepthMaxScoreAI(shared_ptr<BoardState const> board, uni
 Direction ZeroDepthMaxScoreAI::playTurn() {
     vector<pair<Direction, unsigned int>> scoresForMoves;
     
-    for (auto&& d : directions) {
+    for (auto&& d : allDirections) {
         scoresForMoves.push_back({d, BoardState(BoardState::MoveWithoutAdd(d), *this->currentState()).score()});
     }
     debug(scoresForMoves.empty());

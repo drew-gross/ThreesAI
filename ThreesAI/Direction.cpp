@@ -10,6 +10,15 @@
 
 using namespace std;
 
+unsigned char toIndex(Direction d) {
+    switch (d) {
+        case Direction::UP: return 0;
+        case Direction::DOWN: return 1;
+        case Direction::LEFT: return 2;
+        case Direction::RIGHT: return 3;
+    }
+}
+
 ostream& operator<<(ostream &os, Direction d){
     switch (d) {
         case Direction::UP:

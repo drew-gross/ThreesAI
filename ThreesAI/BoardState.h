@@ -17,6 +17,7 @@
 #include "Direction.h"
 #include "Hint.h"
 #include "EnabledIndices.hpp"
+#include "EnabledDirections.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -98,7 +99,7 @@ public:
     
     bool isGameOver() const;
     
-    std::vector<Direction> validMoves() const;
+    EnabledDirections validMoves() const;
     Direction randomValidMoveFromInternalGenerator() const;
     bool canMove(Direction d) const;
     
@@ -138,7 +139,7 @@ private:
     mutable unsigned int scoreCache;
     mutable bool scoreCacheIsValid = false;
     mutable bool validMovesCacheIsValid = false;
-    mutable std::vector<Direction> validMovesCache;
+    mutable EnabledDirections validMovesCache;
     std::default_random_engine generator;
     
     unsigned int onesInStack;

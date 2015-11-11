@@ -33,6 +33,7 @@
 		7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
 		797CB4B11BAAA1D0001A61D2 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 797CB4B01BAAA1D0001A61D2 /* Direction.cpp */; };
 		799391941B8078C5000BC4D4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 799391931B8078C5000BC4D4 /* AVFoundation.framework */; };
+		79A0D8F81BF2F729003B78B1 /* EnabledDirections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A0D8F61BF2F729003B78B1 /* EnabledDirections.cpp */; };
 		79A1B3A81BAFB29900FC2EDB /* Hint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A61BAFB29900FC2EDB /* Hint.cpp */; };
 		79A1B3AB1BAFDB0D00FC2EDB /* Tile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */; };
 		79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792C1BF076C500531415 /* EnabledIndices.cpp */; };
@@ -112,6 +113,8 @@
 		797CB4B01BAAA1D0001A61D2 /* Direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Direction.cpp; sourceTree = "<group>"; };
 		798A74461AE0BE920073DAB3 /* Direction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Direction.h; sourceTree = "<group>"; };
 		799391931B8078C5000BC4D4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		79A0D8F61BF2F729003B78B1 /* EnabledDirections.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EnabledDirections.cpp; sourceTree = "<group>"; };
+		79A0D8F71BF2F729003B78B1 /* EnabledDirections.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EnabledDirections.hpp; sourceTree = "<group>"; };
 		79A1B3A61BAFB29900FC2EDB /* Hint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hint.cpp; sourceTree = "<group>"; };
 		79A1B3A71BAFB29900FC2EDB /* Hint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hint.h; sourceTree = "<group>"; };
 		79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tile.cpp; sourceTree = "<group>"; };
@@ -301,6 +304,8 @@
 				79A1B3AA1BAFDB0D00FC2EDB /* Tile.hpp */,
 				79A7792C1BF076C500531415 /* EnabledIndices.cpp */,
 				79A7792D1BF076C500531415 /* EnabledIndices.hpp */,
+				79A0D8F61BF2F729003B78B1 /* EnabledDirections.cpp */,
+				79A0D8F71BF2F729003B78B1 /* EnabledDirections.hpp */,
 			);
 			name = ThreesBoard;
 			sourceTree = "<group>";
@@ -389,6 +394,7 @@
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
 				79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */,
+				79A0D8F81BF2F729003B78B1 /* EnabledDirections.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
 				7944C1721BA3FAFC000F0A2C /* RealBoardOutput.cpp in Sources */,
 				7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */,
@@ -409,6 +415,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_GETPW_GETS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -418,15 +425,19 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NULLABLE_TO_NONNULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_CPP_RTTI = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -435,6 +446,8 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
+				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -450,16 +463,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_GETPW_GETS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NULLABLE_TO_NONNULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -468,12 +486,20 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = NO;
+				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;

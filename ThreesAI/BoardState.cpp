@@ -157,7 +157,7 @@ void BoardState::copy(BoardState const &other) {
 
 BoardState::BoardState(BoardState::DifferentFuture d, BoardState const& other) {
     this->copy(other);
-    this->generator.discard(d.howDifferent);
+    this->generator = default_random_engine(d.howDifferent);
 }
 
 BoardState::BoardState(Board b,
@@ -384,9 +384,9 @@ Tile BoardState::at(BoardIndex const& p) const {
 bool BoardState::isGameOver() const {
     if (!this->isGameOverCacheIsValid) {
         if (this->validMovesCacheIsValid) {
-            return this->validMovesCache.empty();
+            return this->validMovesCache.size() == 0;
         }
-        for (auto&& d : directions) {
+        for (auto&& d : allDirections) {
             if (this->canMove(d)) {
                 this->isGameOverCacheIsValid = true;
                 this->isGameOverCache = false;
@@ -556,31 +556,24 @@ ostream& outputTile(ostream &os, Tile tile) {
 }
 
 ostream& operator<<(ostream &os, BoardState const& board) {
-    os << "Upcoming: " << board.getHint() << endl;
-    if (board.isGameOver()) {
-        os << "Final";
-    } else {
-        os << "Current";
-    }
-    os << " Score: " << board.score() << endl;
+    os << board.getHint() << endl;
     os << "---------------------" << endl;
-    os << "|"; outputTile(os, board.board[0]) << "|"; outputTile(os, board.board[1]) << "|"; outputTile(os, board.board[2]) << "|"; outputTile(os, board.board[3]) << "|" << endl;
-    os << "|"; outputTile(os, board.board[4]) << "|"; outputTile(os, board.board[5]) << "|"; outputTile(os, board.board[6]) << "|"; outputTile(os, board.board[7]) << "|" << endl;
+    os << "|"; outputTile(os, board.board[0]) << "|"; outputTile(os, board.board[1]) << "|"; outputTile(os, board.board[2]) << "|"; outputTile(os, board.board[3]) << "| Score: " << board.score() << endl;
+    os << "|"; outputTile(os, board.board[4]) << "|"; outputTile(os, board.board[5]) << "|"; outputTile(os, board.board[6]) << "|"; outputTile(os, board.board[7]) << "| Turns: " << board.numTurns << endl;
     os << "|"; outputTile(os, board.board[8]) << "|"; outputTile(os, board.board[9]) << "|"; outputTile(os, board.board[10]) << "|"; outputTile(os, board.board[11]) << "|" << endl;
     os << "|"; outputTile(os, board.board[12]) << "|"; outputTile(os, board.board[13]) << "|"; outputTile(os, board.board[14]) << "|"; outputTile(os, board.board[15]) << "|" << endl;
     os << "---------------------";
     return os;
 }
 
-vector<Direction> BoardState::validMoves() const {
+EnabledDirections BoardState::validMoves() const {
     if (this->validMovesCacheIsValid) {
         return this->validMovesCache;
     }
-    this->validMovesCache.clear();
-    this->validMovesCache.reserve(4);
+    this->validMovesCache = EnabledDirections();
     for (auto&& d : {Direction::DOWN, Direction::UP, Direction::LEFT, Direction::RIGHT}) {
         if (this->canMove(d)) {
-            this->validMovesCache.push_back(d);
+            this->validMovesCache.set(d);
         }
     }
     this->validMovesCacheIsValid = true;
@@ -588,10 +581,20 @@ vector<Direction> BoardState::validMoves() const {
 }
 
 Direction BoardState::randomValidMoveFromInternalGenerator() const {
-    vector<Direction> moves = this->validMoves();
+    EnabledDirections moves = this->validMoves();
     default_random_engine genCopy = this->generator;
-    shuffle(moves.begin(), moves.end(), genCopy);
-    return moves[0];
+    int index = uniform_int_distribution<>(0,int(moves.size() - 1))(genCopy);
+    for (Direction d : allDirections) {
+        if (moves.isEnabled(d)) {
+            if (index > 0) {
+                index--;
+            } else {
+                return d;
+            }
+        }
+    }
+    debug();
+    return Direction::LEFT;
 }
 
 BoardState::Score BoardState::runRandomSimulation(unsigned int simNumber) const {
@@ -601,7 +604,13 @@ BoardState::Score BoardState::runRandomSimulation(unsigned int simNumber) const 
         if (print) {
             MYLOG(copy);
         }
+        try {
         copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());
+        } catch (std::exception e) {
+            debug();
+            MYLOG(copy);
+            copy.randomValidMoveFromInternalGenerator();
+        }
     }
     return copy.score();
 }

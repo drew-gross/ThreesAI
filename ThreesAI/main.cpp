@@ -179,17 +179,22 @@ int main(int argc, const char * argv[]) {
     //testMoveAndFindIndexes();
     //testImageProc(); debug();
 
-    for (int i = 1; i < 2; i++) {
-        default_random_engine rng(1);
+    for (unsigned int i = 1; i < 2; i++) {
+        default_random_engine rng(i);
+        unsigned int numPlays = uniform_int_distribution<>(1,1000)(rng);
         unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(rng);
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         //auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), std::move(p)); bool print = false;
         //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
-        ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), 20); bool print = true;
+        ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), 3010); bool print = true;
+        clock_t startTime = clock();
         ai.playGame(print); //Passed bool used to print move.
-        MYLOG(*ai.currentState());
+        clock_t endTime = clock();
+        cout << "Clocks per turn: " << (endTime - startTime)/ai.currentState()->numTurns << endl;
+        //MYLOG(*ai.currentState());
+        cout << numPlays << "," << ai.currentState()->score() << endl;
     }
     return 0;
 }

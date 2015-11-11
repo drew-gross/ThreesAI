@@ -20,19 +20,29 @@ void ManyPlayMonteCarloAI::prepareDirection() {};
 
 Direction ManyPlayMonteCarloAI::getDirection() const {
     BoardState::Score bestScore = 0;
-    Direction bestDirection = Direction::LEFT;
-    for (Direction d : this->currentState()->validMoves()) {
-        unsigned int playsRemaining = this->numPlays;
-        unsigned long currentDirectionTotalScore = 0;
-        while (playsRemaining--) {
-            BoardState boardCopy(BoardState::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
-            BoardState movedCopy(BoardState::Move(d), boardCopy);
-            boardCopy.takeTurnInPlace(d);
-            currentDirectionTotalScore += boardCopy.runRandomSimulation(this->numPlays - playsRemaining);
+    auto validMoves = this->currentState()->validMoves();
+    if (validMoves.size() == 1) {
+        for (auto&& d : allDirections) {
+            if (validMoves.isEnabled(d)) {
+                return d;
+            }
         }
-        if (currentDirectionTotalScore > bestScore) {
-            bestDirection = d;
-            bestScore = currentDirectionTotalScore;
+    }
+    Direction bestDirection = Direction::LEFT;
+    for (Direction d : allDirections) {
+        if (validMoves.isEnabled(d)) {
+            unsigned int playsRemaining = this->numPlays;
+            unsigned long currentDirectionTotalScore = 0;
+            while (playsRemaining--) {
+                BoardState boardCopy(BoardState::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
+                BoardState movedCopy(BoardState::Move(d), boardCopy);
+                boardCopy.takeTurnInPlace(d);
+                currentDirectionTotalScore += boardCopy.runRandomSimulation(this->numPlays - playsRemaining);
+            }
+            if (currentDirectionTotalScore > bestScore) {
+                bestDirection = d;
+                bestScore = currentDirectionTotalScore;
+            }
         }
     }
     return bestDirection;
