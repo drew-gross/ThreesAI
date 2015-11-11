@@ -318,6 +318,7 @@ Hint BoardState::getHint() const {
         if (actualTile <= Tile::TILE_3) {
             return Hint(actualTile);
         } else {
+            Tile maxBonusTile = this->maxBonusTile();
             //Add tiles that could show up
             if (pred(pred(actualTile)) >= Tile::TILE_6) {
                 inRangeTiles[tilesIndexEnd] = pred(pred(actualTile));
@@ -329,11 +330,11 @@ Hint BoardState::getHint() const {
             }
             inRangeTiles[tilesIndexEnd] = actualTile;
             tilesIndexEnd++;
-            if (succ(actualTile) <= this->maxBonusTile()) {
+            if (succ(actualTile) <= maxBonusTile) {
                 inRangeTiles[tilesIndexEnd] = succ(actualTile);
                 tilesIndexEnd++;
             }
-            if (succ(succ(actualTile)) <= this->maxBonusTile()) {
+            if (succ(succ(actualTile)) <= maxBonusTile) {
                 inRangeTiles[tilesIndexEnd] = succ(succ(actualTile));
                 tilesIndexEnd++;
             }
