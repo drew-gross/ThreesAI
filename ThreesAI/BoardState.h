@@ -124,7 +124,7 @@ private:
     void removeFromStack(Tile t);
     void copy(BoardState const &other);
     void addTile(Direction d);
-    void move(Direction d);//making public so MonteCarlo doesn't have to copy state around a lot
+    void move(Direction d);
 
     //non-mutators that aren't used extarnally
     Tile genUpcomingTile() const;
@@ -134,8 +134,6 @@ private:
     float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     Tile getUpcomingTile();
     
-    mutable bool isGameOverCache;
-    mutable bool isGameOverCacheIsValid = false;
     mutable unsigned int scoreCache;
     mutable bool scoreCacheIsValid = false;
     mutable bool validMovesCacheIsValid = false;

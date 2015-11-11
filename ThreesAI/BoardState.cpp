@@ -27,7 +27,6 @@ void BoardState::set(BoardIndex i, Tile t) {
 void BoardState::takeTurnInPlace(Direction d) {
     this->move(d);
     this->addTile(d);
-    this->isGameOverCacheIsValid = false;
     this->scoreCacheIsValid = false;
     this->validMovesCacheIsValid = false;
 }
@@ -384,21 +383,7 @@ Tile BoardState::at(BoardIndex const& p) const {
 }
 
 bool BoardState::isGameOver() const {
-    if (!this->isGameOverCacheIsValid) {
-        if (this->validMovesCacheIsValid) {
-            return this->validMovesCache.size() == 0;
-        }
-        for (auto&& d : allDirections) {
-            if (this->canMove(d)) {
-                this->isGameOverCacheIsValid = true;
-                this->isGameOverCache = false;
-                return this->isGameOverCache;
-            }
-        }
-        this->isGameOverCache = true;
-        this->isGameOverCacheIsValid = true;
-    }
-    return this->isGameOverCache;
+    return this->validMoves().size() == 0;
 }
 
 bool BoardState::canMove(Direction d) const {
