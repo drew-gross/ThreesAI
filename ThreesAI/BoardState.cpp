@@ -417,25 +417,25 @@ bool BoardState::hasSameTilesAs(BoardState const& otherBoard, EnabledIndices exc
     return true;
 }
 
+
+static std::array<BoardIndex, 4> leftEdge = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
+static std::array<BoardIndex, 4> rightEdge = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
+static std::array<BoardIndex, 4> upEdge = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
+static std::array<BoardIndex, 4> downEdge = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
 EnabledIndices BoardState::validIndicesForNewTile(Direction movedDirection) const {
-    static std::array<BoardIndex, 4> left = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
-    static std::array<BoardIndex, 4> right = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
-    static std::array<BoardIndex, 4> up = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
-    static std::array<BoardIndex, 4> down = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
-    
     std::array<BoardIndex, 4>* indices;
     switch (movedDirection) {
         case Direction::LEFT:
-            indices = &left;
+            indices = &leftEdge;
             break;
         case Direction::RIGHT:
-            indices = &right;
+            indices = &rightEdge;
             break;
         case Direction::UP:
-            indices = &up;
+            indices = &upEdge;
             break;
         case Direction::DOWN:
-            indices = &down;
+            indices = &downEdge;
             break;
         default:
             break;
