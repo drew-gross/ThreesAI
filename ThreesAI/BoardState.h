@@ -134,6 +134,7 @@ private:
     float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     Tile getUpcomingTile();
     
+    mutable Tile maxTileCache = Tile::EMPTY;
     mutable unsigned int scoreCache;
     mutable bool scoreCacheIsValid = false;
     mutable bool validMovesCacheIsValid = false;

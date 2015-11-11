@@ -62,6 +62,9 @@ void BoardState::move(Direction d) {
             if (canMerge(targetValue, hereValue)) {
                 Tile newTargetValue = targetValue != Tile::EMPTY ? succ(hereValue) : hereValue;
                 this->set(target, newTargetValue);
+                if (this->maxTileCache < newTargetValue) {
+                    this->maxTileCache = newTargetValue;
+                }
                 this->set(here, Tile::EMPTY);
                 successfulMerge = true;
             }
@@ -124,7 +127,6 @@ BoardIndex BoardState::indexForNextTile(Direction d) {
     return BoardIndex(0,0);
 }
 
-__attribute__((noinline))
 void BoardState::addTile(Direction d) {
     Tile upcomingTile = this->getUpcomingTile();
     BoardIndex i = this->indexForNextTile(d);
@@ -639,7 +641,11 @@ default_random_engine getGenerator() {
 }
 
 Tile BoardState::maxTile() const {
-    return *max_element(board.begin(), board.end());
+    if (this->maxTileCache != Tile::EMPTY) {
+        return this->maxTileCache;
+    }
+    this->maxTileCache = *max_element(board.begin(), board.end());
+    return this->maxTileCache;
 }
 
 BoardState::Score BoardState::score() const {
