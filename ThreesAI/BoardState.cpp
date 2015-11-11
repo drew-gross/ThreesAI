@@ -58,11 +58,13 @@ void BoardState::move(Direction d) {
         for (unsigned j = countUp ? 0 : 3; (countUp && j < 3) || (!countUp && j > 0); j += countUp? 1 : -1) {
             BoardIndex target = countFirst ? BoardIndex(j, i) : BoardIndex(i, j);
             BoardIndex here = countFirst ? BoardIndex(j + (countUp ? 1 : -1), i) : BoardIndex(i, j + (countUp ? 1 : -1));
-            optional<Tile> merged = mergeResult(this->at(target), this->at(here));
-            if (merged) {
-                successfulMerge = true;
-                this->set(target, merged.value());
+            Tile targetValue = this->at(target);
+            Tile hereValue = this->at(here);
+            if (canMerge(targetValue, hereValue)) {
+                Tile newTargetValue = targetValue != Tile::EMPTY ? succ(hereValue) : hereValue;
+                this->set(target, newTargetValue);
                 this->set(here, Tile::EMPTY);
+                successfulMerge = true;
             }
         }
     }
