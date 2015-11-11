@@ -57,8 +57,8 @@ Tile succ(Tile t) {
     }
 }
 
-bool canMerge(Tile t1, Tile t2) {
-    switch (t1) {
+bool canMerge(Tile here, Tile t2) {
+    switch (here) {
         case Tile::EMPTY: return t2 != Tile::EMPTY;
         case Tile::TILE_1: return t2 == Tile::TILE_2;
         case Tile::TILE_2: return t2 == Tile::TILE_1;
@@ -77,8 +77,8 @@ bool canMerge(Tile t1, Tile t2) {
     }
 }
 
-optional<Tile> mergeResult(Tile t1, Tile t2) {
-    switch (t1) {
+optional<Tile> mergeResult(Tile here, Tile t2) {
+    switch (here) {
         case Tile::EMPTY: return t2 == Tile::EMPTY ? none : make_optional(t2);
         case Tile::TILE_1: return t2 == Tile::TILE_2 ? make_optional(Tile::TILE_3) : none;
         case Tile::TILE_2: return t2 == Tile::TILE_1 ? make_optional(Tile::TILE_3) : none;

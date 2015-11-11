@@ -530,43 +530,75 @@ EnabledDirections BoardState::validMoves() const {
     if (this->validMovesCacheIsValid) {
         return this->validMovesCache;
     }
+    
     this->validMovesCache = EnabledDirections();
     for (unsigned i = 0; i < 4; i++) {
-        if (canMerge(this->at(BoardIndex(i, 0)), this->at(BoardIndex(i, 1))) ||
-            canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 2))) ||
-            canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 3)))) {
+        if (canMerge(this->at(BoardIndex(i, 0)), this->at(BoardIndex(i, 1)))) {
             this->validMovesCache.set(Direction::UP);
+            if (this->at(BoardIndex(i,0)) != Tile::EMPTY) {
+                this->validMovesCache.set(Direction::DOWN);
+            }
             break;
+        }
+        if (canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 2)))) {
+            this->validMovesCache.set(Direction::UP);
+            if (this->at(BoardIndex(i,1)) != Tile::EMPTY) {
+                this->validMovesCache.set(Direction::DOWN);
+            }
+            break;
+        }
+        if (canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 3)))) {
+            this->validMovesCache.set(Direction::UP);
+            if (this->at(BoardIndex(i,2)) != Tile::EMPTY) {
+                this->validMovesCache.set(Direction::DOWN);
+            }
+            break;
+        }
+    }
+    if (!this->validMovesCache.isEnabled(Direction::DOWN)) {
+        for (unsigned i = 0; i < 4; i++) {
+            if (canMerge(this->at(BoardIndex(i, 3)), this->at(BoardIndex(i, 2))) ||
+                canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 1))) ||
+                canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 0)))) {
+                this->validMovesCache.set(Direction::DOWN);
+                break;
+            }
         }
     }
     
     for (unsigned i = 0; i < 4; i++) {
-        if (canMerge(this->at(BoardIndex(i, 3)), this->at(BoardIndex(i, 2))) ||
-            canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 1))) ||
-            canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 0)))) {
-            this->validMovesCache.set(Direction::DOWN);
-            break;
-        }
-    }
-    
-    for (unsigned i = 0; i < 4; i++) {
-        if (canMerge(this->at(BoardIndex(0, i)), this->at(BoardIndex(1, i))) ||
-            canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(2, i))) ||
-            canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(3, i)))) {
+        if (canMerge(this->at(BoardIndex(0, i)), this->at(BoardIndex(1, i)))) {
             this->validMovesCache.set(Direction::LEFT);
+            if (this->at(BoardIndex(0, i)) != Tile::EMPTY) {
+                this->validMovesCache.set(Direction::RIGHT);
+            }
+            break;
+        }
+        if (canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(2, i)))) {
+            this->validMovesCache.set(Direction::LEFT);
+            if (this->at(BoardIndex(1, i)) != Tile::EMPTY) {
+                this->validMovesCache.set(Direction::RIGHT);
+            }
+            break;
+        }
+        if (canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(3, i)))) {
+            this->validMovesCache.set(Direction::LEFT);
+            if (this->at(BoardIndex(2, i)) != Tile::EMPTY) {
+                this->validMovesCache.set(Direction::RIGHT);
+            }
             break;
         }
     }
-    
-    for (unsigned i = 0; i < 4; i++) {
-        if (canMerge(this->at(BoardIndex(3, i)), this->at(BoardIndex(2, i))) ||
-            canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(1, i))) ||
-            canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(0, i)))) {
-            this->validMovesCache.set(Direction::RIGHT);
-            break;
+    if (!this->validMovesCache.isEnabled(Direction::RIGHT)) {
+        for (unsigned i = 0; i < 4; i++) {
+            if (canMerge(this->at(BoardIndex(3, i)), this->at(BoardIndex(2, i))) ||
+                canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(1, i))) ||
+                canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(0, i)))) {
+                this->validMovesCache.set(Direction::RIGHT);
+                break;
+            }
         }
     }
-    
     this->validMovesCacheIsValid = true;
     return this->validMovesCache;
 }
