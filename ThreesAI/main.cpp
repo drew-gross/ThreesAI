@@ -183,8 +183,8 @@ int main(int argc, const char * argv[]) {
         default_random_engine rng(i);
         unsigned int numPlays = uniform_int_distribution<>(1,1000)(rng);
         unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(rng);
-        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
-        //auto initialState = watcher->getGameState();\
+        //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
+        auto initialState = watcher->getGameState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), std::move(p)); bool print = false;
         //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;

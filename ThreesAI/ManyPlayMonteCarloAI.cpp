@@ -21,13 +21,6 @@ void ManyPlayMonteCarloAI::prepareDirection() {};
 Direction ManyPlayMonteCarloAI::getDirection() const {
     BoardState::Score bestScore = 0;
     auto validMoves = this->currentState()->validMoves();
-    if (validMoves.size() == 1) {
-        for (auto&& d : allDirections) {
-            if (validMoves.isEnabled(d)) {
-                return d;
-            }
-        }
-    }
     Direction bestDirection = Direction::LEFT;
     for (Direction d : allDirections) {
         if (validMoves.isEnabled(d)) {

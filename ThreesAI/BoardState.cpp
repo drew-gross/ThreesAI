@@ -66,7 +66,7 @@ void BoardState::move(Direction d) {
             }
         }
     }
-    if (!successfulMerge) {
+    if (__builtin_expect(!successfulMerge, 0)) {
         throw InvalidMoveException();
     }
 }
@@ -400,47 +400,7 @@ bool BoardState::isGameOver() const {
 }
 
 bool BoardState::canMove(Direction d) const {
-    switch (d) {
-        case Direction::UP:
-            for (unsigned i = 0; i < 4; i++) {
-                if (canMerge(this->at(BoardIndex(i, 0)), this->at(BoardIndex(i, 1))) ||
-                    canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 2))) ||
-                    canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 3)))) {
-                    return true;
-                }
-            }
-            break;
-        case Direction::DOWN:
-            for (unsigned i = 0; i < 4; i++) {
-                if (canMerge(this->at(BoardIndex(i, 3)), this->at(BoardIndex(i, 2))) ||
-                    canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 1))) ||
-                    canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 0)))) {
-                    return true;
-                }
-            }
-            break;
-        case Direction::LEFT:
-            for (unsigned i = 0; i < 4; i++) {
-                if (canMerge(this->at(BoardIndex(0, i)), this->at(BoardIndex(1, i))) ||
-                    canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(2, i))) ||
-                    canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(3, i)))) {
-                    return true;
-                }
-            }
-            break;
-        case Direction::RIGHT:
-            for (unsigned i = 0; i < 4; i++) {
-                if (canMerge(this->at(BoardIndex(3, i)), this->at(BoardIndex(2, i))) ||
-                    canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(1, i))) ||
-                    canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(0, i)))) {
-                    return true;
-                }
-            }
-            break;
-        default:
-            break;
-    }
-    return false;
+    return this->validMoves().isEnabled(d);
 }
 
 Tile BoardState::maxBonusTile() const {
@@ -571,11 +531,42 @@ EnabledDirections BoardState::validMoves() const {
         return this->validMovesCache;
     }
     this->validMovesCache = EnabledDirections();
-    for (auto&& d : {Direction::DOWN, Direction::UP, Direction::LEFT, Direction::RIGHT}) {
-        if (this->canMove(d)) {
-            this->validMovesCache.set(d);
+    for (unsigned i = 0; i < 4; i++) {
+        if (canMerge(this->at(BoardIndex(i, 0)), this->at(BoardIndex(i, 1))) ||
+            canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 2))) ||
+            canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 3)))) {
+            this->validMovesCache.set(Direction::UP);
+            break;
         }
     }
+    
+    for (unsigned i = 0; i < 4; i++) {
+        if (canMerge(this->at(BoardIndex(i, 3)), this->at(BoardIndex(i, 2))) ||
+            canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 1))) ||
+            canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 0)))) {
+            this->validMovesCache.set(Direction::DOWN);
+            break;
+        }
+    }
+    
+    for (unsigned i = 0; i < 4; i++) {
+        if (canMerge(this->at(BoardIndex(0, i)), this->at(BoardIndex(1, i))) ||
+            canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(2, i))) ||
+            canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(3, i)))) {
+            this->validMovesCache.set(Direction::LEFT);
+            break;
+        }
+    }
+    
+    for (unsigned i = 0; i < 4; i++) {
+        if (canMerge(this->at(BoardIndex(3, i)), this->at(BoardIndex(2, i))) ||
+            canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(1, i))) ||
+            canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(0, i)))) {
+            this->validMovesCache.set(Direction::RIGHT);
+            break;
+        }
+    }
+    
     this->validMovesCacheIsValid = true;
     return this->validMovesCache;
 }
