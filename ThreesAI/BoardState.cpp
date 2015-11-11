@@ -309,7 +309,8 @@ Hint BoardState::getHint() const {
     if (this->hint) {
         return this->hint.value();
     } else {
-        deque<Tile> inRangeTiles;
+        array<Tile, 5> inRangeTiles;
+        unsigned char tilesIndexEnd = 0;
         Tile hint1 = Tile::EMPTY;
         Tile hint2 = Tile::EMPTY;
         Tile hint3 = Tile::EMPTY;
@@ -319,40 +320,46 @@ Hint BoardState::getHint() const {
         } else {
             //Add tiles that could show up
             if (pred(pred(actualTile)) >= Tile::TILE_6) {
-                inRangeTiles.push_back(pred(pred(actualTile)));
+                inRangeTiles[tilesIndexEnd] = pred(pred(actualTile));
+                tilesIndexEnd++;
             }
             if (pred(actualTile) >= Tile::TILE_6) {
-                inRangeTiles.push_back(pred(actualTile));
+                inRangeTiles[tilesIndexEnd] = pred(actualTile);
+                tilesIndexEnd++;
             }
-            inRangeTiles.push_back(actualTile);
+            inRangeTiles[tilesIndexEnd] = actualTile;
+            tilesIndexEnd++;
             if (succ(actualTile) <= this->maxBonusTile()) {
-                inRangeTiles.push_back(succ(actualTile));
+                inRangeTiles[tilesIndexEnd] = succ(actualTile);
+                tilesIndexEnd++;
             }
             if (succ(succ(actualTile)) <= this->maxBonusTile()) {
-                inRangeTiles.push_back(succ(succ(actualTile)));
+                inRangeTiles[tilesIndexEnd] = succ(succ(actualTile));
+                tilesIndexEnd++;
             }
             
+            unsigned char tilesIndexBegin = 0;
             default_random_engine rngCopy = this->generator;
             //Trim list down to 3
-            while (inRangeTiles.size() > 3) {
-                if (upcomingTile == *inRangeTiles.end()) {
-                    inRangeTiles.pop_front();
-                } else if (upcomingTile == *inRangeTiles.begin()) {
-                    inRangeTiles.pop_back();
+            while (tilesIndexEnd - tilesIndexBegin > 3) {
+                if (upcomingTile == inRangeTiles[tilesIndexEnd-1]) {
+                    tilesIndexBegin++;
+                } else if (upcomingTile == inRangeTiles[tilesIndexBegin]) {
+                    tilesIndexEnd--;
                 } else if (uniform_int_distribution<>(0,1)(rngCopy) == 1) {
-                    inRangeTiles.pop_back();
+                    tilesIndexEnd--;
                 } else {
-                    inRangeTiles.pop_front();
+                    tilesIndexBegin++;
                 }
             }
             
-            if (inRangeTiles.size() == 3) {
-                hint3 = inRangeTiles[2];
+            if (tilesIndexEnd - tilesIndexBegin == 3) {
+                hint3 = inRangeTiles[tilesIndexBegin + 2];
             }
-            if (inRangeTiles.size() >= 2) {
-                hint2 = inRangeTiles[1];
+            if (tilesIndexEnd - tilesIndexBegin >= 2) {
+                hint2 = inRangeTiles[tilesIndexBegin + 1];
             }
-            hint1 = inRangeTiles[0];
+            hint1 = inRangeTiles[tilesIndexBegin];
         }
         
         Hint result(hint1, hint2, hint3);
