@@ -623,11 +623,7 @@ Direction BoardState::randomValidMoveFromInternalGenerator() const {
 
 BoardState::Score BoardState::runRandomSimulation(unsigned int simNumber) const {
     BoardState copy(BoardState::DifferentFuture(simNumber), *this);
-    bool print = false;
     while (!copy.isGameOver()) {
-        if (print) {
-            MYLOG(copy);
-        }
         try {
         copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());
         } catch (std::exception e) {

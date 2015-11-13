@@ -19,6 +19,7 @@
 #include "ZeroDepthMaxScoreAI.h"
 #include "ExpectimaxAI.h"
 #include "OnePlayMonteCarloAI.h"
+#include "UCTSearchAI.hpp"
 #include "ManyPlayMonteCarloAI.h"
 #include "HumanPlayer.h"
 #include "RandomAI.h"
@@ -179,8 +180,10 @@ int main(int argc, const char * argv[]) {
     //testMoveAndFindIndexes();
     //testImageProc(); debug();
     
-    uniform_int_distribution<> dist(1000,10000);
+    uniform_int_distribution<> dist(10,500);
     default_random_engine aiParams(0);
+    vector<BoardState::Score> scores;
+    vector<int> plays;
     for (unsigned int i = 1; i < 1000000000; i++) {
         unsigned int numPlays = dist(aiParams);
         unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));
@@ -189,13 +192,16 @@ int main(int argc, const char * argv[]) {
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
         //HumanPlayer ai(p->currentState(), std::move(p)); bool print = false;
         //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
-        ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), numPlays); bool print = true;
+        //ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), numPlays); bool print = true;
+        UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
         //clock_t startTime = clock();
         ai.playGame(print); //Passed bool used to print move.
         //clock_t endTime = clock();
         //cout << "Clocks per turn: " << (endTime - startTime)/ai.currentState()->numTurns << endl;
         //MYLOG(*ai.currentState());
         cout << numPlays << "," << ai.currentState()->score() << endl;
+        scores.push_back(ai.currentState()->score());
+        plays.push_back(numPlays);
     }
     return 0;
 }

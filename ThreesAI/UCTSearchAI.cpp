@@ -19,25 +19,37 @@ void UCTSearchAI::receiveState(Direction d, BoardState const & newState) {};
 void UCTSearchAI::prepareDirection() {};
 
 Direction UCTSearchAI::getDirection() const {
-    unsigned long bestScore = 0;
-    Direction bestDirection = Direction::LEFT;
+    map<Direction, float> means;
+    map<Direction, float> plays;
+    unsigned int numPlays = 0;
     for (Direction d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
-            unsigned int playsRemaining = this->numPlays;
-            unsigned long currentDirectionTotalScore = 0;
-            while (playsRemaining--) {
-                BoardState boardCopy(BoardState::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
-                boardCopy.takeTurnInPlace(d);
-                while (!boardCopy.isGameOver()) {
-                    boardCopy.takeTurnInPlace(boardCopy.randomValidMoveFromInternalGenerator());
-                }
-                currentDirectionTotalScore += boardCopy.score();
-            }
-            if (currentDirectionTotalScore > bestScore) {
-                bestDirection = d;
-                bestScore = currentDirectionTotalScore;
-            }
+            plays[d] = 1;
+            BoardState boardCopy(BoardState::DifferentFuture(0), *this->currentState());
+            BoardState movedCopy(BoardState::Move(d), boardCopy);
+            means[d] = movedCopy.runRandomSimulation(numPlays);
+            numPlays++;
         }
     }
-    return bestDirection;
+    while (numPlays < this->numPlays) {
+        numPlays++;
+        Direction currentBest = max_element(means.begin(), means.end(), [numPlays, &plays](pair<Direction, float> l, pair<Direction, float> r){
+            float leftBound = l.second/plays[l.first] + sqrt(2*log(numPlays)/plays[l.first]);
+            float rightBound = r.second/plays[r.first] + sqrt(2*log(numPlays)/plays[r.first]);
+            return leftBound < rightBound;
+        })->first;
+        BoardState boardCopy(BoardState::DifferentFuture(numPlays), *this->currentState());
+        BoardState movedCopy(BoardState::Move(currentBest), boardCopy);
+        BoardState::Score nextScore = movedCopy.runRandomSimulation(numPlays);
+        plays[currentBest]++;
+        means[currentBest] += (nextScore - means[currentBest])/plays[currentBest];
+    }/*
+    for (auto&& d : means) {
+        cout << d.first << ": score: " << d.second << " plays: " << plays[d.first] << endl;
+    }*/
+    Direction best = max_element(means.begin(), means.end(), [](pair<Direction, float> l, pair<Direction, float> r) {
+        return l.second < r.second;
+    })->first;
+    //cout << best << endl;
+    return best;
 }

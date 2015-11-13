@@ -27,10 +27,10 @@ Direction ManyPlayMonteCarloAI::getDirection() const {
             while (playsRemaining--) {
                 BoardState boardCopy(BoardState::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
                 BoardState movedCopy(BoardState::Move(d), boardCopy);
-                boardCopy.takeTurnInPlace(d);
-                currentDirectionTotalScore += boardCopy.runRandomSimulation(this->numPlays - playsRemaining);
+                BoardState::Score newScore = movedCopy.runRandomSimulation(this->numPlays - playsRemaining);
+                currentDirectionTotalScore += newScore;
             }
-            scores[d] = currentDirectionTotalScore / this->numPlays;
+            scores[d] = float(currentDirectionTotalScore) / this->numPlays;
         } else {
             scores[d] = this->currentState()->score();
         }
@@ -38,7 +38,15 @@ Direction ManyPlayMonteCarloAI::getDirection() const {
     for (auto&& d : scores) {
         cout << d.first << ": " << d.second << endl;
     }
-    return max_element(scores.begin(), scores.end(), [](pair<Direction, float> l, pair<Direction, float> r){
+    Direction bestDirection = max_element(scores.begin(), scores.end(), [](pair<Direction, float> l, pair<Direction, float> r){
         return l.second < r.second;
     })->first;
+    float bestScore = scores[bestDirection];
+    scores.erase(bestDirection);
+    Direction secondBestDirection = max_element(scores.begin(), scores.end(), [](pair<Direction, float> l, pair<Direction, float> r){
+        return l.second < r.second;
+    })->first;
+    float secondBestScore = scores[secondBestDirection];
+    cout << bestDirection << " beats " << secondBestDirection << " by " << bestScore - secondBestScore << endl;
+    return bestDirection;
 }
