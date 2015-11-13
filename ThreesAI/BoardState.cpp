@@ -523,6 +523,10 @@ ostream& operator<<(ostream &os, BoardState const& board) {
     return os;
 }
 
+bool BoardState::isMoveValid(Direction d) const {
+    return this->validMoves().isEnabled(d);
+}
+
 EnabledDirections BoardState::validMoves() const {
     if (this->validMovesCacheIsValid) {
         return this->validMovesCache;

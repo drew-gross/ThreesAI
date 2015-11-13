@@ -19,11 +19,9 @@ void ManyPlayMonteCarloAI::receiveState(Direction d, BoardState const & newState
 void ManyPlayMonteCarloAI::prepareDirection() {};
 
 Direction ManyPlayMonteCarloAI::getDirection() const {
-    BoardState::Score bestScore = 0;
-    auto validMoves = this->currentState()->validMoves();
-    Direction bestDirection = Direction::LEFT;
+    map<Direction, float> scores;
     for (Direction d : allDirections) {
-        if (validMoves.isEnabled(d)) {
+        if (this->currentState()->isMoveValid(d)) {
             unsigned int playsRemaining = this->numPlays;
             unsigned long currentDirectionTotalScore = 0;
             while (playsRemaining--) {
@@ -32,11 +30,15 @@ Direction ManyPlayMonteCarloAI::getDirection() const {
                 boardCopy.takeTurnInPlace(d);
                 currentDirectionTotalScore += boardCopy.runRandomSimulation(this->numPlays - playsRemaining);
             }
-            if (currentDirectionTotalScore > bestScore) {
-                bestDirection = d;
-                bestScore = currentDirectionTotalScore;
-            }
+            scores[d] = currentDirectionTotalScore / this->numPlays;
+        } else {
+            scores[d] = this->currentState()->score();
         }
     }
-    return bestDirection;
+    for (auto&& d : scores) {
+        cout << d.first << ": " << d.second << endl;
+    }
+    return max_element(scores.begin(), scores.end(), [](pair<Direction, float> l, pair<Direction, float> r){
+        return l.second < r.second;
+    })->first;
 }

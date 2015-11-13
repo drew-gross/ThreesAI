@@ -21,9 +21,8 @@ void UCTSearchAI::prepareDirection() {};
 Direction UCTSearchAI::getDirection() const {
     unsigned long bestScore = 0;
     Direction bestDirection = Direction::LEFT;
-    EnabledDirections validMoves = this->currentState()->validMoves();
     for (Direction d : allDirections) {
-        if (validMoves.isEnabled(d)) {
+        if (this->currentState()->isMoveValid(d)) {
             unsigned int playsRemaining = this->numPlays;
             unsigned long currentDirectionTotalScore = 0;
             while (playsRemaining--) {

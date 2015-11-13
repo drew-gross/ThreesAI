@@ -20,9 +20,8 @@ void OnePlayMonteCarloAI::prepareDirection(){}
 Direction OnePlayMonteCarloAI::getDirection() const {
     unsigned long bestScore = 0;
     Direction bestDirection = Direction::LEFT;
-    EnabledDirections validMoves = this->currentState()->validMoves();
     for (Direction d : allDirections) {
-        if (validMoves.isEnabled(d)) {
+        if (this->currentState()->isMoveValid(d)) {
             BoardState moved(BoardState::Move(d), *this->currentState());
             BoardState::Score score = moved.runRandomSimulation(1);
             if (score > bestScore) {

@@ -31,9 +31,8 @@ pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChi
 
 void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList){
     debug(this->childrenAreFilledIn());
-    EnabledDirections validMoves = this->board->validMoves();
-    for (auto&& d : allDirections) {
-        if (validMoves.isEnabled(d)) {
+    for (Direction d : allDirections) {
+        if (this->board->isMoveValid(d)) {
             std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::MoveWithoutAdd(d), *this->board);
             shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d, this->depth+1);
             this->children.insert({d, child});

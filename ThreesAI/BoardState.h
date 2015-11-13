@@ -98,8 +98,7 @@ public:
     Tile at(BoardIndex const& p) const;
     
     bool isGameOver() const;
-    
-    EnabledDirections validMoves() const;
+    bool isMoveValid(Direction d) const;
     Direction randomValidMoveFromInternalGenerator() const;
     bool canMove(Direction d) const;
     
@@ -127,6 +126,7 @@ private:
     void move(Direction d);
 
     //non-mutators that aren't used extarnally
+    EnabledDirections validMoves() const;
     Tile genUpcomingTile() const;
     unsigned int stackSize() const;
     Tile maxBonusTile() const;
