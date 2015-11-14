@@ -24,9 +24,9 @@ public:
     ExpectimaxNodeBase(std::shared_ptr<BoardState const> board, unsigned int depth);
     
     virtual void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
-    virtual float value() const = 0;
-    virtual void outputDot() const = 0;
-    virtual void outputDotEdges(float p) const = 0;
+    virtual float value(std::function<float(BoardState const&)> heuristic) const = 0;
+    virtual void outputDot(std::function<float(BoardState const&)> heuristic) const = 0;
+    virtual void outputDotEdges(float p, std::function<float(BoardState const&)> heuristic) const = 0;
     virtual void pruneUnreachableChildren(Hint const& nextTileHint, std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     
     std::shared_ptr<BoardState const> const board;
@@ -43,7 +43,7 @@ public:
     std::map<edge_type, std::shared_ptr<ExpectimaxNodeBase>> children;
     bool childrenAreFilledIn() const;
     
-    void outputDot() const;
+    void outputDot(std::function<float(BoardState const&)> heuristic) const;
 };
 
 template<typename edge_type>
@@ -55,11 +55,11 @@ bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
 }
 
 template<typename edge_type>
-void ExpectimaxNode<edge_type>::outputDot() const {
+void ExpectimaxNode<edge_type>::outputDot(std::function<float(BoardState const&)> heuristic) const {
     std::cout << "digraph {" << std::endl;
     std::cout << "\tnode [fontname=Courier]" << std::endl;
     std::cout << "\tedge [fontname=Courier]" << std::endl;
-    this->outputDotEdges(NAN);
+    this->outputDotEdges(NAN, heuristic);
     std::cout << "}" << std::endl;
 }
 

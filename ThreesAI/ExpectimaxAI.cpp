@@ -13,7 +13,10 @@
 
 using namespace std;
 
-ExpectimaxAI::ExpectimaxAI(std::shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)), currentBoard(make_shared<ExpectimaxMoveNode>(board, 0)) {
+ExpectimaxAI::ExpectimaxAI(std::shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output, std::function<float(BoardState const&)> heuristic) :
+ThreesAIBase(board, move(output)),
+currentBoard(make_shared<ExpectimaxMoveNode>(board, 0)),
+heuristic(heuristic){
     this->unfilledChildren.push_back(this->currentBoard);
 }
 
@@ -50,21 +53,20 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 }
 
 void ExpectimaxAI::prepareDirection() {
-    this->fillInChild(50);
+    this->fillInChild(10);
 }
 
 Direction ExpectimaxAI::getDirection() const {
-    return this->currentBoard->maxChild().first;
+    return this->currentBoard->maxChild(this->heuristic).first;
 }
 
-void ExpectimaxAI::receiveState(Direction d, std::shared_ptr<BoardState const> afterMoveState) {
+void ExpectimaxAI::receiveState(Direction d, BoardState const& afterMoveState) {
     shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(this->currentBoard->child(d));
     debug(afterMoveBoard->board->getHint() != this->currentBoard->board->getHint());
     ChanceNodeEdge edge(afterMoveBoard->board, afterMoveState);
     shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(afterMoveBoard->child(edge));
-    debug(!afterAddingTileBoard->board->hasSameTilesAs(*afterMoveState, {}));
-    debug(afterAddingTileBoard->board->getHint() != afterMoveState->getHint());
+    debug(!afterAddingTileBoard->board->hasSameTilesAs(afterMoveState, {}));
     this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterAddingTileBoard);
-    this->currentBoard->pruneUnreachableChildren(afterMoveState->getHint(), this->unfilledChildren);
-    MYLOG(afterMoveState);
+    //TODO: get rid of children of current node that can't be reached know that we have a hint
+    //this->currentBoard->pruneUnreachableChildren(afterMoveState.getHint(), this->unfilledChildren);
 }

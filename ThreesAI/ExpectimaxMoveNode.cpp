@@ -21,10 +21,10 @@ using namespace std;
 
 ExpectimaxMoveNode::ExpectimaxMoveNode(std::shared_ptr<BoardState const> board, unsigned int depth): ExpectimaxNode<Direction>(board, depth) {}
 
-pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild() const {
-    return *max_element(this->children.begin(), this->children.end(), [](pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> right){
-        float leftValue = left.second->value();
-        float rightValue = right.second->value();
+pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild(std::function<float(BoardState const&)> heuristic) const {
+    return *max_element(this->children.begin(), this->children.end(), [&heuristic](pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> left, pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> right){
+        float leftValue = left.second->value(heuristic);
+        float rightValue = right.second->value(heuristic);
         return leftValue < rightValue;
     });
 }
@@ -47,14 +47,14 @@ void ExpectimaxMoveNode::pruneUnreachableChildren(Hint const& nextTileHint, std:
     }
 }
 
-float ExpectimaxMoveNode::value() const {
+float ExpectimaxMoveNode::value(std::function<float(BoardState const&)> heuristic) const {
     if (this->board->isGameOver()) {
         return 0;
     }
     if (this->childrenAreFilledIn()) {
-        return this->maxChild().second->value();
+        return this->maxChild(heuristic).second->value(heuristic);
     }
-    return this->board->score();
+    return heuristic(*this->board);
 }
 
 std::shared_ptr<const ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction const& d) const {
@@ -63,12 +63,12 @@ std::shared_ptr<const ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction co
     return result->second;
 }
 
-void ExpectimaxMoveNode::outputDotEdges(float p) const {
+void ExpectimaxMoveNode::outputDotEdges(float p, std::function<float(BoardState const&)> heuristic) const {
     for (auto&& child : this->children) {
         cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
     }
     cout << "\t" << long(this) << " [label=\"";
-    cout << "Value=" << setprecision(7) << this->value() << endl;
+    cout << "Value=" << setprecision(7) << this->value(heuristic) << endl;
     cout << "P=" << p << endl;
     cout << this->board << "\"";
     if (this->board->isGameOver()) {
@@ -76,6 +76,6 @@ void ExpectimaxMoveNode::outputDotEdges(float p) const {
     }
     cout << "]" << endl;
     for (auto&& child : this->children) {
-        child.second->outputDotEdges(NAN);
+        child.second->outputDotEdges(NAN, heuristic);
     }
 }

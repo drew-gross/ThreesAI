@@ -84,6 +84,7 @@ BoardState::BoardState(BoardState::AddSpecificTile t, BoardState const& other) {
     this->copy(other);
     this->indexForNextTile(t.d); //force RNG to advance the same number of times as if the tile had been added the natural way.
     this->upcomingTile = none;
+    this->numTurns++;
     this->set(t.i, t.t);
     this->removeFromStack(t.t);
 }

@@ -193,7 +193,10 @@ int main(int argc, const char * argv[]) {
         //HumanPlayer ai(p->currentState(), std::move(p)); bool print = false;
         //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
         //ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), numPlays); bool print = true;
-        UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
+        //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
+        ExpectimaxAI ai(p->currentState(), std::move(p), [](BoardState const& board){
+            return board.score();
+        }); bool print = true;
         //clock_t startTime = clock();
         ai.playGame(print); //Passed bool used to print move.
         //clock_t endTime = clock();
