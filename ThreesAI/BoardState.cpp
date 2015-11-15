@@ -22,6 +22,7 @@ using namespace boost;
 
 void BoardState::set(BoardIndex i, Tile t) {
     this->board[i.toRegularIndex()] = t;
+    this->maxTileCache = std::max(t, this->maxTileCache);
 }
 
 void BoardState::takeTurnInPlace(Direction d) {
@@ -62,9 +63,6 @@ void BoardState::move(Direction d) {
             if (canMerge(targetValue, hereValue)) {
                 Tile newTargetValue = targetValue != Tile::EMPTY ? succ(hereValue) : hereValue;
                 this->set(target, newTargetValue);
-                if (this->maxTileCache < newTargetValue) {
-                    this->maxTileCache = newTargetValue;
-                }
                 this->set(here, Tile::EMPTY);
                 successfulMerge = true;
             }
@@ -80,13 +78,14 @@ BoardState::BoardState(BoardState::MoveWithoutAdd m, BoardState const& other) {
     this->move(m.d);
 }
 
-BoardState::BoardState(BoardState::AddSpecificTile t, BoardState const& other) {
+BoardState::BoardState(BoardState::AddSpecificTile t, BoardState const& other, bool hasNoHint) {
     this->copy(other);
     this->indexForNextTile(t.d); //force RNG to advance the same number of times as if the tile had been added the natural way.
     this->upcomingTile = none;
     this->numTurns++;
     this->set(t.i, t.t);
     this->removeFromStack(t.t);
+    this->hasNoHint = hasNoHint;
 }
 
 void BoardState::removeFromStack(Tile t) {
@@ -142,7 +141,7 @@ BoardState::BoardState(BoardState::AddTile t, BoardState const& other) {
     this->addTile(t.d);
 }
 
-BoardState::BoardState(BoardState::Move m, BoardState const& other) {
+BoardState::BoardState(BoardState::MoveWithAdd m, BoardState const& other) {
     this->copy(other);
     this->takeTurnInPlace(m.d);
 }
@@ -157,6 +156,8 @@ void BoardState::copy(BoardState const &other) {
     this->board = other.board;
     this->upcomingTile = other.upcomingTile;
     this->hint = other.hint;
+    this->hasNoHint = other.hasNoHint;
+    this->maxTileCache = other.maxTileCache;
 }
 
 BoardState::BoardState(BoardState::DifferentFuture d, BoardState const& other) {
@@ -201,6 +202,7 @@ twosInStack(twosInStack),
 threesInStack(threesInStack),
 sourceImage(sourceImage),
 generator(hintGen),
+hasNoHint(false),
 hint(none) {
     if (this->stackSize() == 0) {
         this->onesInStack = 4;
@@ -214,7 +216,8 @@ BoardState::BoardState(FromString s) :
 generator(0),
 onesInStack(4),
 twosInStack(4),
-threesInStack(4)
+threesInStack(4),
+hasNoHint(false)
 {
     vector<string> splitName;
     split(splitName, s.s, is_any_of("-"));
@@ -309,6 +312,7 @@ Tile BoardState::genUpcomingTile() const {
 }
 
 Hint BoardState::getHint() const {
+    debug(this->hasNoHint);
     if (this->hint) {
         return this->hint.value();
     } else {
@@ -385,7 +389,9 @@ Tile BoardState::getUpcomingTile() {
 }
 
 ostream& operator<<(ostream &os, const BoardIndex i){
-    os << "{" << i.first << ", " << i.second << "}";
+    int first = i.first;
+    int second = i.second;
+    os << "{" << first << ", " << second << "}";
     return os;
 }
 
@@ -514,10 +520,16 @@ ostream& outputTile(ostream &os, Tile tile) {
 }
 
 ostream& operator<<(ostream &os, BoardState const& board) {
-    os << board.getHint() << endl;
+    if (board.hasNoHint) {
+        os << "No Hint" << endl;
+    } else {
+        os << "Hint: " << board.getHint() << endl;
+    }
+    os << "Turns: " << board.numTurns << endl;
+    os << "Score: " << board.score() << endl;
     os << "---------------------" << endl;
-    os << "|"; outputTile(os, board.board[0]) << "|"; outputTile(os, board.board[1]) << "|"; outputTile(os, board.board[2]) << "|"; outputTile(os, board.board[3]) << "| Score: " << board.score() << endl;
-    os << "|"; outputTile(os, board.board[4]) << "|"; outputTile(os, board.board[5]) << "|"; outputTile(os, board.board[6]) << "|"; outputTile(os, board.board[7]) << "| Turns: " << board.numTurns << endl;
+    os << "|"; outputTile(os, board.board[0]) << "|"; outputTile(os, board.board[1]) << "|"; outputTile(os, board.board[2]) << "|"; outputTile(os, board.board[3]) << "|" << endl;
+    os << "|"; outputTile(os, board.board[4]) << "|"; outputTile(os, board.board[5]) << "|"; outputTile(os, board.board[6]) << "|"; outputTile(os, board.board[7]) << "|" << endl;
     os << "|"; outputTile(os, board.board[8]) << "|"; outputTile(os, board.board[9]) << "|"; outputTile(os, board.board[10]) << "|"; outputTile(os, board.board[11]) << "|" << endl;
     os << "|"; outputTile(os, board.board[12]) << "|"; outputTile(os, board.board[13]) << "|"; outputTile(os, board.board[14]) << "|"; outputTile(os, board.board[15]) << "|" << endl;
     os << "---------------------";
@@ -642,10 +654,6 @@ default_random_engine getGenerator() {
 }
 
 Tile BoardState::maxTile() const {
-    if (this->maxTileCache != Tile::EMPTY) {
-        return this->maxTileCache;
-    }
-    this->maxTileCache = *max_element(board.begin(), board.end());
     return this->maxTileCache;
 }
 

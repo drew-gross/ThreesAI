@@ -52,8 +52,19 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
     return;
 }
 
+void ExpectimaxAI::fillInToDepth(unsigned int d) {
+    shared_ptr<ExpectimaxNodeBase> node;
+    while ((node = this->nextReachableNode())) {
+        if (node->board->numTurns > d) {
+            this->unfilledChildren.push_front(node);
+            return;
+        }
+        node->fillInChildren(this->unfilledChildren);
+    }
+}
+
 void ExpectimaxAI::prepareDirection() {
-    this->fillInChild(10);
+    this->fillInToDepth(this->currentState()->numTurns+1);
 }
 
 Direction ExpectimaxAI::getDirection() const {
@@ -62,11 +73,9 @@ Direction ExpectimaxAI::getDirection() const {
 
 void ExpectimaxAI::receiveState(Direction d, BoardState const& afterMoveState) {
     shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(this->currentBoard->child(d));
-    debug(afterMoveBoard->board->getHint() != this->currentBoard->board->getHint());
-    ChanceNodeEdge edge(afterMoveBoard->board, afterMoveState);
+    ChanceNodeEdge edge(*afterMoveBoard->board, afterMoveState);
     shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(afterMoveBoard->child(edge));
     debug(!afterAddingTileBoard->board->hasSameTilesAs(afterMoveState, {}));
     this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterAddingTileBoard);
-    //TODO: get rid of children of current node that can't be reached know that we have a hint
-    //this->currentBoard->pruneUnreachableChildren(afterMoveState.getHint(), this->unfilledChildren);
+    this->currentBoard->pruneUnreachableChildren(afterMoveState.getHint(), this->unfilledChildren);
 }

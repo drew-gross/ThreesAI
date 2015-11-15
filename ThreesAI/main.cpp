@@ -184,7 +184,7 @@ int main(int argc, const char * argv[]) {
     default_random_engine aiParams(0);
     vector<BoardState::Score> scores;
     vector<int> plays;
-    for (unsigned int i = 1; i < 1000000000; i++) {
+    for (unsigned int i = 1; i < 2; i++) {
         unsigned int numPlays = dist(aiParams);
         unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));
         //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\

@@ -29,5 +29,5 @@ shared_ptr<BoardState const> SimulatedBoardOutput::currentState() const {
 }
 
 void SimulatedBoardOutput::move(Direction d, BoardState const& originalBoard) {
-    this->state = make_shared<BoardState>(BoardState::Move(d), *this->currentState());
+    this->state = make_shared<BoardState>(BoardState::MoveWithAdd(d), *this->currentState());
 }

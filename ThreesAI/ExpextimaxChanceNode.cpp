@@ -47,7 +47,7 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     for (auto&& nextTile : possibleNextTiles) {
         for (BoardIndex i : allIndices) {
             if (possibleNextLocations.isEnabled(i)) {
-                std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::AddSpecificTile(this->directionMovedToGetHere, i, nextTile.first), *this->board);
+                std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::AddSpecificTile(this->directionMovedToGetHere, i, nextTile.first), *this->board, true);
                 shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
                 ChanceNodeEdge childIndex(nextTile.first, i);
                 this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});
@@ -75,14 +75,24 @@ void ExpectimaxChanceNode::pruneUnreachableChildren(Hint const& nextTileHint, li
         }
     }
     debug(this->children.empty());
+    if (this->children.empty()) {
+        
+        if (!this->childrenAreFilledIn()) {
+            this->fillInChildren(unfilledList);
+        }
+        for (auto it = this->children.cbegin(); it != this->children.cend();) {
+            if (!nextTileHint.contains(it->first.newTileValue)) {
+                lostProbability += this->childrenProbabilities[it->first];
+                this->childrenProbabilities.erase(it->first);
+                this->children.erase(it++);
+            } else {
+                ++it;
+            }
+        }
+    }
     for (auto&& childProbability : this->childrenProbabilities) {
         childProbability.second /= (1-lostProbability);
     }
-    if (!(this->board->getHint() != nextTileHint)) {
-        return;
-    }
-    debug(this->board->getHint() != nextTileHint);
-    MYLOG(*this->board);
 }
 
 void ExpectimaxChanceNode::outputDotEdges(float p,std::function<float(BoardState const&)> heuristic) const {
@@ -90,8 +100,7 @@ void ExpectimaxChanceNode::outputDotEdges(float p,std::function<float(BoardState
         cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << endl;
     }
     cout << "\t" << long(this) << " [label=\"";
-    cout << "Value=" << this->value(heuristic) << endl;
-    cout << this->board << "\"";
+    cout << *this->board << "\"";
     if (this->board->isGameOver()) {
         cout << ",style=filled,color=red";
     }

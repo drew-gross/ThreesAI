@@ -47,9 +47,9 @@ public:
         Direction const d;
     };
     
-    class Move {
+    class MoveWithAdd {
     public:
-        Move(Direction d) : d(d) {};
+        MoveWithAdd(Direction d) : d(d) {};
         Direction const d;
     };
     
@@ -68,9 +68,9 @@ public:
     
     typedef std::array<Tile, 16> Board;
     
-    BoardState(AddSpecificTile t, BoardState const& other);
+    BoardState(AddSpecificTile t, BoardState const& other, bool hasNoHint);
     BoardState(MoveWithoutAdd d, BoardState const& other);
-    BoardState(Move m, BoardState const& other);
+    BoardState(MoveWithAdd m, BoardState const& other);
     BoardState(AddTile t, BoardState const& other);
     BoardState(FromString s);
     BoardState(DifferentFuture, BoardState const& other);
@@ -134,13 +134,14 @@ private:
     float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     Tile getUpcomingTile();
     
-    mutable Tile maxTileCache = Tile::EMPTY;
+    mutable Tile maxTileCache = Tile::TILE_3;
     mutable unsigned int scoreCache;
     mutable bool scoreCacheIsValid = false;
     mutable bool validMovesCacheIsValid = false;
     mutable EnabledDirections validMovesCache;
     std::default_random_engine generator;
     
+    bool hasNoHint;
     unsigned int onesInStack;
     unsigned int twosInStack;
     unsigned int threesInStack;

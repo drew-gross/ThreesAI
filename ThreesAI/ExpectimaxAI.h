@@ -28,6 +28,7 @@ private:
     std::shared_ptr<ExpectimaxNodeBase> nextReachableNode();
     
     void fillInChild(unsigned int n=1);
+    void fillInToDepth(unsigned int n);
     
 public:
     ExpectimaxAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output, Heuristic heuristic);

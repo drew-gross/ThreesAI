@@ -68,9 +68,8 @@ void ExpectimaxMoveNode::outputDotEdges(float p, std::function<float(BoardState 
         cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
     }
     cout << "\t" << long(this) << " [label=\"";
-    cout << "Value=" << setprecision(7) << this->value(heuristic) << endl;
     cout << "P=" << p << endl;
-    cout << this->board << "\"";
+    cout << *this->board << "\"";
     if (this->board->isGameOver()) {
         cout << ",style=filled,color=red";
     }

@@ -13,7 +13,7 @@
 
 class ChanceNodeEdge {
 public:
-    ChanceNodeEdge(std::shared_ptr<BoardState const> stateBeforeAdd, BoardState const& stateAfterAdd);
+    ChanceNodeEdge(BoardState const& stateBeforeAdd, BoardState const& stateAfterAdd);
     ChanceNodeEdge(Tile newTileValue, BoardIndex newTileLocation);
     
     Tile newTileValue;

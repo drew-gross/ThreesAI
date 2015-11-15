@@ -56,6 +56,7 @@ bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
 
 template<typename edge_type>
 void ExpectimaxNode<edge_type>::outputDot(std::function<float(BoardState const&)> heuristic) const {
+    //FILE *writer = popen("dot -Tsvg|bcat", "w");
     std::cout << "digraph {" << std::endl;
     std::cout << "\tnode [fontname=Courier]" << std::endl;
     std::cout << "\tedge [fontname=Courier]" << std::endl;

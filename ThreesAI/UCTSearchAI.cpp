@@ -26,7 +26,7 @@ Direction UCTSearchAI::getDirection() const {
         if (this->currentState()->isMoveValid(d)) {
             plays[d] = 1;
             BoardState boardCopy(BoardState::DifferentFuture(0), *this->currentState());
-            BoardState movedCopy(BoardState::Move(d), boardCopy);
+            BoardState movedCopy(BoardState::MoveWithAdd(d), boardCopy);
             means[d] = movedCopy.runRandomSimulation(numPlays);
             numPlays++;
         }
@@ -39,7 +39,7 @@ Direction UCTSearchAI::getDirection() const {
             return leftBound < rightBound;
         })->first;
         BoardState boardCopy(BoardState::DifferentFuture(numPlays), *this->currentState());
-        BoardState movedCopy(BoardState::Move(currentBest), boardCopy);
+        BoardState movedCopy(BoardState::MoveWithAdd(currentBest), boardCopy);
         BoardState::Score nextScore = movedCopy.runRandomSimulation(numPlays);
         plays[currentBest]++;
         means[currentBest] += (nextScore - means[currentBest])/plays[currentBest];

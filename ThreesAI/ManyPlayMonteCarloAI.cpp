@@ -26,7 +26,7 @@ Direction ManyPlayMonteCarloAI::getDirection() const {
             unsigned long currentDirectionTotalScore = 0;
             while (playsRemaining--) {
                 BoardState boardCopy(BoardState::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
-                BoardState movedCopy(BoardState::Move(d), boardCopy);
+                BoardState movedCopy(BoardState::MoveWithAdd(d), boardCopy);
                 BoardState::Score newScore = movedCopy.runRandomSimulation(this->numPlays - playsRemaining);
                 currentDirectionTotalScore += newScore;
             }

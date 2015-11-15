@@ -11,6 +11,8 @@
 #include "Debug.h"
 #include "Logging.h"
 
+#include "ChanceNodeEdge.h"
+
 using namespace std;
 
 ThreesAIBase::ThreesAIBase(shared_ptr<BoardState const> new_board, unique_ptr<BoardOutput> output) : boardState(new_board), boardOutput(move(output)) {}
@@ -32,6 +34,8 @@ void ThreesAIBase::playTurn() {
     this->prepareDirection();
     Direction d = this->getDirection();
     this->boardOutput->move(d, *this->boardState);
-    this->boardState = this->boardOutput->currentState();
+    
+    std::shared_ptr<BoardState const> newState = this->boardOutput->currentState();
+    this->boardState = newState;
     this->receiveState(d, *this->boardState);
 }
