@@ -14,21 +14,22 @@
 
 #include <list>
 #include <map>
+#include <memory>
 
-#include "SimulatedThreesBoard.h"
+#include "BoardState.h"
 
 class ExpectimaxNodeBase {
 public:
     static int num_existing_nodes;
-    ExpectimaxNodeBase(SimulatedThreesBoard const& board, unsigned int depth);
+    ExpectimaxNodeBase(std::shared_ptr<BoardState const> board, unsigned int depth);
     
     virtual void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
-    virtual float value() const = 0;
-    virtual void outputDot() const = 0;
-    virtual void outputDotEdges(float p) const = 0;
-    virtual void pruneUnreachableChildren(std::deque<unsigned int> const& nextTileHint) = 0;
+    virtual float value(std::function<float(BoardState const&)> heuristic) const = 0;
+    virtual void outputDot(std::function<float(BoardState const&)> heuristic) const = 0;
+    virtual void outputDotEdges(float p, std::function<float(BoardState const&)> heuristic) const = 0;
+    virtual void pruneUnreachableChildren(Hint const& nextTileHint, std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     
-    const SimulatedThreesBoard board;
+    std::shared_ptr<BoardState const> const board;
     
     const unsigned int depth;
 };
@@ -36,17 +37,17 @@ public:
 template <typename edge_type>
 class ExpectimaxNode : public ExpectimaxNodeBase {
 public:
-    ExpectimaxNode(SimulatedThreesBoard const& board, unsigned int depth);
+    ExpectimaxNode(std::shared_ptr<BoardState const> board, unsigned int depth);
     
     virtual std::shared_ptr<const ExpectimaxNodeBase> child(edge_type const& edge) const = 0;
     std::map<edge_type, std::shared_ptr<ExpectimaxNodeBase>> children;
     bool childrenAreFilledIn() const;
     
-    void outputDot() const;
+    void outputDot(std::function<float(BoardState const&)> heuristic) const;
 };
 
 template<typename edge_type>
-ExpectimaxNode<edge_type>::ExpectimaxNode(SimulatedThreesBoard const& board, unsigned int depth) : ExpectimaxNodeBase(board, depth) {}
+ExpectimaxNode<edge_type>::ExpectimaxNode(std::shared_ptr<BoardState const> board, unsigned int depth) : ExpectimaxNodeBase(board, depth) {}
 
 template<typename edge_type>
 bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
@@ -54,11 +55,12 @@ bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
 }
 
 template<typename edge_type>
-void ExpectimaxNode<edge_type>::outputDot() const {
+void ExpectimaxNode<edge_type>::outputDot(std::function<float(BoardState const&)> heuristic) const {
+    //FILE *writer = popen("dot -Tsvg|bcat", "w");
     std::cout << "digraph {" << std::endl;
     std::cout << "\tnode [fontname=Courier]" << std::endl;
     std::cout << "\tedge [fontname=Courier]" << std::endl;
-    this->outputDotEdges(NAN);
+    this->outputDotEdges(NAN, heuristic);
     std::cout << "}" << std::endl;
 }
 

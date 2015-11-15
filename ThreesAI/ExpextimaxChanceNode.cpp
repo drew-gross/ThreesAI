@@ -12,10 +12,11 @@
 
 #include "Debug.h"
 #include "Logging.h"
+#include "IMProc.h"
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(SimulatedThreesBoard const& board, Direction d, unsigned int depth) : ExpectimaxNode<ChanceNodeEdge>(board, depth), directionMovedToGetHere(d){
+ExpectimaxChanceNode::ExpectimaxChanceNode(std::shared_ptr<BoardState const> board, Direction d, unsigned int depth) : ExpectimaxNode<ChanceNodeEdge>(board, depth), directionMovedToGetHere(d){
 }
 
 shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge const& t) const {
@@ -24,13 +25,13 @@ shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge 
     return result->second;
 }
 
-float ExpectimaxChanceNode::value() const {
+float ExpectimaxChanceNode::value(std::function<float(BoardState const&)> heuristic) const {
     if (!this->childrenAreFilledIn()) {
-        return this->board.score();
+        return this->board->score();
     }
-    float value = accumulate(this->children.begin(), this->children.end(), 0.0f, [this](float acc, pair<ChanceNodeEdge, shared_ptr<const ExpectimaxNodeBase>> next){
+    float value = accumulate(this->children.begin(), this->children.end(), 0.0f, [this, &heuristic](float acc, pair<ChanceNodeEdge, shared_ptr<const ExpectimaxNodeBase>> next){
         auto childProbabilityPair = this->childrenProbabilities.find(next.first);
-        float childScore = next.second->value();
+        float childScore = next.second->value(heuristic);
         float childProbability = childProbabilityPair->second;
         return acc + childProbability * childScore;
     });
@@ -38,35 +39,55 @@ float ExpectimaxChanceNode::value() const {
 }
 
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
-    auto possibleNextTiles = this->board.possibleNextTiles();
-    auto possibleNextLocations = this->board.validIndicesForNewTile(this->directionMovedToGetHere);
+    auto possibleNextTiles = this->board->possibleNextTiles();
+    EnabledIndices possibleNextLocations = this->board->validIndicesForNewTile(this->directionMovedToGetHere);
     
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     for (auto&& nextTile : possibleNextTiles) {
-        for (auto&& boardIndex : possibleNextLocations) {
-            SimulatedThreesBoard childBoard = this->board;
-            childBoard.set(boardIndex, nextTile.first);
-            shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
-            
-            ChanceNodeEdge childIndex(nextTile.first, boardIndex);
-            this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});
-            this->children.insert({childIndex, child});
-            
-            unfilledList.push_back(child);
+        for (BoardIndex i : allIndices) {
+            if (possibleNextLocations.isEnabled(i)) {
+                std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::AddSpecificTile(this->directionMovedToGetHere, i, nextTile.first), *this->board, true);
+                shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
+                ChanceNodeEdge childIndex(nextTile.first, i);
+                this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});
+                this->children.insert({childIndex, child});
+                
+                unfilledList.push_back(child);
+            }
         }
     }
+    debug(this->children.empty());
 }
 
-void ExpectimaxChanceNode::pruneUnreachableChildren(deque<unsigned int> const & nextTileHint) {
+void ExpectimaxChanceNode::pruneUnreachableChildren(Hint const& nextTileHint, list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     float lostProbability = 0;
-    for (auto it = this->children.begin(); it != this->children.end();) {
-        auto old = it;
-        it++;
-        if (find(nextTileHint.begin(), nextTileHint.end(), old->first.newTileValue) == nextTileHint.end()) {
-            this->children.erase(old);
-            lostProbability += this->childrenProbabilities[old->first];
-            this->childrenProbabilities.erase(old->first);
+    if (!this->childrenAreFilledIn()) {
+        this->fillInChildren(unfilledList);
+    }
+    for (auto it = this->children.cbegin(); it != this->children.cend();) {
+        if (!nextTileHint.contains(it->first.newTileValue)) {
+            lostProbability += this->childrenProbabilities[it->first];
+            this->childrenProbabilities.erase(it->first);
+            this->children.erase(it++);
+        } else {
+            ++it;
+        }
+    }
+    debug(this->children.empty());
+    if (this->children.empty()) {
+        
+        if (!this->childrenAreFilledIn()) {
+            this->fillInChildren(unfilledList);
+        }
+        for (auto it = this->children.cbegin(); it != this->children.cend();) {
+            if (!nextTileHint.contains(it->first.newTileValue)) {
+                lostProbability += this->childrenProbabilities[it->first];
+                this->childrenProbabilities.erase(it->first);
+                this->children.erase(it++);
+            } else {
+                ++it;
+            }
         }
     }
     for (auto&& childProbability : this->childrenProbabilities) {
@@ -74,18 +95,17 @@ void ExpectimaxChanceNode::pruneUnreachableChildren(deque<unsigned int> const & 
     }
 }
 
-void ExpectimaxChanceNode::outputDotEdges(float p) const {
+void ExpectimaxChanceNode::outputDotEdges(float p,std::function<float(BoardState const&)> heuristic) const {
     for (auto&& child : this->children) {
         cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << endl;
     }
     cout << "\t" << long(this) << " [label=\"";
-    cout << "Value=" << this->value() << endl;
-    cout << (ThreesBoardBase&)this->board << "\"";
-    if (this->board.isGameOver()) {
+    cout << *this->board << "\"";
+    if (this->board->isGameOver()) {
         cout << ",style=filled,color=red";
     }
     cout << "]" << endl;
     for (auto&& child : this->children) {
-        child.second->outputDotEdges(this->childrenProbabilities.find(child.first)->second);
+        child.second->outputDotEdges(this->childrenProbabilities.find(child.first)->second, heuristic);
     }
 }

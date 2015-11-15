@@ -9,12 +9,19 @@
 #ifndef __ThreesAI__Direction__
 #define __ThreesAI__Direction__
 
-typedef enum Direction {
+#include <iostream>
+#include <array>
+
+typedef enum class Direction {
     UP,
     DOWN,
     LEFT,
     RIGHT
 } Direction;
 
+const std::array<Direction,4> allDirections = {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
+unsigned char toIndex(Direction d);
+
+std::ostream& operator<<(std::ostream &os, Direction d);
 
 #endif /* defined(__ThreesAI__Direction__) */

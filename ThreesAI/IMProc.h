@@ -11,24 +11,32 @@
 
 #include <vector>
 #include <array>
+#include <memory>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/nonfree/nonfree.hpp>
 
-#include "ThreesBoardBase.h"
+#include <boost/optional/optional.hpp>
+
+#include "BoardState.h"
 
 class TileInfo {
 public:
-    TileInfo(cv::Mat image, int value, const cv::SIFT& sifter);
+    TileInfo();
+    TileInfo(cv::Mat image, Tile value, const cv::SIFT& sifter);
     
     cv::Mat image;
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
-    int value;
+    Tile value;
+    
+    static const TileInfo Tile1Info();
+    static const TileInfo Tile2Info();
 };
 
 class MatchResult {
 public:
+    MatchResult();
     MatchResult(TileInfo t, cv::Mat image, bool calculate=true);
     
     cv::Mat knnDrawing();
@@ -46,6 +54,8 @@ public:
     float quality;
     float imageStdDev;
 };
+
+typedef std::map<Tile, TileInfo> CanonicalTiles;
 
 namespace IMProc {
     namespace Paramater {
@@ -71,7 +81,7 @@ namespace IMProc {
         const double imageGaussianSigma = 1;
         
         const float goodEnoughAverageMultiplier = 1.65; // Higher means more images are considered candidates to be sorted by quality.
-        const float matchingKeypointFractionDiscount = -0.02;
+        const float matchingKeypointFractionDiscount = -0.01;
         const float zeroOrOneStdDevThreshold = 3.95; // Lower means more images with no descriptors will be classified as a 1.
         const float minimumMatchingKeypointFraction = 0.03;
         const float minimumAverageDistance = 350;
@@ -79,30 +89,37 @@ namespace IMProc {
         const unsigned int ignoredEdgePadding = 25; // Number of pixels to chop off the edge of the each tile image
         
         const int differenceErosionShape = cv::MORPH_ELLIPSE;
-        const cv::Size differenceErosionSize = cv::Size(18,18);
+        const cv::Size differenceErosionSize = cv::Size(20,20);
         const float differenceMeanThreshold = 1.5; // Lower means more things that look like six are determined to be not 6.
+        
+        const float bonusMeanThreshold = 10; //Higher means less next tile hints get interpreted as a bonus tile.
     }
     
     const cv::Point2f getPoint(const std::string& window);
     const std::array<cv::Point2f, 4> getQuadrilateral(cv::Mat m);
-    cv::Mat concatH(std::vector<cv::Mat> v);
-    cv::Mat concatV(std::vector<cv::Mat> v);
+    cv::Mat getAveragedImage(cv::VideoCapture& cam, unsigned char numImages);
     
-    std::vector<cv::Point> findScreenContour(cv::Mat const& image);
-    cv::Mat colorImageToBoard(cv::Mat const& colorBoardImage);
-    std::array<cv::Mat, 16> tileImages(cv::Mat boardImage);
-    ThreesBoardBase::Board boardState(cv::Mat boardImage, const std::map<int, TileInfo>& canonicalTiles);
-    MatchResult tileValue(const cv::Mat& tileImage, const std::map<int, TileInfo>& canonicalTiles);
+    std::shared_ptr<BoardState const> boardFromAnyImage(cv::Mat const& image);
+    std::pair<std::shared_ptr<BoardState const>, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image);
+    std::pair<std::shared_ptr<BoardState const>, std::array<MatchResult, 16>> boardAndMatchFromScreenShot(cv::Mat const& ss);
+    std::array<cv::Mat, 16> tilesFromScreenImage(cv::Mat const& image);
+    cv::Mat screenImage(cv::Mat const& colorBoardImage);
+    
+    MatchResult tileValue(const cv::Mat& tileImage, const CanonicalTiles& canonicalTiles);
+    MatchResult tileValueFromScreenShot(cv::Mat const& image, const CanonicalTiles& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     
-    const std::map<int, TileInfo>& canonicalTiles();
+    Hint getHintFromScreenShot(cv::Mat const& ss);
+    
+    const std::map<Tile, TileInfo>& canonicalTiles();
     const cv::SIFT& canonicalSifter();
     const cv::SIFT& imageSifter();
     
-    const cv::Mat color12(int which);
-    const cv::Mat color12sample(int which);
-    
-    void showContours(cv::Mat const image, std::vector<std::vector<cv::Point>> const contours);
+    const std::vector<cv::Mat> color1hints();
+    const std::vector<cv::Mat> color2hints();
+    const std::vector<cv::Mat> color3hints();
+    boost::optional<MatchResult> detect1or2orHigherByColor(cv::Mat const &input);
+    boost::optional<MatchResult> detect1or2or3orBonusByColor(cv::Mat const& i);
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */

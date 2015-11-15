@@ -8,12 +8,34 @@
 
 #include "ThreesAIBase.h"
 
-using namespace::std;
+#include "Debug.h"
+#include "Logging.h"
 
-ThreesAIBase::ThreesAIBase(shared_ptr<ThreesBoardBase> new_board) : board(new_board) {}
+#include "ChanceNodeEdge.h"
 
-void ThreesAIBase::playGame() {
-    while (!this->board->isGameOver()) {
+using namespace std;
+
+ThreesAIBase::ThreesAIBase(shared_ptr<BoardState const> new_board, unique_ptr<BoardOutput> output) : boardState(new_board), boardOutput(move(output)) {}
+
+shared_ptr<BoardState const> ThreesAIBase::currentState() const {
+    return this->boardState;
+}
+
+void ThreesAIBase::playGame(bool printMove) {
+    while (!this->boardState->isGameOver()) {
         this->playTurn();
+        if (printMove) {
+            cout << *this->currentState() << endl;
+        }
     }
+}
+
+void ThreesAIBase::playTurn() {
+    this->prepareDirection();
+    Direction d = this->getDirection();
+    this->boardOutput->move(d, *this->boardState);
+    
+    std::shared_ptr<BoardState const> newState = this->boardOutput->currentState();
+    this->boardState = newState;
+    this->receiveState(d, *this->boardState);
 }

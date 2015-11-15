@@ -13,8 +13,11 @@
 
 class HumanPlayer : public ThreesAIBase {
 public:
-    HumanPlayer(std::unique_ptr<ThreesBoardBase>&& board);
-    Direction playTurn();
+    HumanPlayer(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput>);
+    
+    void prepareDirection();
+    Direction getDirection() const;
+    void receiveState(Direction d, BoardState const& newState);
 };
 
 #endif /* defined(__ThreesAI__HumanPlayer__) */

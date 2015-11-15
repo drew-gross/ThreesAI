@@ -10,42 +10,44 @@
 
 #include <iostream>
 
+#include "InvalidMoveException.h"
+
 using namespace std;
 
-HumanPlayer::HumanPlayer(std::unique_ptr<ThreesBoardBase>&& board) : ThreesAIBase(move(board)) {}
+HumanPlayer::HumanPlayer(std::shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
 
-Direction HumanPlayer::playTurn() {
-    try {
+void HumanPlayer::receiveState(Direction d, BoardState const & newState) {}
+void HumanPlayer::prepareDirection() {}
+
+Direction getMove() {
+    cout << "Enter a move: "; cout.flush();
+    for (;;) {
         switch (getchar()) {
             case 'w':
-                board->move(UP);
-                return UP;
-                break;
-                
+                return Direction::UP;
             case 'a':
-                board->move(LEFT);
-                return LEFT;
-                break;
-                
+                return Direction::LEFT;
             case 's':
-                board->move(DOWN);
-                return DOWN;
-                break;
-                
+                return Direction::DOWN;
             case 'd':
-                board->move(RIGHT);
-                return RIGHT;
-                break;
-                
+                return Direction::RIGHT;
             case '\n':
-                return this->playTurn();
-                
+                break;
             default:
-                throw InvalidMoveException();
+                cout << "Use wasd to enter a move: ";
                 break;
         }
-    } catch (InvalidMoveException e) {
-        cout << "Not a valid move" << endl;
-        return this->playTurn();
+    }
+}
+
+Direction HumanPlayer::getDirection() const {
+    cout << *this->currentState() << endl;
+    for (;;) {
+        Direction d = getMove();
+        if (this->currentState()->canMove(d)) {
+            return d;
+        } else {
+            cout << "Illegal move!" << endl;
+        }
     }
 }

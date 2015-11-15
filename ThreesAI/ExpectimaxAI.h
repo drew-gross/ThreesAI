@@ -11,11 +11,14 @@
 
 #include <map>
 #include <list>
+#include <memory>
 
 #include "ThreesAIBase.h"
 #include "ExpectimaxNode.h"
 #include "ExpextimaxChanceNode.h"
 #include "ExpectimaxMoveNode.h"
+
+typedef std::function<float(BoardState const&)> Heuristic;
 
 class ExpectimaxAI : public ThreesAIBase {
 private:
@@ -25,11 +28,16 @@ private:
     std::shared_ptr<ExpectimaxNodeBase> nextReachableNode();
     
     void fillInChild(unsigned int n=1);
+    void fillInToDepth(unsigned int n);
     
 public:
-    ExpectimaxAI(std::shared_ptr<ThreesBoardBase> board);
+    ExpectimaxAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output, Heuristic heuristic);
     
-    Direction playTurn();
+    std::function<float(BoardState const&)> heuristic;
+    
+    Direction getDirection() const;
+    void prepareDirection();
+    void receiveState(Direction d, BoardState const& afterMoveState);
     
 };
 

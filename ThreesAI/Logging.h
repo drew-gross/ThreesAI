@@ -37,15 +37,4 @@ std::ostream& operator<<(std::ostream &os, const std::deque<T> d){
     return os;
 }
 
-template <typename T>
-std::ostream& operator<<(std::ostream &os, const std::array<T, 16>& tiles){
-    os << "---------------------" << std::endl;
-    os << "|" << std::setw(4) << tiles[0] << "|" << std::setw(4) << tiles[1] << "|" << std::setw(4) << tiles[2] << "|" << std::setw(4) << tiles[3] << "|" << std::endl;
-    os << "|" << std::setw(4) << tiles[4] << "|" << std::setw(4) << tiles[5] << "|" << std::setw(4) << tiles[6] << "|" << std::setw(4) << tiles[7] << "|" << std::endl;
-    os << "|" << std::setw(4) << tiles[8] << "|" << std::setw(4) << tiles[9] << "|" << std::setw(4) << tiles[10] << "|" << std::setw(4) << tiles[11] << "|" << std::endl;
-    os << "|" << std::setw(4) << tiles[12] << "|" << std::setw(4) << tiles[13] << "|" << std::setw(4) << tiles[14] << "|" << std::setw(4) << tiles[15] << "|" << std::endl;
-    os << "---------------------";
-    return os;
-}
-
 #endif

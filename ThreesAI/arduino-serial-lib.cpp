@@ -15,7 +15,7 @@
 #include <sys/ioctl.h>
 
 // uncomment this to debug reads
-//#define SERIALPORTDEBUG 
+#define SERIALPORTDEBUG 
 
 // takes the string name of the serial port (e.g. "/dev/tty.usbserial","COM1")
 // and a baud rate (bps) and connects to that port at that speed and 8N1.
@@ -128,10 +128,13 @@ int serialport_read_until(int fd, char* buf, char until, int buf_max, int timeou
         if( n==0 ) {
             usleep( 1 * 1000 );  // wait 1 msec try again
             timeout--;
+            if (timeout == 0) {
+                return -2;
+            }
             continue;
         }
 #ifdef SERIALPORTDEBUG  
-        printf("serialport_read_until: i=%d, n=%d b='%c'\n",i,n,b[0]); // debug
+        printf("serialport_read_until: i=%d, n=%zd b='%c'\n",i,n,b[0]); // debug
 #endif
         buf[i] = b[0]; 
         i++;
