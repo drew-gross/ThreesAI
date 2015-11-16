@@ -15,7 +15,8 @@
 
 class GameStateSource {
 public:
-    virtual std::shared_ptr<BoardState const> getGameState() = 0;
+    virtual std::shared_ptr<BoardState const> getGameState(HiddenBoardState otherInfo) = 0;
+    std::shared_ptr<BoardState const> getInitialState();
 };
 
 #endif /* defined(__ThreesAI__GameStateSource__) */

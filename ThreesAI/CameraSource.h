@@ -19,7 +19,7 @@ class CameraSource : public GameStateSource {
 public:
     CameraSource(int camNumber);
     
-    std::shared_ptr<BoardState const> getGameState();
+    std::shared_ptr<BoardState const> getGameState(HiddenBoardState otherInfo);
     
 private:
     cv::VideoCapture watcher;

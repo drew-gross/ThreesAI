@@ -20,6 +20,26 @@ bool Hint::isNonBonus() const {
     return this->contains(Tile(1)) || this->contains(Tile(2)) || this->contains(Tile(3));
 }
 
+deque<pair<Tile, float>> Hint::possibleTiles() const {
+    float probability;
+    if (this->hint3 != Tile::EMPTY) {
+        probability = 1.0f/3.0f;
+    } else if (this->hint2 != Tile::EMPTY) {
+        probability = 1.0f/2.0f;
+    } else {
+        probability = 1;
+    }
+    deque<pair<Tile, float>> result;
+    if (this->hint3 != Tile::EMPTY) {
+        result.push_front({this->hint3, probability});
+    }
+    if (this->hint2 != Tile::EMPTY) {
+        result.push_front({this->hint2, probability});
+    }
+    result.push_front({this->hint1, probability});
+    return result;
+}
+
 Tile Hint::actualTile(default_random_engine gen) const {
     int num_options = 0;
     if (this->hint3 != Tile::EMPTY) {

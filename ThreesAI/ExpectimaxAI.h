@@ -38,6 +38,7 @@ public:
     Direction getDirection() const;
     void prepareDirection();
     void receiveState(Direction d, BoardState const& afterMoveState);
+    void setCurrentHint(Hint h);
     
 };
 

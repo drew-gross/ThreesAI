@@ -61,13 +61,13 @@ unsigned int testImage(path p) {
     } else {
         tiles = tilesFromScreenImage(IMProc::screenImage(camImage));
     }
-    pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> result = IMProc::boardAndMatchFromAnyImage(camImage);
+    pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> result = IMProc::boardAndMatchFromAnyImage(camImage, HiddenBoardState(0,4,4,4));
     if (result.first->getHint() != nextTileHint) {
         MYLOG(nextTileHint);
         MYLOG(result.first->getHint());
         failures++; 
         debug();
-        IMProc::boardFromAnyImage(camImage);
+        IMProc::boardFromAnyImage(camImage, HiddenBoardState(0,4,4,4));
     }
     for (BoardIndex i : allIndices) {
         MatchResult extracted = result.second.at(i.toRegularIndex());
@@ -79,7 +79,7 @@ unsigned int testImage(path p) {
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
             debug();
             IMProc::tileValueFromScreenShot(tiles[i.toRegularIndex()], canonicalTiles());
-            auto result = IMProc::boardAndMatchFromAnyImage(camImage);
+            auto result = IMProc::boardAndMatchFromAnyImage(camImage, HiddenBoardState(0,4,4,4));
             failures++;
         }
     }
@@ -156,7 +156,7 @@ void testMonteCarloAI() {
                                                                                                         3,24,384,6,\
                                                                                                         6,24,96,192,\
                                                                                                         3,6,1,3-2"))));
-    ManyPlayMonteCarloAI ai(board->currentState(), std::move(board), 2);
+    ManyPlayMonteCarloAI ai(board->currentState(HiddenBoardState(0,4,4,4)), std::move(board), 2);
     debug(ai.getDirection() == Direction::DOWN);
     ai.getDirection();
 }
@@ -184,17 +184,17 @@ int main(int argc, const char * argv[]) {
     default_random_engine aiParams(0);
     vector<BoardState::Score> scores;
     vector<int> plays;
-    for (unsigned int i = 1; i < 2; i++) {
+    for (unsigned int i = 1; i < 20; i++) {
         unsigned int numPlays = dist(aiParams);
-        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));
-        //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
-        auto initialState = watcher->getGameState();\
-        unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, initialState));
+        //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));
+        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
+        auto initialState = watcher->getInitialState();\
+        unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
         //HumanPlayer ai(p->currentState(), std::move(p)); bool print = false;
         //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
         //ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), numPlays); bool print = true;
         //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
-        ExpectimaxAI ai(p->currentState(), std::move(p), [](BoardState const& board){
+        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){
             return board.score();
         }); bool print = true;
         //clock_t startTime = clock();

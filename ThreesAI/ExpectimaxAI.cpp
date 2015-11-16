@@ -37,17 +37,17 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
     shared_ptr<ExpectimaxNodeBase> node;
     while (n > 0 && (node = this->nextReachableNode())) {
         node->fillInChildren(this->unfilledChildren);
-        maxFilledDepth = node->board->numTurns;
+        maxFilledDepth = node->board->hiddenState.numTurns;
         n--;
     }
     unsigned int currentDepth = 0;
     while (currentDepth <= maxFilledDepth && (node = this->nextReachableNode())) {
-        if (node->board->numTurns > maxFilledDepth) {
+        if (node->board->hiddenState.numTurns > maxFilledDepth) {
             this->unfilledChildren.push_front(node);
             return;
         }
         node->fillInChildren(this->unfilledChildren);
-        currentDepth = node->board->numTurns;
+        currentDepth = node->board->hiddenState.numTurns;
     }
     return;
 }
@@ -55,7 +55,7 @@ void ExpectimaxAI::fillInChild(unsigned int n) {
 void ExpectimaxAI::fillInToDepth(unsigned int d) {
     shared_ptr<ExpectimaxNodeBase> node;
     while ((node = this->nextReachableNode())) {
-        if (node->board->numTurns > d) {
+        if (node->board->hiddenState.numTurns > d) {
             this->unfilledChildren.push_front(node);
             return;
         }
@@ -64,11 +64,19 @@ void ExpectimaxAI::fillInToDepth(unsigned int d) {
 }
 
 void ExpectimaxAI::prepareDirection() {
-    this->fillInToDepth(this->currentState()->numTurns+1);
+    this->fillInToDepth(this->currentState()->hiddenState.numTurns+2);
 }
 
 Direction ExpectimaxAI::getDirection() const {
     return this->currentBoard->maxChild(this->heuristic).first;
+}
+
+void ExpectimaxAI::setCurrentHint(Hint h) {
+    this->currentBoard->board = make_shared<BoardState const>(BoardState::SetHint(h), *this->currentBoard->board);
+    for (auto&& child : this->currentBoard->children) {
+        child.second->board = make_shared<BoardState const>(BoardState::SetHint(h), *child.second->board);
+    }
+    this->currentBoard->pruneUnreachableChildren();
 }
 
 void ExpectimaxAI::receiveState(Direction d, BoardState const& afterMoveState) {
@@ -77,5 +85,5 @@ void ExpectimaxAI::receiveState(Direction d, BoardState const& afterMoveState) {
     shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(afterMoveBoard->child(edge));
     debug(!afterAddingTileBoard->board->hasSameTilesAs(afterMoveState, {}));
     this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterAddingTileBoard);
-    this->currentBoard->pruneUnreachableChildren(afterMoveState.getHint(), this->unfilledChildren);
+    this->setCurrentHint(afterMoveState.getHint());
 }

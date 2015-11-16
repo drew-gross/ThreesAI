@@ -23,7 +23,7 @@ public:
     
     std::shared_ptr<const ExpectimaxNodeBase> child(ChanceNodeEdge const& k) const;
     void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
-    void pruneUnreachableChildren(Hint const& nextTileHint, std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
+    void pruneUnreachableChildren();
 
     std::map<ChanceNodeEdge, float> childrenProbabilities;
     

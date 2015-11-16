@@ -11,6 +11,7 @@
 
 #include <ostream>
 #include <random>
+#include <deque>
 #include "Tile.hpp"
 
 class Hint {
@@ -27,6 +28,7 @@ public:
     
     friend std::ostream& operator<<(std::ostream &os, Hint const& h);
     std::ostream& print(std::ostream&) const;
+    std::deque<std::pair<Tile, float>> possibleTiles() const;
     
     explicit Hint(Tile hint1);
     Hint(Tile hint1, Tile hint2);

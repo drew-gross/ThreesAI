@@ -23,19 +23,24 @@ shared_ptr<BoardState const> ThreesAIBase::currentState() const {
 
 void ThreesAIBase::playGame(bool printMove) {
     while (!this->boardState->isGameOver()) {
-        this->playTurn();
         if (printMove) {
+            this->print = true;
+            cout << "--- Currently ---" << endl;
             cout << *this->currentState() << endl;
         }
+        this->playTurn();
     }
 }
 
 void ThreesAIBase::playTurn() {
     this->prepareDirection();
     Direction d = this->getDirection();
+    if (this->print) {
+        cout << "--- Moving: " << d << " ---" << endl;
+    }
     this->boardOutput->move(d, *this->boardState);
     
-    std::shared_ptr<BoardState const> newState = this->boardOutput->currentState();
+    std::shared_ptr<BoardState const> newState = this->boardOutput->currentState(this->currentState()->nextHiddenState());
     this->boardState = newState;
     this->receiveState(d, *this->boardState);
 }

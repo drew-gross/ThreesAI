@@ -15,10 +15,10 @@
 
 class RealBoardOutput : public BoardOutput {
 public:
-    RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, BoardState initialState);
+    RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, BoardState const& initialState);
     ~RealBoardOutput();
     void move(Direction d, BoardState const& originalBoard);
-    std::shared_ptr<BoardState const> currentState() const;
+    std::shared_ptr<BoardState const> currentState(HiddenBoardState otherInfo) const;
 private:
     int fd;
     std::shared_ptr<GameStateSource> source;

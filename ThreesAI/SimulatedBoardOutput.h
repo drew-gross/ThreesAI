@@ -23,7 +23,7 @@ public:
     
     static std::unique_ptr<SimulatedBoardOutput> randomBoard(std::default_random_engine shuffler);
     void move(Direction d, BoardState const& originalBoard);
-    std::shared_ptr<BoardState const> currentState() const;
+    std::shared_ptr<BoardState const> currentState(HiddenBoardState otherInfo) const;
 };
 
 #endif /* defined(__ThreesAI__SimulatedBoardOutput__) */

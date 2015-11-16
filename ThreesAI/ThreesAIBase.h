@@ -34,6 +34,7 @@ protected:
     virtual void prepareDirection() = 0;
     
 private:
+    bool print = false;
     std::shared_ptr<BoardState const> boardState;
     
 };

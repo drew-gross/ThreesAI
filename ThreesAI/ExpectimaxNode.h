@@ -27,9 +27,9 @@ public:
     virtual float value(std::function<float(BoardState const&)> heuristic) const = 0;
     virtual void outputDot(std::function<float(BoardState const&)> heuristic) const = 0;
     virtual void outputDotEdges(float p, std::function<float(BoardState const&)> heuristic) const = 0;
-    virtual void pruneUnreachableChildren(Hint const& nextTileHint, std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
+    virtual void pruneUnreachableChildren() = 0;
     
-    std::shared_ptr<BoardState const> const board;
+    std::shared_ptr<BoardState const> board; //Not const to allow for replacing with board with explicit hint once hint is known
     
     const unsigned int depth;
 };

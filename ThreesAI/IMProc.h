@@ -99,9 +99,9 @@ namespace IMProc {
     const std::array<cv::Point2f, 4> getQuadrilateral(cv::Mat m);
     cv::Mat getAveragedImage(cv::VideoCapture& cam, unsigned char numImages);
     
-    std::shared_ptr<BoardState const> boardFromAnyImage(cv::Mat const& image);
-    std::pair<std::shared_ptr<BoardState const>, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image);
-    std::pair<std::shared_ptr<BoardState const>, std::array<MatchResult, 16>> boardAndMatchFromScreenShot(cv::Mat const& ss);
+    std::shared_ptr<BoardState const> boardFromAnyImage(cv::Mat const& image, HiddenBoardState otherInfo);
+    std::pair<std::shared_ptr<BoardState const>, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image, HiddenBoardState otherInfo);
+    std::pair<std::shared_ptr<BoardState const>, std::array<MatchResult, 16>> boardAndMatchFromScreenShot(cv::Mat const& ss, HiddenBoardState otherInfo);
     std::array<cv::Mat, 16> tilesFromScreenImage(cv::Mat const& image);
     cv::Mat screenImage(cv::Mat const& colorBoardImage);
     

@@ -41,9 +41,9 @@ void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unf
     }
 }
 
-void ExpectimaxMoveNode::pruneUnreachableChildren(Hint const& nextTileHint, std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
+void ExpectimaxMoveNode::pruneUnreachableChildren() {
     for (auto&& child : this->children) {
-        child.second->pruneUnreachableChildren(nextTileHint, unfilledList);
+        child.second->pruneUnreachableChildren();
     }
 }
 

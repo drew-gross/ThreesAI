@@ -39,7 +39,12 @@ float ExpectimaxChanceNode::value(std::function<float(BoardState const&)> heuris
 }
 
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
-    auto possibleNextTiles = this->board->possibleNextTiles();
+    deque<pair<Tile, float>> possibleNextTiles;
+    if (this->board->hasNoHint) {
+        possibleNextTiles = this->board->possibleNextTiles();
+    } else {
+        possibleNextTiles = this->board->getHint().possibleTiles();
+    }
     EnabledIndices possibleNextLocations = this->board->validIndicesForNewTile(this->directionMovedToGetHere);
     
     float locationProbability = 1.0f/possibleNextLocations.size();
@@ -60,13 +65,13 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     debug(this->children.empty());
 }
 
-void ExpectimaxChanceNode::pruneUnreachableChildren(Hint const& nextTileHint, list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
+void ExpectimaxChanceNode::pruneUnreachableChildren() {
+    debug(!this->childrenAreFilledIn());
+    debug(this->board->hasNoHint);
     float lostProbability = 0;
-    if (!this->childrenAreFilledIn()) {
-        this->fillInChildren(unfilledList);
-    }
+    Hint currentHint = this->board->getHint();
     for (auto it = this->children.cbegin(); it != this->children.cend();) {
-        if (!nextTileHint.contains(it->first.newTileValue)) {
+        if (!currentHint.contains(it->first.newTileValue)) {
             lostProbability += this->childrenProbabilities[it->first];
             this->childrenProbabilities.erase(it->first);
             this->children.erase(it++);
@@ -74,14 +79,15 @@ void ExpectimaxChanceNode::pruneUnreachableChildren(Hint const& nextTileHint, li
             ++it;
         }
     }
-    debug(this->children.empty());
+    debug(this->children.empty()); //Probably means stack tracker was wrong due to attaching AI to the middle of a game.
     if (this->children.empty()) {
-        
+        MYLOG(*this->board)
+        std::list<std::weak_ptr<ExpectimaxNodeBase>> fakeUnfilledList;
         if (!this->childrenAreFilledIn()) {
-            this->fillInChildren(unfilledList);
+            this->fillInChildren(fakeUnfilledList);
         }
         for (auto it = this->children.cbegin(); it != this->children.cend();) {
-            if (!nextTileHint.contains(it->first.newTileValue)) {
+            if (!this->board->getHint().contains(it->first.newTileValue)) {
                 lostProbability += this->childrenProbabilities[it->first];
                 this->childrenProbabilities.erase(it->first);
                 this->children.erase(it++);

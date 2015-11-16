@@ -14,7 +14,7 @@
 using namespace std;
 using namespace cv;
 
-SimulatedBoardOutput::SimulatedBoardOutput(BoardState::Board otherBoard, default_random_engine hintGen, unsigned int ones, unsigned int twos, unsigned int threes) : BoardOutput(), state(make_shared<BoardState>(otherBoard, hintGen, 0, Mat(), ones, twos, threes)) {};
+SimulatedBoardOutput::SimulatedBoardOutput(BoardState::Board otherBoard, default_random_engine hintGen, unsigned int ones, unsigned int twos, unsigned int threes) : BoardOutput(), state(make_shared<BoardState>(otherBoard, HiddenBoardState(0, ones, twos, threes), hintGen, Mat())) {};
 
 SimulatedBoardOutput::SimulatedBoardOutput(shared_ptr<BoardState const> b) : state(b) {}
 
@@ -24,10 +24,11 @@ unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard(default_rando
     return unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(initialTiles, shuffler, 4, 4, 4));
 }
 
-shared_ptr<BoardState const> SimulatedBoardOutput::currentState() const {
+shared_ptr<BoardState const> SimulatedBoardOutput::currentState(HiddenBoardState otherInfo) const {
+    debug(otherInfo.numTurns != this->state->hiddenState.numTurns);
     return this->state;
 }
 
 void SimulatedBoardOutput::move(Direction d, BoardState const& originalBoard) {
-    this->state = make_shared<BoardState>(BoardState::MoveWithAdd(d), *this->currentState());
+    this->state = make_shared<BoardState>(BoardState::MoveWithAdd(d), *this->currentState(originalBoard.hiddenState));
 }

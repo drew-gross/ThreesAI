@@ -25,7 +25,7 @@ public:
     std::pair<Direction, std::shared_ptr<const ExpectimaxNodeBase>> maxChild(std::function<float(BoardState const&)> heuristic) const;
     
     void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
-    void pruneUnreachableChildren(Hint const& nextTileHint, std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
+    void pruneUnreachableChildren();
     void outputDotEdges(float p, std::function<float(BoardState const&)> heuristic) const;
 };
 
