@@ -15,6 +15,8 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <fstream>
+#include <cstdlib>
 
 #include "BoardState.h"
 
@@ -25,8 +27,8 @@ public:
     
     virtual void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
     virtual float value(std::function<float(BoardState const&)> heuristic) const = 0;
-    virtual void outputDot(std::function<float(BoardState const&)> heuristic) const = 0;
-    virtual void outputDotEdges(float p, std::function<float(BoardState const&)> heuristic) const = 0;
+    virtual void outputDot() const = 0;
+    virtual void outputDotEdges(std::ostream& os, float p) const = 0;
     virtual void pruneUnreachableChildren() = 0;
     
     std::shared_ptr<BoardState const> board; //Not const to allow for replacing with board with explicit hint once hint is known
@@ -43,7 +45,7 @@ public:
     std::map<edge_type, std::shared_ptr<ExpectimaxNodeBase>> children;
     bool childrenAreFilledIn() const;
     
-    void outputDot(std::function<float(BoardState const&)> heuristic) const;
+    void outputDot() const;
 };
 
 template<typename edge_type>
@@ -55,13 +57,21 @@ bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {
 }
 
 template<typename edge_type>
-void ExpectimaxNode<edge_type>::outputDot(std::function<float(BoardState const&)> heuristic) const {
-    //FILE *writer = popen("dot -Tsvg|bcat", "w");
-    std::cout << "digraph {" << std::endl;
-    std::cout << "\tnode [fontname=Courier]" << std::endl;
-    std::cout << "\tedge [fontname=Courier]" << std::endl;
-    this->outputDotEdges(NAN, heuristic);
-    std::cout << "}" << std::endl;
+void ExpectimaxNode<edge_type>::outputDot() const {
+
+    std::ofstream ofs;
+    ofs.open("/tmp/dot.txt", std::ofstream::out | std::ofstream::trunc);
+
+    ofs << "digraph {" << std::endl;
+    ofs << "\tnode [fontname=Courier]" << std::endl;
+    ofs << "\tedge [fontname=Courier]" << std::endl;
+    this->outputDotEdges(ofs, NAN);
+    ofs << "}" << std::endl;
+    
+    ofs.close();
+    
+    int writer = system("/usr/local/bin/dot -Tsvg < /tmp/dot.txt |/Users/drewgross/.rvm/gems/ruby-1.9.3-p327/wrappers/bcat");
+    debug(writer);
 }
 
 #endif /* defined(__ThreesAI__ExpectimaxNode__) */

@@ -10,10 +10,12 @@
 
 #include "Debug.h"
 #include "Logging.h"
+#include "SimulatedBoardOutput.h"
 
 using namespace std;
 
-ExpectimaxAI::ExpectimaxAI(std::shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output, std::function<float(BoardState const&)> heuristic) :
+ExpectimaxAI::ExpectimaxAI(std::shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output, std::function<float(BoardState const&)> heuristic, unsigned int depth) :
+depth(depth),
 ThreesAIBase(board, move(output)),
 currentBoard(make_shared<ExpectimaxMoveNode>(board, 0)),
 heuristic(heuristic){
@@ -64,7 +66,7 @@ void ExpectimaxAI::fillInToDepth(unsigned int d) {
 }
 
 void ExpectimaxAI::prepareDirection() {
-    this->fillInToDepth(this->currentState()->hiddenState.numTurns+2);
+    this->fillInToDepth(this->currentState()->hiddenState.numTurns+this->depth);
 }
 
 Direction ExpectimaxAI::getDirection() const {

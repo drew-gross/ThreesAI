@@ -26,7 +26,7 @@ public:
     
     void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
     void pruneUnreachableChildren();
-    void outputDotEdges(float p, std::function<float(BoardState const&)> heuristic) const;
+    void outputDotEdges(std::ostream& os, float p) const;
 };
 
 #endif /* defined(__ThreesAI__ExpectimaxMoveNode__) */

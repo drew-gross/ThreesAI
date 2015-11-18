@@ -171,12 +171,6 @@
 			children = (
 				79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */,
 				79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */,
-				79085D931B837E0E009DA8B1 /* GameStateSource.cpp */,
-				79085D941B837E0E009DA8B1 /* GameStateSource.h */,
-				79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */,
-				79085D971B837EE1009DA8B1 /* QuickTimeSource.h */,
-				79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */,
-				79085D9B1B837EF8009DA8B1 /* CameraSource.h */,
 			);
 			name = RealWorldInteraction;
 			sourceTree = "<group>";
@@ -207,6 +201,7 @@
 		7944F88D1A732BC300ED690E /* ThreesAI */ = {
 			isa = PBXGroup;
 			children = (
+				797D55F01BFB0CCA0099B441 /* GameStateSources */,
 				79085D921B837D92009DA8B1 /* RealWorldInteraction */,
 				79664DB61B29517A002FCF52 /* ThreesPlayer */,
 				798A74401AE0BE140073DAB3 /* ThreesBoard */,
@@ -285,6 +280,19 @@
 				7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */,
 			);
 			name = OpenCV;
+			sourceTree = "<group>";
+		};
+		797D55F01BFB0CCA0099B441 /* GameStateSources */ = {
+			isa = PBXGroup;
+			children = (
+				79085D931B837E0E009DA8B1 /* GameStateSource.cpp */,
+				79085D941B837E0E009DA8B1 /* GameStateSource.h */,
+				79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */,
+				79085D971B837EE1009DA8B1 /* QuickTimeSource.h */,
+				79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */,
+				79085D9B1B837EF8009DA8B1 /* CameraSource.h */,
+			);
+			name = GameStateSources;
 			sourceTree = "<group>";
 		};
 		798A74401AE0BE140073DAB3 /* ThreesBoard */ = {

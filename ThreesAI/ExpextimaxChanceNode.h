@@ -29,7 +29,7 @@ public:
     
     Direction directionMovedToGetHere;
     
-    void outputDotEdges(float p, std::function<float(BoardState const&)> h) const;
+    void outputDotEdges(std::ostream& os, float p) const;
 };
 
 #endif /* defined(__ThreesAI__ExpextimaxChanceNode__) */

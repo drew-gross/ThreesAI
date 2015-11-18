@@ -31,7 +31,7 @@ private:
     void fillInToDepth(unsigned int n);
     
 public:
-    ExpectimaxAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output, Heuristic heuristic);
+    ExpectimaxAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output, Heuristic heuristic, unsigned int depth);
     
     std::function<float(BoardState const&)> heuristic;
     
@@ -39,6 +39,8 @@ public:
     void prepareDirection();
     void receiveState(Direction d, BoardState const& afterMoveState);
     void setCurrentHint(Hint h);
+    
+    unsigned int depth;
     
 };
 

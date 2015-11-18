@@ -39,7 +39,6 @@ void ThreesAIBase::playTurn() {
         cout << "--- Moving: " << d << " ---" << endl;
     }
     this->boardOutput->move(d, *this->boardState);
-    
     std::shared_ptr<BoardState const> newState = this->boardOutput->currentState(this->currentState()->nextHiddenState());
     this->boardState = newState;
     this->receiveState(d, *this->boardState);

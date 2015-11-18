@@ -82,8 +82,9 @@ BoardState::BoardState(BoardState::AddSpecificTile t, BoardState const& other, b
     this->copy(other);
     this->indexForNextTile(t.d); //force RNG to advance the same number of times as if the tile had been added the natural way.
     this->upcomingTile = none;
+    this->hint = none;
     this->set(t.i, t.t);
-    this->hasNoHint = hasNoHint;
+    this->hasNoHint = true;
 }
 
 BoardIndex BoardState::indexForNextTile(Direction d) {
@@ -105,10 +106,12 @@ BoardIndex BoardState::indexForNextTile(Direction d) {
 }
 
 void BoardState::addTile(Direction d) {
+    Tile t = this->getUpcomingTile(); //Note: getUpcomingTile changes the generator, so this must be retrieved before the index.
     BoardIndex i = this->indexForNextTile(d);
+    this->set(i, t);
     this->hiddenState = this->nextHiddenState();
-    this->set(i, this->getUpcomingTile());
     this->upcomingTile = none;
+    this->hint = none;
 }
 
 BoardState::BoardState(BoardState::AddTile t, BoardState const& other) : hiddenState(other.hiddenState) {
@@ -461,7 +464,7 @@ float BoardState::nonBonusTileProbability(Tile tile, bool canHaveBonus) const {
 }
 
 deque<pair<Tile, float>> BoardState::possibleNextTiles() const {
-    debug(this->hint == none);
+    debug(this->hint == none && !this->hasNoHint);
     Tile maxBoardTile = this->maxTile();
     bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
     deque<pair<Tile, float>> result;

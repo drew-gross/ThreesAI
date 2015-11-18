@@ -18,10 +18,31 @@ SimulatedBoardOutput::SimulatedBoardOutput(BoardState::Board otherBoard, default
 
 SimulatedBoardOutput::SimulatedBoardOutput(shared_ptr<BoardState const> b) : state(b) {}
 
+std::shared_ptr<BoardState const> SimulatedBoardOutput::sneakyState() const {
+    return this->state;
+}
+
 unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard(default_random_engine shuffler) {
-    std::array<Tile, 16> initialTiles = {Tile::TILE_3,Tile::TILE_3,Tile::TILE_3,Tile::TILE_2,Tile::TILE_2,Tile::TILE_2,Tile::TILE_1,Tile::TILE_1,Tile::TILE_1,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY,Tile::EMPTY};
+    std::array<Tile, 16> initialTiles = {
+        Tile::TILE_3,
+        Tile::TILE_3,
+        Tile::TILE_3,
+        Tile::TILE_2,
+        Tile::TILE_2,
+        Tile::TILE_2,
+        Tile::TILE_1,
+        Tile::TILE_1,
+        Tile::TILE_1,
+        Tile::EMPTY,
+        Tile::EMPTY,
+        Tile::EMPTY,
+        Tile::EMPTY,
+        Tile::EMPTY,
+        Tile::EMPTY,
+        Tile::EMPTY
+    };
     shuffle(initialTiles.begin(), initialTiles.end(), shuffler);
-    return unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(initialTiles, shuffler, 4, 4, 4));
+    return unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(initialTiles, shuffler, 1, 1, 1));
 }
 
 shared_ptr<BoardState const> SimulatedBoardOutput::currentState(HiddenBoardState otherInfo) const {

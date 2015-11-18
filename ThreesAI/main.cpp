@@ -42,18 +42,18 @@ using namespace IMProc;
 unsigned int testImage(path p) {
     unsigned int failures = 0;
     BoardState expectedBoard(BoardState::FromString(p.stem().string()));
-    
+
     vector<string> splitName;
     split(splitName, p.stem().string(), is_any_of("-"));
     deque<string> nextTileHintStrings;
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
-    
+
     Tile tile1 = tileFromString(nextTileHintStrings[0]);
     Tile tile2 = nextTileHintStrings.size() > 1 ? tileFromString(nextTileHintStrings[1]) : Tile::EMPTY;
     Tile tile3 = nextTileHintStrings.size() > 2 ? tileFromString(nextTileHintStrings[2]) : Tile::EMPTY;
     Hint nextTileHint(tile1, tile2, tile3);
-    
+
     Mat camImage = imread(p.string());
     array<Mat, 16> tiles;
     if (camImage.rows == 2272 && camImage.cols == 1280) {
@@ -65,7 +65,7 @@ unsigned int testImage(path p) {
     if (result.first->getHint() != nextTileHint) {
         MYLOG(nextTileHint);
         MYLOG(result.first->getHint());
-        failures++; 
+        failures++;
         debug();
         IMProc::boardFromAnyImage(camImage, HiddenBoardState(0,4,4,4));
     }
@@ -96,13 +96,13 @@ void testImageProc() {
     sort(paths.begin(), paths.end(), [](path l, path r){
         return last_write_time(l) > last_write_time(r);
     });
-    
+
     unsigned int num_tests = 0;
     for (auto&& path : paths) {
         cout << num_tests << "/" << paths.size() << " " << path.leaf() << endl;
         unsigned int failures = testImage(path);
         if (failures > 0) {
-            
+
             imwrite(path.string(), imread(path.string())); //Make most recently failed tests run first.
             MYLOG(failures);
         } else {
@@ -137,13 +137,13 @@ void testBoardMovement() {
                                                      0,0,1,1,\
                                                      0,0,0,0,\
                                                      0,0,0,0-1"), {}));
-    
-    
+
+
     BoardState x(BoardState::FromString("6,0,0,0,\
                                            0,0,1,0,\
                                            0,0,6,0,\
                                            0,6,0,0-1"));
-    
+
     BoardState y(BoardState::FromString("3,0,0,0,\
                                            0,0,1,0,\
                                            0,0,3,0,\
@@ -179,24 +179,33 @@ int main(int argc, const char * argv[]) {
     //testMonteCarloAI();
     //testMoveAndFindIndexes();
     //testImageProc(); debug();
-    
+
     uniform_int_distribution<> dist(10,500);
     default_random_engine aiParams(0);
     vector<BoardState::Score> scores;
     vector<int> plays;
     for (unsigned int i = 1; i < 20; i++) {
         unsigned int numPlays = dist(aiParams);
-        //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));
-        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
+        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));\
+        auto initialState = p->currentState(HiddenBoardState(0,1,1,1));
+        
+        //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         auto initialState = watcher->getInitialState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
-        //HumanPlayer ai(p->currentState(), std::move(p)); bool print = false;
+        
+        //HumanPlayer ai(p->currentState(HiddenBoardState(0,0,0,0)), std::move(p)); bool print = false;
+        
         //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
+        
         //ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), numPlays); bool print = true;
+        
         //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
-        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){
-            return board.score();
-        }); bool print = true;
+        
+        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){\
+            return board.score();\
+        }, 0);\
+        bool print = false;
+        
         //clock_t startTime = clock();
         ai.playGame(print); //Passed bool used to print move.
         //clock_t endTime = clock();

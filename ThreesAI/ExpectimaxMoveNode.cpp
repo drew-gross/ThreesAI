@@ -63,18 +63,18 @@ std::shared_ptr<const ExpectimaxNodeBase> ExpectimaxMoveNode::child(Direction co
     return result->second;
 }
 
-void ExpectimaxMoveNode::outputDotEdges(float p, std::function<float(BoardState const&)> heuristic) const {
+void ExpectimaxMoveNode::outputDotEdges(std::ostream& os, float p) const {
     for (auto&& child : this->children) {
-        cout << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
+        os << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << std::endl;
     }
-    cout << "\t" << long(this) << " [label=\"";
-    cout << "P=" << p << endl;
-    cout << *this->board << "\"";
+    os << "\t" << long(this) << " [label=\"";
+    os << "P=" << p << endl;
+    os << *this->board << "\"";
     if (this->board->isGameOver()) {
-        cout << ",style=filled,color=red";
+        os << ",style=filled,color=red";
     }
-    cout << "]" << endl;
+    os << "]" << endl;
     for (auto&& child : this->children) {
-        child.second->outputDotEdges(NAN, heuristic);
+        child.second->outputDotEdges(os, NAN);
     }
 }
