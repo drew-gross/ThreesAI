@@ -20,6 +20,13 @@
 using namespace std;
 using namespace boost;
 
+bool HiddenBoardState::operator==(HiddenBoardState const& other) const {
+    return this->numTurns == other.numTurns &&
+        this->onesInStack == other.onesInStack &&
+        this->twosInStack == other.twosInStack &&
+        this->threesInStack == other.threesInStack;
+}
+
 void BoardState::set(BoardIndex i, Tile t) {
     this->board[i.toRegularIndex()] = t;
     this->maxTileCache = std::max(t, this->maxTileCache);
@@ -109,7 +116,7 @@ void BoardState::addTile(Direction d) {
     Tile t = this->getUpcomingTile(); //Note: getUpcomingTile changes the generator, so this must be retrieved before the index.
     BoardIndex i = this->indexForNextTile(d);
     this->set(i, t);
-    this->hiddenState = this->nextHiddenState();
+    this->hiddenState = this->nextHiddenState(t);
     this->upcomingTile = none;
     this->hint = none;
 }
@@ -389,12 +396,12 @@ bool BoardState::hasSameTilesAs(BoardState const& otherBoard, EnabledIndices exc
     return true;
 }
 
-HiddenBoardState BoardState::nextHiddenState(boost::optional<Tile> addedTile) const {
+HiddenBoardState BoardState::nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const {
     unsigned int newOnes = this->hiddenState.onesInStack;
     unsigned int newTwos = this->hiddenState.twosInStack;
     unsigned int newThrees = this->hiddenState.threesInStack;
     
-    switch (addedTile.value_or_eval([this](){return this->getUpcomingTile();})) {
+    switch (mostRecentlyAddedTile.value_or_eval([this](){return this->getUpcomingTile();})) {
         case Tile::TILE_1:
             newOnes--;
             break;

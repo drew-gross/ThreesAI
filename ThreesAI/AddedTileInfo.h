@@ -11,18 +11,18 @@
 
 #include "BoardState.h"
 
-class ChanceNodeEdge {
+class AddedTileInfo {
 public:
-    ChanceNodeEdge(BoardState const& stateBeforeAdd, BoardState const& stateAfterAdd);
-    ChanceNodeEdge(Tile newTileValue, BoardIndex newTileLocation);
+    AddedTileInfo(BoardState const& stateBeforeAdd, BoardState const& stateAfterAdd);
+    AddedTileInfo(Tile newTileValue, BoardIndex newTileLocation);
     
     Tile newTileValue;
     BoardIndex newTileLocation;
 };
 
 //implemented for use as key in std::map
-bool operator<(ChanceNodeEdge const& left, ChanceNodeEdge const& right);
-bool operator==(ChanceNodeEdge const& left, ChanceNodeEdge const& right);
-std::ostream& operator<<(std::ostream &os, const ChanceNodeEdge d);
+bool operator<(AddedTileInfo const& left, AddedTileInfo const& right);
+bool operator==(AddedTileInfo const& left, AddedTileInfo const& right);
+std::ostream& operator<<(std::ostream &os, const AddedTileInfo d);
 
 #endif /* defined(__ThreesAI__ChanceNodeEdge__) */

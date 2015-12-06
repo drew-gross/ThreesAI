@@ -26,7 +26,7 @@
 		7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4E31AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp */; };
 		7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4E71AA0408E0081BEC8 /* ExpectimaxNode.cpp */; };
 		7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */; };
-		7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */; };
+		7963F4FB1AA2709A0081BEC8 /* AddedTileInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4F91AA2709A0081BEC8 /* AddedTileInfo.cpp */; };
 		79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79664DB81B29DF0B002FCF52 /* IMProc.cpp */; };
 		7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */; };
 		7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
@@ -102,8 +102,8 @@
 		7963F4E81AA0408E0081BEC8 /* ExpectimaxNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxMoveNode.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		7963F4EB1AA040E20081BEC8 /* ExpectimaxMoveNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxMoveNode.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ChanceNodeEdge.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ChanceNodeEdge.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7963F4F91AA2709A0081BEC8 /* AddedTileInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = AddedTileInfo.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7963F4FA1AA2709A0081BEC8 /* AddedTileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AddedTileInfo.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		79664DB81B29DF0B002FCF52 /* IMProc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IMProc.cpp; sourceTree = "<group>"; };
 		79664DB91B29DF0B002FCF52 /* IMProc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMProc.h; sourceTree = "<group>"; };
 		7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ZeroDepthMaxScoreAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -241,8 +241,6 @@
 				7963F4E81AA0408E0081BEC8 /* ExpectimaxNode.h */,
 				7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */,
 				7963F4EB1AA040E20081BEC8 /* ExpectimaxMoveNode.h */,
-				7963F4F91AA2709A0081BEC8 /* ChanceNodeEdge.cpp */,
-				7963F4FA1AA2709A0081BEC8 /* ChanceNodeEdge.h */,
 			);
 			name = ExpectimaxAI;
 			sourceTree = "<group>";
@@ -307,6 +305,8 @@
 				798A74461AE0BE920073DAB3 /* Direction.h */,
 				7944C1671BA32398000F0A2C /* BoardState.cpp */,
 				7944C1681BA32398000F0A2C /* BoardState.h */,
+				7963F4F91AA2709A0081BEC8 /* AddedTileInfo.cpp */,
+				7963F4FA1AA2709A0081BEC8 /* AddedTileInfo.h */,
 				7944C1731BA7F0AF000F0A2C /* InvalidMoveException.h */,
 				79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */,
 				79A1B3AA1BAFDB0D00FC2EDB /* Tile.hpp */,
@@ -406,7 +406,7 @@
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
 				7944C1721BA3FAFC000F0A2C /* RealBoardOutput.cpp in Sources */,
 				7963F4E91AA0408E0081BEC8 /* ExpectimaxNode.cpp in Sources */,
-				7963F4FB1AA2709A0081BEC8 /* ChanceNodeEdge.cpp in Sources */,
+				7963F4FB1AA2709A0081BEC8 /* AddedTileInfo.cpp in Sources */,
 				7944C1691BA32398000F0A2C /* BoardState.cpp in Sources */,
 				79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */,
 				79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */,

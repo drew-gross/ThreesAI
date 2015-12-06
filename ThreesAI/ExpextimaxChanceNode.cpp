@@ -16,10 +16,11 @@
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(std::shared_ptr<BoardState const> board, Direction d, unsigned int depth) : ExpectimaxNode<ChanceNodeEdge>(board, depth), directionMovedToGetHere(d){
+ExpectimaxChanceNode::ExpectimaxChanceNode(std::shared_ptr<BoardState const> board, Direction d, unsigned int depth) : ExpectimaxNode<AddedTileInfo>(board, depth), directionMovedToGetHere(d){
+    debug(this->board->getHint().contains(Tile::TILE_2) && this->board->hiddenState.twosInStack == 0);
 }
 
-shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(ChanceNodeEdge const& t) const {
+shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(AddedTileInfo const& t) const {
     auto result = this->children.find(t);
     debug(result == this->children.end());
     return result->second;
@@ -29,7 +30,7 @@ float ExpectimaxChanceNode::value(std::function<float(BoardState const&)> heuris
     if (!this->childrenAreFilledIn()) {
         return this->board->score();
     }
-    float value = accumulate(this->children.begin(), this->children.end(), 0.0f, [this, &heuristic](float acc, pair<ChanceNodeEdge, shared_ptr<const ExpectimaxNodeBase>> next){
+    float value = accumulate(this->children.begin(), this->children.end(), 0.0f, [this, &heuristic](float acc, pair<AddedTileInfo, shared_ptr<const ExpectimaxNodeBase>> next){
         auto childProbabilityPair = this->childrenProbabilities.find(next.first);
         float childScore = next.second->value(heuristic);
         float childProbability = childProbabilityPair->second;
@@ -54,7 +55,7 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
             if (possibleNextLocations.isEnabled(i)) {
                 std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::AddSpecificTile(this->directionMovedToGetHere, i, nextTile.first), *this->board, true);
                 shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
-                ChanceNodeEdge childIndex(nextTile.first, i);
+                AddedTileInfo childIndex(nextTile.first, i);
                 this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});
                 this->children.insert({childIndex, child});
                 

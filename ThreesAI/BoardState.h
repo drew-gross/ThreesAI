@@ -48,6 +48,8 @@ public:
     unsigned int onesInStack:3;
     unsigned int twosInStack:3;
     unsigned int threesInStack:3;
+    
+    bool operator==(HiddenBoardState const& other) const;
 };
 
 class BoardState : boost::noncopyable {
@@ -152,7 +154,7 @@ public:
     cv::Mat sourceImage;
     
     Score runRandomSimulation(unsigned int simNumber) const;
-    HiddenBoardState nextHiddenState(boost::optional<Tile> addedTile = boost::none) const;
+    HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
     
     bool hasNoHint;
 public:

@@ -12,20 +12,20 @@
 #include <map>
 
 #include "ExpectimaxNode.h"
-#include "ChanceNodeEdge.h"
+#include "AddedTileInfo.h"
 
 class ExpectimaxMoveNode;
 
-class ExpectimaxChanceNode : public ExpectimaxNode<ChanceNodeEdge> {
+class ExpectimaxChanceNode : public ExpectimaxNode<AddedTileInfo> {
 public:
     ExpectimaxChanceNode(std::shared_ptr<BoardState const> board, Direction d, unsigned int depth);
     float value(std::function<float(BoardState const&)> heuristic) const;
     
-    std::shared_ptr<const ExpectimaxNodeBase> child(ChanceNodeEdge const& k) const;
+    std::shared_ptr<const ExpectimaxNodeBase> child(AddedTileInfo const& k) const;
     void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
     void pruneUnreachableChildren();
 
-    std::map<ChanceNodeEdge, float> childrenProbabilities;
+    std::map<AddedTileInfo, float> childrenProbabilities;
     
     Direction directionMovedToGetHere;
     

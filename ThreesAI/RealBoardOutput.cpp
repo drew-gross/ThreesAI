@@ -15,6 +15,10 @@
 
 using namespace std;
 
+AddedTileInfo RealBoardOutput::computeChangeFrom(BoardState const& previousBoard) const {
+    return AddedTileInfo(previousBoard, *this->source->getGameState(HiddenBoardState(0,1,1,1)));
+}
+
 RealBoardOutput::~RealBoardOutput() {
     serialport_write(this->fd, "l");
     serialport_flush(fd);
@@ -75,7 +79,7 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     
     std::shared_ptr<BoardState const> expectedBoardAfterMove = make_shared<BoardState const>(BoardState::MoveWithoutAdd(d), originalBoard);
     
-    std::shared_ptr<BoardState const> newState = this->source->getGameState(originalBoard.nextHiddenState());
+    std::shared_ptr<BoardState const> newState = this->source->getGameState(originalBoard.nextHiddenState(boost::none));
     
     if (newState->hasSameTilesAs(originalBoard, {})) {
         //Movement failed, retry.
@@ -94,8 +98,8 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         MYLOG(d);
         MYLOG(expectedBoardAfterMove);
         debug();
-        IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState());
-        IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState());
+        IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState(boost::none));
+        IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState(boost::none));
         boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), d, newState);
     }
 }

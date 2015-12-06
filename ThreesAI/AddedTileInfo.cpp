@@ -6,15 +6,15 @@
 //  Copyright (c) 2015 DrewGross. All rights reserved.
 //
 
-#include "ChanceNodeEdge.h"
+#include "AddedTileInfo.h"
 
 using namespace std;
 
-ChanceNodeEdge::ChanceNodeEdge(Tile newTileValue, BoardIndex newTileLocation) :
+AddedTileInfo::AddedTileInfo(Tile newTileValue, BoardIndex newTileLocation) :
 newTileValue(newTileValue),
 newTileLocation(newTileLocation) {}
 
-ChanceNodeEdge::ChanceNodeEdge(BoardState const& stateBeforeAdd, BoardState const& stateAfterAdd) : newTileLocation(0,0) {
+AddedTileInfo::AddedTileInfo(BoardState const& stateBeforeAdd, BoardState const& stateAfterAdd) : newTileLocation(0,0) {
     for (auto&& index : allIndices) {
         if (stateBeforeAdd.at(index) != stateAfterAdd.at(index)) {
             this->newTileValue = stateAfterAdd.at(index);
@@ -24,7 +24,7 @@ ChanceNodeEdge::ChanceNodeEdge(BoardState const& stateBeforeAdd, BoardState cons
     }
 }
 
-bool operator<(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
+bool operator<(AddedTileInfo const& left, AddedTileInfo const& right) {
     if (left.newTileValue != right.newTileValue) {
         return left.newTileValue < right.newTileValue;
     }
@@ -34,13 +34,13 @@ bool operator<(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
     return left.newTileLocation.second < right.newTileLocation.second;
 }
 
-bool operator==(ChanceNodeEdge const& left, ChanceNodeEdge const& right) {
+bool operator==(AddedTileInfo const& left, AddedTileInfo const& right) {
     return left.newTileValue == right.newTileValue &&
            left.newTileLocation.first == right.newTileLocation.first &&
            left.newTileLocation.second == right.newTileLocation.second;
 }
 
-ostream& operator<<(ostream &os, const ChanceNodeEdge e){
+ostream& operator<<(ostream &os, const AddedTileInfo e){
     os << "Tile: " << e.newTileValue << endl << "Location: " << e.newTileLocation;
     return os;
 }

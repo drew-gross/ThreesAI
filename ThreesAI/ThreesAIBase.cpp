@@ -11,7 +11,7 @@
 #include "Debug.h"
 #include "Logging.h"
 
-#include "ChanceNodeEdge.h"
+#include "AddedTileInfo.h"
 
 using namespace std;
 
@@ -39,7 +39,7 @@ void ThreesAIBase::playTurn() {
         cout << "--- Moving: " << d << " ---" << endl;
     }
     this->boardOutput->move(d, *this->boardState);
-    std::shared_ptr<BoardState const> newState = this->boardOutput->currentState(this->currentState()->nextHiddenState());
-    this->boardState = newState;
+    Tile mostRecentlyAddedTile = this->boardOutput->computeChangeFrom(BoardState(BoardState::MoveWithoutAdd(d), *this->boardState)).newTileValue;
+    this->boardState = this->boardOutput->currentState(this->currentState()->nextHiddenState(mostRecentlyAddedTile));
     this->receiveState(d, *this->boardState);
 }

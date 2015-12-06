@@ -22,6 +22,10 @@ std::shared_ptr<BoardState const> SimulatedBoardOutput::sneakyState() const {
     return this->state;
 }
 
+AddedTileInfo SimulatedBoardOutput::computeChangeFrom(BoardState const& boardWithoutTile) const {
+    return AddedTileInfo(boardWithoutTile, *this->state);
+}
+
 unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard(default_random_engine shuffler) {
     std::array<Tile, 16> initialTiles = {
         Tile::TILE_3,
@@ -46,7 +50,7 @@ unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard(default_rando
 }
 
 shared_ptr<BoardState const> SimulatedBoardOutput::currentState(HiddenBoardState otherInfo) const {
-    debug(otherInfo.numTurns != this->state->hiddenState.numTurns);
+    debug(!(otherInfo == this->state->hiddenState));
     return this->state;
 }
 

@@ -11,6 +11,7 @@
 
 #include "Direction.h"
 #include "BoardState.h"
+#include "AddedTileInfo.h"
 
 class BoardOutput {
 public:
@@ -18,6 +19,8 @@ public:
     virtual void move(Direction d, BoardState const& originalBoard) = 0;
     virtual std::shared_ptr<BoardState const> currentState(HiddenBoardState otherInfo) const = 0;
     virtual ~BoardOutput() {};
+    virtual AddedTileInfo computeChangeFrom(BoardState const& previousState) const = 0;
+    
     virtual std::shared_ptr<BoardState const> sneakyState() const = 0;
 };
 
