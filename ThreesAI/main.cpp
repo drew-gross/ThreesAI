@@ -183,6 +183,8 @@ int main(int argc, const char * argv[]) {
     
     unique_ptr<BoardOutput> p;
     std::shared_ptr<BoardState const> initialState;
+    bool printEachMove = false;
+    unsigned int expectimaxDepth = 1;
     if (boost::filesystem::exists("/dev/tty.usbmodem1411")) {
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());
         initialState = watcher->getInitialState();
@@ -190,6 +192,7 @@ int main(int argc, const char * argv[]) {
     } else {
         p = SimulatedBoardOutput::randomBoard(default_random_engine(0));
         initialState = p->currentState(HiddenBoardState(0,1,1,1));
+        printEachMove = expectimaxDepth > 1;
     }
 
     //HumanPlayer ai(p->currentState(HiddenBoardState(0,0,0,0)), std::move(p)); bool print = false;
@@ -200,13 +203,11 @@ int main(int argc, const char * argv[]) {
     
     //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
     
-    unsigned int expectimaxDepth = 2;
     ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){\
         return board.score();\
-    }, expectimaxDepth);\
-    bool print = expectimaxDepth > 1;
+    }, expectimaxDepth);
     
-    ai.playGame(print); //Passed bool used to print move.
+    ai.playGame(printEachMove);
     cout << ai.currentState()->score() << endl;
     return 0;
 }
