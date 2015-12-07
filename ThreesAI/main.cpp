@@ -200,7 +200,7 @@ int main(int argc, const char * argv[]) {
     
     //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
     
-    unsigned int expectimaxDepth = 1;
+    unsigned int expectimaxDepth = 2;
     ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){\
         return board.score();\
     }, expectimaxDepth);\
