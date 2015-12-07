@@ -184,12 +184,13 @@ int main(int argc, const char * argv[]) {
     unique_ptr<BoardOutput> p;
     std::shared_ptr<BoardState const> initialState;
     bool printEachMove = false;
-    unsigned int expectimaxDepth = 1;
+    unsigned int expectimaxDepth = 3;
     try {
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());
         initialState = watcher->getInitialState();
         p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
     } catch (std::exception e) {
+        expectimaxDepth = 1;
         p = SimulatedBoardOutput::randomBoard(default_random_engine(0));
         initialState = p->currentState(HiddenBoardState(0,1,1,1));
         printEachMove = expectimaxDepth > 1;
