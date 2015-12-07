@@ -31,6 +31,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace std;
 using namespace boost::filesystem;
@@ -179,43 +180,34 @@ int main(int argc, const char * argv[]) {
     //testMonteCarloAI();
     //testMoveAndFindIndexes();
     //testImageProc(); debug();
-
-    uniform_int_distribution<> dist(10,500);
-    default_random_engine aiParams(0);
-    vector<BoardState::Score> scores;
-    vector<int> plays;
-    for (unsigned int i = 1; i < 20; i++) {
-        unsigned int numPlays = dist(aiParams);
-        //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));\
-        auto initialState = p->currentState(HiddenBoardState(0,1,1,1));
-        
-        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
-        auto initialState = watcher->getInitialState();\
-        unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
-        
-        //HumanPlayer ai(p->currentState(HiddenBoardState(0,0,0,0)), std::move(p)); bool print = false;
-        
-        //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
-        
-        //ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), numPlays); bool print = true;
-        
-        //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
-        
-        unsigned int expectimaxDepth = 3;\
-        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){\
-            return board.score();\
-        }, expectimaxDepth);\
-        bool print = expectimaxDepth > 1;
-        
-        //clock_t startTime = clock();
-        ai.playGame(print); //Passed bool used to print move.
-        //clock_t endTime = clock();
-        //cout << "Clocks per turn: " << (endTime - startTime)/ai.currentState()->numTurns << endl;
-        //MYLOG(*ai.currentState());
-        cout << numPlays << "," << ai.currentState()->score() << endl;
-        scores.push_back(ai.currentState()->score());
-        plays.push_back(numPlays);
+    
+    unique_ptr<BoardOutput> p;
+    std::shared_ptr<BoardState const> initialState;
+    if (boost::filesystem::exists("/dev/tty.usbmodem1411")) {
+        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());
+        initialState = watcher->getInitialState();
+        p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
+    } else {
+        p = SimulatedBoardOutput::randomBoard(default_random_engine(0));
+        initialState = p->currentState(HiddenBoardState(0,1,1,1));
     }
+
+    //HumanPlayer ai(p->currentState(HiddenBoardState(0,0,0,0)), std::move(p)); bool print = false;
+    
+    //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
+    
+    //ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), numPlays); bool print = true;
+    
+    //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
+    
+    unsigned int expectimaxDepth = 1;
+    ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){\
+        return board.score();\
+    }, expectimaxDepth);\
+    bool print = expectimaxDepth > 1;
+    
+    ai.playGame(print); //Passed bool used to print move.
+    cout << ai.currentState()->score() << endl;
     return 0;
 }
 
