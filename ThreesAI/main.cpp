@@ -186,10 +186,10 @@ int main(int argc, const char * argv[]) {
     vector<int> plays;
     for (unsigned int i = 1; i < 20; i++) {
         unsigned int numPlays = dist(aiParams);
-        unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));\
+        //unique_ptr<BoardOutput> p = SimulatedBoardOutput::randomBoard(default_random_engine(i));\
         auto initialState = p->currentState(HiddenBoardState(0,1,1,1));
         
-        //auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
+        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());\
         auto initialState = watcher->getInitialState();\
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
         
@@ -201,7 +201,7 @@ int main(int argc, const char * argv[]) {
         
         //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
         
-        unsigned int expectimaxDepth = 3;
+        unsigned int expectimaxDepth = 3;\
         ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){\
             return board.score();\
         }, expectimaxDepth);\

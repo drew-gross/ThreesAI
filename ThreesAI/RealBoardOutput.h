@@ -20,6 +20,7 @@ public:
     void move(Direction d, BoardState const& originalBoard);
     std::shared_ptr<BoardState const> currentState(HiddenBoardState otherInfo) const;
     AddedTileInfo computeChangeFrom(BoardState const& previousState) const;
+    std::shared_ptr<BoardState const> sneakyState() const;
 private:
     int fd;
     std::shared_ptr<GameStateSource> source;
