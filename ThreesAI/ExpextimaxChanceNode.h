@@ -32,4 +32,6 @@ public:
     void outputDotEdges(std::ostream& os, float p) const;
 };
 
+typedef std::shared_ptr<const ExpectimaxChanceNode> ChanceTreePtr;
+
 #endif /* defined(__ThreesAI__ExpextimaxChanceNode__) */

@@ -15,6 +15,7 @@
 
 class ExpectimaxChanceNode;
 
+
 class ExpectimaxMoveNode : public ExpectimaxNode<Direction> {
 public:
     ExpectimaxMoveNode(std::shared_ptr<BoardState const> board, unsigned int depth);
@@ -28,5 +29,7 @@ public:
     void pruneUnreachableChildren();
     void outputDotEdges(std::ostream& os, float p) const;
 };
+
+typedef std::shared_ptr<const ExpectimaxMoveNode> MoveTreePtr;
 
 #endif /* defined(__ThreesAI__ExpectimaxMoveNode__) */

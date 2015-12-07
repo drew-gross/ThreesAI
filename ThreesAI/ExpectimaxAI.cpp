@@ -74,7 +74,6 @@ Direction ExpectimaxAI::getDirection() const {
 }
 
 void ExpectimaxAI::setCurrentHint(Hint h) {
-    debug(h.contains(Tile::TILE_2) && this->currentBoard->board->hiddenState.twosInStack == 0);
     this->currentBoard->board = make_shared<BoardState const>(BoardState::SetHint(h), *this->currentBoard->board);
     for (auto&& child : this->currentBoard->children) {
         child.second->board = make_shared<BoardState const>(BoardState::SetHint(h), *child.second->board);
@@ -82,12 +81,12 @@ void ExpectimaxAI::setCurrentHint(Hint h) {
     this->currentBoard->pruneUnreachableChildren();
 }
 
-void ExpectimaxAI::receiveState(Direction d, BoardState const& afterMoveState) {
-    shared_ptr<const ExpectimaxChanceNode> afterMoveBoard = dynamic_pointer_cast<const ExpectimaxChanceNode>(this->currentBoard->child(d));
-    AddedTileInfo edge(*afterMoveBoard->board, afterMoveState);
-    shared_ptr<const ExpectimaxMoveNode> afterAddingTileBoard = dynamic_pointer_cast<const ExpectimaxMoveNode>(afterMoveBoard->child(edge));
-    debug(!afterAddingTileBoard->board->hasSameTilesAs(afterMoveState, {}));
-    debug(!(afterMoveState.hiddenState == afterAddingTileBoard->board->hiddenState));
-    this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterAddingTileBoard);
-    this->setCurrentHint(afterMoveState.getHint());
+void ExpectimaxAI::receiveState(Direction d, BoardState const& measuredState) {
+    ChanceTreePtr afterMoveTree = dynamic_pointer_cast<const ExpectimaxChanceNode>(this->currentBoard->child(d));
+    AddedTileInfo edge(*afterMoveTree->board, measuredState);
+    MoveTreePtr afterTileTree = dynamic_pointer_cast<const ExpectimaxMoveNode>(afterMoveTree->child(edge));
+    debug(!afterTileTree->board->hasSameTilesAs(measuredState, {}));
+    debug(!(measuredState.hiddenState == afterTileTree->board->hiddenState));
+    this->currentBoard = const_pointer_cast<ExpectimaxMoveNode>(afterTileTree);
+    this->setCurrentHint(measuredState.getHint());
 }

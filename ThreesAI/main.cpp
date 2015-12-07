@@ -201,10 +201,11 @@ int main(int argc, const char * argv[]) {
         
         //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
         
+        unsigned int expectimaxDepth = 3;
         ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){\
             return board.score();\
-        }, 0);\
-        bool print = false;
+        }, expectimaxDepth);\
+        bool print = expectimaxDepth > 1;
         
         //clock_t startTime = clock();
         ai.playGame(print); //Passed bool used to print move.

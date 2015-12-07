@@ -33,6 +33,7 @@ void BoardState::set(BoardIndex i, Tile t) {
 }
 
 void BoardState::takeTurnInPlace(Direction d) {
+    this->upcomingTile = this->getUpcomingTile(); //Must get upcoming tile before moving, as moveing can change which tile is added for a given generator state.
     this->move(d);
     this->addTile(d);
     this->scoreCacheIsValid = false;

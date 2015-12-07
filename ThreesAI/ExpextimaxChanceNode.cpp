@@ -16,13 +16,16 @@
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(std::shared_ptr<BoardState const> board, Direction d, unsigned int depth) : ExpectimaxNode<AddedTileInfo>(board, depth), directionMovedToGetHere(d){
-    debug(this->board->getHint().contains(Tile::TILE_2) && this->board->hiddenState.twosInStack == 0);
-}
+ExpectimaxChanceNode::ExpectimaxChanceNode(std::shared_ptr<BoardState const> board, Direction d, unsigned int depth) : ExpectimaxNode<AddedTileInfo>(board, depth), directionMovedToGetHere(d){}
 
 shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(AddedTileInfo const& t) const {
     auto result = this->children.find(t);
-    debug(result == this->children.end());
+    if (result == this->children.end()) {
+        this->outputDot();
+        debug();
+        list<weak_ptr<ExpectimaxNodeBase>> l;
+        ((ExpectimaxChanceNode*)this)->fillInChildren(l);
+    }
     return result->second;
 }
 
