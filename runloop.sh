@@ -4,7 +4,7 @@ do
 	xcodebuild -scheme "Release ThreesAI" build
 
 	start=$(date +%s)
-	result=$(time ./DerivedData/ThreesAI/Build/Products/Release/ThreesAI 2>&1)
+	result=$(./DerivedData/ThreesAI/Build/Products/Release/ThreesAI)
 	end=$(date +%s)
 
 	curl -X POST \

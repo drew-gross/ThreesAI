@@ -9,6 +9,7 @@
 #include "RealBoardOutput.h"
 #include "arduino-serial-lib.h"
 #include <unistd.h>
+#include <exception>
 
 #include "Debug.h"
 #include "Logging.h"
@@ -112,5 +113,7 @@ shared_ptr<BoardState const> RealBoardOutput::sneakyState() const {
 RealBoardOutput::RealBoardOutput(string port, shared_ptr<GameStateSource> source, BoardState const& initialState) : BoardOutput(), source(std::move(source)) {
     this->fd = serialport_init(port.c_str(), 9600);
     sleep(2); //Necessary to initialize the output
-    debug(this->fd < 0);
+    if (this->fd < 0) {
+        throw std::exception();
+    }
 }

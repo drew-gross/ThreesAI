@@ -185,11 +185,11 @@ int main(int argc, const char * argv[]) {
     std::shared_ptr<BoardState const> initialState;
     bool printEachMove = false;
     unsigned int expectimaxDepth = 1;
-    if (boost::filesystem::exists("/dev/tty.usbmodem1411")) {
+    try {
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());
         initialState = watcher->getInitialState();
         p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
-    } else {
+    } catch (std::exception e) {
         p = SimulatedBoardOutput::randomBoard(default_random_engine(0));
         initialState = p->currentState(HiddenBoardState(0,1,1,1));
         printEachMove = expectimaxDepth > 1;
