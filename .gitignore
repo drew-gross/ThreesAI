@@ -1,7 +1,6 @@
 xcdebugger
-xcschememanagement.plist
 xcuserdata/
-xcshareddata/
+ThreesAI.xcodeproj/project.xcworkspace/
 ~$*.SLDPRT
 *.EPRT
 DerivedData/
