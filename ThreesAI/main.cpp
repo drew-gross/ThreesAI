@@ -187,13 +187,13 @@ int main(int argc, const char * argv[]) {
     unsigned int expectimaxDepth = 3;
     try {
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());
-        initialState = watcher->getInitialState();
         p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
+        initialState = watcher->getInitialState();
     } catch (std::exception e) {
-        expectimaxDepth = 1;
+        expectimaxDepth = 3;
         p = SimulatedBoardOutput::randomBoard(default_random_engine(0));
         initialState = p->currentState(HiddenBoardState(0,1,1,1));
-        printEachMove = expectimaxDepth > 1;
+        printEachMove = expectimaxDepth > 3;
     }
 
     //HumanPlayer ai(p->currentState(HiddenBoardState(0,0,0,0)), std::move(p)); bool print = false;

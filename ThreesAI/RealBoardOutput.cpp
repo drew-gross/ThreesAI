@@ -84,7 +84,6 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     
     if (newState->hasSameTilesAs(originalBoard, {})) {
         //Movement failed, retry.
-        MYLOG("Movement failed, retrying");
         return this->move(d, originalBoard);
     }
     //TODO: Detect if some other move was made accidentally, and just go with it.
