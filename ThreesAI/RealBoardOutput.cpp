@@ -84,6 +84,7 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     
     if (newState->hasSameTilesAs(originalBoard, {})) {
         //Movement failed, retry.
+        MYLOG("redo");
         return this->move(d, originalBoard);
     }
     //TODO: Detect if some other move was made accidentally, and just go with it.
@@ -111,8 +112,8 @@ shared_ptr<BoardState const> RealBoardOutput::sneakyState() const {
 
 RealBoardOutput::RealBoardOutput(string port, shared_ptr<GameStateSource> source, BoardState const& initialState) : BoardOutput(), source(std::move(source)) {
     this->fd = serialport_init(port.c_str(), 9600);
-    sleep(2); //Necessary to initialize the output
     if (this->fd < 0) {
         throw std::exception();
     }
+    sleep(2); //Necessary to initialize the output
 }

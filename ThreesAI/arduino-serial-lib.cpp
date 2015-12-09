@@ -29,9 +29,8 @@ int serialport_init(const char* serialport, int baud)
     //fd = open(serialport, O_RDWR | O_NOCTTY | O_NDELAY);
     fd = open(serialport, O_RDWR | O_NONBLOCK );
     
-    if (fd == -1)  {
-        perror("serialport_init: Unable to open port ");
-        return -1;
+    if (fd < 0)  {
+        return fd;
     }
     
     //int iflags = TIOCM_DTR;

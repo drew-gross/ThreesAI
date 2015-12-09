@@ -190,7 +190,7 @@ int main(int argc, const char * argv[]) {
         p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
         initialState = watcher->getInitialState();
     } catch (std::exception e) {
-        expectimaxDepth = 3;
+        expectimaxDepth = 1;
         p = SimulatedBoardOutput::randomBoard(default_random_engine(0));
         initialState = p->currentState(HiddenBoardState(0,1,1,1));
         printEachMove = expectimaxDepth > 3;

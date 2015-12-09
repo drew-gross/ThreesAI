@@ -43,13 +43,9 @@ Direction UCTSearchAI::getDirection() const {
         BoardState::Score nextScore = movedCopy.runRandomSimulation(numPlays);
         plays[currentBest]++;
         means[currentBest] += (nextScore - means[currentBest])/plays[currentBest];
-    }/*
-    for (auto&& d : means) {
-        cout << d.first << ": score: " << d.second << " plays: " << plays[d.first] << endl;
-    }*/
+    }
     Direction best = max_element(means.begin(), means.end(), [](pair<Direction, float> l, pair<Direction, float> r) {
         return l.second < r.second;
     })->first;
-    //cout << best << endl;
     return best;
 }

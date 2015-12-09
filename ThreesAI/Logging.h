@@ -9,7 +9,7 @@
 #ifndef ThreesAI_Logging_h
 #define ThreesAI_Logging_h
 
-#define MYLOG(x) (std::cout << "MYLOG(" << #x << ") is: " << x << std::endl);
+#define MYLOG(x) (std::cerr << "MYLOG(" << #x << ") is: " << x << std::endl);
 #define MYSHOW(x) Log::imShow(#x, x);
 #define MYSHOWSMALL(i, s) Log::imShow(#i, i, s);
 

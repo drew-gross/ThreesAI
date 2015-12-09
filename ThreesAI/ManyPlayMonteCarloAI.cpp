@@ -35,18 +35,8 @@ Direction ManyPlayMonteCarloAI::getDirection() const {
             scores[d] = this->currentState()->score();
         }
     }
-    for (auto&& d : scores) {
-        cout << d.first << ": " << d.second << endl;
-    }
     Direction bestDirection = max_element(scores.begin(), scores.end(), [](pair<Direction, float> l, pair<Direction, float> r){
         return l.second < r.second;
     })->first;
-    float bestScore = scores[bestDirection];
-    scores.erase(bestDirection);
-    Direction secondBestDirection = max_element(scores.begin(), scores.end(), [](pair<Direction, float> l, pair<Direction, float> r){
-        return l.second < r.second;
-    })->first;
-    float secondBestScore = scores[secondBestDirection];
-    cout << bestDirection << " beats " << secondBestDirection << " by " << bestScore - secondBestScore << endl;
     return bestDirection;
 }
