@@ -156,7 +156,7 @@ void testMonteCarloAI() {
     std::unique_ptr<SimulatedBoardOutput> board = std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(make_shared<BoardState const>(BoardState::FromString("2,6,3,1,\
                                                                                                         3,24,384,6,\
                                                                                                         6,24,96,192,\
-                                                                                                        3,6,1,3-2"))));
+                                                                                                                                                                      3,6,1,3-2"))));
     ManyPlayMonteCarloAI ai(board->currentState(HiddenBoardState(0,4,4,4)), std::move(board), 2);
     debug(ai.getDirection() == Direction::DOWN);
     ai.getDirection();
@@ -180,7 +180,7 @@ int main(int argc, const char * argv[]) {
     //testMonteCarloAI();
     //testMoveAndFindIndexes();
     //testImageProc(); debug();
-    
+     
     unique_ptr<BoardOutput> p;
     std::shared_ptr<BoardState const> initialState;
     bool printEachMove = false;

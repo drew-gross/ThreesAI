@@ -15,6 +15,7 @@
 #include "Logging.h"
 
 using namespace std;
+using namespace chrono;
 
 AddedTileInfo RealBoardOutput::computeChangeFrom(BoardState const& previousBoard) const {
     return AddedTileInfo(previousBoard, *this->source->getGameState(HiddenBoardState(0,1,1,1)));
@@ -74,9 +75,8 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         
         serialport_flush(fd);
     }
-    char buf[2];
-    /*int success = */serialport_read_until(this->fd, buf, ' ', 2, 1000);
-    //debug(success != 0 || buf[0] != 'x'); Reads are failing for some reason... but the timeout solves the same problem.
+    //Prepare next move for 1 second while arms move
+    this->doWorkFor(1000);
     
     std::shared_ptr<BoardState const> expectedBoardAfterMove = make_shared<BoardState const>(BoardState::MoveWithoutAdd(d), originalBoard);
     

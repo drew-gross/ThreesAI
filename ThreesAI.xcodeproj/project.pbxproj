@@ -47,6 +47,7 @@
 		79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79DD5C051AE0ABC800CD6359 /* arduino-serial-lib.cpp */; };
 		79E67A951B373C9A007D8C25 /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A941B373C9A007D8C25 /* libboost_filesystem.dylib */; };
 		79E67A971B373CB6007D8C25 /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A961B373CB6007D8C25 /* libboost_system.dylib */; };
+		79E797FC1C1AB7310000B9DB /* BoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79E797FB1C1AB7310000B9DB /* BoardOutput.cpp */; };
 		79EFBE351AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */; };
 		79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
@@ -135,6 +136,7 @@
 		79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "arduino-serial-lib.h"; sourceTree = "<group>"; };
 		79E67A941B373C9A007D8C25 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libboost_filesystem.dylib; sourceTree = "<group>"; };
 		79E67A961B373CB6007D8C25 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libboost_system.dylib; sourceTree = "<group>"; };
+		79E797FB1C1AB7310000B9DB /* BoardOutput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoardOutput.cpp; sourceTree = "<group>"; };
 		79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_flann.2.4.11.dylib; sourceTree = "<group>"; };
 		79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnePlayMonteCarloAI.cpp; sourceTree = "<group>"; };
 		79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnePlayMonteCarloAI.h; sourceTree = "<group>"; };
@@ -183,10 +185,10 @@
 				793533151B814DA50078E011 /* CoreVideo.framework */,
 				793533131B814D9A0078E011 /* CoreMedia.framework */,
 				799391931B8078C5000BC4D4 /* AVFoundation.framework */,
+				7944F88C1A732BC300ED690E /* Products */,
 				79E67A931B373C8A007D8C25 /* Boost */,
 				7967865B1AF0703B003DEF6C /* OpenCV */,
 				7944F88D1A732BC300ED690E /* ThreesAI */,
-				7944F88C1A732BC300ED690E /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -221,6 +223,7 @@
 		7953BBF21BB761B40083AC3A /* BoardOutput */ = {
 			isa = PBXGroup;
 			children = (
+				79E797FB1C1AB7310000B9DB /* BoardOutput.cpp */,
 				7944C16B1BA32AA8000F0A2C /* BoardOutput.h */,
 				7944C1701BA3FAFC000F0A2C /* RealBoardOutput.cpp */,
 				7944C1711BA3FAFC000F0A2C /* RealBoardOutput.h */,
@@ -389,6 +392,7 @@
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,
 				79A1B3A81BAFB29900FC2EDB /* Hint.cpp in Sources */,
 				79A1B3AB1BAFDB0D00FC2EDB /* Tile.cpp in Sources */,
+				79E797FC1C1AB7310000B9DB /* BoardOutput.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
 				79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */,
 				79D022111B2C0E3D00624854 /* Logging.cpp in Sources */,

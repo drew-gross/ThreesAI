@@ -11,12 +11,21 @@
 #include "Debug.h"
 #include "Logging.h"
 
+#include <chrono>
+
 using namespace std;
+using namespace chrono;
 using namespace cv;
 
-SimulatedBoardOutput::SimulatedBoardOutput(BoardState::Board otherBoard, default_random_engine hintGen, unsigned int ones, unsigned int twos, unsigned int threes) : BoardOutput(), state(make_shared<BoardState>(otherBoard, HiddenBoardState(0, ones, twos, threes), hintGen, Mat())) {};
+SimulatedBoardOutput::SimulatedBoardOutput(BoardState::Board otherBoard,
+                                           default_random_engine hintGen,
+                                           unsigned int ones,
+                                           unsigned int twos,
+                                           unsigned int threes) :
+BoardOutput(),
+state(make_shared<BoardState>(otherBoard, HiddenBoardState(0, ones, twos, threes), hintGen, Mat())) {};
 
-SimulatedBoardOutput::SimulatedBoardOutput(shared_ptr<BoardState const> b) : state(b) {}
+SimulatedBoardOutput::SimulatedBoardOutput(BoardStateCPtr b) : BoardOutput(), state(b) {}
 
 std::shared_ptr<BoardState const> SimulatedBoardOutput::sneakyState() const {
     return this->state;
@@ -56,4 +65,5 @@ shared_ptr<BoardState const> SimulatedBoardOutput::currentState(HiddenBoardState
 
 void SimulatedBoardOutput::move(Direction d, BoardState const& originalBoard) {
     this->state = make_shared<BoardState>(BoardState::MoveWithAdd(d), *this->currentState(originalBoard.hiddenState));
+    this->doWorkFor(1);
 }

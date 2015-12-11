@@ -187,6 +187,8 @@ private:
     boost::optional<Hint> hint;
 };
 
+typedef std::shared_ptr<BoardState const> BoardStateCPtr;
+
 std::ostream& operator<<(std::ostream &os, const BoardIndex e);
 std::ostream& operator<<(std::ostream &os, BoardState const& info);
 

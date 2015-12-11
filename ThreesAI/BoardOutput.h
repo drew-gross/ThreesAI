@@ -13,6 +13,10 @@
 #include "BoardState.h"
 #include "AddedTileInfo.h"
 
+#include <functional>
+
+typedef std::function<void(void)> Work;
+
 class BoardOutput {
 public:
     //Throws if move is invalid. Returns location and value of new tile if not.
@@ -20,8 +24,11 @@ public:
     virtual std::shared_ptr<BoardState const> currentState(HiddenBoardState otherInfo) const = 0;
     virtual ~BoardOutput() {};
     virtual AddedTileInfo computeChangeFrom(BoardState const& previousState) const = 0;
+    Work doWork;    
     
     virtual std::shared_ptr<BoardState const> sneakyState() const = 0;
+
+    void doWorkFor(int millis);
 };
 
 #endif /* defined(__ThreesAI__BoardOutput__) */

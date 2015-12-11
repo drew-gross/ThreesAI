@@ -19,6 +19,12 @@ depth(depth),
 ThreesAIBase(board, move(output)),
 currentBoard(make_shared<ExpectimaxMoveNode>(board, 0)),
 heuristic(heuristic){
+    this->boardOutput->doWork = [this](){
+        auto node = this->nextReachableNode();
+        if (node) {
+            node->fillInChildren(this->unfilledChildren);
+        }
+    };
     this->unfilledChildren.push_back(this->currentBoard);
 }
 
