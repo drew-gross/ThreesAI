@@ -41,6 +41,14 @@ using namespace IMLog;
 using namespace IMProc;
 
 unsigned int testImage(path p) {
+    HintImages hintImages({
+        {Hint(Tile::TILE_48,Tile::TILE_96,Tile::TILE_192), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-48-96-192.png", 0))},
+        {Hint(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
+        {Hint(Tile::TILE_12,Tile::TILE_24,Tile::TILE_48), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-12-24-48.png", 0))},
+        {Hint(Tile::TILE_6,Tile::TILE_12,Tile::TILE_24), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12-24.png", 0))},
+        {Hint(Tile::TILE_6,Tile::TILE_12), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12.png", 0))},
+        {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
+    });
     unsigned int failures = 0;
     BoardState expectedBoard(BoardState::FromString(p.stem().string()));
 
@@ -62,13 +70,13 @@ unsigned int testImage(path p) {
     } else {
         tiles = tilesFromScreenImage(IMProc::screenImage(camImage));
     }
-    pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> result = IMProc::boardAndMatchFromAnyImage(camImage, HiddenBoardState(0,4,4,4));
+    pair<BoardStateCPtr, array<MatchResult, 16>> result = IMProc::boardAndMatchFromAnyImage(camImage, HiddenBoardState(0,4,4,4), hintImages);
     if (result.first->getHint() != nextTileHint) {
         MYLOG(nextTileHint);
         MYLOG(result.first->getHint());
         failures++;
         debug();
-        IMProc::boardFromAnyImage(camImage, HiddenBoardState(0,4,4,4));
+        IMProc::boardFromAnyImage(camImage, HiddenBoardState(0,4,4,4), hintImages);
     }
     for (BoardIndex i : allIndices) {
         MatchResult extracted = result.second.at(i.toRegularIndex());
@@ -80,7 +88,7 @@ unsigned int testImage(path p) {
             MYSHOW(concatH({concatV(expectedV), concatV(extractedV)}));
             debug();
             IMProc::tileValueFromScreenShot(tiles[i.toRegularIndex()], canonicalTiles());
-            auto result = IMProc::boardAndMatchFromAnyImage(camImage, HiddenBoardState(0,4,4,4));
+            auto result = IMProc::boardAndMatchFromAnyImage(camImage, HiddenBoardState(0,4,4,4), hintImages);
             failures++;
         }
     }
@@ -186,8 +194,16 @@ int main(int argc, const char * argv[]) {
     bool printEachMove = false;
     unsigned int expectimaxDepth = 3;
     try {
-        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource());
-        p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState));
+        HintImages hintImages({
+            {Hint(Tile::TILE_48,Tile::TILE_96,Tile::TILE_192), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-48-96-192.jpg", 0))},
+            {Hint(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
+            {Hint(Tile::TILE_12,Tile::TILE_24,Tile::TILE_48), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-12-24-48.png", 0))},
+            {Hint(Tile::TILE_6,Tile::TILE_12,Tile::TILE_24), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12-24.png", 0))},
+            {Hint(Tile::TILE_6,Tile::TILE_12), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12.png", 0))},
+            {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
+        });
+        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages));
+        p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
         initialState = watcher->getInitialState();
     } catch (std::exception e) {
         expectimaxDepth = 1;

@@ -99,8 +99,8 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         MYLOG(d);
         MYLOG(expectedBoardAfterMove);
         debug();
-        IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState(boost::none));
-        IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState(boost::none));
+        IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState(boost::none), this->hintImages);
+        IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState(boost::none), this->hintImages);
         boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), d, newState);
     }
 }
@@ -110,7 +110,13 @@ shared_ptr<BoardState const> RealBoardOutput::sneakyState() const {
     return nullptr;
 }
 
-RealBoardOutput::RealBoardOutput(string port, shared_ptr<GameStateSource> source, BoardState const& initialState) : BoardOutput(), source(std::move(source)) {
+RealBoardOutput::RealBoardOutput(string port,
+                                 shared_ptr<GameStateSource> source,
+                                 BoardState const& initialState,
+                                 HintImages hintImages) :
+BoardOutput(),
+source(std::move(source)),
+hintImages(hintImages) {
     this->fd = serialport_init(port.c_str(), 9600);
     if (this->fd < 0) {
         throw std::exception();

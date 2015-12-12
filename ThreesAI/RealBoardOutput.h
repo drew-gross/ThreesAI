@@ -15,7 +15,7 @@
 
 class RealBoardOutput : public BoardOutput {
 public:
-    RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, BoardState const& initialState);
+    RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, BoardState const& initialState, HintImages hintImages);
     ~RealBoardOutput();
     void move(Direction d, BoardState const& originalBoard);
     std::shared_ptr<BoardState const> currentState(HiddenBoardState otherInfo) const;
@@ -24,6 +24,7 @@ public:
 private:
     int fd;
     std::shared_ptr<GameStateSource> source;
+    HintImages hintImages;
 };
 
 #endif /* defined(__ThreesAI__RealBoardOutput__) */

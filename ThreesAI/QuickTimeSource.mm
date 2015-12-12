@@ -60,9 +60,9 @@ cv::Mat getMostRecentFrame() {
     return Mat();
 }
 
-QuickTimeSource::QuickTimeSource(){
+QuickTimeSource::QuickTimeSource(HintImages hintImages) : hintImages(hintImages) {
 }
 
 std::shared_ptr<BoardState const> QuickTimeSource::getGameState(HiddenBoardState otherInfo) {
-    return IMProc::boardFromAnyImage(getMostRecentFrame(), otherInfo);
+    return IMProc::boardFromAnyImage(getMostRecentFrame(), otherInfo, this->hintImages);
 }

@@ -71,7 +71,7 @@ Mat screenImageToHintImage(Mat const& screenImage) {
     return sector(screenImage, .465, .15, .11, Size(100,100));
 }
 
-Mat screenImageToBonusHintImage(Mat const& screenImage) {
+Mat IMProc::screenImageToBonusHintImage(Mat const& screenImage) {
     return sector(screenImage, .35, .15, .11, Size(300,100));
 }
 
@@ -685,15 +685,7 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, const CanonicalTi
     return MatchResult(bestMatch.second, tileSS);
 }
 
-Hint IMProc::getHintFromScreenShot(Mat const& ss) {
-    static vector<pair<Hint, Mat>> hintImages({
-        {Hint(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
-        {Hint(Tile::TILE_12,Tile::TILE_24,Tile::TILE_48), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-12-24-48.png", 0))},
-        {Hint(Tile::TILE_6,Tile::TILE_12,Tile::TILE_24), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12-24.png", 0))},
-        {Hint(Tile::TILE_6,Tile::TILE_12), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12.png", 0))},
-        {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
-        
-    });
+Hint IMProc::getHintFromScreenShot(Mat const& ss, HintImages hintImages) {
     Mat narrowHint = screenImageToHintImage(ss);
     optional<MatchResult> narrowHintResult = detect1or2or3orBonusByColor(narrowHint);
     if (narrowHintResult) {
@@ -721,8 +713,8 @@ Hint IMProc::getHintFromScreenShot(Mat const& ss) {
     return bestMatch.first;
 }
 
-pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss, HiddenBoardState otherInfo) {
-    Hint hint = getHintFromScreenShot(ss);
+pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss, HiddenBoardState otherInfo, HintImages hintImages) {
+    Hint hint = getHintFromScreenShot(ss, hintImages);
     auto tileImages = tilesFromScreenImage(ss);
     array<MatchResult, 16> matches;
     
@@ -738,9 +730,9 @@ pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAnd
     return {make_shared<BoardState const>(board, otherInfo, default_random_engine(0), hint, ss), matches};
 }
 
-pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image, HiddenBoardState otherInfo) {
+pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image, HiddenBoardState otherInfo, HintImages hintImages) {
     if (image.rows == 2272 && image.cols == 1280) {
-        return boardAndMatchFromScreenShot(image, otherInfo);
+        return boardAndMatchFromScreenShot(image, otherInfo, hintImages);
     }
     
     array<Mat, 16> images = IMProc::tilesFromScreenImage(screenImage(image));
@@ -764,8 +756,7 @@ pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAnd
     }
 }
 
-std::shared_ptr<BoardState const> IMProc::boardFromAnyImage(Mat const& image, HiddenBoardState otherInfo) {
-    std::shared_ptr<BoardState const> b = boardAndMatchFromAnyImage(image, otherInfo).first;
-    return b;
+BoardStateCPtr IMProc::boardFromAnyImage(Mat const& image, HiddenBoardState otherInfo, HintImages hintImages) {
+    return boardAndMatchFromAnyImage(image, otherInfo, hintImages).first;
 }
 

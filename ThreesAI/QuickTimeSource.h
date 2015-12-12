@@ -13,9 +13,11 @@
 
 class QuickTimeSource : public GameStateSource {
 public:
-    QuickTimeSource();
+    QuickTimeSource(HintImages hintImages);
     
     std::shared_ptr<BoardState const> getGameState(HiddenBoardState otherInfo);
+private:
+    HintImages hintImages;
 };
 
 #endif /* defined(__ThreesAI__QuickTimeSource__) */
