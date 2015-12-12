@@ -30,14 +30,15 @@ heuristic(heuristic){
 
 shared_ptr<ExpectimaxNodeBase> ExpectimaxAI::nextReachableNode() {
     weak_ptr<ExpectimaxNodeBase> possibleNode;
-    while (possibleNode.expired() && !this->unfilledChildren.empty()) {
-        possibleNode = this->unfilledChildren.front();
-        this->unfilledChildren.pop_front();
+    while (possibleNode.expired()) {
+        if (this->unfilledChildren.empty()) {
+            return shared_ptr<ExpectimaxNodeBase>();
+        } else {
+            possibleNode = this->unfilledChildren.front();
+            this->unfilledChildren.pop_front();
+        }
     }
-    if (!possibleNode.expired()) {
-        return possibleNode.lock();
-    }
-    return shared_ptr<ExpectimaxNodeBase>();
+    return possibleNode.lock();
 }
 
 void ExpectimaxAI::fillInChild(unsigned int n) {
@@ -65,9 +66,26 @@ void ExpectimaxAI::fillInToDepth(unsigned int d) {
     while ((node = this->nextReachableNode())) {
         if (node->board->hiddenState.numTurns > d) {
             this->unfilledChildren.push_front(node);
-            return;
+            break;
+        } else {
+            node->fillInChildren(this->unfilledChildren);
         }
-        node->fillInChildren(this->unfilledChildren);
+    }
+    //TODO: this part should maybe more into a different function
+    int fillInFurtherThreshold = 0;
+    switch (this->depth) {
+        case 1:
+            fillInFurtherThreshold = 2000;
+            break;
+        case 2:
+            fillInFurtherThreshold = 20000;
+            break;
+        case 3:
+            fillInFurtherThreshold = 200000;
+            break;
+    }
+    if (this->unfilledChildren.size() < fillInFurtherThreshold && !this->unfilledChildren.empty()) {
+        this->fillInToDepth(d+1);
     }
 }
 
