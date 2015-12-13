@@ -56,7 +56,7 @@ public:
 };
 
 typedef std::map<Tile, TileInfo> CanonicalTiles;
-typedef std::vector<std::pair<Hint, cv::Mat>>const& HintImages;
+typedef std::vector<std::pair<Hint, cv::Mat>> HintImages;
 
 namespace IMProc {
     namespace Paramater {
@@ -101,9 +101,9 @@ namespace IMProc {
     cv::Mat getAveragedImage(cv::VideoCapture& cam, unsigned char numImages);
     cv::Mat screenImageToBonusHintImage(cv::Mat const& screenImage);
     
-    BoardStateCPtr boardFromAnyImage(cv::Mat const& image, HiddenBoardState otherInfo, HintImages hintImages);
-    std::pair<BoardStateCPtr, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image, HiddenBoardState otherInfo, HintImages hintImages);
-    std::pair<BoardStateCPtr, std::array<MatchResult, 16>> boardAndMatchFromScreenShot(cv::Mat const& ss, HiddenBoardState otherInfo, HintImages hintImages);
+    BoardStateCPtr boardFromAnyImage(cv::Mat const& image, HiddenBoardState otherInfo, HintImages const& hintImages);
+    std::pair<BoardStateCPtr, std::array<MatchResult, 16>> boardAndMatchFromAnyImage(cv::Mat const& image, HiddenBoardState otherInfo, HintImages const& hintImages);
+    std::pair<BoardStateCPtr, std::array<MatchResult, 16>> boardAndMatchFromScreenShot(cv::Mat const& ss, HiddenBoardState otherInfo, HintImages const& hintImages);
     std::array<cv::Mat, 16> tilesFromScreenImage(cv::Mat const& image);
     cv::Mat screenImage(cv::Mat const& colorBoardImage);
     
@@ -111,7 +111,7 @@ namespace IMProc {
     MatchResult tileValueFromScreenShot(cv::Mat const& image, const CanonicalTiles& canonicalTiles);
     const cv::Mat tileFromIntersection(cv::Mat image, int x, int y);
     
-    Hint getHintFromScreenShot(cv::Mat const& ss, HintImages hintImages);
+    Hint getHintFromScreenShot(cv::Mat const& ss, HintImages const& hintImages);
     
     const std::map<Tile, TileInfo>& canonicalTiles();
     const cv::SIFT& canonicalSifter();

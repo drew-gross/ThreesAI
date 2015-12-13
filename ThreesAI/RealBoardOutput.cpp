@@ -99,8 +99,8 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         MYLOG(d);
         MYLOG(expectedBoardAfterMove);
         debug();
-        IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState(boost::none), this->hintImages);
-        IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState(boost::none), this->hintImages);
+        IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState(boost::none), *this->hintImages);
+        IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState(boost::none), *this->hintImages);
         boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), d, newState);
     }
 }
@@ -113,7 +113,7 @@ shared_ptr<BoardState const> RealBoardOutput::sneakyState() const {
 RealBoardOutput::RealBoardOutput(string port,
                                  shared_ptr<GameStateSource> source,
                                  BoardState const& initialState,
-                                 HintImages hintImages) :
+                                 shared_ptr<HintImages const> hintImages) :
 BoardOutput(),
 source(std::move(source)),
 hintImages(hintImages) {

@@ -17,6 +17,7 @@
 
 #import "Debug.h"
 
+using namespace std;
 using namespace cv;
 
 BOOL CGImageWriteToFile(CGImageRef image, NSString *path) {
@@ -60,9 +61,8 @@ cv::Mat getMostRecentFrame() {
     return Mat();
 }
 
-QuickTimeSource::QuickTimeSource(HintImages hintImages) : hintImages(hintImages) {
-}
+QuickTimeSource::QuickTimeSource(shared_ptr<HintImages const> hintImages) : hintImages(hintImages) {}
 
 std::shared_ptr<BoardState const> QuickTimeSource::getGameState(HiddenBoardState otherInfo) {
-    return IMProc::boardFromAnyImage(getMostRecentFrame(), otherInfo, this->hintImages);
+    return IMProc::boardFromAnyImage(getMostRecentFrame(), otherInfo, *this->hintImages);
 }

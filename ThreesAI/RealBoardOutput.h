@@ -15,16 +15,16 @@
 
 class RealBoardOutput : public BoardOutput {
 public:
-    RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, BoardState const& initialState, HintImages hintImages);
+    RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, BoardState const& initialState, std::shared_ptr<HintImages const> hintImages);
     ~RealBoardOutput();
     void move(Direction d, BoardState const& originalBoard);
-    std::shared_ptr<BoardState const> currentState(HiddenBoardState otherInfo) const;
+    BoardStateCPtr currentState(HiddenBoardState otherInfo) const;
     AddedTileInfo computeChangeFrom(BoardState const& previousState) const;
-    std::shared_ptr<BoardState const> sneakyState() const;
+    BoardStateCPtr sneakyState() const;
 private:
     int fd;
     std::shared_ptr<GameStateSource> source;
-    HintImages hintImages;
+    std::shared_ptr<HintImages const> hintImages;
 };
 
 #endif /* defined(__ThreesAI__RealBoardOutput__) */

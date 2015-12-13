@@ -685,7 +685,7 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, const CanonicalTi
     return MatchResult(bestMatch.second, tileSS);
 }
 
-Hint IMProc::getHintFromScreenShot(Mat const& ss, HintImages hintImages) {
+Hint IMProc::getHintFromScreenShot(Mat const& ss, HintImages const& hintImages) {
     Mat narrowHint = screenImageToHintImage(ss);
     optional<MatchResult> narrowHintResult = detect1or2or3orBonusByColor(narrowHint);
     if (narrowHintResult) {
@@ -713,7 +713,7 @@ Hint IMProc::getHintFromScreenShot(Mat const& ss, HintImages hintImages) {
     return bestMatch.first;
 }
 
-pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss, HiddenBoardState otherInfo, HintImages hintImages) {
+pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss, HiddenBoardState otherInfo, HintImages const& hintImages) {
     Hint hint = getHintFromScreenShot(ss, hintImages);
     auto tileImages = tilesFromScreenImage(ss);
     array<MatchResult, 16> matches;
@@ -730,7 +730,7 @@ pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAnd
     return {make_shared<BoardState const>(board, otherInfo, default_random_engine(0), hint, ss), matches};
 }
 
-pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image, HiddenBoardState otherInfo, HintImages hintImages) {
+pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image, HiddenBoardState otherInfo, HintImages const& hintImages) {
     if (image.rows == 2272 && image.cols == 1280) {
         return boardAndMatchFromScreenShot(image, otherInfo, hintImages);
     }
@@ -756,7 +756,7 @@ pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAnd
     }
 }
 
-BoardStateCPtr IMProc::boardFromAnyImage(Mat const& image, HiddenBoardState otherInfo, HintImages hintImages) {
+BoardStateCPtr IMProc::boardFromAnyImage(Mat const& image, HiddenBoardState otherInfo, HintImages const& hintImages) {
     return boardAndMatchFromAnyImage(image, otherInfo, hintImages).first;
 }
 
