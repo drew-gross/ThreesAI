@@ -81,7 +81,7 @@ void ExpectimaxAI::fillInToDepth(unsigned int d) {
             fillInFurtherThreshold = 20000;
             break;
         case 3:
-            fillInFurtherThreshold = 200000;
+            fillInFurtherThreshold = 500000;
             break;
     }
     if (this->unfilledChildren.size() < fillInFurtherThreshold && !this->unfilledChildren.empty()) {
