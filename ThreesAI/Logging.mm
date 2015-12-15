@@ -11,6 +11,8 @@
 #include <numeric> 
 #include <sys/stat.h>
 
+#import <Parse/Parse.h>
+
 using namespace std;
 using namespace cv;
 
@@ -23,9 +25,13 @@ string gen_random(const int len) {
     return s;
 }
 
+void initParse(string appID, string clientKey) {
+    [Parse setApplicationId:[NSString stringWithCString:appID.c_str() encoding:NSUTF8StringEncoding] clientKey:[NSString stringWithCString:clientKey.c_str() encoding:NSUTF8StringEncoding]];
+}
+
 void Log::imShow(const string& winname, cv::InputArray image, double scale) {
     Mat smaller;
-    resize(image, smaller, Size(), 1/scale, 1/scale, INTER_NEAREST);
+    resize(image, smaller, cv::Size(), 1/scale, 1/scale, INTER_NEAREST);
     imshow(winname, smaller);
     
     string filename = "/tmp/threesAIdata/";

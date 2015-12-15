@@ -39,7 +39,7 @@
 		79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792C1BF076C500531415 /* EnabledIndices.cpp */; };
 		79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792F1BF077FB00531415 /* BoardIndex.cpp */; };
 		79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A779321BF0FC6600531415 /* UCTSearchAI.cpp */; };
-		79D022111B2C0E3D00624854 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.cpp */; };
+		79D022111B2C0E3D00624854 /* Logging.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.mm */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
 		79DC795C1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC795B1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib */; };
@@ -51,6 +51,7 @@
 		79EFBE351AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */; };
 		79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
+		94F8477957E562C9745B39E0 /* libPods-ThreesAI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AAB6C1A25A2DAEB3C49D4EE /* libPods-ThreesAI.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -66,6 +67,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		04F6277204048AB594A7FEEB /* Pods-ThreesAI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThreesAI.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ThreesAI/Pods-ThreesAI.debug.xcconfig"; sourceTree = "<group>"; };
+		5AAB6C1A25A2DAEB3C49D4EE /* libPods-ThreesAI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThreesAI.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		79085D931B837E0E009DA8B1 /* GameStateSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameStateSource.cpp; sourceTree = "<group>"; };
 		79085D941B837E0E009DA8B1 /* GameStateSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameStateSource.h; sourceTree = "<group>"; };
 		79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuickTimeSource.mm; sourceTree = "<group>"; };
@@ -126,7 +129,7 @@
 		79A779301BF077FB00531415 /* BoardIndex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BoardIndex.hpp; sourceTree = "<group>"; };
 		79A779321BF0FC6600531415 /* UCTSearchAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UCTSearchAI.cpp; sourceTree = "<group>"; };
 		79A779331BF0FC6600531415 /* UCTSearchAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UCTSearchAI.hpp; sourceTree = "<group>"; };
-		79D022101B2C0E3D00624854 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
+		79D022101B2C0E3D00624854 /* Logging.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Logging.mm; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_imgproc.2.4.11.dylib; sourceTree = "<group>"; };
@@ -142,6 +145,7 @@
 		79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnePlayMonteCarloAI.h; sourceTree = "<group>"; };
 		79F98BB61AA3E95A0043C8BC /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
 		79F98BB71AA3E95B0043C8BC /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
+		E44BCD8EFA23748F47AAA6FD /* Pods-ThreesAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThreesAI.release.xcconfig"; path = "Pods/Target Support Files/Pods-ThreesAI/Pods-ThreesAI.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,12 +166,21 @@
 				79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */,
 				7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */,
 				79E67A951B373C9A007D8C25 /* libboost_filesystem.dylib in Frameworks */,
+				94F8477957E562C9745B39E0 /* libPods-ThreesAI.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2EF1FD92B4A7586A44BE7BB6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5AAB6C1A25A2DAEB3C49D4EE /* libPods-ThreesAI.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		79085D921B837D92009DA8B1 /* RealWorldInteraction */ = {
 			isa = PBXGroup;
 			children = (
@@ -189,6 +202,8 @@
 				79E67A931B373C8A007D8C25 /* Boost */,
 				7967865B1AF0703B003DEF6C /* OpenCV */,
 				7944F88D1A732BC300ED690E /* ThreesAI */,
+				F832BA7A3B49CFD3FF94EE73 /* Pods */,
+				2EF1FD92B4A7586A44BE7BB6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -208,7 +223,7 @@
 				79664DB61B29517A002FCF52 /* ThreesPlayer */,
 				798A74401AE0BE140073DAB3 /* ThreesBoard */,
 				7944F88E1A732BC300ED690E /* main.cpp */,
-				79D022101B2C0E3D00624854 /* Logging.cpp */,
+				79D022101B2C0E3D00624854 /* Logging.mm */,
 				7927DD811A8068570049E9BB /* Logging.h */,
 				79F98BB61AA3E95A0043C8BC /* Debug.cpp */,
 				79F98BB71AA3E95B0043C8BC /* Debug.h */,
@@ -330,6 +345,15 @@
 			name = Boost;
 			sourceTree = "<group>";
 		};
+		F832BA7A3B49CFD3FF94EE73 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				04F6277204048AB594A7FEEB /* Pods-ThreesAI.debug.xcconfig */,
+				E44BCD8EFA23748F47AAA6FD /* Pods-ThreesAI.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -337,9 +361,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7944F8921A732BC300ED690E /* Build configuration list for PBXNativeTarget "ThreesAI" */;
 			buildPhases = (
+				DBF76C40AF580930610AE24D /* Check Pods Manifest.lock */,
 				7944F8871A732BC300ED690E /* Sources */,
 				7944F8881A732BC300ED690E /* Frameworks */,
 				7944F8891A732BC300ED690E /* CopyFiles */,
+				492DB85D4A8D8D708FD89ADB /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -381,6 +407,39 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		492DB85D4A8D8D708FD89ADB /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ThreesAI/Pods-ThreesAI-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DBF76C40AF580930610AE24D /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		7944F8871A732BC300ED690E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -395,7 +454,7 @@
 				79E797FC1C1AB7310000B9DB /* BoardOutput.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
 				79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */,
-				79D022111B2C0E3D00624854 /* Logging.cpp in Sources */,
+				79D022111B2C0E3D00624854 /* Logging.mm in Sources */,
 				79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
 				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
@@ -520,7 +579,12 @@
 		};
 		7944F8931A732BC300ED690E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 04F6277204048AB594A7FEEB /* Pods-ThreesAI.debug.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -538,7 +602,12 @@
 		};
 		7944F8941A732BC300ED690E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E44BCD8EFA23748F47AAA6FD /* Pods-ThreesAI.release.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,

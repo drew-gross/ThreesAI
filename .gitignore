@@ -4,3 +4,4 @@ ThreesAI.xcodeproj/project.xcworkspace/
 ~$*.SLDPRT
 *.EPRT
 DerivedData/
+Pods/
