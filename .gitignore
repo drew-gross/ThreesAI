@@ -5,3 +5,4 @@ ThreesAI.xcodeproj/project.xcworkspace/
 *.EPRT
 DerivedData/
 Pods/
+build/
