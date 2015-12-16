@@ -46,6 +46,7 @@ void logGame(unsigned long score, time_t timeTaken) {
     PFObject *game = [PFObject objectWithClassName:@"Data"];
     game[@"Score"] = [NSNumber numberWithUnsignedLong:score];
     game[@"GitHash"] = doshellscript(@"/usr/local/bin/git", @[@"rev-parse", @"HEAD"]);
+    game[@"TimeTaken"] = [NSNumber numberWithLong:timeTaken];
     [game save];
 }
 
