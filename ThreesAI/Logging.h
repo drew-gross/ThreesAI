@@ -16,6 +16,7 @@
 #include <iomanip>
 
 #include <vector>
+#include <ctime>
 #include <array>
 
 #include <opencv2/opencv.hpp>
@@ -26,6 +27,9 @@ namespace Log {
     
     const std::string project_path = "/Users/drewgross/Projects/ThreesAI/";
 }
+
+void initParse(std::string appId, std::string clientKey);
+void logGame(unsigned long score, time_t timeTaken);
 
 template <typename T>
 std::ostream& operator<<(std::ostream &os, const std::deque<T> d){

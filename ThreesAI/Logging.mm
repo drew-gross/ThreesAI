@@ -9,6 +9,7 @@
 #include "Logging.h"
 
 #include <numeric> 
+#include <ctime>
 #include <sys/stat.h>
 
 #import <Parse/Parse.h>
@@ -27,6 +28,25 @@ string gen_random(const int len) {
 
 void initParse(string appID, string clientKey) {
     [Parse setApplicationId:[NSString stringWithCString:appID.c_str() encoding:NSUTF8StringEncoding] clientKey:[NSString stringWithCString:clientKey.c_str() encoding:NSUTF8StringEncoding]];
+}
+
+NSString *doshellscript(NSString *cmd, NSArray *args) {
+    NSTask *task = [[NSTask alloc] init];
+    [task setLaunchPath: cmd];
+    [task setArguments: args];
+    NSPipe *pipe = [NSPipe pipe];
+    [task setStandardOutput: pipe];
+    [task launch];
+    NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+    NSString *string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+    return string;
+}
+
+void logGame(unsigned long score, time_t timeTaken) {
+    PFObject *game = [PFObject objectWithClassName:@"Data"];
+    game[@"Score"] = [NSNumber numberWithUnsignedLong:score];
+    game[@"GitHash"] = doshellscript(@"/usr/local/bin/git", @[@"rev-parse", @"HEAD"]);
+    [game save];
 }
 
 void Log::imShow(const string& winname, cv::InputArray image, double scale) {

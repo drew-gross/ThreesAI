@@ -188,6 +188,7 @@ int main(int argc, const char * argv[]) {
     //testMonteCarloAI();
     //testMoveAndFindIndexes();
     //testImageProc(); debug();
+    
      
     unique_ptr<BoardOutput> p;
     std::shared_ptr<BoardState const> initialState;
@@ -205,7 +206,11 @@ int main(int argc, const char * argv[]) {
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages));
         p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
         initialState = watcher->getInitialState();
+        //Prod logs
+        initParse("U9Q2piuJY51XQUjQ6MMFnTM3zWLopcTGQEUgiYd8","szQsHJfqz3jZY0DKe1Vpf7jxRPMHABZG6VB9ZJLx");
     } catch (std::exception e) {
+        //Debug logs
+        initParse("nESS0QMzJcs14BzDBMToQKkeog7mtFkdjGvWHoVT","GCPXJJNG3DXnlsKWsjP3MVlJe52FOVmPDIkVseK0");
         expectimaxDepth = 1;
         p = SimulatedBoardOutput::randomBoard(default_random_engine(0));
         initialState = p->currentState(HiddenBoardState(0,1,1,1));
@@ -224,8 +229,14 @@ int main(int argc, const char * argv[]) {
         return board.score();\
     }, expectimaxDepth);
     
+    time_t start = time(nullptr);
     ai.playGame(printEachMove);
+    time_t end = time(nullptr);
+    
+    logGame(ai.currentState()->score(), end - start);
+    
     cout << ai.currentState()->score() << endl;
+    
     return 0;
 }
 
