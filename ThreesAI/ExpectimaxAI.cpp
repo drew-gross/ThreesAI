@@ -75,7 +75,7 @@ void ExpectimaxAI::fillInToDepth(unsigned int d) {
     int fillInFurtherThreshold = 0;
     switch (this->depth) {
         case 1:
-            fillInFurtherThreshold = 2000;
+            fillInFurtherThreshold = 200;
             break;
         case 2:
             fillInFurtherThreshold = 20000;

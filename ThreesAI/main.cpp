@@ -184,16 +184,17 @@ void testMoveAndFindIndexes() {
 }
 
 int main(int argc, const char * argv[]) {
-    //testBoardMovement();
-    //testMonteCarloAI();
-    //testMoveAndFindIndexes();
-    //testImageProc(); debug();
+    //testBoardMovement();\
+    testMonteCarloAI();\
+    testMoveAndFindIndexes();\
+    testImageProc(); debug();
     
-     
-    unique_ptr<BoardOutput> p;
-    std::shared_ptr<BoardState const> initialState;
-    bool printEachMove = false;
-    unsigned int expectimaxDepth = 3;
+    auto h = [](BoardState const& board){
+        unsigned long numEmptyTiles = board.countOfTile(Tile::EMPTY);
+        unsigned long score = board.score();
+        return numEmptyTiles * 1000 + score;
+    };
+    
     try {
         std::shared_ptr<HintImages const> hintImages(new HintImages({
             {Hint(Tile::TILE_48,Tile::TILE_96,Tile::TILE_192), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-48-96-192.jpg", 0))},
@@ -204,19 +205,23 @@ int main(int argc, const char * argv[]) {
             {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
         }));
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages));
-        p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
+        BoardStateCPtr initialState;
+        unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
         initialState = watcher->getInitialState();
+        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 3);
+
+        time_t start = time(nullptr);
+        ai.playGame(true);
+        time_t end = time(nullptr);
+        logGame(ai.currentState()->score(), end - start);
+        
         //Prod logs
         initParse("U9Q2piuJY51XQUjQ6MMFnTM3zWLopcTGQEUgiYd8","szQsHJfqz3jZY0DKe1Vpf7jxRPMHABZG6VB9ZJLx");
     } catch (std::exception e) {
         //Debug logs
         initParse("nESS0QMzJcs14BzDBMToQKkeog7mtFkdjGvWHoVT","GCPXJJNG3DXnlsKWsjP3MVlJe52FOVmPDIkVseK0");
-        expectimaxDepth = 1;
-        p = SimulatedBoardOutput::randomBoard(default_random_engine(0));
-        initialState = p->currentState(HiddenBoardState(0,1,1,1));
-        printEachMove = expectimaxDepth > 3;
     }
-
+    
     //HumanPlayer ai(p->currentState(HiddenBoardState(0,0,0,0)), std::move(p)); bool print = false;
     
     //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
@@ -225,17 +230,18 @@ int main(int argc, const char * argv[]) {
     
     //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
     
-    ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), [](BoardState const& board){\
-        return board.score();\
-    }, expectimaxDepth);
+    unsigned char numGames = 10;
+    unsigned long totalScore = 0;
     
-    time_t start = time(nullptr);
-    ai.playGame(printEachMove);
-    time_t end = time(nullptr);
+    for (int i = 0; i < numGames; i++) {
+        auto p = SimulatedBoardOutput::randomBoard(default_random_engine(i));
+        BoardStateCPtr initialState = p->currentState(HiddenBoardState(0,1,1,1));
+        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 1);
+        ai.playGame(false);
+        totalScore += ai.currentState()->score();
+    }
     
-    logGame(ai.currentState()->score(), end - start);
-    
-    cout << ai.currentState()->score() << endl;
+    cout << totalScore/float(numGames) << endl;
     
     return 0;
 }

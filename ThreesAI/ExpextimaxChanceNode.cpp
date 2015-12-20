@@ -70,8 +70,6 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
 }
 
 void ExpectimaxChanceNode::pruneUnreachableChildren() {
-    debug(!this->childrenAreFilledIn());
-    debug(this->board->hasNoHint);
     float lostProbability = 0;
     Hint currentHint = this->board->getHint();
     for (auto it = this->children.cbegin(); it != this->children.cend();) {
@@ -81,23 +79,6 @@ void ExpectimaxChanceNode::pruneUnreachableChildren() {
             this->children.erase(it++);
         } else {
             ++it;
-        }
-    }
-    debug(this->children.empty()); //Probably means stack tracker was wrong due to attaching AI to the middle of a game.
-    if (this->children.empty()) {
-        MYLOG(*this->board)
-        std::list<std::weak_ptr<ExpectimaxNodeBase>> fakeUnfilledList;
-        if (!this->childrenAreFilledIn()) {
-            this->fillInChildren(fakeUnfilledList);
-        }
-        for (auto it = this->children.cbegin(); it != this->children.cend();) {
-            if (!this->board->getHint().contains(it->first.newTileValue)) {
-                lostProbability += this->childrenProbabilities[it->first];
-                this->childrenProbabilities.erase(it->first);
-                this->children.erase(it++);
-            } else {
-                ++it;
-            }
         }
     }
     for (auto&& childProbability : this->childrenProbabilities) {
