@@ -284,6 +284,30 @@ long BoardState::countOfTile(Tile t) const {
     return count(this->board.begin(), this->board.end(), t);
 }
 
+unsigned long BoardState::adjacentPairCount() const {
+    unsigned long count = 0;
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            Tile here = this->at(BoardIndex(i, j));
+            if (i < 3) {
+                Tile below = this->at(BoardIndex(i + 1, j));
+                if (canMerge(here, below)) {
+                    count++;
+                }
+            }
+            if (j < 3) {
+                Tile right = this->at(BoardIndex(i, j + 1));
+                if (canMerge(here, right)) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
+
+unsigned long BoardState::
+
 Hint BoardState::getHint() const {
     debug(this->hasNoHint);
     if (this->hint) {

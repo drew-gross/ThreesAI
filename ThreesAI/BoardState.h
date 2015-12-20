@@ -146,6 +146,8 @@ public:
     EnabledIndices validIndicesForNewTile(Direction movedDirection) const;
     
     Score score() const;
+    unsigned long adjacentPairCount() const;
+    
     bool hasSameTilesAs(BoardState const& otherBoard, EnabledIndices excludedIndices) const;
     
     friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
