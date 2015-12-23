@@ -189,17 +189,21 @@ int main(int argc, const char * argv[]) {
     testMoveAndFindIndexes();\
     testImageProc(); debug();
     
-    auto h = [](BoardState const& board){
-        unsigned long numEmptyTiles = board.countOfTile(Tile::EMPTY);
-        unsigned long score = board.score();
-        unsigned long numAdjacentPairs = board.adjacentPairCount();
-        unsigned long splitPairCount = board.splitPairCount();
-        unsigned long sumPositive = numEmptyTiles * 1000 + score * 1 + numAdjacentPairs * 1000;
-        unsigned long sumNegative = splitPairCount * 100;
-        if (sumPositive < sumNegative) {
-            return (unsigned long)0;
+    const char num_factors = 4;
+    array<float, num_factors> chromosome = {2000, 0.5, 1000, -100};
+    array<std::function<float(BoardState const&)>, num_factors> functions = {
+        [](BoardState const& b){return b.countOfTile(Tile::EMPTY);},
+        [](BoardState const& b){return b.score();},
+        [](BoardState const& b){return b.adjacentPairCount();},
+        [](BoardState const& b){return b.splitPairCount();},
+    };
+    
+    Heuristic h = [&chromosome, &functions](const BoardState & board){
+        float result = 0;
+        for (char i = 0; i < num_factors; i++) {
+            result += chromosome[i] * functions[i](board);
         }
-        return sumPositive - sumNegative;
+        return result;
     };
     
     try {
@@ -237,7 +241,7 @@ int main(int argc, const char * argv[]) {
     
     //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
     
-    unsigned char numGames = 10;
+    unsigned char numGames = 5;
     unsigned long totalScore = 0;
     
     for (int i = 1; i <= numGames; i++) {

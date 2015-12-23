@@ -81,10 +81,10 @@ namespace IMProc {
         const double imageEdgeThreshold = 15; // Higher means less keypoints are rejected for being too edge like
         const double imageGaussianSigma = 1;
         
-        const float goodEnoughAverageMultiplier = 1.65; // Higher means more images are considered candidates to be sorted by quality.
-        const float matchingKeypointFractionDiscount = -0.01;
+        const float goodEnoughAverageMultiplier = 1.65f; // Higher means more images are considered candidates to be sorted by quality.
+        const float matchingKeypointFractionDiscount = -0.01f;
         const float zeroOrOneStdDevThreshold = 3.95; // Lower means more images with no descriptors will be classified as a 1.
-        const float minimumMatchingKeypointFraction = 0.03;
+        const float minimumMatchingKeypointFraction = 0.03f;
         const float minimumAverageDistance = 350;
         
         const unsigned int ignoredEdgePadding = 25; // Number of pixels to chop off the edge of the each tile image

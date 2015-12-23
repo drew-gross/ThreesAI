@@ -62,8 +62,8 @@ void BoardState::move(Direction d) {
             countFirst = true;
             break;
     }
-    for (unsigned i = 0; i < 4; i++) {
-        for (unsigned j = countUp ? 0 : 3; (countUp && j < 3) || (!countUp && j > 0); j += countUp? 1 : -1) {
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = countUp ? 0 : 3; (countUp && j < 3) || (!countUp && j > 0); j += countUp? 1 : -1) {
             BoardIndex target = countFirst ? BoardIndex(j, i) : BoardIndex(i, j);
             BoardIndex here = countFirst ? BoardIndex(j + (countUp ? 1 : -1), i) : BoardIndex(i, j + (countUp ? 1 : -1));
             Tile targetValue = this->at(target);
