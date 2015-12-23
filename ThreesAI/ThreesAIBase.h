@@ -22,7 +22,7 @@ class ThreesAIBase {
 public:
     ThreesAIBase(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output);
     void playTurn(bool printMove=false);
-    void playGame(bool printMove=false);
+    void playGame(bool printMove=false, bool inspectMove=false);
     
     virtual Direction getDirection() const = 0;
     std::unique_ptr<BoardOutput> boardOutput;

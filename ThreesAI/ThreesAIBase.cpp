@@ -21,11 +21,14 @@ shared_ptr<BoardState const> ThreesAIBase::currentState() const {
     return this->boardState;
 }
 
-void ThreesAIBase::playGame(bool printMove) {
+void ThreesAIBase::playGame(bool printMove, bool inspectMove) {
     while (!this->boardState->isGameOver()) {
         if (printMove) {
             cout << "--- Currently ---" << endl;
             cout << *this->currentState() << endl;
+        }
+        if (inspectMove) {
+            getchar();
         }
         this->playTurn();
     }

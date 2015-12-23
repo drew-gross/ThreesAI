@@ -193,7 +193,13 @@ int main(int argc, const char * argv[]) {
         unsigned long numEmptyTiles = board.countOfTile(Tile::EMPTY);
         unsigned long score = board.score();
         unsigned long numAdjacentPairs = board.adjacentPairCount();
-        return numEmptyTiles * 1000 + score * 1 + numAdjacentPairs * 1000;
+        unsigned long splitPairCount = board.splitPairCount();
+        unsigned long sumPositive = numEmptyTiles * 1000 + score * 1 + numAdjacentPairs * 1000;
+        unsigned long sumNegative = splitPairCount * 100;
+        if (sumPositive < sumNegative) {
+            return (unsigned long)0;
+        }
+        return sumPositive - sumNegative;
     };
     
     try {
@@ -238,7 +244,7 @@ int main(int argc, const char * argv[]) {
         auto p = SimulatedBoardOutput::randomBoard(default_random_engine(i));
         BoardStateCPtr initialState = p->currentState(HiddenBoardState(0,1,1,1));
         ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 1);
-        ai.playGame(false);
+        ai.playGame(false, false);
         cout << ai.currentState()->score() << endl;
         totalScore += ai.currentState()->score();
     }
