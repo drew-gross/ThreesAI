@@ -28,6 +28,7 @@
 #include "QuickTimeSource.h"
 #include "RealBoardOutput.h"
 #include "SimulatedBoardOutput.h"
+#include "Chromosome.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -183,30 +184,33 @@ void testMoveAndFindIndexes() {
     debug(!postMove.hasSameTilesAs(expected, {}));
 }
 
+typedef vector<Chromosome> Population;
+
+vector<pair<BoardState::Score, Chromosome>> getScores(Population p) {
+    vector<pair<BoardState::Score, Chromosome>> scores;
+    for (Chromosome c : p) {
+        auto board = SimulatedBoardOutput::randomBoard(default_random_engine(0));
+        BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
+        ExpectimaxAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f(), 1);
+        ai.playGame(false, false);
+        scores.push_back({ai.currentState()->score(), c});
+        cout << c << endl;
+        MYLOG(ai.currentState()->score());
+    }
+    return scores;
+}
+
 int main(int argc, const char * argv[]) {
     //testBoardMovement();\
     testMonteCarloAI();\
     testMoveAndFindIndexes();\
     testImageProc(); debug();
     
-    const char num_factors = 4;
-    array<float, num_factors> chromosome = {2000, 0.5, 1000, -100};
-    array<std::function<float(BoardState const&)>, num_factors> functions = {
-        [](BoardState const& b){return b.countOfTile(Tile::EMPTY);},
-        [](BoardState const& b){return b.score();},
-        [](BoardState const& b){return b.adjacentPairCount();},
-        [](BoardState const& b){return b.splitPairCount();},
-    };
-    
-    Heuristic h = [&chromosome, &functions](const BoardState & board){
-        float result = 0;
-        for (char i = 0; i < num_factors; i++) {
-            result += chromosome[i] * functions[i](board);
-        }
-        return result;
-    };
-    
     try {
+        array<double, CHROMOSOME_SIZE> weights = {2000, 0.5, 1000, -100, 1};
+        Chromosome c(weights);
+        Heuristic h = c.to_f();
+        
         std::shared_ptr<HintImages const> hintImages(new HintImages({
             {Hint(Tile::TILE_48,Tile::TILE_96,Tile::TILE_192), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-48-96-192.jpg", 0))},
             {Hint(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
@@ -241,20 +245,41 @@ int main(int argc, const char * argv[]) {
     
     //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
     
-    unsigned char numGames = 5;
-    unsigned long totalScore = 0;
+    signed int pop_size = 8;
     
-    for (int i = 1; i <= numGames; i++) {
-        auto p = SimulatedBoardOutput::randomBoard(default_random_engine(i));
-        BoardStateCPtr initialState = p->currentState(HiddenBoardState(0,1,1,1));
-        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 1);
-        ai.playGame(false, false);
-        cout << ai.currentState()->score() << endl;
-        totalScore += ai.currentState()->score();
+    Population currentGeneration;
+    
+    for (double i = -pop_size/2; i < pop_size/2; i++) {
+        double weight = i*10;
+        array<double, CHROMOSOME_SIZE> weights = {weight, weight, weight, weight, weight, weight};
+        Chromosome c(weights);
+        currentGeneration.push_back(c);
     }
+
+    default_random_engine rng(0);
     
-    cout << totalScore/float(numGames) << endl;
-    
+    while (true) {
+        vector<pair<BoardState::Score, Chromosome>> scores = getScores(currentGeneration);
+        
+        sort(scores.begin(), scores.end(), [](pair<BoardState::Score, Chromosome> l, pair<BoardState::Score, Chromosome> r){
+            return l.first > r.first;
+        });
+        MYLOG(scores[0].first);
+        
+        Population next_generation;
+        
+        next_generation.push_back(scores[0].second);
+        next_generation.push_back(scores[0].second.mutate(rng));
+        next_generation.push_back(scores[0].second.cross_with(scores[1].second));
+        next_generation.push_back(scores[0].second.cross_with(scores[2].second));
+        next_generation.push_back(scores[1].second.cross_with(scores[2].second));
+        next_generation.push_back(scores[1].second.cross_with(scores[0].second));
+        next_generation.push_back(scores[2].second.cross_with(scores[0].second));
+        next_generation.push_back(scores[2].second.cross_with(scores[1].second));
+        
+        currentGeneration = next_generation;
+    }
+
     return 0;
 }
 

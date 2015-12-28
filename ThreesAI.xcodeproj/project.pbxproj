@@ -39,6 +39,8 @@
 		79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792C1BF076C500531415 /* EnabledIndices.cpp */; };
 		79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792F1BF077FB00531415 /* BoardIndex.cpp */; };
 		79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A779321BF0FC6600531415 /* UCTSearchAI.cpp */; };
+		79B511AE1C2F2AEC00E1BC3E /* Chromosome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511AC1C2F2AEC00E1BC3E /* Chromosome.cpp */; };
+		79B511B21C2F2D5300E1BC3E /* Heuristic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511B01C2F2D5300E1BC3E /* Heuristic.cpp */; };
 		79D022111B2C0E3D00624854 /* Logging.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.mm */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
@@ -129,6 +131,10 @@
 		79A779301BF077FB00531415 /* BoardIndex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BoardIndex.hpp; sourceTree = "<group>"; };
 		79A779321BF0FC6600531415 /* UCTSearchAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UCTSearchAI.cpp; sourceTree = "<group>"; };
 		79A779331BF0FC6600531415 /* UCTSearchAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UCTSearchAI.hpp; sourceTree = "<group>"; };
+		79B511AC1C2F2AEC00E1BC3E /* Chromosome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Chromosome.cpp; sourceTree = "<group>"; };
+		79B511AD1C2F2AEC00E1BC3E /* Chromosome.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Chromosome.hpp; sourceTree = "<group>"; };
+		79B511B01C2F2D5300E1BC3E /* Heuristic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Heuristic.cpp; sourceTree = "<group>"; };
+		79B511B11C2F2D5300E1BC3E /* Heuristic.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Heuristic.hpp; sourceTree = "<group>"; };
 		79D022101B2C0E3D00624854 /* Logging.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Logging.mm; sourceTree = "<group>"; };
 		79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ExpectimaxAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		79D7220B1A9148F0009D89AA /* ExpectimaxAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ExpectimaxAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -218,6 +224,7 @@
 		7944F88D1A732BC300ED690E /* ThreesAI */ = {
 			isa = PBXGroup;
 			children = (
+				79B511AB1C2F29F600E1BC3E /* Genetic */,
 				797D55F01BFB0CCA0099B441 /* GameStateSources */,
 				79085D921B837D92009DA8B1 /* RealWorldInteraction */,
 				79664DB61B29517A002FCF52 /* ThreesPlayer */,
@@ -336,6 +343,17 @@
 			name = ThreesBoard;
 			sourceTree = "<group>";
 		};
+		79B511AB1C2F29F600E1BC3E /* Genetic */ = {
+			isa = PBXGroup;
+			children = (
+				79B511AC1C2F2AEC00E1BC3E /* Chromosome.cpp */,
+				79B511AD1C2F2AEC00E1BC3E /* Chromosome.hpp */,
+				79B511B01C2F2D5300E1BC3E /* Heuristic.cpp */,
+				79B511B11C2F2D5300E1BC3E /* Heuristic.hpp */,
+			);
+			name = Genetic;
+			sourceTree = "<group>";
+		};
 		79E67A931B373C8A007D8C25 /* Boost */ = {
 			isa = PBXGroup;
 			children = (
@@ -446,6 +464,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */,
+				79B511B21C2F2D5300E1BC3E /* Heuristic.cpp in Sources */,
 				79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */,
 				7960E4471A88333B000622BC /* RandomAI.cpp in Sources */,
 				79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */,
@@ -472,6 +491,7 @@
 				7963F4FB1AA2709A0081BEC8 /* AddedTileInfo.cpp in Sources */,
 				7944C1691BA32398000F0A2C /* BoardState.cpp in Sources */,
 				79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */,
+				79B511AE1C2F2AEC00E1BC3E /* Chromosome.cpp in Sources */,
 				79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */,
 				7963F4E21AA01F7E0081BEC8 /* HumanPlayer.cpp in Sources */,
 				79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */,

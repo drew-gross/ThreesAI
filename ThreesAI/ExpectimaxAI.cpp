@@ -14,7 +14,7 @@
 
 using namespace std;
 
-ExpectimaxAI::ExpectimaxAI(std::shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output, std::function<float(BoardState const&)> heuristic, unsigned int depth) :
+ExpectimaxAI::ExpectimaxAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, Heuristic heuristic, unsigned int depth) :
 depth(depth),
 ThreesAIBase(board, move(output)),
 currentBoard(make_shared<ExpectimaxMoveNode>(board, 0)),

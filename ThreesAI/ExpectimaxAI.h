@@ -13,12 +13,11 @@
 #include <list>
 #include <memory>
 
+#include "Heuristic.hpp"
 #include "ThreesAIBase.h"
 #include "ExpectimaxNode.h"
 #include "ExpextimaxChanceNode.h"
 #include "ExpectimaxMoveNode.h"
-
-typedef std::function<float(BoardState const&)> Heuristic;
 
 class ExpectimaxAI : public ThreesAIBase {
 private:
@@ -31,9 +30,9 @@ private:
     void fillInToDepth(unsigned int n);
     
 public:
-    ExpectimaxAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output, Heuristic heuristic, unsigned int depth);
+    ExpectimaxAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, Heuristic heuristic, unsigned int depth);
     
-    std::function<float(BoardState const&)> heuristic;
+    Heuristic heuristic;
     
     Direction getDirection() const;
     void prepareDirection();

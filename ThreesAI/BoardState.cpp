@@ -306,6 +306,28 @@ unsigned long BoardState::adjacentPairCount() const {
     return count;
 }
 
+unsigned long BoardState::adjacentOffByOneCount() const {
+    unsigned long count = 0;
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            Tile here = this->at(BoardIndex(i, j));
+            if (i < 3) {
+                Tile below = this->at(BoardIndex(i + 1, j));
+                if (canMerge(here, succ(below)) || canMerge(here, pred(below))) {
+                    count++;
+                }
+            }
+            if (j < 3) {
+                Tile right = this->at(BoardIndex(i, j + 1));
+                if (canMerge(here, succ(right)) || canMerge(here, pred(right))) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
+
 unsigned long BoardState::splitPairCount() const {
     unsigned long count = 0;
     for (Tile t = Tile::TILE_3; t < Tile::TILE_6144; t = succ(t)) {
@@ -669,6 +691,7 @@ Direction BoardState::randomValidMoveFromInternalGenerator() const {
 
 BoardState::Score BoardState::runRandomSimulation(unsigned int simNumber) const {
     BoardState copy(BoardState::DifferentFuture(simNumber), *this);
+    copy.hasNoHint = false;
     while (!copy.isGameOver()) {
         try {
         copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());

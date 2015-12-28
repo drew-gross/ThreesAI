@@ -147,6 +147,7 @@ public:
     
     Score score() const;
     unsigned long adjacentPairCount() const;
+    unsigned long adjacentOffByOneCount() const;
     unsigned long splitPairCount() const;
     
     bool hasSameTilesAs(BoardState const& otherBoard, EnabledIndices excludedIndices) const;
