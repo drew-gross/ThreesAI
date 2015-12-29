@@ -194,8 +194,6 @@ vector<pair<BoardState::Score, Chromosome>> getScores(Population p) {
         ExpectimaxAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f(), 1);
         ai.playGame(false, false);
         scores.push_back({ai.currentState()->score(), c});
-        cout << c << endl;
-        MYLOG(ai.currentState()->score());
     }
     return scores;
 }
@@ -258,13 +256,20 @@ int main(int argc, const char * argv[]) {
 
     default_random_engine rng(0);
     
-    while (true) {
+    int generationNumber = 0;
+    
+    while (generationNumber < 3) {
+        generationNumber++;
         vector<pair<BoardState::Score, Chromosome>> scores = getScores(currentGeneration);
         
         sort(scores.begin(), scores.end(), [](pair<BoardState::Score, Chromosome> l, pair<BoardState::Score, Chromosome> r){
             return l.first > r.first;
         });
-        MYLOG(scores[0].first);
+        
+        cout << "Generation #" << generationNumber << endl;
+        for (auto scoreChrom : scores) {
+            cout << scoreChrom.second << endl << "Fitness: " << scoreChrom.first << endl;
+        }
         
         Population next_generation;
         
@@ -273,9 +278,9 @@ int main(int argc, const char * argv[]) {
         next_generation.push_back(scores[0].second.cross_with(scores[1].second));
         next_generation.push_back(scores[0].second.cross_with(scores[2].second));
         next_generation.push_back(scores[1].second.cross_with(scores[2].second));
-        next_generation.push_back(scores[1].second.cross_with(scores[0].second));
-        next_generation.push_back(scores[2].second.cross_with(scores[0].second));
-        next_generation.push_back(scores[2].second.cross_with(scores[1].second));
+        next_generation.push_back(scores[2].second.cross_with(scores[3].second));
+        next_generation.push_back(scores[3].second.cross_with(scores[4].second));
+        next_generation.push_back(scores[0].second.cross_with(scores[3].second));
         
         currentGeneration = next_generation;
     }
