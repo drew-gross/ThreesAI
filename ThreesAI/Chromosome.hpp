@@ -28,7 +28,7 @@ public:
     explicit Chromosome(std::array<double, CHROMOSOME_SIZE> weights);
     
     Heuristic to_f() const;
-    Chromosome cross_with(Chromosome const&) const;
+    Chromosome cross_with(Chromosome const&, std::default_random_engine& rng) const;
     Chromosome mutate(std::default_random_engine& rng) const;
 };
 

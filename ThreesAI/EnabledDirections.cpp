@@ -27,3 +27,7 @@ void EnabledDirections::set(Direction i) {
 size_t EnabledDirections::size() {
     return this->data.count();
 }
+
+bool EnabledDirections::empty() {
+    return this->data.none();
+}

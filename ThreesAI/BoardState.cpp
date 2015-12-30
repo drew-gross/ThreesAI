@@ -445,7 +445,7 @@ Tile BoardState::at(BoardIndex const& p) const {
 }
 
 bool BoardState::isGameOver() const {
-    return this->validMoves().size() == 0;
+    return this->validMoves().empty();
 }
 
 bool BoardState::canMove(Direction d) const {

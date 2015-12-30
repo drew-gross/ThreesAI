@@ -12,6 +12,7 @@ using namespace std;
 using namespace chrono;
 
 void BoardOutput::doWorkFor(int millis) {
+    if (!this->doWork) return;
     milliseconds startTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     milliseconds timeElapsed = milliseconds(0);
     while (timeElapsed < milliseconds(millis)) {

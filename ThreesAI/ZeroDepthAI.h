@@ -11,12 +11,18 @@
 
 #include "ThreesAIBase.h"
 
-class ZeroDepthMaxScoreAI : public ThreesAIBase {
+#include "Heuristic.hpp"
+
+class ZeroDepthAI : public ThreesAIBase {
     
 public:
-    ZeroDepthMaxScoreAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output);
+    ZeroDepthAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, Heuristic h);
     
-    Direction playTurn();
+    void receiveState(Direction d, BoardState const & newState);
+    void prepareDirection();
+    Heuristic heuristic;
+    
+    Direction getDirection() const;
 };
 
 #endif /* defined(__ThreesAI__ZeroDepthMaxScoreAI__) */

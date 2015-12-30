@@ -28,7 +28,7 @@
 		7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4EA1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp */; };
 		7963F4FB1AA2709A0081BEC8 /* AddedTileInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4F91AA2709A0081BEC8 /* AddedTileInfo.cpp */; };
 		79664DBA1B29DF0B002FCF52 /* IMProc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79664DB81B29DF0B002FCF52 /* IMProc.cpp */; };
-		7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */; };
+		7966D0AE1A8ACB1700131B29 /* ZeroDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* ZeroDepthAI.cpp */; };
 		7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
 		7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
 		797CB4B11BAAA1D0001A61D2 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 797CB4B01BAAA1D0001A61D2 /* Direction.cpp */; };
@@ -112,8 +112,8 @@
 		7963F4FA1AA2709A0081BEC8 /* AddedTileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AddedTileInfo.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		79664DB81B29DF0B002FCF52 /* IMProc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IMProc.cpp; sourceTree = "<group>"; };
 		79664DB91B29DF0B002FCF52 /* IMProc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMProc.h; sourceTree = "<group>"; };
-		7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ZeroDepthMaxScoreAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ZeroDepthMaxScoreAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		7966D0AC1A8ACB1700131B29 /* ZeroDepthAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ZeroDepthAI.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		7966D0AD1A8ACB1700131B29 /* ZeroDepthAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ZeroDepthAI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_highgui.2.4.11.dylib; sourceTree = "<group>"; };
 		7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_core.2.4.11.dylib; sourceTree = "<group>"; };
 		797CB4B01BAAA1D0001A61D2 /* Direction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Direction.cpp; sourceTree = "<group>"; };
@@ -280,8 +280,8 @@
 				7960E4431A883278000622BC /* ThreesAIBase.h */,
 				7960E4451A88333B000622BC /* RandomAI.cpp */,
 				7960E4461A88333B000622BC /* RandomAI.h */,
-				7966D0AC1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp */,
-				7966D0AD1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.h */,
+				7966D0AC1A8ACB1700131B29 /* ZeroDepthAI.cpp */,
+				7966D0AD1A8ACB1700131B29 /* ZeroDepthAI.h */,
 				79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */,
 				79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */,
 				7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */,
@@ -475,7 +475,7 @@
 				79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */,
 				79D022111B2C0E3D00624854 /* Logging.mm in Sources */,
 				79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */,
-				7966D0AE1A8ACB1700131B29 /* ZeroDepthMaxScoreAI.cpp in Sources */,
+				7966D0AE1A8ACB1700131B29 /* ZeroDepthAI.cpp in Sources */,
 				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
 				7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */,
 				7944C1761BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp in Sources */,

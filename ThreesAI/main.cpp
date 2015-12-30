@@ -16,7 +16,7 @@
 #include "IMProc.h"
 #include "IMLog.h"
 
-#include "ZeroDepthMaxScoreAI.h"
+#include "ZeroDepthAI.h"
 #include "ExpectimaxAI.h"
 #include "OnePlayMonteCarloAI.h"
 #include "UCTSearchAI.hpp"
@@ -191,7 +191,8 @@ vector<pair<BoardState::Score, Chromosome>> getScores(Population p) {
     for (Chromosome c : p) {
         auto board = SimulatedBoardOutput::randomBoard(default_random_engine(0));
         BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
-        ExpectimaxAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f(), 1);
+        ZeroDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f());
+        //ExpectimaxAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f(), 1);
         ai.playGame(false, false);
         scores.push_back({ai.currentState()->score(), c});
     }
@@ -247,9 +248,10 @@ int main(int argc, const char * argv[]) {
     
     Population currentGeneration;
     
-    for (double i = -pop_size/2; i < pop_size/2; i++) {
-        double weight = i*10;
-        array<double, CHROMOSOME_SIZE> weights = {weight, weight, weight, weight, weight, weight};
+    default_random_engine initial_population_generator;
+    normal_distribution<double> population_dist(1,5);
+    for (int i = 0; i < pop_size; i++) {
+        array<double, CHROMOSOME_SIZE> weights = {population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator)};
         Chromosome c(weights);
         currentGeneration.push_back(c);
     }
@@ -258,7 +260,7 @@ int main(int argc, const char * argv[]) {
     
     int generationNumber = 0;
     
-    while (generationNumber < 3) {
+    while (true) {
         generationNumber++;
         vector<pair<BoardState::Score, Chromosome>> scores = getScores(currentGeneration);
         
@@ -273,14 +275,29 @@ int main(int argc, const char * argv[]) {
         
         Population next_generation;
         
+        for (int i = 0; i < pop_size / 2; i++) {
+            auto candidate = scores[i].second.cross_with(scores[pop_size/2 - 1].second, rng);
+            if (find_if(next_generation.cbegin(), next_generation.cend(), [](Chromosome c){
+                return true;
+            }) == next_generation.end()) {
+                next_generation.push_back(candidate);
+            } else {
+                next_generation.push_back(candidate.mutate(rng));
+            }
+        }
+        
+        for (int i = 0; i < pop_size / 2; i++) {
+            auto candidate = scores[i].second.cross_with(scores[pop_size/2 - 1].second, rng);
+            if (find_if(next_generation.cbegin(), next_generation.cend(), [](Chromosome c){
+                return true;
+            }) == next_generation.end()) {
+                next_generation.push_back(candidate);
+            } else {
+                next_generation.push_back(candidate.mutate(rng));
+            }
+        }
+        
         next_generation.push_back(scores[0].second);
-        next_generation.push_back(scores[0].second.mutate(rng));
-        next_generation.push_back(scores[0].second.cross_with(scores[1].second));
-        next_generation.push_back(scores[0].second.cross_with(scores[2].second));
-        next_generation.push_back(scores[1].second.cross_with(scores[2].second));
-        next_generation.push_back(scores[2].second.cross_with(scores[3].second));
-        next_generation.push_back(scores[3].second.cross_with(scores[4].second));
-        next_generation.push_back(scores[0].second.cross_with(scores[3].second));
         
         currentGeneration = next_generation;
     }

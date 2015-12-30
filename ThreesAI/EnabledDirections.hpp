@@ -26,6 +26,7 @@ public:
     void set(Direction i);
     
     size_t size();
+    bool empty();
 };
 
 #endif /* EnabledDirections_hpp */

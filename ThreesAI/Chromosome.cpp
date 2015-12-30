@@ -31,22 +31,22 @@ Heuristic Chromosome::to_f() const {
     };
 }
 
-Chromosome Chromosome::cross_with(Chromosome const& other) const {
+Chromosome Chromosome::cross_with(Chromosome const& other, default_random_engine& rng) const {
+    uniform_int_distribution<bool> picker(0,1);
     array<double, CHROMOSOME_SIZE> new_weights = {
-        //TODO pick randomly
-        this->weights[0],
-        other.weights[1],
-        this->weights[2],
-        other.weights[3],
-        this->weights[4],
-        other.weights[5],
+        picker(rng) ? this->weights[0] : other.weights[0],
+        picker(rng) ? this->weights[1] : other.weights[1],
+        picker(rng) ? this->weights[2] : other.weights[2],
+        picker(rng) ? this->weights[3] : other.weights[3],
+        picker(rng) ? this->weights[4] : other.weights[4],
+        picker(rng) ? this->weights[5] : other.weights[5],
     };
     return Chromosome(new_weights);
 }
 
 Chromosome Chromosome::mutate(default_random_engine& rng) const {
     uniform_int_distribution<unsigned long> which_weight(0,CHROMOSOME_SIZE - 1);
-    uniform_real_distribution<> how_much(-1,2);
+    uniform_real_distribution<> how_much(-10,20);
     
     auto index = which_weight(rng);  //A sequence point is necessary to force the RNG to get used in the right order.
     float newWeight = this->weights[index] * how_much(rng);

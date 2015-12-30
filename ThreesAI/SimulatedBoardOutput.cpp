@@ -23,7 +23,8 @@ SimulatedBoardOutput::SimulatedBoardOutput(BoardState::Board otherBoard,
                                            unsigned int twos,
                                            unsigned int threes) :
 BoardOutput(),
-state(make_shared<BoardState>(otherBoard, HiddenBoardState(0, ones, twos, threes), hintGen, Mat())) {};
+state(make_shared<BoardState>(otherBoard, HiddenBoardState(0, ones, twos, threes), hintGen, Mat())) {
+};
 
 SimulatedBoardOutput::SimulatedBoardOutput(BoardStateCPtr b) : BoardOutput(), state(b) {}
 
