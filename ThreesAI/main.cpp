@@ -29,6 +29,7 @@
 #include "RealBoardOutput.h"
 #include "SimulatedBoardOutput.h"
 #include "Chromosome.hpp"
+#include "Population.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -184,21 +185,6 @@ void testMoveAndFindIndexes() {
     debug(!postMove.hasSameTilesAs(expected, {}));
 }
 
-typedef vector<Chromosome> Population;
-
-vector<pair<BoardState::Score, Chromosome>> getScores(Population p) {
-    vector<pair<BoardState::Score, Chromosome>> scores;
-    for (Chromosome c : p) {
-        auto board = SimulatedBoardOutput::randomBoard(default_random_engine(0));
-        BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
-        ZeroDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f());
-        //ExpectimaxAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f(), 1);
-        ai.playGame(false, false);
-        scores.push_back({ai.currentState()->score(), c});
-    }
-    return scores;
-}
-
 int main(int argc, const char * argv[]) {
     //testBoardMovement();\
     testMonteCarloAI();\
@@ -248,56 +234,59 @@ int main(int argc, const char * argv[]) {
     
     Population currentGeneration;
     
+    
+    std::vector<Chromosome> p;
+    std::array<double, 6> w = {1,2,3,4,5,6};
+    p.emplace_back(w);
+    
     default_random_engine initial_population_generator;
     normal_distribution<double> population_dist(1,5);
     for (int i = 0; i < pop_size; i++) {
         array<double, CHROMOSOME_SIZE> weights = {population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator)};
-        Chromosome c(weights);
-        currentGeneration.push_back(c);
+        currentGeneration.p.emplace_back(weights);
     }
 
     default_random_engine rng(0);
     
     int generationNumber = 0;
     
-    while (true) {
+    while (generationNumber < 10) {
         generationNumber++;
-        vector<pair<BoardState::Score, Chromosome>> scores = getScores(currentGeneration);
         
-        sort(scores.begin(), scores.end(), [](pair<BoardState::Score, Chromosome> l, pair<BoardState::Score, Chromosome> r){
-            return l.first > r.first;
+        sort(currentGeneration.p.begin(), currentGeneration.p.end(), [](Chromosome & l, Chromosome & r){
+            return l.score() > r.score();
         });
         
         cout << "Generation #" << generationNumber << endl;
-        for (auto scoreChrom : scores) {
-            cout << scoreChrom.second << endl << "Fitness: " << scoreChrom.first << endl;
+        for (auto&& c : currentGeneration.p) {
+            cout << c << endl << "Score: " << c.score() << endl;
         }
         
         Population next_generation;
         
         for (int i = 0; i < pop_size / 2; i++) {
-            auto candidate = scores[i].second.cross_with(scores[pop_size/2 - 1].second, rng);
-            if (find_if(next_generation.cbegin(), next_generation.cend(), [](Chromosome c){
+            Chromosome candidate(Chromosome::Cross(), currentGeneration.p[i], currentGeneration.p[pop_size/2 - 1], rng);
+            if (find_if(next_generation.p.cbegin(), next_generation.p.cend(), [](Chromosome const& c){
                 return true;
-            }) == next_generation.end()) {
-                next_generation.push_back(candidate);
+            }) == next_generation.p.end()) {
+                next_generation.p.emplace_back(Chromosome::Cross(), currentGeneration.p[i], currentGeneration.p[pop_size/2 - 1], rng);
             } else {
-                next_generation.push_back(candidate.mutate(rng));
+                next_generation.p.emplace_back(Chromosome::Mutate(), candidate, rng);
             }
         }
         
         for (int i = 0; i < pop_size / 2; i++) {
-            auto candidate = scores[i].second.cross_with(scores[pop_size/2 - 1].second, rng);
-            if (find_if(next_generation.cbegin(), next_generation.cend(), [](Chromosome c){
+            Chromosome candidate(Chromosome::Cross(), currentGeneration.p[i], currentGeneration.p[pop_size/2 - 1], rng);
+            if (find_if(next_generation.p.cbegin(), next_generation.p.cend(), [](Chromosome const& c){
                 return true;
-            }) == next_generation.end()) {
-                next_generation.push_back(candidate);
+            }) == next_generation.p.end()) {
+                next_generation.p.emplace_back(Chromosome::Cross(), currentGeneration.p[i], currentGeneration.p[pop_size/2 - 1], rng);
             } else {
-                next_generation.push_back(candidate.mutate(rng));
+                next_generation.p.emplace_back(Chromosome::Mutate(), candidate, rng);
             }
         }
         
-        next_generation.push_back(scores[0].second);
+        next_generation.p.emplace_back(currentGeneration.p[0]);
         
         currentGeneration = next_generation;
     }

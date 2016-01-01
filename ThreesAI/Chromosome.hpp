@@ -22,16 +22,32 @@ class Chromosome {
     std::array<double, CHROMOSOME_SIZE> weights;
     std::array<std::function<float(BoardState const&)>, CHROMOSOME_SIZE> functions;
     
-    friend std::ostream& operator<<(std::ostream &os, const Chromosome c);
+    friend std::ostream& operator<<(std::ostream &os, Chromosome const& c);
+    
+    mutable BoardState::Score cachedScore;
 public:
+    class Cross {
+    public:
+        Cross() {};
+    };
+    
+    class Mutate {
+    public:
+        Mutate() {};
+    };
+    explicit Chromosome(const Chromosome& that) = default;
+    Chromosome(Chromosome&& that) = default;
+    Chromosome& operator=(Chromosome&& that) = default;
+    Chromosome& operator=(Chromosome const& that) = default;
+    Chromosome(Cross c, Chromosome const& l, Chromosome const& r, std::default_random_engine& rng);
+    Chromosome(Mutate m, Chromosome const& c, std::default_random_engine& rng);
     
     explicit Chromosome(std::array<double, CHROMOSOME_SIZE> weights);
     
     Heuristic to_f() const;
-    Chromosome cross_with(Chromosome const&, std::default_random_engine& rng) const;
-    Chromosome mutate(std::default_random_engine& rng) const;
+    BoardState::Score score() const;
 };
 
-std::ostream& operator<<(std::ostream &os, const Chromosome c);
+std::ostream& operator<<(std::ostream &os, Chromosome const& c);
 
 #endif /* Chromosome_hpp */

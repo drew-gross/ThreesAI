@@ -8,6 +8,9 @@
 
 #include "Chromosome.hpp"
 
+#include "SimulatedBoardOutput.h"
+#include "ZeroDepthAI.h"
+
 using namespace std;
 
 Chromosome::Chromosome(array<double, CHROMOSOME_SIZE> weights) : weights(weights), functions({
@@ -17,8 +20,46 @@ Chromosome::Chromosome(array<double, CHROMOSOME_SIZE> weights) : weights(weights
     [](BoardState const& b){return b.splitPairCount();},
     [](BoardState const& b){return b.runRandomSimulation(0);},
     [](BoardState const& b){return b.adjacentOffByOneCount();},
-}) {
+}) , cachedScore(0) {
     
+}
+
+Chromosome::Chromosome(Chromosome::Cross c, Chromosome const& l, Chromosome const& r, default_random_engine& rng) :  functions({
+    [](BoardState const& b){return b.countOfTile(Tile::EMPTY);},
+    [](BoardState const& b){return b.score();},
+    [](BoardState const& b){return b.adjacentPairCount();},
+    [](BoardState const& b){return b.splitPairCount();},
+    [](BoardState const& b){return b.runRandomSimulation(0);},
+    [](BoardState const& b){return b.adjacentOffByOneCount();},
+}) , cachedScore(0) {
+    uniform_int_distribution<bool> picker(0,1);
+    array<double, CHROMOSOME_SIZE> new_weights = {
+        picker(rng) ? r.weights[0] : l.weights[0],
+        picker(rng) ? r.weights[1] : l.weights[1],
+        picker(rng) ? r.weights[2] : l.weights[2],
+        picker(rng) ? r.weights[3] : l.weights[3],
+        picker(rng) ? r.weights[4] : l.weights[4],
+        picker(rng) ? r.weights[5] : l.weights[5],
+    };
+    this->weights = new_weights;
+}
+
+Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random_engine& rng) : weights(c.weights), functions({
+    [](BoardState const& b){return b.countOfTile(Tile::EMPTY);},
+    [](BoardState const& b){return b.score();},
+    [](BoardState const& b){return b.adjacentPairCount();},
+    [](BoardState const& b){return b.splitPairCount();},
+    [](BoardState const& b){return b.runRandomSimulation(0);},
+    [](BoardState const& b){return b.adjacentOffByOneCount();},
+}) , cachedScore(0) {
+    
+    uniform_int_distribution<unsigned long> which_weight(0,CHROMOSOME_SIZE - 1);
+    uniform_real_distribution<> how_much(-10,20);
+    
+    auto index = which_weight(rng);  //A sequence point is necessary to force the RNG to get used in the right order.
+    float newWeight = this->weights[index] * how_much(rng);
+    
+    this->weights[index] = newWeight;
 }
 
 Heuristic Chromosome::to_f() const {
@@ -31,32 +72,20 @@ Heuristic Chromosome::to_f() const {
     };
 }
 
-Chromosome Chromosome::cross_with(Chromosome const& other, default_random_engine& rng) const {
-    uniform_int_distribution<bool> picker(0,1);
-    array<double, CHROMOSOME_SIZE> new_weights = {
-        picker(rng) ? this->weights[0] : other.weights[0],
-        picker(rng) ? this->weights[1] : other.weights[1],
-        picker(rng) ? this->weights[2] : other.weights[2],
-        picker(rng) ? this->weights[3] : other.weights[3],
-        picker(rng) ? this->weights[4] : other.weights[4],
-        picker(rng) ? this->weights[5] : other.weights[5],
-    };
-    return Chromosome(new_weights);
+BoardState::Score Chromosome::score() const {
+    if (this->cachedScore > 0) {
+        return this->cachedScore;
+    }
+    auto board = SimulatedBoardOutput::randomBoard(default_random_engine(0));
+    BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
+    ZeroDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f());
+    //ExpectimaxAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f(), 1);
+    ai.playGame(false, false);
+    this->cachedScore = ai.currentState()->score();
+    return this->cachedScore;
 }
 
-Chromosome Chromosome::mutate(default_random_engine& rng) const {
-    uniform_int_distribution<unsigned long> which_weight(0,CHROMOSOME_SIZE - 1);
-    uniform_real_distribution<> how_much(-10,20);
-    
-    auto index = which_weight(rng);  //A sequence point is necessary to force the RNG to get used in the right order.
-    float newWeight = this->weights[index] * how_much(rng);
-    
-    Chromosome mutant(this->weights);
-    mutant.weights[index] = newWeight;
-    return mutant;
-}
-
-ostream& operator<<(ostream &os, const Chromosome c){
+ostream& operator<<(ostream &os, Chromosome const& c){
     os << "Empty: " << c.weights[0]
     << " Score: " << c.weights[1]
     << " Mergable: " << c.weights[2]
