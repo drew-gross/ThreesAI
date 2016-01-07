@@ -45,7 +45,7 @@ public:
     explicit Chromosome(std::array<double, CHROMOSOME_SIZE> weights);
     
     Heuristic to_f() const;
-    BoardState::Score score() const;
+    BoardState::Score score(unsigned int averageCount) const;
 };
 
 std::ostream& operator<<(std::ostream &os, Chromosome const& c);

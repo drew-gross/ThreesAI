@@ -196,6 +196,8 @@ int main(int argc, const char * argv[]) {
         Chromosome c(weights);
         Heuristic h = c.to_f();
         
+        //Prod logs
+        initParse("U9Q2piuJY51XQUjQ6MMFnTM3zWLopcTGQEUgiYd8","szQsHJfqz3jZY0DKe1Vpf7jxRPMHABZG6VB9ZJLx");
         std::shared_ptr<HintImages const> hintImages(new HintImages({
             {Hint(Tile::TILE_48,Tile::TILE_96,Tile::TILE_192), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-48-96-192.jpg", 0))},
             {Hint(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
@@ -215,8 +217,8 @@ int main(int argc, const char * argv[]) {
         time_t end = time(nullptr);
         logGame(ai.currentState()->score(), end - start);
         
-        //Prod logs
-        initParse("U9Q2piuJY51XQUjQ6MMFnTM3zWLopcTGQEUgiYd8","szQsHJfqz3jZY0DKe1Vpf7jxRPMHABZG6VB9ZJLx");
+        return 0;
+        
     } catch (std::exception e) {
         //Debug logs
         initParse("nESS0QMzJcs14BzDBMToQKkeog7mtFkdjGvWHoVT","GCPXJJNG3DXnlsKWsjP3MVlJe52FOVmPDIkVseK0");
@@ -250,16 +252,16 @@ int main(int argc, const char * argv[]) {
     
     int generationNumber = 0;
     
-    while (generationNumber < 10) {
+    while (true) {
         generationNumber++;
         
         sort(currentGeneration.p.begin(), currentGeneration.p.end(), [](Chromosome & l, Chromosome & r){
-            return l.score() > r.score();
+            return l.score(5) > r.score(5);
         });
         
         cout << "Generation #" << generationNumber << endl;
         for (auto&& c : currentGeneration.p) {
-            cout << c << endl << "Score: " << c.score() << endl;
+            cout << c << endl << "Score: " << c.score(5) << endl;
         }
         
         Population next_generation;

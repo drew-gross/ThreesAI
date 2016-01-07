@@ -72,9 +72,13 @@ Heuristic Chromosome::to_f() const {
     };
 }
 
-BoardState::Score Chromosome::score() const {
+BoardState::Score Chromosome::score(unsigned int averageCount) const {
     if (this->cachedScore > 0) {
         return this->cachedScore;
+    }
+    default_random_engine rng(0);
+    while (averageCount > 0) {
+        averageCount--;
     }
     auto board = SimulatedBoardOutput::randomBoard(default_random_engine(0));
     BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
