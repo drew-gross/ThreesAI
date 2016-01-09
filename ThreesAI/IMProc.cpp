@@ -37,7 +37,7 @@ bool isRegionIdentical(Mat i1, Mat i2, Rect region, float threshold) {
     Scalar meanDiff = mean(mean(i1(region) - i2(region)));
     bool debug = false;
     if (debug) {
-        MYSHOW(i1(region));
+        MYSHOW(i2(region));
         MYSHOW(i1(region));
         MYSHOW(out);
         MYLOG(meanDiff);
@@ -50,7 +50,7 @@ bool IMProc::isInOutOfMovesState(Mat image) {
 }
 
 bool IMProc::isInSwipeToSaveState(Mat image) {
-    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/SwipeToSave.png"), image, Rect(300, 2000, 800, 200), 0.01);
+    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/SwipeToSave.png"), image, Rect(300, 2000, 800, 200), 0.1);
 }
 
 bool IMProc::isInRetryState(Mat image) {
