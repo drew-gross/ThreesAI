@@ -34,7 +34,7 @@ TileInfo::TileInfo(cv::Mat image, Tile value, const SIFT& sifter) {
 bool isRegionIdentical(Mat i1, Mat i2, Rect region, float threshold) {
     Mat out;
     absdiff(i1(region), i2(region), out);
-    Scalar meanDiff = mean(mean(i1(region) - i2(region)));
+    Scalar meanDiff = mean(out);
     bool debug = false;
     if (debug) {
         MYSHOW(i2(region));
@@ -50,7 +50,7 @@ bool IMProc::isInOutOfMovesState(Mat image) {
 }
 
 bool IMProc::isInSwipeToSaveState(Mat image) {
-    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/SwipeToSave.png"), image, Rect(300, 2000, 800, 200), 0.1);
+    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/SwipeToSave.png"), image, Rect(250, 2070, 800, 60), 1);
 }
 
 bool IMProc::isInRetryState(Mat image) {
