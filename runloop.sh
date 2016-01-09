@@ -3,5 +3,5 @@ do
 	git pull
 	pod install
 	xcodebuild -workspace ThreesAI.xcworkspace -scheme "Release ThreesAI"
-	./DerivedData/ThreesAI/Build/Products/Release/ThreesAI
+	./build/Products/Release/ThreesAI
 done
