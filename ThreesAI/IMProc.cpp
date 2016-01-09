@@ -31,23 +31,30 @@ TileInfo::TileInfo(cv::Mat image, Tile value, const SIFT& sifter) {
     sifter.compute(image, this->keypoints, this->descriptors);
 }
 
-bool isRegionIdentical(Mat i1, Mat i2, Rect region) {
+bool isRegionIdentical(Mat i1, Mat i2, Rect region, float threshold) {
     Mat out;
     absdiff(i1(region), i2(region), out);
     Scalar meanDiff = mean(mean(i1(region) - i2(region)));
-    return meanDiff[0] < 1.f;
+    bool debug = false;
+    if (debug) {
+        MYSHOW(i1(region));
+        MYSHOW(i1(region));
+        MYSHOW(out);
+        MYLOG(meanDiff);
+    }
+    return meanDiff[0] < threshold;
 }
 
 bool IMProc::isInOutOfMovesState(Mat image) {
-    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/OutOfMoves.png"), image, Rect(300, 200, 800, 200));
+    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/OutOfMoves.png"), image, Rect(300, 200, 800, 200), 1);
 }
 
 bool IMProc::isInSwipeToSaveState(Mat image) {
-    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/SwipeToSave.png"), image, Rect(300, 2000, 800, 200));
+    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/SwipeToSave.png"), image, Rect(300, 2000, 800, 200), 0.01);
 }
 
 bool IMProc::isInRetryState(Mat image) {
-    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Retry.png"), image, Rect(100, 150, 400, 300));
+    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Retry.png"), image, Rect(100, 150, 400, 300), 1);
 }
 
 Mat sector(Mat in,
@@ -682,17 +689,23 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, const CanonicalTi
     Mat binaryTileSS;
     threshold(greyTile, binaryTileSS, 200, 255, THRESH_BINARY);
     
-    pair<Tile, TileInfo> bestMatch = *min_element(canonicalTiles.begin(), canonicalTiles.end(), [&binaryTileSS](pair<Tile, TileInfo> l, pair<Tile, TileInfo> r){
-        Mat binaryCanonicalTileL;
-        Mat binaryCanonicalTileR;
-        threshold(l.second.image, binaryCanonicalTileL, 200, 255, THRESH_BINARY);
-        threshold(r.second.image, binaryCanonicalTileR, 200, 255, THRESH_BINARY);
+    Rect noFaceRegion = Rect(0,0,150,100);
+    Mat tileSSwithFaceChoppedOff = binaryTileSS(noFaceRegion);
+    
+    pair<Tile, TileInfo> bestMatch = *min_element(canonicalTiles.begin(), canonicalTiles.end(), [&tileSSwithFaceChoppedOff, &noFaceRegion](pair<Tile, TileInfo> l, pair<Tile, TileInfo> r){
+        Mat tileLwithFaceChoppedOff;
+        Mat tileRwithFaceChoppedOff;
+        threshold(l.second.image(noFaceRegion), tileLwithFaceChoppedOff, 200, 255, THRESH_BINARY);
+        threshold(r.second.image(noFaceRegion), tileRwithFaceChoppedOff, 200, 255, THRESH_BINARY);
         
-        //MYSHOW(binaryCanonicalTileR);\
-        MYSHOW(binaryCanonicalTileL);\
-        MYSHOW(binaryTileSS);
+        bool debug = false;
+        if (debug) {
+            MYSHOW(tileRwithFaceChoppedOff);
+            MYSHOW(tileLwithFaceChoppedOff);
+            MYSHOW(tileSSwithFaceChoppedOff);
+        }
         
-        return minShiftedMean(binaryTileSS(Rect(0,0,150,120)), binaryCanonicalTileL(Rect(0,0,150,120))) < minShiftedMean(binaryTileSS(Rect(0,0,150,120)), binaryCanonicalTileR(Rect(0,0,150,120)));
+        return minShiftedMean(tileSSwithFaceChoppedOff, tileLwithFaceChoppedOff) < minShiftedMean(tileSSwithFaceChoppedOff, tileRwithFaceChoppedOff);
     });
     if (bestMatch.second.value == Tile::TILE_768 || bestMatch.second.value == Tile::TILE_384) {
         MatchResult SIFTresult = IMProc::tileValue(tileSS, canonicalTiles);

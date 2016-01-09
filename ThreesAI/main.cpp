@@ -186,10 +186,11 @@ void testMoveAndFindIndexes() {
 }
 
 int main(int argc, const char * argv[]) {
-    //testBoardMovement();\
+    testBoardMovement();\
     testMonteCarloAI();\
     testMoveAndFindIndexes();\
-    testImageProc(); debug();
+    testImageProc();\
+    debug();
     
     std::shared_ptr<HintImages const> hintImages(new HintImages({
         {Hint(Tile::TILE_48,Tile::TILE_96,Tile::TILE_192), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-48-96-192.jpg", 0))},
