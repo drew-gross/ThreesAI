@@ -226,7 +226,7 @@ int main(int argc, const char * argv[]) {
         BoardStateCPtr initialState;
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
         initialState = watcher->getInitialState();
-        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 3);
+        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 2);
 
         time_t start = time(nullptr);
         ai.playGame(true);
