@@ -20,4 +20,6 @@ private:
     std::shared_ptr<HintImages const> hintImages;
 };
 
+cv::Mat getMostRecentFrame();
+
 #endif /* defined(__ThreesAI__QuickTimeSource__) */

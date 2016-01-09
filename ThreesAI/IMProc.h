@@ -122,6 +122,10 @@ namespace IMProc {
     const std::vector<cv::Mat> color3hints();
     boost::optional<MatchResult> detect1or2orHigherByColor(cv::Mat const &input);
     boost::optional<MatchResult> detect1or2or3orBonusByColor(cv::Mat const& i);
+    
+    bool isInOutOfMovesState(cv::Mat);
+    bool isInSwipeToSaveState(cv::Mat);
+    bool isInRetryState(cv::Mat);
 }
 
 #endif /* defined(__ThreesAI__IMProc__) */

@@ -21,19 +21,32 @@ AddedTileInfo RealBoardOutput::computeChangeFrom(BoardState const& previousBoard
     return AddedTileInfo(previousBoard, *this->source->getGameState(HiddenBoardState(0,1,1,1)));
 }
 
-RealBoardOutput::~RealBoardOutput() {
-    serialport_write(this->fd, "l");
-    serialport_flush(fd);
-    sleep(2);
-    serialport_write(this->fd, "l");
-    serialport_flush(fd);
-    sleep(2);
-    serialport_write(this->fd, "b");
-    serialport_flush(fd);
-    sleep(2);
+void RealBoardOutput::pressWithServo() {
     if (this->fd >= 0) {
-        serialport_close(this->fd);
-        sleep(2);
+        serialport_write(this->fd, "b");
+        serialport_flush(fd);
+        this->doWorkFor(2000);
+    }
+}
+
+void RealBoardOutput::moveStepper(Direction d) {
+    if (this->fd >= 0) {
+        switch (d) {
+            case Direction::LEFT:
+                serialport_write(this->fd, "l");
+                break;
+            case Direction::RIGHT:
+                serialport_write(this->fd, "r");
+                break;
+            case Direction::UP:
+                serialport_write(this->fd, "u");
+                break;
+            case Direction::DOWN:
+                serialport_write(this->fd, "d");
+                break;
+        }
+        serialport_flush(fd);
+        this->doWorkFor(1000);
     }
 }
 
@@ -57,26 +70,7 @@ bool boardTransitionIsValid(BoardState const& oldBoard, Hint oldHint, Direction 
 }
 
 void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
-    if (this->fd >= 0) {
-        switch (d) {
-            case Direction::LEFT:
-                serialport_write(this->fd, "l");
-                break;
-            case Direction::RIGHT:
-                serialport_write(this->fd, "r");
-                break;
-            case Direction::UP:
-                serialport_write(this->fd, "u");
-                break;
-            case Direction::DOWN:
-                serialport_write(this->fd, "d");
-                break;
-        }
-        
-        serialport_flush(fd);
-    }
-    //Prepare next move for 1 second while arms move
-    this->doWorkFor(1000);
+    this->moveStepper(d);
     
     std::shared_ptr<BoardState const> expectedBoardAfterMove = make_shared<BoardState const>(BoardState::MoveWithoutAdd(d), originalBoard);
     
