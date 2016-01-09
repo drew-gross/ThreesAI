@@ -186,7 +186,7 @@ void testMoveAndFindIndexes() {
 }
 
 int main(int argc, const char * argv[]) {
-    testBoardMovement();\
+    //testBoardMovement();\
     testMonteCarloAI();\
     testMoveAndFindIndexes();\
     testImageProc();\
