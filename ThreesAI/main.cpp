@@ -186,12 +186,6 @@ void testMoveAndFindIndexes() {
 }
 
 int main(int argc, const char * argv[]) {
-    //testBoardMovement();\
-    testMonteCarloAI();\
-    testMoveAndFindIndexes();\
-    testImageProc();\
-    debug();
-    
     std::shared_ptr<HintImages const> hintImages(new HintImages({
         {Hint(Tile::TILE_48,Tile::TILE_96,Tile::TILE_192), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-48-96-192.jpg", 0))},
         {Hint(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
@@ -214,7 +208,7 @@ int main(int argc, const char * argv[]) {
         while (IMProc::isInRetryState(getMostRecentFrame())) {
             initializer.pressWithServo();
         }
-    }
+    } //Need to force initializer to be destroyed
     
     try {
         array<double, CHROMOSOME_SIZE> weights = {2000, 0.5, 1000, -100, 1, 1};
@@ -240,6 +234,12 @@ int main(int argc, const char * argv[]) {
         //Debug logs
         initParse("nESS0QMzJcs14BzDBMToQKkeog7mtFkdjGvWHoVT","GCPXJJNG3DXnlsKWsjP3MVlJe52FOVmPDIkVseK0");
     }
+    
+    //testBoardMovement();\
+    testMonteCarloAI();\
+    testMoveAndFindIndexes();\
+    testImageProc();\
+    debug();
     
     //HumanPlayer ai(p->currentState(HiddenBoardState(0,0,0,0)), std::move(p)); bool print = false;
     
