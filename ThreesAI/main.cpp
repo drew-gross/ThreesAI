@@ -204,14 +204,17 @@ int main(int argc, const char * argv[]) {
     {
         RealBoardOutput initializer("/dev/tty.usbmodem1411", std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages)), *SimulatedBoardOutput::randomBoard(default_random_engine())->sneakyState(), hintImages);
         while (IMProc::isInOutOfMovesState(getMostRecentFrame())) {
+            cout << "Getting through out of moves screen" << endl;
             initializer.moveStepper(Direction::DOWN);
         }
-        
+        sleep(2);
         while (IMProc::isInSwipeToSaveState(getMostRecentFrame())) {
+            cout << "Getting through swipe to save screen" << endl;
             initializer.moveStepper(Direction::UP);
         }
-        
+        sleep(2);
         while (IMProc::isInRetryState(getMostRecentFrame())) {
+            cout << "Getting through retry screen" << endl;
             initializer.pressWithServo();
         }
     }
