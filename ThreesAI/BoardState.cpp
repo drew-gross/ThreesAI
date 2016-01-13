@@ -573,6 +573,29 @@ deque<pair<Tile, float>> BoardState::possibleNextTiles() const {
     return result;
 }
 
+deque<BoardState::AdditionInfo> BoardState::possibleAdditions(Direction directionMovedToGetHere) const {
+    deque<BoardState::AdditionInfo> results;
+    
+    deque<pair<Tile, float>> possibleNextTiles;
+    if (this->hasNoHint) {
+        possibleNextTiles = this->possibleNextTiles();
+    } else {
+        possibleNextTiles = this->getHint().possibleTiles();
+    }
+    EnabledIndices possibleNextLocations = this->validIndicesForNewTile(directionMovedToGetHere);
+    
+    float locationProbability = 1.0f/possibleNextLocations.size();
+    
+    for (auto&& nextTile : possibleNextTiles) {
+        for (BoardIndex i : allIndices) {
+            if (possibleNextLocations.isEnabled(i)) {
+                results.push_back({nextTile.first, i, nextTile.second*locationProbability});
+            }
+        }
+    }
+    return results;
+}
+
 ostream& operator<<(ostream &os, BoardState const& board) {
     if (board.hasNoHint) {
         os << "No Hint" << endl;

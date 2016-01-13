@@ -56,6 +56,13 @@ class BoardState : boost::noncopyable {
 public:
     typedef unsigned long Score;
     
+    class AdditionInfo {
+    public:
+        Tile t;
+        BoardIndex i;
+        float probability;
+    };
+    
     class AddSpecificTile {
     public:
         AddSpecificTile(Direction d, BoardIndex const& i, const Tile t) : d(d), i(i), t(t) {};
@@ -159,6 +166,7 @@ public:
     
     Score runRandomSimulation(unsigned int simNumber) const;
     HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
+    std::deque<BoardState::AdditionInfo> possibleAdditions(Direction directionMovedToGetHere) const;
     
     bool hasNoHint;
 public:

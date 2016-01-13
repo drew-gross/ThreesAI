@@ -10,6 +10,7 @@
 		79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D931B837E0E009DA8B1 /* GameStateSource.cpp */; };
 		79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */; };
 		79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */; };
+		7908C0B31C43556300A0E8E9 /* FixedDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */; };
 		793533141B814D9B0078E011 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533131B814D9A0078E011 /* CoreMedia.framework */; };
 		793533161B814DA50078E011 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533151B814DA50078E011 /* CoreVideo.framework */; };
 		793533181B815DC60078E011 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533171B815DC60078E011 /* Cocoa.framework */; };
@@ -78,6 +79,8 @@
 		79085D971B837EE1009DA8B1 /* QuickTimeSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickTimeSource.h; sourceTree = "<group>"; };
 		79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraSource.cpp; sourceTree = "<group>"; };
 		79085D9B1B837EF8009DA8B1 /* CameraSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraSource.h; sourceTree = "<group>"; };
+		7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FixedDepthAI.cpp; sourceTree = "<group>"; };
+		7908C0B21C43556300A0E8E9 /* FixedDepthAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FixedDepthAI.hpp; sourceTree = "<group>"; };
 		7927DD811A8068570049E9BB /* Logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		793533131B814D9A0078E011 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		793533151B814DA50078E011 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
@@ -285,6 +288,8 @@
 				7960E4461A88333B000622BC /* RandomAI.h */,
 				7966D0AC1A8ACB1700131B29 /* ZeroDepthAI.cpp */,
 				7966D0AD1A8ACB1700131B29 /* ZeroDepthAI.h */,
+				7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */,
+				7908C0B21C43556300A0E8E9 /* FixedDepthAI.hpp */,
 				79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */,
 				79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */,
 				7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */,
@@ -484,6 +489,7 @@
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthAI.cpp in Sources */,
 				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
 				7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */,
+				7908C0B31C43556300A0E8E9 /* FixedDepthAI.cpp in Sources */,
 				7944C1761BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp in Sources */,
 				79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,

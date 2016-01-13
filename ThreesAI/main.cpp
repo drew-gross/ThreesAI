@@ -23,6 +23,7 @@
 #include "ManyPlayMonteCarloAI.h"
 #include "HumanPlayer.h"
 #include "RandomAI.h"
+#include "FixedDepthAI.hpp"
 
 #include "CameraSource.h"
 #include "QuickTimeSource.h"
@@ -195,26 +196,26 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     
-    {
-        RealBoardOutput initializer("/dev/tty.usbmodem1411", std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages)), *SimulatedBoardOutput::randomBoard(default_random_engine())->sneakyState(), hintImages);
-        while (IMProc::isInOutOfMovesState(getMostRecentFrame())) {
-            cout << "Getting through out of moves screen" << endl;
-            initializer.moveStepper(Direction::DOWN);
-        }
-        sleep(2);
-        while (IMProc::isInSwipeToSaveState(getMostRecentFrame())) {
-            cout << "Getting through swipe to save screen" << endl;
-            initializer.moveStepper(Direction::UP);
-        }
-        sleep(2);
-        while (IMProc::isInRetryState(getMostRecentFrame())) {
-            cout << "Getting through retry screen" << endl;
-            initializer.pressWithServo();
-        }
-    } //Need to force initializer to be destroyed
-    
     try {
-        array<double, CHROMOSOME_SIZE> weights = {2000, 0.5, 1000, -100, 1, 1};
+        {
+            RealBoardOutput initializer("/dev/tty.usbmodem1411", std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages)), *SimulatedBoardOutput::randomBoard(default_random_engine())->sneakyState(), hintImages);
+            while (IMProc::isInOutOfMovesState(getMostRecentFrame())) {
+                cout << "Getting through out of moves screen" << endl;
+                initializer.moveStepper(Direction::DOWN);
+            }
+            sleep(2);
+            while (IMProc::isInSwipeToSaveState(getMostRecentFrame())) {
+                cout << "Getting through swipe to save screen" << endl;
+                initializer.moveStepper(Direction::UP);
+            }
+            sleep(2);
+            while (IMProc::isInRetryState(getMostRecentFrame())) {
+                cout << "Getting through retry screen" << endl;
+                initializer.pressWithServo();
+            }
+        } //Need to force initializer to be destroyed
+        
+        array<double, CHROMOSOME_SIZE> weights = {8.65, 18.0, -9.62, -12.3, 3.63, -7.62};
         Chromosome c(weights);
         Heuristic h = c.to_f();
         
@@ -224,7 +225,7 @@ int main(int argc, const char * argv[]) {
         BoardStateCPtr initialState;
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
         initialState = watcher->getInitialState();
-        ExpectimaxAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 2);
+        FixedDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), h);
 
         time_t start = time(nullptr);
         ai.playGame(true);

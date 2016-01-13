@@ -10,6 +10,7 @@
 
 #include "SimulatedBoardOutput.h"
 #include "ZeroDepthAI.h"
+#include "FixedDepthAI.hpp"
 
 using namespace std;
 
@@ -54,10 +55,10 @@ Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random
 }) , cachedScore(0) {
     
     uniform_int_distribution<unsigned long> which_weight(0,CHROMOSOME_SIZE - 1);
-    uniform_real_distribution<> how_much(-10,20);
+    normal_distribution<> how_much(-10,20);
     
     auto index = which_weight(rng);  //A sequence point is necessary to force the RNG to get used in the right order.
-    float newWeight = this->weights[index] * how_much(rng);
+    float newWeight = how_much(rng);
     
     this->weights[index] = newWeight;
 }
@@ -82,8 +83,7 @@ BoardState::Score Chromosome::score(unsigned int averageCount) const {
     }
     auto board = SimulatedBoardOutput::randomBoard(default_random_engine(0));
     BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
-    ZeroDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f());
-    //ExpectimaxAI ai(board->currentState(initialState->hiddenState), std::move(board), c.to_f(), 1);
+    FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f());
     ai.playGame(false, false);
     this->cachedScore = ai.currentState()->score();
     return this->cachedScore;
