@@ -192,12 +192,12 @@ void getToGame(std::shared_ptr<HintImages const> hintImages) {
         cout << "Getting through out of moves screen" << endl;
         initializer.moveStepper(Direction::DOWN);
     }
-    sleep(5);
+    sleep(10);
     while (IMProc::isInSwipeToSaveState(getMostRecentFrame())) {
         cout << "Getting through swipe to save screen" << endl;
         initializer.moveStepper(Direction::UP);
     }
-    sleep(5);
+    sleep(10);
     while (IMProc::isInRetryState(getMostRecentFrame())) {
         cout << "Getting through retry screen" << endl;
         initializer.pressWithServo();
@@ -216,7 +216,7 @@ void initAndPlayIfPossible(std::shared_ptr<HintImages const> hintImages, Chromos
         BoardStateCPtr initialState;
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
         initialState = watcher->getInitialState();
-        FixedDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 1);
+        FixedDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 3);
         
         time_t start = time(nullptr);
         ai.playGame(true);
@@ -267,7 +267,7 @@ int main(int argc, const char * argv[]) {
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     
     if (playOneGame) {
-        FixedDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), Chromosome(currentWeights).to_f(), 2);
+        FixedDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), Chromosome(currentWeights).to_f(), 3);
         ai.playGame(true, false);
         exit(0);
     }
