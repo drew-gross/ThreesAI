@@ -16,14 +16,15 @@
 class FixedDepthAI : public ThreesAIBase {
     
 public:
-    FixedDepthAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, Heuristic h);
+    FixedDepthAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, Heuristic h, uint8_t depth);
     
     void receiveState(Direction d, BoardState const & newState);
     void prepareDirection();
     Heuristic heuristic;
-    float getExpectedScoreIfMovedInDirection(BoardState const& justMovedBoard, Direction d, uint8_t depth) const;
     
     Direction getDirection() const;
+    
+    const uint8_t depth;
 };
 
 #endif /* FixedDepthAI_hpp */

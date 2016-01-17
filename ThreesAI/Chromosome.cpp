@@ -83,7 +83,7 @@ BoardState::Score Chromosome::score(unsigned int averageCount) const {
     }
     auto board = SimulatedBoardOutput::randomBoard(default_random_engine(0));
     BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
-    FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f());
+    FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f(), 0);
     ai.playGame(false, false);
     this->cachedScore = ai.currentState()->score();
     return this->cachedScore;

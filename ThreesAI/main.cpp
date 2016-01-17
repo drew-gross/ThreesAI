@@ -186,7 +186,57 @@ void testMoveAndFindIndexes() {
     debug(!postMove.hasSameTilesAs(expected, {}));
 }
 
+void getToGame(std::shared_ptr<HintImages const> hintImages) {
+    RealBoardOutput initializer("/dev/tty.usbmodem1411", std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages)), *SimulatedBoardOutput::randomBoard(default_random_engine())->sneakyState(), hintImages);
+    while (IMProc::isInOutOfMovesState(getMostRecentFrame())) {
+        cout << "Getting through out of moves screen" << endl;
+        initializer.moveStepper(Direction::DOWN);
+    }
+    sleep(2);
+    while (IMProc::isInSwipeToSaveState(getMostRecentFrame())) {
+        cout << "Getting through swipe to save screen" << endl;
+        initializer.moveStepper(Direction::UP);
+    }
+    sleep(2);
+    while (IMProc::isInRetryState(getMostRecentFrame())) {
+        cout << "Getting through retry screen" << endl;
+        initializer.pressWithServo();
+    }
+}
+
+void initAndPlayIfPossible(std::shared_ptr<HintImages const> hintImages, Chromosome c) {
+    try {
+        getToGame(hintImages);
+        
+        Heuristic h = c.to_f();
+        
+        //Prod logs
+        initParse("U9Q2piuJY51XQUjQ6MMFnTM3zWLopcTGQEUgiYd8","szQsHJfqz3jZY0DKe1Vpf7jxRPMHABZG6VB9ZJLx");
+        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages));
+        BoardStateCPtr initialState;
+        unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
+        initialState = watcher->getInitialState();
+        FixedDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 1);
+        
+        time_t start = time(nullptr);
+        ai.playGame(true);
+        time_t end = time(nullptr);
+        logGame(ai.currentState()->score(), end - start);
+        exit(0);
+        
+    } catch (std::exception e) {
+        //Debug logs
+        initParse("nESS0QMzJcs14BzDBMToQKkeog7mtFkdjGvWHoVT","GCPXJJNG3DXnlsKWsjP3MVlJe52FOVmPDIkVseK0");
+    }
+}
+
 int main(int argc, const char * argv[]) {
+    //testBoardMovement();\
+    testMonteCarloAI();\
+    testMoveAndFindIndexes();\
+    testImageProc();\
+    debug();
+    
     std::shared_ptr<HintImages const> hintImages(new HintImages({
         {Hint(Tile::TILE_48,Tile::TILE_96,Tile::TILE_192), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-48-96-192.jpg", 0))},
         {Hint(Tile::TILE_24,Tile::TILE_48,Tile::TILE_96), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-24-48-96.png", 0))},
@@ -196,68 +246,29 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     
-    try {
-        {
-            RealBoardOutput initializer("/dev/tty.usbmodem1411", std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages)), *SimulatedBoardOutput::randomBoard(default_random_engine())->sneakyState(), hintImages);
-            while (IMProc::isInOutOfMovesState(getMostRecentFrame())) {
-                cout << "Getting through out of moves screen" << endl;
-                initializer.moveStepper(Direction::DOWN);
-            }
-            sleep(2);
-            while (IMProc::isInSwipeToSaveState(getMostRecentFrame())) {
-                cout << "Getting through swipe to save screen" << endl;
-                initializer.moveStepper(Direction::UP);
-            }
-            sleep(2);
-            while (IMProc::isInRetryState(getMostRecentFrame())) {
-                cout << "Getting through retry screen" << endl;
-                initializer.pressWithServo();
-            }
-        } //Need to force initializer to be destroyed
-        
-        array<double, CHROMOSOME_SIZE> weights = {8.65, 18.0, -9.62, -12.3, 3.63, -7.62};
-        Chromosome c(weights);
-        Heuristic h = c.to_f();
-        
-        //Prod logs
-        initParse("U9Q2piuJY51XQUjQ6MMFnTM3zWLopcTGQEUgiYd8","szQsHJfqz3jZY0DKe1Vpf7jxRPMHABZG6VB9ZJLx");
-        auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages));
-        BoardStateCPtr initialState;
-        unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
-        initialState = watcher->getInitialState();
-        FixedDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), h);
-
-        time_t start = time(nullptr);
-        ai.playGame(true);
-        time_t end = time(nullptr);
-        logGame(ai.currentState()->score(), end - start);
-        
-        return 0;
-        
-    } catch (std::exception e) {
-        //Debug logs
-        initParse("nESS0QMzJcs14BzDBMToQKkeog7mtFkdjGvWHoVT","GCPXJJNG3DXnlsKWsjP3MVlJe52FOVmPDIkVseK0");
+    array<double, CHROMOSOME_SIZE> currentWeights = {8.65, 18.0, -9.62, -12.3, 3.63, -7.62};
+//    currentWeights = {1,0,0,0,0,0}; //Empty count only;
+//    currentWeights = {0,1,0,0,0,0}; //Score only;
+//    currentWeights = {0,0,1,0,0,0}; //Adjacent pairs only;
+//    currentWeights = {0,0,0,1,0,0}; //Split pairs only;
+    currentWeights = {0,0,0,0,1,0}; //Single sim only;
+//    currentWeights = {0,0,0,0,0,1}; //Adjacent off by one only;
+    
+    initAndPlayIfPossible(hintImages, Chromosome(currentWeights));
+    
+    bool playOneRandom = false;
+    playOneRandom = true;
+    if (playOneRandom) {
+        random_device trueRandom;
+        default_random_engine seededEngine(trueRandom());
+        unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
+        FixedDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), Chromosome(currentWeights).to_f(), 2);
+        ai.playGame(true, false);
+        debug();
     }
     
-    //testBoardMovement();\
-    testMonteCarloAI();\
-    testMoveAndFindIndexes();\
-    testImageProc();\
-    debug();
-    
-    //HumanPlayer ai(p->currentState(HiddenBoardState(0,0,0,0)), std::move(p)); bool print = false;
-    
-    //OnePlayMonteCarloAI ai(p->currentState(), std::move(p)); bool print = false;
-    
-    //ManyPlayMonteCarloAI ai(p->currentState(), std::move(p), numPlays); bool print = true;
-    
-    //UCTSearchAI ai(p->currentState(), std::move(p), numPlays); bool print = false;
-    
     signed int pop_size = 8;
-    
     Population currentGeneration;
-    
-    
     std::vector<Chromosome> p;
     std::array<double, 6> w = {1,2,3,4,5,6};
     p.emplace_back(w);
@@ -268,7 +279,7 @@ int main(int argc, const char * argv[]) {
         array<double, CHROMOSOME_SIZE> weights = {population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator)};
         currentGeneration.p.emplace_back(weights);
     }
-
+    
     default_random_engine rng(0);
     
     int generationNumber = 0;
