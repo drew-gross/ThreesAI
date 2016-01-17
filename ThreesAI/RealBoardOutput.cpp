@@ -46,7 +46,7 @@ void RealBoardOutput::moveStepper(Direction d) {
                 break;
         }
         serialport_flush(fd);
-        this->doWorkFor(1000);
+        this->doWorkFor(2000);
     }
 }
 
@@ -78,7 +78,7 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     
     if (newState->hasSameTilesAs(originalBoard, {})) {
         //Movement failed, retry.
-        MYLOG("redo");
+        cout << "redo";
         return this->move(d, originalBoard);
     }
     //TODO: Detect if some other move was made accidentally, and just go with it.
@@ -88,10 +88,10 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
     if (!ok) {
         MYLOG(originalBoard);
         MYSHOWSMALL(originalBoard.sourceImage, 4);
-        MYLOG(newState);
+        MYLOG(*newState);
         MYSHOWSMALL(newState->sourceImage, 4);
         MYLOG(d);
-        MYLOG(expectedBoardAfterMove);
+        MYLOG(*expectedBoardAfterMove);
         debug();
         IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState(boost::none), *this->hintImages);
         IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState(boost::none), *this->hintImages);

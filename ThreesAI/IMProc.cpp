@@ -46,15 +46,15 @@ bool isRegionIdentical(Mat i1, Mat i2, Rect region, float threshold) {
 }
 
 bool IMProc::isInOutOfMovesState(Mat image) {
-    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/OutOfMoves.png"), image, Rect(300, 200, 800, 200), 1);
+    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/OutOfMoves.png"), image, Rect(300, 200, 800, 200), 1.5);
 }
 
 bool IMProc::isInSwipeToSaveState(Mat image) {
-    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/SwipeToSave.png"), image, Rect(250, 2070, 800, 60), 1);
+    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/SwipeToSave.png"), image, Rect(250, 2070, 800, 60), 1.5);
 }
 
 bool IMProc::isInRetryState(Mat image) {
-    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Retry.png"), image, Rect(100, 150, 400, 300), 1);
+    return isRegionIdentical(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Retry.png"), image, Rect(100, 150, 400, 300), 1.5);
 }
 
 Mat sector(Mat in,

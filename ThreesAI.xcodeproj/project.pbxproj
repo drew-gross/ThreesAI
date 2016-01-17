@@ -40,6 +40,7 @@
 		79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792C1BF076C500531415 /* EnabledIndices.cpp */; };
 		79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792F1BF077FB00531415 /* BoardIndex.cpp */; };
 		79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A779321BF0FC6600531415 /* UCTSearchAI.cpp */; };
+		79AD0BBA1C4B3F88006590B0 /* AdaptiveDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79AD0BB81C4B3F88006590B0 /* AdaptiveDepthAI.cpp */; };
 		79B511AE1C2F2AEC00E1BC3E /* Chromosome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511AC1C2F2AEC00E1BC3E /* Chromosome.cpp */; };
 		79B511B21C2F2D5300E1BC3E /* Heuristic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511B01C2F2D5300E1BC3E /* Heuristic.cpp */; };
 		79B511B51C33C6D700E1BC3E /* Population.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511B31C33C6D700E1BC3E /* Population.cpp */; };
@@ -135,6 +136,8 @@
 		79A779301BF077FB00531415 /* BoardIndex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BoardIndex.hpp; sourceTree = "<group>"; };
 		79A779321BF0FC6600531415 /* UCTSearchAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UCTSearchAI.cpp; sourceTree = "<group>"; };
 		79A779331BF0FC6600531415 /* UCTSearchAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UCTSearchAI.hpp; sourceTree = "<group>"; };
+		79AD0BB81C4B3F88006590B0 /* AdaptiveDepthAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdaptiveDepthAI.cpp; sourceTree = "<group>"; };
+		79AD0BB91C4B3F88006590B0 /* AdaptiveDepthAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AdaptiveDepthAI.hpp; sourceTree = "<group>"; };
 		79B511AC1C2F2AEC00E1BC3E /* Chromosome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Chromosome.cpp; sourceTree = "<group>"; };
 		79B511AD1C2F2AEC00E1BC3E /* Chromosome.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Chromosome.hpp; sourceTree = "<group>"; };
 		79B511B01C2F2D5300E1BC3E /* Heuristic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Heuristic.cpp; sourceTree = "<group>"; };
@@ -296,6 +299,8 @@
 				7944C1651BA26D82000F0A2C /* ManyPlayMonteCarloAI.h */,
 				79A779321BF0FC6600531415 /* UCTSearchAI.cpp */,
 				79A779331BF0FC6600531415 /* UCTSearchAI.hpp */,
+				79AD0BB81C4B3F88006590B0 /* AdaptiveDepthAI.cpp */,
+				79AD0BB91C4B3F88006590B0 /* AdaptiveDepthAI.hpp */,
 			);
 			name = ThreesPlayer;
 			sourceTree = "<group>";
@@ -494,6 +499,7 @@
 				79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
+				79AD0BBA1C4B3F88006590B0 /* AdaptiveDepthAI.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
 				79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */,
 				79A0D8F81BF2F729003B78B1 /* EnabledDirections.cpp in Sources */,
