@@ -192,12 +192,12 @@ void getToGame(std::shared_ptr<HintImages const> hintImages) {
         cout << "Getting through out of moves screen" << endl;
         initializer.moveStepper(Direction::DOWN);
     }
-    sleep(2);
+    sleep(5);
     while (IMProc::isInSwipeToSaveState(getMostRecentFrame())) {
         cout << "Getting through swipe to save screen" << endl;
         initializer.moveStepper(Direction::UP);
     }
-    sleep(2);
+    sleep(5);
     while (IMProc::isInRetryState(getMostRecentFrame())) {
         cout << "Getting through retry screen" << endl;
         initializer.pressWithServo();
@@ -256,15 +256,20 @@ int main(int argc, const char * argv[]) {
     
     initAndPlayIfPossible(hintImages, Chromosome(currentWeights));
     
-    bool playOneRandom = false;
-    playOneRandom = true;
-    if (playOneRandom) {
-        random_device trueRandom;
-        default_random_engine seededEngine(trueRandom());
-        unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
+    bool playOneGame = false;
+    playOneGame = true;
+    bool trulyRandom = false;
+    trulyRandom = true;
+    
+    random_device trueRandom;
+    default_random_engine seededEngine(trulyRandom ? trueRandom() : 0);
+    
+    unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
+    
+    if (playOneGame) {
         FixedDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), Chromosome(currentWeights).to_f(), 2);
         ai.playGame(true, false);
-        debug();
+        exit(0);
     }
     
     signed int pop_size = 8;
