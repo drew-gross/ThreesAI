@@ -10,8 +10,7 @@
 #define Heuristic_hpp
 
 #include "BoardState.h"
-#include <functional>
 
-typedef std::function<float(BoardState const&)> Heuristic;
+
 
 #endif /* Heuristic_hpp */

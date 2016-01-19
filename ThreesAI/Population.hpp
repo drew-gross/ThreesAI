@@ -14,9 +14,18 @@
 #include "Chromosome.hpp"
 
 class Population {
-public:
     std::vector<Chromosome> p;
+    std::vector<float> scores;
+    std::vector<std::pair<float, int>> sortResult;
+public:
+    friend std::ostream& operator<<(std::ostream &os, const Population d);
+    Population(std::vector<Chromosome> p);
     Population& operator=(Population const& other);
+    void populateScoresAndSort(int averageCount, std::default_random_engine& rng);
+    Chromosome cross(int index1, int index2, std::default_random_engine& rng);
+    Chromosome& get(int index);
 };
+
+std::ostream& operator<<(std::ostream &os, const Population d);
 
 #endif /* Population_hpp */

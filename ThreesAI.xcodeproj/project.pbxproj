@@ -233,10 +233,10 @@
 		7944F88D1A732BC300ED690E /* ThreesAI */ = {
 			isa = PBXGroup;
 			children = (
-				79B511AB1C2F29F600E1BC3E /* Genetic */,
 				797D55F01BFB0CCA0099B441 /* GameStateSources */,
 				79085D921B837D92009DA8B1 /* RealWorldInteraction */,
 				79664DB61B29517A002FCF52 /* ThreesPlayer */,
+				79B511AB1C2F29F600E1BC3E /* Genetic */,
 				798A74401AE0BE140073DAB3 /* ThreesBoard */,
 				7944F88E1A732BC300ED690E /* main.cpp */,
 				79D022101B2C0E3D00624854 /* Logging.mm */,

@@ -16,7 +16,7 @@
 class AdaptiveDepthAI : public ThreesAIBase {
     
 public:
-    AdaptiveDepthAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, Heuristic h, uint8_t depth);
+    AdaptiveDepthAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, Heuristic h, unsigned int numNodesForFurtherSearch);
     
     void receiveState(Direction d, BoardState const & newState);
     void prepareDirection();
@@ -24,7 +24,7 @@ public:
     
     Direction getDirection() const;
     
-    const uint8_t depth;
+    const unsigned int numNodesForFurtherSearch;
 };
 
 #endif /* AdaptiveDepthAI_hpp */

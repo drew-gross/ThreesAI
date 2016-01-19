@@ -17,23 +17,40 @@
 
 using namespace std;
 
-AdaptiveDepthAI::AdaptiveDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, Heuristic heuristic, uint8_t depth) : ThreesAIBase(move(board), move(output)), heuristic(heuristic), depth(depth) {}
+AdaptiveDepthAI::AdaptiveDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, Heuristic heuristic, unsigned int numNodesForFurtherSearch) : ThreesAIBase(move(board), move(output)), heuristic(heuristic), numNodesForFurtherSearch(numNodesForFurtherSearch) {}
 
 void AdaptiveDepthAI::receiveState(Direction d, BoardState const & newState) {};
 void AdaptiveDepthAI::prepareDirection() {};
 
-Direction AdaptiveDepthAI::getDirection() const {
+pair<unsigned int, Direction> nodesAndDirectionAtDepth(BoardState const& b, Heuristic h, unsigned int depth) {
+    
     vector<pair<Direction, float>> scoresForMoves;
+    unsigned int openNodeCount = 0;
     
     for (auto&& d : allDirections) {
-        if (this->currentState()->isMoveValid(d)) {
-            BoardState movedBoard(BoardState::MoveWithoutAdd(d), *this->currentState());
-            //scoresForMoves.push_back({d, getExpectedScoreIfMovedInDirection(movedBoard, d, this->depth, this->heuristic)});
+        if (b.isMoveValid(d)) {
+            BoardState movedBoard(BoardState::MoveWithoutAdd(d), b);
+            auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, depth, h);
+            scoresForMoves.push_back({d, searchResult.first});
+            openNodeCount += searchResult.second;
         }
     }
     debug(scoresForMoves.empty());
-    auto d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){
+    Direction d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){
         return left.second < right.second;
     })->first;
-    return d;
+    return {openNodeCount, d};
+}
+
+Direction AdaptiveDepthAI::getDirection() const {
+    unsigned int depth = 0;
+    while (true) {
+        depth++;
+        auto result = nodesAndDirectionAtDepth(*this->currentState(), this->heuristic, depth);
+        unsigned int openNodes = result.first;
+        cout << "Nodes viewed: " << openNodes << endl;
+        if (openNodes >= this->numNodesForFurtherSearch || openNodes == 0) {
+            return result.second;
+        }
+    }
 }

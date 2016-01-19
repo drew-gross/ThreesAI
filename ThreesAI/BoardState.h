@@ -24,6 +24,11 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "Debug.h"
+#include <functional>
+
+class BoardState;
+
+typedef std::function<float(BoardState const&)> Heuristic;
 
 class HiddenBoardState {
 public:
@@ -167,6 +172,7 @@ public:
     Score runRandomSimulation(unsigned int simNumber) const;
     HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
     std::deque<BoardState::AdditionInfo> possibleAdditions(Direction directionMovedToGetHere) const;
+    std::pair<float, unsigned int> heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, Heuristic h) const;
     
     bool hasNoHint;
 public:

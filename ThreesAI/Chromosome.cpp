@@ -14,35 +14,15 @@
 
 using namespace std;
 
-Chromosome::Chromosome(array<double, CHROMOSOME_SIZE> weights) : weights(weights), functions({
+Chromosome::Chromosome(array<float, CHROMOSOME_SIZE> weights) : weights(weights), functions({
     [](BoardState const& b){return b.countOfTile(Tile::EMPTY);},
     [](BoardState const& b){return b.score();},
     [](BoardState const& b){return b.adjacentPairCount();},
     [](BoardState const& b){return b.splitPairCount();},
     [](BoardState const& b){return b.runRandomSimulation(0);},
     [](BoardState const& b){return b.adjacentOffByOneCount();},
-}) , cachedScore(0) {
+}) {
     
-}
-
-Chromosome::Chromosome(Chromosome::Cross c, Chromosome const& l, Chromosome const& r, default_random_engine& rng) :  functions({
-    [](BoardState const& b){return b.countOfTile(Tile::EMPTY);},
-    [](BoardState const& b){return b.score();},
-    [](BoardState const& b){return b.adjacentPairCount();},
-    [](BoardState const& b){return b.splitPairCount();},
-    [](BoardState const& b){return b.runRandomSimulation(0);},
-    [](BoardState const& b){return b.adjacentOffByOneCount();},
-}) , cachedScore(0) {
-    uniform_int_distribution<bool> picker(0,1);
-    array<double, CHROMOSOME_SIZE> new_weights = {
-        picker(rng) ? r.weights[0] : l.weights[0],
-        picker(rng) ? r.weights[1] : l.weights[1],
-        picker(rng) ? r.weights[2] : l.weights[2],
-        picker(rng) ? r.weights[3] : l.weights[3],
-        picker(rng) ? r.weights[4] : l.weights[4],
-        picker(rng) ? r.weights[5] : l.weights[5],
-    };
-    this->weights = new_weights;
 }
 
 Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random_engine& rng) : weights(c.weights), functions({
@@ -52,7 +32,7 @@ Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random
     [](BoardState const& b){return b.splitPairCount();},
     [](BoardState const& b){return b.runRandomSimulation(0);},
     [](BoardState const& b){return b.adjacentOffByOneCount();},
-}) , cachedScore(0) {
+}) {
     
     uniform_int_distribution<unsigned long> which_weight(0,CHROMOSOME_SIZE - 1);
     normal_distribution<> how_much(-10,20);
@@ -73,28 +53,27 @@ Heuristic Chromosome::to_f() const {
     };
 }
 
-BoardState::Score Chromosome::score(unsigned int averageCount) const {
-    if (this->cachedScore > 0) {
-        return this->cachedScore;
-    }
-    default_random_engine rng(0);
+BoardState::Score Chromosome::score(unsigned int averageCount, default_random_engine& rng) const {
+    float totalScore = 0;
+    unsigned int origAverageCount = averageCount;
     while (averageCount > 0) {
         averageCount--;
+        auto board = SimulatedBoardOutput::randomBoard(rng);
+        rng.discard(1);
+        BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
+        FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f(), 0);
+        ai.playGame(false, false);
+        totalScore += ai.currentState()->score();
     }
-    auto board = SimulatedBoardOutput::randomBoard(default_random_engine(0));
-    BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
-    FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f(), 0);
-    ai.playGame(false, false);
-    this->cachedScore = ai.currentState()->score();
-    return this->cachedScore;
+    return totalScore/origAverageCount;
 }
 
 ostream& operator<<(ostream &os, Chromosome const& c){
-    os << "Empty: " << c.weights[0]
-    << " Score: " << c.weights[1]
-    << " Mergable: " << c.weights[2]
-    << " Split: " << c.weights[3]
-    << " Monte Carlo: " << c.weights[4]
-    << " Close: " << c.weights[5];
+    os << "{" << c.weights[0]
+    << ", " << c.weights[1]
+    << ", " << c.weights[2]
+    << ", " << c.weights[3]
+    << ", " << c.weights[4]
+    << ", " << c.weights[5] << "}";
     return os;
 }

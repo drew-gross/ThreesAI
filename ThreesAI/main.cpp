@@ -24,6 +24,7 @@
 #include "HumanPlayer.h"
 #include "RandomAI.h"
 #include "FixedDepthAI.hpp"
+#include "AdaptiveDepthAI.hpp"
 
 #include "CameraSource.h"
 #include "QuickTimeSource.h"
@@ -208,15 +209,13 @@ void initAndPlayIfPossible(std::shared_ptr<HintImages const> hintImages, Chromos
     try {
         getToGame(hintImages);
         
-        Heuristic h = c.to_f();
-        
         //Prod logs
         initParse("U9Q2piuJY51XQUjQ6MMFnTM3zWLopcTGQEUgiYd8","szQsHJfqz3jZY0DKe1Vpf7jxRPMHABZG6VB9ZJLx");
         auto watcher = std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages));
         BoardStateCPtr initialState;
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
         initialState = watcher->getInitialState();
-        FixedDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), h, 4);
+        AdaptiveDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), c.to_f(), 200000);
         
         time_t start = time(nullptr);
         ai.playGame(true);
@@ -246,7 +245,7 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     
-    array<double, CHROMOSOME_SIZE> currentWeights = {8.65, 18.0, -9.62, -12.3, 3.63, -7.62};
+    array<float, CHROMOSOME_SIZE> currentWeights = {8.65, 18.0, -9.62, -12.3, 3.63, -7.62};
 //    currentWeights = {1,0,0,0,0,0}; //Empty count only;
 //    currentWeights = {0,1,0,0,0,0}; //Score only;
 //    currentWeights = {0,0,1,0,0,0}; //Adjacent pairs only;
@@ -267,67 +266,66 @@ int main(int argc, const char * argv[]) {
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     
     if (playOneGame) {
-        FixedDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), Chromosome(currentWeights).to_f(), 3);
+        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), Chromosome(currentWeights).to_f(), 20000);
         ai.playGame(true, false);
         exit(0);
     }
     
     signed int pop_size = 8;
-    Population currentGeneration;
     std::vector<Chromosome> p;
-    std::array<double, 6> w = {1,2,3,4,5,6};
-    p.emplace_back(w);
     
     default_random_engine initial_population_generator;
-    normal_distribution<double> population_dist(1,5);
+    normal_distribution<float> population_dist(1,5);
     for (int i = 0; i < pop_size; i++) {
-        array<double, CHROMOSOME_SIZE> weights = {population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator), population_dist(initial_population_generator)};
-        currentGeneration.p.emplace_back(weights);
+        array<float, CHROMOSOME_SIZE> weights = {
+            population_dist(initial_population_generator),
+            population_dist(initial_population_generator),
+            population_dist(initial_population_generator),
+            population_dist(initial_population_generator),
+            population_dist(initial_population_generator),
+            population_dist(initial_population_generator)
+        };
+        p.emplace_back(weights);
     }
     
-    default_random_engine rng(0);
+    Population currentGeneration(p);
+    
+    default_random_engine rng(trueRandom());
     
     int generationNumber = 0;
     
     while (true) {
         generationNumber++;
-        
-        sort(currentGeneration.p.begin(), currentGeneration.p.end(), [](Chromosome & l, Chromosome & r){
-            return l.score(5) > r.score(5);
-        });
+        default_random_engine prng(0);
+        currentGeneration.populateScoresAndSort(5, prng);
         
         cout << "Generation #" << generationNumber << endl;
-        for (auto&& c : currentGeneration.p) {
-            cout << c << endl << "Score: " << c.score(5) << endl;
-        }
+        cout << currentGeneration << endl;
         
-        Population next_generation;
+        vector<Chromosome> next_generation;
         
         for (int i = 0; i < pop_size / 2; i++) {
-            Chromosome candidate(Chromosome::Cross(), currentGeneration.p[i], currentGeneration.p[pop_size/2 - 1], rng);
-            if (find_if(next_generation.p.cbegin(), next_generation.p.cend(), [](Chromosome const& c){
-                return true;
-            }) == next_generation.p.end()) {
-                next_generation.p.emplace_back(Chromosome::Cross(), currentGeneration.p[i], currentGeneration.p[pop_size/2 - 1], rng);
-            } else {
-                next_generation.p.emplace_back(Chromosome::Mutate(), candidate, rng);
+            
+            Chromosome candidate = currentGeneration.cross(i, pop_size/2 - 1, rng);
+            bool nextGenAlreadyHasCandidate = find_if(next_generation.cbegin(), next_generation.cend(), [&next_generation](Chromosome const& c){
+                for (auto&& existing : next_generation) {
+                    if (existing.weights == c.weights) {
+                        return true;
+                    }
+                };
+                return false;
+            }) == next_generation.end();
+            
+            if (!nextGenAlreadyHasCandidate) {
+                next_generation.push_back(candidate);
             }
+            
+            next_generation.emplace_back(Chromosome::Mutate(), candidate, rng);
         }
         
-        for (int i = 0; i < pop_size / 2; i++) {
-            Chromosome candidate(Chromosome::Cross(), currentGeneration.p[i], currentGeneration.p[pop_size/2 - 1], rng);
-            if (find_if(next_generation.p.cbegin(), next_generation.p.cend(), [](Chromosome const& c){
-                return true;
-            }) == next_generation.p.end()) {
-                next_generation.p.emplace_back(Chromosome::Cross(), currentGeneration.p[i], currentGeneration.p[pop_size/2 - 1], rng);
-            } else {
-                next_generation.p.emplace_back(Chromosome::Mutate(), candidate, rng);
-            }
-        }
+        next_generation.emplace_back(currentGeneration.get(0));
         
-        next_generation.p.emplace_back(currentGeneration.p[0]);
-        
-        currentGeneration = next_generation;
+        currentGeneration = Population(next_generation);
     }
 
     return 0;
