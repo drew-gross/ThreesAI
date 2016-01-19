@@ -215,7 +215,7 @@ void initAndPlayIfPossible(std::shared_ptr<HintImages const> hintImages, Chromos
         BoardStateCPtr initialState;
         unique_ptr<BoardOutput> p = unique_ptr<BoardOutput>(new RealBoardOutput("/dev/tty.usbmodem1411", watcher, *initialState, hintImages));
         initialState = watcher->getInitialState();
-        AdaptiveDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), c.to_f(), 350000);
+        AdaptiveDepthAI ai(p->currentState(initialState->hiddenState), std::move(p), c.to_f(), 800000);
         
         time_t start = time(nullptr);
         ai.playGame(true);
