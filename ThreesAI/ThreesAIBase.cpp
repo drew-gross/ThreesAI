@@ -22,15 +22,20 @@ shared_ptr<BoardState const> ThreesAIBase::currentState() const {
 }
 
 void ThreesAIBase::playGame(bool printMove, bool inspectMove) {
+    time_t start = 0;
+    time_t end = 0;
     while (!this->boardState->isGameOver()) {
         if (printMove) {
             cout << "--- Currently ---" << endl;
             cout << *this->currentState() << endl;
+            cout << "Time evaluating: " << end - start << "s" << endl;
         }
         if (inspectMove) {
             getchar();
         }
+        start = time(nullptr);
         this->playTurn();
+        end = time(nullptr);
     }
     if (printMove) {
         cout << "--- Currently ---" << endl;
