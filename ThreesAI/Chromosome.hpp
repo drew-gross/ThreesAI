@@ -16,27 +16,33 @@
 #include "BoardState.h"
 #include "Heuristic.hpp"
 
-#define CHROMOSOME_SIZE 6
+#define CHROMOSOME_SIZE 8
+
+typedef std::function<float(BoardState const&)> BoardEvaluator;
+typedef std::pair<BoardEvaluator, float> FuncAndWeight;
 
 class Chromosome {
-    std::array<std::function<float(BoardState const&)>, CHROMOSOME_SIZE> functions;
+    std::vector<FuncAndWeight> functions;
     
     friend std::ostream& operator<<(std::ostream &os, Chromosome const& c);
     
 public:
-    std::array<float, CHROMOSOME_SIZE> weights;
+    ~Chromosome() {}
+    size_t size();
+    FuncAndWeight getFun(uint8_t i);
     
     class Mutate {
     public:
         Mutate() {};
     };
-    explicit Chromosome(const Chromosome& that) = default;
-    Chromosome(Chromosome&& that) = default;
-    Chromosome& operator=(Chromosome&& that) = default;
-    Chromosome& operator=(Chromosome const& that) = default;
+    
+    explicit Chromosome(const Chromosome& that) {debug();};
+    Chromosome(Chromosome&& that) {debug();};
+    Chromosome& operator=(Chromosome&& that) {debug();return *this;};
+    Chromosome& operator=(Chromosome const& that);
     Chromosome(Mutate m, Chromosome const& c, std::default_random_engine& rng);
     
-    explicit Chromosome(std::array<float, CHROMOSOME_SIZE> weights);
+    explicit Chromosome(std::vector<FuncAndWeight> weights);
     
     Heuristic to_f() const;
     BoardState::Score score(unsigned int averageCount, std::default_random_engine& rng) const;

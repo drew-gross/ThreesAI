@@ -36,7 +36,7 @@ AddedTileInfo SimulatedBoardOutput::computeChangeFrom(BoardState const& boardWit
     return AddedTileInfo(boardWithoutTile, *this->state);
 }
 
-unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard(default_random_engine shuffler) {
+unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard(default_random_engine& shuffler) {
     std::array<Tile, 16> initialTiles = {
         Tile::TILE_3,
         Tile::TILE_3,

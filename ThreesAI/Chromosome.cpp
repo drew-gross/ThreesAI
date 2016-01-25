@@ -11,45 +11,45 @@
 #include "SimulatedBoardOutput.h"
 #include "ZeroDepthAI.h"
 #include "FixedDepthAI.hpp"
+#include "Logging.h"
 
 using namespace std;
 
-Chromosome::Chromosome(array<float, CHROMOSOME_SIZE> weights) : weights(weights), functions({
-    [](BoardState const& b){return b.countOfTile(Tile::EMPTY);},
-    [](BoardState const& b){return b.score();},
-    [](BoardState const& b){return b.adjacentPairCount();},
-    [](BoardState const& b){return b.splitPairCount();},
-    [](BoardState const& b){return b.runRandomSimulation(0);},
-    [](BoardState const& b){return b.adjacentOffByOneCount();},
-}) {
-    
+Chromosome::Chromosome(vector<FuncAndWeight> c) : functions(c) {}
+
+size_t Chromosome::size() {
+    return this->functions.size();
 }
 
-Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random_engine& rng) : weights(c.weights), functions({
-    [](BoardState const& b){return b.countOfTile(Tile::EMPTY);},
-    [](BoardState const& b){return b.score();},
-    [](BoardState const& b){return b.adjacentPairCount();},
-    [](BoardState const& b){return b.splitPairCount();},
-    [](BoardState const& b){return b.runRandomSimulation(0);},
-    [](BoardState const& b){return b.adjacentOffByOneCount();},
-}) {
-    
-    uniform_int_distribution<unsigned long> which_weight(0,CHROMOSOME_SIZE - 1);
-    normal_distribution<> how_much(-10,20);
+FuncAndWeight Chromosome::getFun(uint8_t i) {
+    return this->functions.at(i);
+}
+
+Chromosome& Chromosome::operator=(Chromosome const& that) {
+    this->functions = that.functions;
+    return *this;
+}
+
+Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random_engine& rng) {
+    uniform_int_distribution<unsigned long> which_weight(0,c.functions.size());
+    normal_distribution<> how_much(0,20);
     
     auto index = which_weight(rng);  //A sequence point is necessary to force the RNG to get used in the right order.
     float newWeight = how_much(rng);
     
-    this->weights[index] = newWeight;
+    this->functions = c.functions;
+    this->functions[index].second = newWeight;
 }
 
 Heuristic Chromosome::to_f() const {
-    return [this](const BoardState & board){
-        float result = 0;
-        for (char i = 0; i < CHROMOSOME_SIZE; i++) {
-            result += this->weights[i] * this->functions[i](board);
-        }
-        return result;
+    Chromosome const* self = this;
+    return [self](const BoardState & board){
+        return accumulate(self->functions.begin(), self->functions.end(), 0, [&board](float prev, FuncAndWeight f){
+            if (abs(f.second) < 1.f/100000000) {
+                return prev;
+            }
+            return prev + f.second * f.first(board);
+        });
     };
 }
 
@@ -69,11 +69,10 @@ BoardState::Score Chromosome::score(unsigned int averageCount, default_random_en
 }
 
 ostream& operator<<(ostream &os, Chromosome const& c){
-    os << "{" << c.weights[0]
-    << ", " << c.weights[1]
-    << ", " << c.weights[2]
-    << ", " << c.weights[3]
-    << ", " << c.weights[4]
-    << ", " << c.weights[5] << "}";
+    os << "{";
+    for (auto&& f : c.functions) {
+        os << f.second << ", ";
+    }
+    os << "}";
     return os;
 }

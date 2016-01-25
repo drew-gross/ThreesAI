@@ -39,13 +39,13 @@ Chromosome Population::cross(int i1, int i2, default_random_engine& rng) {
     Chromosome pick1(this->p[this->sortResult[i1].second]);
     Chromosome pick2(this->p[this->sortResult[i2].second]);
     
-    array<float, CHROMOSOME_SIZE> newWeights;
-    for (int i = 0; i < newWeights.size(); i++) {
+    vector<FuncAndWeight> newFunctions;
+    for (int i = 0; i < pick1.size(); i++) {
         bool use1 = dist(rng);
-        newWeights[i] = use1 ? pick1.weights[i] : pick2.weights[i];
+        newFunctions.push_back(use1 ? pick1.getFun(i) : pick2.getFun(i));
     }
     
-    return Chromosome(newWeights);
+    return Chromosome(newFunctions);
 }
 
 Chromosome& Population::get(int i) {

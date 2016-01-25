@@ -161,6 +161,8 @@ public:
     unsigned long adjacentPairCount() const;
     unsigned long adjacentOffByOneCount() const;
     unsigned long splitPairCount() const;
+    unsigned long trappedTileCount() const;
+    Tile maxTile() const;
     
     bool hasSameTilesAs(BoardState const& otherBoard, EnabledIndices excludedIndices) const;
     
@@ -189,7 +191,6 @@ private:
     EnabledDirections validMoves() const;
     Tile genUpcomingTile() const;
     Tile maxBonusTile() const;
-    Tile maxTile() const;
     float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     Tile getUpcomingTile() const;
     

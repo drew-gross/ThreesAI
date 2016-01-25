@@ -12,12 +12,19 @@
 #include <utility>
 #include <array>
 
+#include <boost/optional/optional.hpp>
+
 class BoardIndex {
 public:
     unsigned char first:2;
     unsigned char second:2;
     BoardIndex(unsigned char first, unsigned char second) : first(first), second(second) {};
     unsigned char toRegularIndex() const;
+    
+    boost::optional<BoardIndex> left() const;
+    boost::optional<BoardIndex> right() const;
+    boost::optional<BoardIndex> up() const;
+    boost::optional<BoardIndex> down() const;
 };
 
 static std::array<BoardIndex, 16> const allIndices = {

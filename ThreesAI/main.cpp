@@ -177,18 +177,47 @@ void testMonteCarloAI() {
 void testMoveAndFindIndexes() {
     BoardState preMove(BoardState::FromString("0,0,1,0,\
                                                  0,0,3,0,\
-                                                 3,0,24,0,\
-                                                 6,3,2,1-2"));
+                                                 96,0,24,0,\
+                                                 6,12,2,1-2"));
     BoardState postMove(BoardState::MoveWithoutAdd(Direction::LEFT), preMove);
     BoardState expected(BoardState::FromString("0,1,0,0,\
                                                  0,3,0,0,\
-                                                 3,24,0,0,\
-                                                 6,3,3,0-3"));
+                                                 96,24,0,0,\
+                                                 6,12,3,0-3"));
     debug(!postMove.hasSameTilesAs(expected, {}));
+    BoardIndex i(1,2);
+    debug(postMove.at(i) != Tile::TILE_24);
+    debug(postMove.at(i.left().get()) != Tile::TILE_96);
+    debug(postMove.at(i.up().get()) != Tile::TILE_3);
+    debug(postMove.at(i.down().get()) != Tile::TILE_12);
+    debug(postMove.at(i.right().get()) != Tile::EMPTY);
+    debug(BoardIndex(0,0).left() != none);
+    debug(BoardIndex(0,0).up() != none);
+    debug(BoardIndex(3,3).right() != none);
+    debug(BoardIndex(3,3).down() != none);
+}
+
+void testChromosome() {
+    BoardStateCPtr b = make_shared<BoardState const>(BoardState::FromString("0,0,1,0,\
+                                        0,0,3,0,\
+                                        3,0,24,0,\
+                                        6,3,2,1-2"));
+    int callCount = 0;
+    auto incrementer = [&callCount](BoardState const&){
+        callCount++;
+        return 0;
+    };
+    Chromosome c({{incrementer, 1}});
+    c.to_f()(*b);
+    debug(callCount != 1);
+    AdaptiveDepthAI ai(b, unique_ptr<BoardOutput>(new SimulatedBoardOutput(b)), c.to_f(), 1);
+    ai.playTurn();
+    debug(callCount < 400);
 }
 
 void getToGame(std::shared_ptr<HintImages const> hintImages) {
-    RealBoardOutput initializer("/dev/tty.usbmodem1411", std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages)), *SimulatedBoardOutput::randomBoard(default_random_engine())->sneakyState(), hintImages);
+    default_random_engine fake;
+    RealBoardOutput initializer("/dev/tty.usbmodem1411", std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages)), *SimulatedBoardOutput::randomBoard(fake)->sneakyState(), hintImages);
     while (IMProc::isInOutOfMovesState(getMostRecentFrame())) {
         cout << "Getting through out of moves screen" << endl;
         initializer.moveStepper(Direction::DOWN);
@@ -229,8 +258,91 @@ void initAndPlayIfPossible(std::shared_ptr<HintImages const> hintImages, Chromos
     }
 }
 
+float countEmptyTile(BoardState const& b) {
+    return b.countOfTile(Tile::EMPTY);
+}
+
+float score(BoardState const& b) {
+    return b.score();
+}
+
+float countAdjacentPair(BoardState const& b) {
+    return b.adjacentPairCount();
+}
+
+float countSplitPair(BoardState const& b) {
+    return b.splitPairCount();
+}
+
+float simScore(BoardState const& b) {
+    return b.runRandomSimulation(0);
+}
+
+float countAdjacentOffByOne(BoardState const& b) {
+    return b.adjacentOffByOneCount();
+}
+
+float countTrappedTiles(BoardState const& b) {
+    return b.trappedTileCount();
+}
+
+float highestIsInCorner(BoardState const& b) {
+    Tile max = b.maxTile();
+    if (b.at(BoardIndex(0,0)) == max ||
+        b.at(BoardIndex(0,3)) == max ||
+        b.at(BoardIndex(3,3)) == max ||
+        b.at(BoardIndex(3,0)) == max) {
+        return 1;
+    }
+    return 0;
+}
+//
+//TEST(HighestOnCorner, Works) {
+//    BoardState b(BoardState::FromString("0,0,1,0,\
+//                                        0,0,3,0,\
+//                                        96,0,24,0,\
+//                                        6,12,2,1-2"));
+//    BoardState ul(BoardState::FromString("96,0,1,0,\
+//                                        0,0,3,0,\
+//                                        96,0,24,0,\
+//                                        6,12,2,1-2"));
+//    BoardState ur(BoardState::FromString("0,0,1,192,\
+//                                        0,0,3,0,\
+//                                        96,0,24,0,\
+//                                        6,12,2,1-2"));
+//    BoardState ll(BoardState::FromString("0,0,1,0,\
+//                                        0,0,3,0,\
+//                                        96,0,24,0,\
+//                                        1536,12,2,1-2"));
+//    BoardState lr(BoardState::FromString("0,0,1,0,\
+//                                        0,0,3,0,\
+//                                        96,0,24,0,\
+//                                         6,12,2,192-2"));
+//    EXPECT_FALSE(highestIsInCorner(b));
+//    EXPECT_TRUE(highestIsInCorner(ul));
+//    EXPECT_TRUE(highestIsInCorner(ur));
+//    EXPECT_TRUE(highestIsInCorner(ll));
+//    EXPECT_TRUE(highestIsInCorner(lr));
+//}
+
+float highestIsOnEdge(BoardState const& b) {
+    Tile max = b.maxTile();
+    if (b.at(BoardIndex(0,1)) == max ||
+        b.at(BoardIndex(0,2)) == max ||
+        b.at(BoardIndex(3,1)) == max ||
+        b.at(BoardIndex(3,2)) == max ||
+        b.at(BoardIndex(1,0)) == max ||
+        b.at(BoardIndex(2,0)) == max ||
+        b.at(BoardIndex(1,3)) == max ||
+        b.at(BoardIndex(2,3)) == max) {
+        return 1;
+    }
+    return 0;
+}
+
 int main(int argc, const char * argv[]) {
     //testBoardMovement();\
+    testChromosome();\
     testMonteCarloAI();\
     testMoveAndFindIndexes();\
     testImageProc();\
@@ -245,13 +357,27 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     
-    array<float, CHROMOSOME_SIZE> currentWeights = {8.65, 18.0, -9.62, -12.3, 3.63, -7.62};
-//    currentWeights = {1,0,0,0,0,0}; //Empty count only;
-//    currentWeights = {0,1,0,0,0,0}; //Score only;
-//    currentWeights = {0,0,1,0,0,0}; //Adjacent pairs only;
-//    currentWeights = {0,0,0,1,0,0}; //Split pairs only;
-    currentWeights = {0,0,0,0,1,0}; //Single sim only;
-//    currentWeights = {0,0,0,0,0,1}; //Adjacent off by one only;
+    vector<BoardEvaluator> currentFuncs = {
+        countEmptyTile,
+        score,
+        countAdjacentPair,
+        countSplitPair,
+        simScore,
+        countAdjacentOffByOne,
+    };
+    vector<FuncAndWeight> currentWeights = {
+        {countEmptyTile, 2},
+//        {score, 1},
+        {countAdjacentPair, 2},
+//        {countSplitPair, -1},
+//        {simScore, 0},
+        {countAdjacentOffByOne, 1},
+        {countTrappedTiles, -5},
+        {highestIsInCorner, 10000},
+        {highestIsOnEdge, 5},
+    };
+    Chromosome c(currentWeights); //Must not get destroyed
+    Heuristic h = c.to_f();
     
     initAndPlayIfPossible(hintImages, Chromosome(currentWeights));
     
@@ -259,15 +385,37 @@ int main(int argc, const char * argv[]) {
     playOneGame = true;
     bool trulyRandom = false;
     trulyRandom = true;
+    bool play10Games = false;
+    //play10Games = true;
     
     random_device trueRandom;
     default_random_engine seededEngine(trulyRandom ? trueRandom() : 0);
     
+    if (play10Games) {
+        time_t start = time(nullptr);
+        unsigned long totalScore = 0;
+        for (int i = 0; i < 10; i++) {
+            unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
+            AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 800);
+            ai.playGame(false, false);
+            totalScore += ai.currentState()->score();
+            cout << "Score " << i << ": " << ai.currentState()->score() << endl;
+        }
+        time_t end = time(nullptr);
+        cout << "Final score: " << totalScore/10 << endl;
+        cout << "Time taken: " << end - start << "s" << endl;
+        exit(0);
+    }
+    
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     
     if (playOneGame) {
-        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), Chromosome(currentWeights).to_f(), 20000);
+        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 20000);
+        time_t start = time(nullptr);
         ai.playGame(true, false);
+        time_t end = time(nullptr);
+        cout << "Final score: " << ai.currentState()->score() << endl;
+        cout << "Time taken: " << end - start << "s" << endl;
         exit(0);
     }
     
@@ -275,16 +423,12 @@ int main(int argc, const char * argv[]) {
     std::vector<Chromosome> p;
     
     default_random_engine initial_population_generator;
-    normal_distribution<float> population_dist(1,5);
+    normal_distribution<float> population_dist(0,5);
     for (int i = 0; i < pop_size; i++) {
-        array<float, CHROMOSOME_SIZE> weights = {
-            population_dist(initial_population_generator),
-            population_dist(initial_population_generator),
-            population_dist(initial_population_generator),
-            population_dist(initial_population_generator),
-            population_dist(initial_population_generator),
-            population_dist(initial_population_generator)
-        };
+        vector<FuncAndWeight> weights;
+        for (auto&& func : currentFuncs) {
+            weights.push_back({func, population_dist(initial_population_generator)});
+        }
         p.emplace_back(weights);
     }
     
@@ -307,19 +451,7 @@ int main(int argc, const char * argv[]) {
         for (int i = 0; i < pop_size / 2; i++) {
             
             Chromosome candidate = currentGeneration.cross(i, pop_size/2 - 1, rng);
-            bool nextGenAlreadyHasCandidate = find_if(next_generation.cbegin(), next_generation.cend(), [&next_generation](Chromosome const& c){
-                for (auto&& existing : next_generation) {
-                    if (existing.weights == c.weights) {
-                        return true;
-                    }
-                };
-                return false;
-            }) == next_generation.end();
-            
-            if (!nextGenAlreadyHasCandidate) {
-                next_generation.push_back(candidate);
-            }
-            
+            next_generation.push_back(candidate);
             next_generation.emplace_back(Chromosome::Mutate(), candidate, rng);
         }
         

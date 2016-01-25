@@ -55,12 +55,29 @@
 		79E797FC1C1AB7310000B9DB /* BoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79E797FB1C1AB7310000B9DB /* BoardOutput.cpp */; };
 		79EFBE351AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */; };
 		79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */; };
+		79F0613E1C559D2D00F43532 /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
+		79F0613F1C559D3F00F43532 /* libopencv_features2d.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC795D1AF72917003655FF /* libopencv_features2d.2.4.11.dylib */; };
+		79F061401C559D3F00F43532 /* libopencv_flann.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */; };
+		79F061411C559D3F00F43532 /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
+		79F061421C559D3F00F43532 /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
+		79F061431C559D3F00F43532 /* libopencv_nonfree.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC795B1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib */; };
+		79F061441C559DA000F43532 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F060EF1C559B9000F43532 /* main.cpp */; };
+		79F061471C559DF500F43532 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79F061451C559DED00F43532 /* gtest.framework */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
 		94F8477957E562C9745B39E0 /* libPods-ThreesAI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AAB6C1A25A2DAEB3C49D4EE /* libPods-ThreesAI.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		7944F8891A732BC300ED690E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		79F060EB1C559B9000F43532 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -158,6 +175,10 @@
 		79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopencv_flann.2.4.11.dylib; sourceTree = "<group>"; };
 		79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnePlayMonteCarloAI.cpp; sourceTree = "<group>"; };
 		79F037061BA1D5E500E3AB94 /* OnePlayMonteCarloAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnePlayMonteCarloAI.h; sourceTree = "<group>"; };
+		79F060ED1C559B9000F43532 /* Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Tests; sourceTree = BUILT_PRODUCTS_DIR; };
+		79F060EF1C559B9000F43532 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		79F060F41C559BC800F43532 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = ../../Desktop/gtest.framework; sourceTree = "<group>"; };
+		79F061451C559DED00F43532 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = gtest.framework; sourceTree = "<group>"; };
 		79F98BB61AA3E95A0043C8BC /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
 		79F98BB71AA3E95B0043C8BC /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
 		E44BCD8EFA23748F47AAA6FD /* Pods-ThreesAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThreesAI.release.xcconfig"; path = "Pods/Target Support Files/Pods-ThreesAI/Pods-ThreesAI.release.xcconfig"; sourceTree = "<group>"; };
@@ -185,12 +206,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		79F060EA1C559B9000F43532 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				79F061471C559DF500F43532 /* gtest.framework in Frameworks */,
+				79F0613E1C559D2D00F43532 /* libopencv_core.2.4.11.dylib in Frameworks */,
+				79F0613F1C559D3F00F43532 /* libopencv_features2d.2.4.11.dylib in Frameworks */,
+				79F061401C559D3F00F43532 /* libopencv_flann.2.4.11.dylib in Frameworks */,
+				79F061411C559D3F00F43532 /* libopencv_highgui.2.4.11.dylib in Frameworks */,
+				79F061421C559D3F00F43532 /* libopencv_imgproc.2.4.11.dylib in Frameworks */,
+				79F061431C559D3F00F43532 /* libopencv_nonfree.2.4.11.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		2EF1FD92B4A7586A44BE7BB6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				79F061451C559DED00F43532 /* gtest.framework */,
+				79F060F41C559BC800F43532 /* gtest.framework */,
 				5AAB6C1A25A2DAEB3C49D4EE /* libPods-ThreesAI.a */,
 			);
 			name = Frameworks;
@@ -213,6 +250,7 @@
 				793533151B814DA50078E011 /* CoreVideo.framework */,
 				793533131B814D9A0078E011 /* CoreMedia.framework */,
 				799391931B8078C5000BC4D4 /* AVFoundation.framework */,
+				79F060EE1C559B9000F43532 /* Tests */,
 				7944F88C1A732BC300ED690E /* Products */,
 				79E67A931B373C8A007D8C25 /* Boost */,
 				7967865B1AF0703B003DEF6C /* OpenCV */,
@@ -226,6 +264,7 @@
 			isa = PBXGroup;
 			children = (
 				7944F88B1A732BC300ED690E /* ThreesAI */,
+				79F060ED1C559B9000F43532 /* Tests */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -378,6 +417,14 @@
 			name = Boost;
 			sourceTree = "<group>";
 		};
+		79F060EE1C559B9000F43532 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				79F060EF1C559B9000F43532 /* main.cpp */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		F832BA7A3B49CFD3FF94EE73 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -409,6 +456,23 @@
 			productReference = 7944F88B1A732BC300ED690E /* ThreesAI */;
 			productType = "com.apple.product-type.tool";
 		};
+		79F060EC1C559B9000F43532 /* Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 79F060F31C559B9000F43532 /* Build configuration list for PBXNativeTarget "Tests" */;
+			buildPhases = (
+				79F060E91C559B9000F43532 /* Sources */,
+				79F060EA1C559B9000F43532 /* Frameworks */,
+				79F060EB1C559B9000F43532 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Tests;
+			productName = Tests;
+			productReference = 79F060ED1C559B9000F43532 /* Tests */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -420,6 +484,9 @@
 				TargetAttributes = {
 					7944F88A1A732BC300ED690E = {
 						CreatedOnToolsVersion = 6.1.1;
+					};
+					79F060EC1C559B9000F43532 = {
+						CreatedOnToolsVersion = 7.2;
 					};
 				};
 			};
@@ -436,6 +503,7 @@
 			projectRoot = "";
 			targets = (
 				7944F88A1A732BC300ED690E /* ThreesAI */,
+				79F060EC1C559B9000F43532 /* Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -514,6 +582,14 @@
 				7963F4E21AA01F7E0081BEC8 /* HumanPlayer.cpp in Sources */,
 				79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */,
 				797CB4B11BAAA1D0001A61D2 /* Direction.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		79F060E91C559B9000F43532 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				79F061441C559DA000F43532 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -667,6 +743,44 @@
 			};
 			name = Release;
 		};
+		79F060F11C559B9000F43532 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		79F060F21C559B9000F43532 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -687,6 +801,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		79F060F31C559B9000F43532 /* Build configuration list for PBXNativeTarget "Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				79F060F11C559B9000F43532 /* Debug */,
+				79F060F21C559B9000F43532 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

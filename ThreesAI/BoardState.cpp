@@ -362,6 +362,34 @@ unsigned long BoardState::adjacentOffByOneCount() const {
     return count;
 }
 
+unsigned long BoardState::trappedTileCount() const {
+    unsigned long count = 0;
+    for (BoardIndex i : allIndices) {
+        if (i.left() && i.right()) {
+            if (this->at(i) < this->at(i.left().get()) &&
+                this->at(i) < this->at(i.right().get())) {
+                count++;
+            }
+        } else if (i.left() && this->at(i) < this->at(i.left().get())) {
+            count++;
+        } else if (i.right() && this->at(i) < this->at(i.right().get())) {
+            count++;
+        }
+        
+        if (i.up() && i.down()) {
+            if (this->at(i) < this->at(i.up().get()) &&
+                this->at(i) < this->at(i.down().get())) {
+                count++;
+            }
+        } else if (i.up() && this->at(i) < this->at(i.up().get())) {
+            count++;
+        } else if (i.down() && this->at(i) < this->at(i.down().get())) {
+            count++;
+        }
+    }
+    return count;
+}
+
 unsigned long BoardState::splitPairCount() const {
     unsigned long count = 0;
     for (Tile t = Tile::TILE_3; t < Tile::TILE_6144; t = succ(t)) {

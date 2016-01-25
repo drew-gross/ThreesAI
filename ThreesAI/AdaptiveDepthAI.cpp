@@ -48,7 +48,6 @@ Direction AdaptiveDepthAI::getDirection() const {
         depth++;
         auto result = nodesAndDirectionAtDepth(*this->currentState(), this->heuristic, depth);
         unsigned int openNodes = result.first;
-        cout << "Nodes viewed: " << openNodes << endl;
         if (openNodes >= this->numNodesForFurtherSearch || openNodes == 0) {
             return result.second;
         }

@@ -21,7 +21,7 @@ public:
     SimulatedBoardOutput(BoardState::Board otherBoard, std::default_random_engine hintGen, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack);
     SimulatedBoardOutput(BoardStateCPtr b);
     
-    static std::unique_ptr<SimulatedBoardOutput> randomBoard(std::default_random_engine shuffler);
+    static std::unique_ptr<SimulatedBoardOutput> randomBoard(std::default_random_engine& shuffler);
     void move(Direction d, BoardState const& originalBoard);
     BoardStateCPtr currentState(HiddenBoardState otherInfo) const;
     AddedTileInfo computeChangeFrom(BoardState const& previousBoart) const;
