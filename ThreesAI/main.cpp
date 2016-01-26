@@ -32,6 +32,7 @@
 #include "SimulatedBoardOutput.h"
 #include "Chromosome.hpp"
 #include "Population.hpp"
+#include "Evaluators.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -125,96 +126,6 @@ void testImageProc() {
     }
 }
 
-void testBoardMovement() {
-    BoardState b1(BoardState::FromString("0,0,1,1,\
-                                            0,0,1,1,\
-                                            0,0,0,0,\
-                                            0,0,0,0-1"));
-    BoardState b2(BoardState::MoveWithoutAdd(Direction::LEFT), b1);
-    debug(!b2.hasSameTilesAs(BoardState::FromString("0,1,1,0,\
-                                                     0,1,1,0,\
-                                                     0,0,0,0,\
-                                                     0,0,0,0-1"), {}));
-    BoardState b3(BoardState::MoveWithoutAdd(Direction::DOWN), b2);
-    debug(!b3.hasSameTilesAs(BoardState::FromString("0,0,0,0,\
-                                                     0,1,1,0,\
-                                                     0,1,1,0,\
-                                                     0,0,0,0-1"), {}));
-    BoardState b4(BoardState::MoveWithoutAdd(Direction::RIGHT), b3);
-    debug(!b4.hasSameTilesAs(BoardState::FromString("0,0,0,0,\
-                                                     0,0,1,1,\
-                                                     0,0,1,1,\
-                                                     0,0,0,0-1"), {}));
-    BoardState b5(BoardState::MoveWithoutAdd(Direction::UP), b4);
-    debug(!b5.hasSameTilesAs(BoardState::FromString("0,0,1,1,\
-                                                     0,0,1,1,\
-                                                     0,0,0,0,\
-                                                     0,0,0,0-1"), {}));
-
-
-    BoardState x(BoardState::FromString("6,0,0,0,\
-                                           0,0,1,0,\
-                                           0,0,6,0,\
-                                           0,6,0,0-1"));
-
-    BoardState y(BoardState::FromString("3,0,0,0,\
-                                           0,0,1,0,\
-                                           0,0,3,0,\
-                                           0,0,2,0-1"));
-    debug(!x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}, {2,3}}));
-}
-
-void testMonteCarloAI() {
-    std::unique_ptr<SimulatedBoardOutput> board = std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(make_shared<BoardState const>(BoardState::FromString("2,6,3,1,\
-                                                                                                        3,24,384,6,\
-                                                                                                        6,24,96,192,\
-                                                                                                                                                                      3,6,1,3-2"))));
-    ManyPlayMonteCarloAI ai(board->currentState(HiddenBoardState(0,4,4,4)), std::move(board), 2);
-    debug(ai.getDirection() == Direction::DOWN);
-    ai.getDirection();
-}
-
-void testMoveAndFindIndexes() {
-    BoardState preMove(BoardState::FromString("0,0,1,0,\
-                                                 0,0,3,0,\
-                                                 96,0,24,0,\
-                                                 6,12,2,1-2"));
-    BoardState postMove(BoardState::MoveWithoutAdd(Direction::LEFT), preMove);
-    BoardState expected(BoardState::FromString("0,1,0,0,\
-                                                 0,3,0,0,\
-                                                 96,24,0,0,\
-                                                 6,12,3,0-3"));
-    debug(!postMove.hasSameTilesAs(expected, {}));
-    BoardIndex i(1,2);
-    debug(postMove.at(i) != Tile::TILE_24);
-    debug(postMove.at(i.left().get()) != Tile::TILE_96);
-    debug(postMove.at(i.up().get()) != Tile::TILE_3);
-    debug(postMove.at(i.down().get()) != Tile::TILE_12);
-    debug(postMove.at(i.right().get()) != Tile::EMPTY);
-    debug(BoardIndex(0,0).left() != none);
-    debug(BoardIndex(0,0).up() != none);
-    debug(BoardIndex(3,3).right() != none);
-    debug(BoardIndex(3,3).down() != none);
-}
-
-void testChromosome() {
-    BoardStateCPtr b = make_shared<BoardState const>(BoardState::FromString("0,0,1,0,\
-                                        0,0,3,0,\
-                                        3,0,24,0,\
-                                        6,3,2,1-2"));
-    int callCount = 0;
-    auto incrementer = [&callCount](BoardState const&){
-        callCount++;
-        return 0;
-    };
-    Chromosome c({{incrementer, 1}});
-    c.to_f()(*b);
-    debug(callCount != 1);
-    AdaptiveDepthAI ai(b, unique_ptr<BoardOutput>(new SimulatedBoardOutput(b)), c.to_f(), 1);
-    ai.playTurn();
-    debug(callCount < 400);
-}
-
 void getToGame(std::shared_ptr<HintImages const> hintImages) {
     default_random_engine fake;
     RealBoardOutput initializer("/dev/tty.usbmodem1411", std::shared_ptr<GameStateSource>(new QuickTimeSource(hintImages)), *SimulatedBoardOutput::randomBoard(fake)->sneakyState(), hintImages);
@@ -257,73 +168,6 @@ void initAndPlayIfPossible(std::shared_ptr<HintImages const> hintImages, Chromos
         initParse("nESS0QMzJcs14BzDBMToQKkeog7mtFkdjGvWHoVT","GCPXJJNG3DXnlsKWsjP3MVlJe52FOVmPDIkVseK0");
     }
 }
-
-float countEmptyTile(BoardState const& b) {
-    return b.countOfTile(Tile::EMPTY);
-}
-
-float score(BoardState const& b) {
-    return b.score();
-}
-
-float countAdjacentPair(BoardState const& b) {
-    return b.adjacentPairCount();
-}
-
-float countSplitPair(BoardState const& b) {
-    return b.splitPairCount();
-}
-
-float simScore(BoardState const& b) {
-    return b.runRandomSimulation(0);
-}
-
-float countAdjacentOffByOne(BoardState const& b) {
-    return b.adjacentOffByOneCount();
-}
-
-float countTrappedTiles(BoardState const& b) {
-    return b.trappedTileCount();
-}
-
-float highestIsInCorner(BoardState const& b) {
-    Tile max = b.maxTile();
-    if (b.at(BoardIndex(0,0)) == max ||
-        b.at(BoardIndex(0,3)) == max ||
-        b.at(BoardIndex(3,3)) == max ||
-        b.at(BoardIndex(3,0)) == max) {
-        return 1;
-    }
-    return 0;
-}
-//
-//TEST(HighestOnCorner, Works) {
-//    BoardState b(BoardState::FromString("0,0,1,0,\
-//                                        0,0,3,0,\
-//                                        96,0,24,0,\
-//                                        6,12,2,1-2"));
-//    BoardState ul(BoardState::FromString("96,0,1,0,\
-//                                        0,0,3,0,\
-//                                        96,0,24,0,\
-//                                        6,12,2,1-2"));
-//    BoardState ur(BoardState::FromString("0,0,1,192,\
-//                                        0,0,3,0,\
-//                                        96,0,24,0,\
-//                                        6,12,2,1-2"));
-//    BoardState ll(BoardState::FromString("0,0,1,0,\
-//                                        0,0,3,0,\
-//                                        96,0,24,0,\
-//                                        1536,12,2,1-2"));
-//    BoardState lr(BoardState::FromString("0,0,1,0,\
-//                                        0,0,3,0,\
-//                                        96,0,24,0,\
-//                                         6,12,2,192-2"));
-//    EXPECT_FALSE(highestIsInCorner(b));
-//    EXPECT_TRUE(highestIsInCorner(ul));
-//    EXPECT_TRUE(highestIsInCorner(ur));
-//    EXPECT_TRUE(highestIsInCorner(ll));
-//    EXPECT_TRUE(highestIsInCorner(lr));
-//}
 
 float highestIsOnEdge(BoardState const& b) {
     Tile max = b.maxTile();
@@ -410,9 +254,9 @@ int main(int argc, const char * argv[]) {
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     
     if (playOneGame) {
-        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 20000);
+        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 10);
         time_t start = time(nullptr);
-        ai.playGame(true, false);
+        ai.playGame(true, true);
         time_t end = time(nullptr);
         cout << "Final score: " << ai.currentState()->score() << endl;
         cout << "Time taken: " << end - start << "s" << endl;

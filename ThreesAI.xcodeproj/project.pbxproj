@@ -8,9 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D931B837E0E009DA8B1 /* GameStateSource.cpp */; };
-		79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */; };
 		79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */; };
 		7908C0B31C43556300A0E8E9 /* FixedDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */; };
+		79301CA01C560FE7000337FC /* Evaluators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79301C9E1C560FE7000337FC /* Evaluators.cpp */; };
+		79301CA41C5611F7000337FC /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79301CA21C5611F7000337FC /* gtest.framework */; };
+		79301CA61C561578000337FC /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A961B373CB6007D8C25 /* libboost_system.dylib */; };
+		79301CA71C561586000337FC /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A941B373C9A007D8C25 /* libboost_filesystem.dylib */; };
+		79301CA81C56185B000337FC /* Evaluators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79301C9E1C560FE7000337FC /* Evaluators.cpp */; };
 		793533141B814D9B0078E011 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533131B814D9A0078E011 /* CoreMedia.framework */; };
 		793533161B814DA50078E011 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533151B814DA50078E011 /* CoreVideo.framework */; };
 		793533181B815DC60078E011 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533171B815DC60078E011 /* Cocoa.framework */; };
@@ -40,11 +44,28 @@
 		79A7792E1BF076C500531415 /* EnabledIndices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792C1BF076C500531415 /* EnabledIndices.cpp */; };
 		79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792F1BF077FB00531415 /* BoardIndex.cpp */; };
 		79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A779321BF0FC6600531415 /* UCTSearchAI.cpp */; };
+		79AC82F41C57458D00326284 /* BoardState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1671BA32398000F0A2C /* BoardState.cpp */; };
+		79AC82F51C57459600326284 /* Tile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A91BAFDB0D00FC2EDB /* Tile.cpp */; };
+		79AC82F61C5745A700326284 /* BoardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792F1BF077FB00531415 /* BoardIndex.cpp */; };
+		79AC82F71C5745AE00326284 /* EnabledIndices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A7792C1BF076C500531415 /* EnabledIndices.cpp */; };
+		79AC82F81C5745B500326284 /* EnabledDirections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A0D8F61BF2F729003B78B1 /* EnabledDirections.cpp */; };
+		79AC82F91C57461000326284 /* Hint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A1B3A61BAFB29900FC2EDB /* Hint.cpp */; };
+		79AC82FA1C57461A00326284 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 797CB4B01BAAA1D0001A61D2 /* Direction.cpp */; };
+		79AC82FB1C57467E00326284 /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
+		79AC82FC1C574A5D00326284 /* Chromosome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511AC1C2F2AEC00E1BC3E /* Chromosome.cpp */; };
+		79AC82FE1C574A7400326284 /* FixedDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */; };
+		79AC82FF1C574A8300326284 /* ThreesAIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7960E4421A883278000622BC /* ThreesAIBase.cpp */; };
+		79AC83001C574A8B00326284 /* AdaptiveDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79AD0BB81C4B3F88006590B0 /* AdaptiveDepthAI.cpp */; };
+		79AC83011C574A9300326284 /* SimulatedBoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1741BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp */; };
+		79AC83021C574AA100326284 /* BoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79E797FB1C1AB7310000B9DB /* BoardOutput.cpp */; };
+		79AC83031C574AA800326284 /* AddedTileInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7963F4F91AA2709A0081BEC8 /* AddedTileInfo.cpp */; };
+		79AC83041C5755E100326284 /* ManyPlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */; };
+		79AC83051C5758BF00326284 /* QuickTimeSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79085D961B837EE1009DA8B1 /* QuickTimeSource.mm */; };
+		79AC83061C5758CD00326284 /* Logging.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.mm */; };
 		79AD0BBA1C4B3F88006590B0 /* AdaptiveDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79AD0BB81C4B3F88006590B0 /* AdaptiveDepthAI.cpp */; };
 		79B511AE1C2F2AEC00E1BC3E /* Chromosome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511AC1C2F2AEC00E1BC3E /* Chromosome.cpp */; };
 		79B511B21C2F2D5300E1BC3E /* Heuristic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511B01C2F2D5300E1BC3E /* Heuristic.cpp */; };
 		79B511B51C33C6D700E1BC3E /* Population.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511B31C33C6D700E1BC3E /* Population.cpp */; };
-		79D022111B2C0E3D00624854 /* Logging.mm in Sources */ = {isa = PBXBuildFile; fileRef = 79D022101B2C0E3D00624854 /* Logging.mm */; };
 		79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79D7220A1A9148F0009D89AA /* ExpectimaxAI.cpp */; };
 		79DC795A1AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC79591AF465DD003655FF /* libopencv_imgproc.2.4.11.dylib */; };
 		79DC795C1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC795B1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib */; };
@@ -100,6 +121,10 @@
 		7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FixedDepthAI.cpp; sourceTree = "<group>"; };
 		7908C0B21C43556300A0E8E9 /* FixedDepthAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FixedDepthAI.hpp; sourceTree = "<group>"; };
 		7927DD811A8068570049E9BB /* Logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
+		79301C9E1C560FE7000337FC /* Evaluators.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Evaluators.cpp; sourceTree = "<group>"; };
+		79301C9F1C560FE7000337FC /* Evaluators.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Evaluators.hpp; sourceTree = "<group>"; };
+		79301CA21C5611F7000337FC /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = gtest.framework; sourceTree = "<group>"; };
+		79301CCD1C5618C8000337FC /* libParse.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libParse.a; path = "../../Library/Developer/Xcode/DerivedData/ThreesAI-bdbknkvjauivaubdmyypghtmzkns/Build/Products/Debug/libParse.a"; sourceTree = "<group>"; };
 		793533131B814D9A0078E011 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		793533151B814DA50078E011 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		793533171B815DC60078E011 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -212,11 +237,14 @@
 			files = (
 				79F061471C559DF500F43532 /* gtest.framework in Frameworks */,
 				79F0613E1C559D2D00F43532 /* libopencv_core.2.4.11.dylib in Frameworks */,
+				79301CA41C5611F7000337FC /* gtest.framework in Frameworks */,
 				79F0613F1C559D3F00F43532 /* libopencv_features2d.2.4.11.dylib in Frameworks */,
 				79F061401C559D3F00F43532 /* libopencv_flann.2.4.11.dylib in Frameworks */,
 				79F061411C559D3F00F43532 /* libopencv_highgui.2.4.11.dylib in Frameworks */,
 				79F061421C559D3F00F43532 /* libopencv_imgproc.2.4.11.dylib in Frameworks */,
 				79F061431C559D3F00F43532 /* libopencv_nonfree.2.4.11.dylib in Frameworks */,
+				79301CA71C561586000337FC /* libboost_filesystem.dylib in Frameworks */,
+				79301CA61C561578000337FC /* libboost_system.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,6 +254,7 @@
 		2EF1FD92B4A7586A44BE7BB6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				79301CCD1C5618C8000337FC /* libParse.a */,
 				79F061451C559DED00F43532 /* gtest.framework */,
 				79F060F41C559BC800F43532 /* gtest.framework */,
 				5AAB6C1A25A2DAEB3C49D4EE /* libPods-ThreesAI.a */,
@@ -250,6 +279,7 @@
 				793533151B814DA50078E011 /* CoreVideo.framework */,
 				793533131B814D9A0078E011 /* CoreMedia.framework */,
 				799391931B8078C5000BC4D4 /* AVFoundation.framework */,
+				79301CA21C5611F7000337FC /* gtest.framework */,
 				79F060EE1C559B9000F43532 /* Tests */,
 				7944F88C1A732BC300ED690E /* Products */,
 				79E67A931B373C8A007D8C25 /* Boost */,
@@ -373,6 +403,8 @@
 		798A74401AE0BE140073DAB3 /* ThreesBoard */ = {
 			isa = PBXGroup;
 			children = (
+				79301C9E1C560FE7000337FC /* Evaluators.cpp */,
+				79301C9F1C560FE7000337FC /* Evaluators.hpp */,
 				7953BBF21BB761B40083AC3A /* BoardOutput */,
 				79A7792F1BF077FB00531415 /* BoardIndex.cpp */,
 				79A779301BF077FB00531415 /* BoardIndex.hpp */,
@@ -546,6 +578,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79AC83061C5758CD00326284 /* Logging.mm in Sources */,
+				79AC83051C5758BF00326284 /* QuickTimeSource.mm in Sources */,
 				7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */,
 				79B511B21C2F2D5300E1BC3E /* Heuristic.cpp in Sources */,
 				79B511B51C33C6D700E1BC3E /* Population.cpp in Sources */,
@@ -557,7 +591,6 @@
 				79E797FC1C1AB7310000B9DB /* BoardOutput.cpp in Sources */,
 				7944F88F1A732BC300ED690E /* main.cpp in Sources */,
 				79A779311BF077FB00531415 /* BoardIndex.cpp in Sources */,
-				79D022111B2C0E3D00624854 /* Logging.mm in Sources */,
 				79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */,
 				7966D0AE1A8ACB1700131B29 /* ZeroDepthAI.cpp in Sources */,
 				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
@@ -580,7 +613,7 @@
 				79B511AE1C2F2AEC00E1BC3E /* Chromosome.cpp in Sources */,
 				79D7220C1A9148F0009D89AA /* ExpectimaxAI.cpp in Sources */,
 				7963F4E21AA01F7E0081BEC8 /* HumanPlayer.cpp in Sources */,
-				79085D981B837EE1009DA8B1 /* QuickTimeSource.mm in Sources */,
+				79301CA01C560FE7000337FC /* Evaluators.cpp in Sources */,
 				797CB4B11BAAA1D0001A61D2 /* Direction.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -589,6 +622,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79AC83041C5755E100326284 /* ManyPlayMonteCarloAI.cpp in Sources */,
+				79AC83031C574AA800326284 /* AddedTileInfo.cpp in Sources */,
+				79AC83021C574AA100326284 /* BoardOutput.cpp in Sources */,
+				79AC83011C574A9300326284 /* SimulatedBoardOutput.cpp in Sources */,
+				79AC83001C574A8B00326284 /* AdaptiveDepthAI.cpp in Sources */,
+				79AC82FF1C574A8300326284 /* ThreesAIBase.cpp in Sources */,
+				79AC82FE1C574A7400326284 /* FixedDepthAI.cpp in Sources */,
+				79AC82FC1C574A5D00326284 /* Chromosome.cpp in Sources */,
+				79AC82FB1C57467E00326284 /* Debug.cpp in Sources */,
+				79AC82FA1C57461A00326284 /* Direction.cpp in Sources */,
+				79AC82F91C57461000326284 /* Hint.cpp in Sources */,
+				79AC82F81C5745B500326284 /* EnabledDirections.cpp in Sources */,
+				79AC82F71C5745AE00326284 /* EnabledIndices.cpp in Sources */,
+				79AC82F61C5745A700326284 /* BoardIndex.cpp in Sources */,
+				79AC82F51C57459600326284 /* Tile.cpp in Sources */,
+				79AC82F41C57458D00326284 /* BoardState.cpp in Sources */,
+				79301CA81C56185B000337FC /* Evaluators.cpp in Sources */,
 				79F061441C559DA000F43532 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -753,9 +803,16 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_NO_COMMON_BLOCKS = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
 				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					/,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -772,9 +829,16 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_NO_COMMON_BLOCKS = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
 				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					/,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -809,6 +873,7 @@
 				79F060F21C559B9000F43532 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

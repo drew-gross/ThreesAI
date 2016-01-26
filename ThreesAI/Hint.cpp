@@ -12,8 +12,6 @@
 
 #include "BoardState.h"
 
-#include "Debug.h"
-
 using namespace std;
 
 bool Hint::isNonBonus() const {
@@ -55,7 +53,6 @@ Tile Hint::actualTile(default_random_engine gen) const {
         case 2: return this->hint2;
         case 3: return this->hint3;
     }
-    debug();
     return Tile::EMPTY;
 }
 

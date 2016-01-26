@@ -242,6 +242,7 @@ hasNoHint(false)
         this->board = tileList;
         this->hint = Hint(hint[0], hint[1], hint[2]);
     }
+    this->maxTileCache = *max_element(tileList.begin(), tileList.end());
 }
 
 Tile BoardState::genUpcomingTile() const {
