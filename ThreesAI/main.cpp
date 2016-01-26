@@ -251,6 +251,7 @@ int main(int argc, const char * argv[]) {
         exit(0);
     }
     
+    
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     
     if (playOneGame) {
