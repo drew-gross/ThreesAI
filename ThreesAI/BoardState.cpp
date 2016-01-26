@@ -20,7 +20,7 @@
 using namespace std;
 using namespace boost;
 
-pair<float, unsigned int> BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, Heuristic h) const {
+SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, Heuristic h) const {
     //Assume board was moved but hasn't had tile added
     auto allAdditions = this->possibleAdditions(d);
     float score = 0;
@@ -31,7 +31,7 @@ pair<float, unsigned int> BoardState::heuristicSearchIfMovedInDirection(Directio
             score += h(potentialBoard)*info.probability;
             openNodeCount += 1;
         } else {
-            vector<pair<Direction, pair<float, unsigned int>>> scoresForMoves;
+            vector<pair<Direction, SearchResult>> scoresForMoves;
             for (auto&& d : allDirections) {
                 if (potentialBoard.isMoveValid(d)) {
                     BoardState movedBoard(BoardState::MoveWithoutAdd(d), potentialBoard);
@@ -42,12 +42,12 @@ pair<float, unsigned int> BoardState::heuristicSearchIfMovedInDirection(Directio
                 score += potentialBoard.score();
                 //No need to bump open node count here, this node is not open
             } else {
-                openNodeCount += accumulate(scoresForMoves.begin(), scoresForMoves.end(), 0, [](unsigned int soFar, pair<Direction, pair<float, unsigned int>> thisMove){
-                    return soFar + thisMove.second.second;
+                openNodeCount += accumulate(scoresForMoves.begin(), scoresForMoves.end(), 0, [](unsigned int soFar, pair<Direction, SearchResult> thisMove){
+                    return soFar + thisMove.second.openNodes;
                 });
-                score += max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, pair<float, unsigned int>> left, pair<Direction, pair<float, unsigned int>> right){
-                    return left.second.first < right.second.first;
-                })->second.second;
+                score += max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, SearchResult> left, pair<Direction, SearchResult> right){
+                    return left.second.value < right.second.value;
+                })->second.value;
             }
         }
     }

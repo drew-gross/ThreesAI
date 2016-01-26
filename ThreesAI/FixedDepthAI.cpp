@@ -31,9 +31,8 @@ Direction FixedDepthAI::getDirection() const {
         if (this->currentState()->isMoveValid(d)) {
             BoardState movedBoard(BoardState::MoveWithoutAdd(d), *this->currentState());
             auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, this->depth, this->heuristic);
-            totalNodesViewed += searchResult.second;
-            scoresForMoves.push_back({d, searchResult.first});
-            
+            totalNodesViewed += searchResult.openNodes;
+            scoresForMoves.push_back({d, searchResult.value});
         }
     }
     

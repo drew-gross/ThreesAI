@@ -30,6 +30,12 @@ class BoardState;
 
 typedef std::function<float(BoardState const&)> Heuristic;
 
+class SearchResult {
+public:
+    float value;
+    unsigned int openNodes;
+};
+
 class HiddenBoardState {
 public:
     HiddenBoardState(unsigned int numTurns, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack) :
@@ -174,7 +180,7 @@ public:
     Score runRandomSimulation(unsigned int simNumber) const;
     HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
     std::deque<BoardState::AdditionInfo> possibleAdditions(Direction directionMovedToGetHere) const;
-    std::pair<float, unsigned int> heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, Heuristic h) const;
+    SearchResult heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, Heuristic h) const;
     
     bool hasNoHint;
 public:

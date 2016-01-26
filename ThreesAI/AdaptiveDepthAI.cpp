@@ -31,8 +31,8 @@ pair<unsigned int, Direction> nodesAndDirectionAtDepth(BoardState const& b, Heur
         if (b.isMoveValid(d)) {
             BoardState movedBoard(BoardState::MoveWithoutAdd(d), b);
             auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, depth, h);
-            scoresForMoves.push_back({d, searchResult.first});
-            openNodeCount += searchResult.second;
+            scoresForMoves.push_back({d, searchResult.value});
+            openNodeCount += searchResult.openNodes;
         }
     }
     debug(scoresForMoves.empty());

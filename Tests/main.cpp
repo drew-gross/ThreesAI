@@ -12,12 +12,11 @@
 using namespace std;
 using namespace boost;
 
-std::unique_ptr<SimulatedBoardOutput> simpleBoardOutput() {
-    return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(make_shared<BoardState const>(BoardState::FromString("0,0,0,0,\
-                                                                                                                                    0,0,0,0,\
-                                                                                                                                    0,3,0,0,\
-                                                                                                                                    0,0,0,0-2")))));
-
+unique_ptr<SimulatedBoardOutput> simpleBoardOutput() {
+    return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<BoardState const>(BoardState::FromString("0,0,0,0,\
+                                                                                                                                         0,0,0,0,\
+                                                                                                                                         0,3,0,0,\
+                                                                                                                                         0,0,0,0-2")))));
 }
 
 TEST(HighestOnCorner, Works) {
@@ -158,6 +157,18 @@ TEST(FixedDepthAI, SearchesTheRightDepth) {
     FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 2);
     aiDepth2.playTurn();
     EXPECT_EQ(callCount, 36864);
+}
+
+TEST(HighestInCornerHeuristic, MovesALoneThreeToTheCorner) {
+    auto b = std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<BoardState const>(BoardState::FromString("0,0,0,0,\
+                                                                                                                                              0,0,0,0,\
+                                                                                                                                              12,0,0,0,\
+                                                                                                                                              0,0,0,0-2"))));
+    Chromosome c({{highestIsInCorner, 1}});
+    FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
+    aiDepth2.playTurn();
+    Tile cornerValue = aiDepth2.currentState()->at(BoardIndex(0,3));
+    EXPECT_EQ(cornerValue, Tile::TILE_12);
 }
 
 int main(int argc, char * argv[])
