@@ -1,14 +1,24 @@
 
 #include <gtest/gtest.h>
+#include <memory.h>
 
 #include "Evaluators.hpp"
 #include "Chromosome.hpp"
 #include "AdaptiveDepthAI.hpp"
 #include "SimulatedBoardOutput.h"
 #include "ManyPlayMonteCarloAI.h"
+#include "FixedDepthAI.hpp"
 
 using namespace std;
 using namespace boost;
+
+std::unique_ptr<SimulatedBoardOutput> simpleBoardOutput() {
+    return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(make_shared<BoardState const>(BoardState::FromString("0,0,0,0,\
+                                                                                                                                    0,0,0,0,\
+                                                                                                                                    0,3,0,0,\
+                                                                                                                                    0,0,0,0-2")))));
+
+}
 
 TEST(HighestOnCorner, Works) {
     BoardState b(BoardState::FromString("0,0,1,0,\
@@ -57,11 +67,8 @@ TEST(AdaptiveDepthAI, CallsHeuristic) {
 }
 
 TEST(MonteCarloAI, PicksDown) {
-    std::unique_ptr<SimulatedBoardOutput> board = std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(make_shared<BoardState const>(BoardState::FromString("2,6,3,1,\
-                                                                                                                                                                      3,24,384,6,\
-                                                                                                                                                                      6,24,96,192,\
-                                                                                                                                                                      3,6,1,3-2"))));
-    ManyPlayMonteCarloAI ai(board->currentState(HiddenBoardState(0,4,4,4)), std::move(board), 2);
+    auto b = simpleBoardOutput();
+    ManyPlayMonteCarloAI ai(b->currentState(HiddenBoardState(0,4,4,4)), std::move(b), 2);
     EXPECT_EQ(ai.getDirection(), Direction::UP);
 }
 
@@ -126,6 +133,31 @@ TEST(Movement, Works) {
                                         0,0,3,0,\
                                         0,0,2,0-1"));
     EXPECT_TRUE(x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}, {2,3}}));
+}
+
+TEST(FixedDepthAI, SearchesTheRightDepth) {
+    int callCount = 0;
+    auto incrementer = [&callCount](BoardState const&){
+        callCount++;
+        return 0;
+    };
+    Chromosome c({{incrementer, 1}});
+    auto b = simpleBoardOutput();
+    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
+    ai.playTurn();
+    EXPECT_EQ(callCount, 16);
+    
+    callCount = 0;
+    b = simpleBoardOutput();
+    FixedDepthAI aiDepth1(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 1);
+    aiDepth1.playTurn();
+    EXPECT_EQ(callCount, 768);
+    
+    callCount = 0;
+    b = simpleBoardOutput();
+    FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 2);
+    aiDepth2.playTurn();
+    EXPECT_EQ(callCount, 36864);
 }
 
 int main(int argc, char * argv[])

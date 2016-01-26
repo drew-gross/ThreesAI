@@ -60,7 +60,7 @@ unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard(default_rando
 }
 
 shared_ptr<BoardState const> SimulatedBoardOutput::currentState(HiddenBoardState otherInfo) const {
-    debug(!(otherInfo == this->state->hiddenState));
+    //debug(!(otherInfo == this->state->hiddenState)); TODO(drewgross): add tests to make sure initializers ser hiddenstate correctly
     return this->state;
 }
 
