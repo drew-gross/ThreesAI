@@ -46,3 +46,18 @@ float highestIsInCorner(BoardState const& b) {
     }
     return 0;
 }
+
+float highestIsOnEdge(BoardState const& b) {
+    Tile max = b.maxTile();
+    if (b.at(BoardIndex(0,1)) == max ||
+        b.at(BoardIndex(0,2)) == max ||
+        b.at(BoardIndex(3,1)) == max ||
+        b.at(BoardIndex(3,2)) == max ||
+        b.at(BoardIndex(1,0)) == max ||
+        b.at(BoardIndex(2,0)) == max ||
+        b.at(BoardIndex(1,3)) == max ||
+        b.at(BoardIndex(2,3)) == max) {
+        return 1;
+    }
+    return 0;
+}

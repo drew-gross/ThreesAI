@@ -18,6 +18,7 @@ float countSplitPair(BoardState const& b);
 float simScore(BoardState const& b);
 float countAdjacentOffByOne(BoardState const& b);
 float countTrappedTiles(BoardState const& b);
-float highestIsInCorner(BoardState const& b) ;
+float highestIsInCorner(BoardState const& b);
+float highestIsOnEdge(BoardState const& b);
 
 #endif /* Evaluators_hpp */

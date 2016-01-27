@@ -39,8 +39,7 @@ SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t 
                 }
             }
             if (scoresForMoves.empty()) {
-                score += potentialBoard.score();
-                //No need to bump open node count here, this node is not open
+                //No need to bump open node count here, this node is not open. Also don't bump score, we want to assume death is to be avoided at all costs.
             } else {
                 openNodeCount += accumulate(scoresForMoves.begin(), scoresForMoves.end(), 0, [](unsigned int soFar, pair<Direction, SearchResult> thisMove){
                     return soFar + thisMove.second.openNodes;

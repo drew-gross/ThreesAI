@@ -12,11 +12,8 @@
 using namespace std;
 using namespace boost;
 
-unique_ptr<SimulatedBoardOutput> simpleBoardOutput() {
-    return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<BoardState const>(BoardState::FromString("0,0,0,0,\
-                                                                                                                                         0,0,0,0,\
-                                                                                                                                         0,3,0,0,\
-                                                                                                                                         0,0,0,0-2")))));
+unique_ptr<SimulatedBoardOutput> makeOutput(string s) {
+    return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<BoardState const>(BoardState::FromString(s)))));
 }
 
 TEST(HighestOnCorner, Works) {
@@ -66,7 +63,10 @@ TEST(AdaptiveDepthAI, CallsHeuristic) {
 }
 
 TEST(MonteCarloAI, PicksDown) {
-    auto b = simpleBoardOutput();
+    auto b = makeOutput("0,0,0,0,\
+                        0,0,0,0,\
+                        0,3,0,0,\
+                        0,0,0,0-2");
     ManyPlayMonteCarloAI ai(b->currentState(HiddenBoardState(0,4,4,4)), std::move(b), 2);
     EXPECT_EQ(ai.getDirection(), Direction::UP);
 }
@@ -141,34 +141,68 @@ TEST(FixedDepthAI, SearchesTheRightDepth) {
         return 0;
     };
     Chromosome c({{incrementer, 1}});
-    auto b = simpleBoardOutput();
+    auto b = makeOutput("0,0,0,0,\
+                        0,0,0,0,\
+                        0,3,0,0,\
+                        0,0,0,0-2");
     FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
     ai.playTurn();
     EXPECT_EQ(callCount, 16);
     
     callCount = 0;
-    b = simpleBoardOutput();
+    b = makeOutput("0,0,0,0,\
+                   0,0,0,0,\
+                   0,3,0,0,\
+                   0,0,0,0-2");
     FixedDepthAI aiDepth1(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 1);
     aiDepth1.playTurn();
     EXPECT_EQ(callCount, 768);
     
     callCount = 0;
-    b = simpleBoardOutput();
+    b = makeOutput("0,0,0,0,\
+                   0,0,0,0,\
+                   0,3,0,0,\
+                   0,0,0,0-2");
     FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 2);
     aiDepth2.playTurn();
     EXPECT_EQ(callCount, 36864);
 }
 
 TEST(HighestInCornerHeuristic, MovesALoneThreeToTheCorner) {
-    auto b = std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<BoardState const>(BoardState::FromString("0,0,0,0,\
-                                                                                                                                              0,0,0,0,\
-                                                                                                                                              12,0,0,0,\
-                                                                                                                                              0,0,0,0-2"))));
+    auto b = makeOutput("0,0,0,0,\
+                        0,0,0,0,\
+                        12,0,0,0,\
+                        0,0,0,0-2");
     Chromosome c({{highestIsInCorner, 1}});
     FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
     aiDepth2.playTurn();
     Tile cornerValue = aiDepth2.currentState()->at(BoardIndex(0,3));
     EXPECT_EQ(cornerValue, Tile::TILE_12);
+}
+
+TEST(HighestIsOnEdgeHeuristic, MovesFromCornerToEdge) {
+    auto b = makeOutput("0,0,0,0,\
+                        0,0,0,0,\
+                        0,0,0,0,\
+                        12,0,0,0-2");
+    Chromosome c({{highestIsOnEdge, 1}});
+    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
+    ai.playTurn();
+    Tile e1 = ai.currentState()->at(BoardIndex(0,2));
+    Tile e2 = ai.currentState()->at(BoardIndex(1,3));
+    EXPECT_TRUE(e1 == Tile::TILE_12 || e2 == Tile::TILE_12);
+}
+
+TEST(HighestIsOnEdgeHeuristic, MovesFromEdgeToEdge) {
+    auto b = makeOutput("0,0,0,0,\
+                        0,0,0,0,\
+                        12,0,0,0,\
+                        0,0,0,0-2");
+    Chromosome c({{highestIsOnEdge, 1}});
+    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
+    ai.playTurn();
+    Tile e1 = ai.currentState()->at(BoardIndex(0,1));
+    EXPECT_EQ(e1, Tile::TILE_12);
 }
 
 int main(int argc, char * argv[])

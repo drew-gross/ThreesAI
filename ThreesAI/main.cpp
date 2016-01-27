@@ -169,27 +169,8 @@ void initAndPlayIfPossible(std::shared_ptr<HintImages const> hintImages, Chromos
     }
 }
 
-float highestIsOnEdge(BoardState const& b) {
-    Tile max = b.maxTile();
-    if (b.at(BoardIndex(0,1)) == max ||
-        b.at(BoardIndex(0,2)) == max ||
-        b.at(BoardIndex(3,1)) == max ||
-        b.at(BoardIndex(3,2)) == max ||
-        b.at(BoardIndex(1,0)) == max ||
-        b.at(BoardIndex(2,0)) == max ||
-        b.at(BoardIndex(1,3)) == max ||
-        b.at(BoardIndex(2,3)) == max) {
-        return 1;
-    }
-    return 0;
-}
-
 int main(int argc, const char * argv[]) {
-    //testBoardMovement();\
-    testChromosome();\
-    testMonteCarloAI();\
-    testMoveAndFindIndexes();\
-    testImageProc();\
+    //testImageProc();\
     debug();
     
     std::shared_ptr<HintImages const> hintImages(new HintImages({
@@ -200,26 +181,20 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6,Tile::TILE_12), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6-12.png", 0))},
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
-    
-    vector<BoardEvaluator> currentFuncs = {
-        countEmptyTile,
-        score,
-        countAdjacentPair,
-        countSplitPair,
-        simScore,
-        countAdjacentOffByOne,
-    };
     vector<FuncAndWeight> currentWeights = {
         {countEmptyTile, 2},
-//        {score, 1},
+        {score, 0.000005},
         {countAdjacentPair, 2},
-//        {countSplitPair, -1},
-//        {simScore, 0},
+        {countSplitPair, -1},
+        {simScore, 0.00001},
         {countAdjacentOffByOne, 1},
         {countTrappedTiles, -5},
-        {highestIsInCorner, 10000},
+        {highestIsInCorner, 10},
         {highestIsOnEdge, 5},
     };
+    vector<BoardEvaluator> currentFuncs;
+    currentFuncs.resize(currentWeights.size());
+    transform(currentWeights.begin(), currentWeights.end(), currentFuncs.begin(), [](FuncAndWeight const& b){return b.first;});
     Chromosome c(currentWeights); //Must not get destroyed
     Heuristic h = c.to_f();
     
@@ -230,7 +205,7 @@ int main(int argc, const char * argv[]) {
     bool trulyRandom = false;
     trulyRandom = true;
     bool play10Games = false;
-    //play10Games = true;
+    play10Games = true;
     
     random_device trueRandom;
     default_random_engine seededEngine(trulyRandom ? trueRandom() : 0);
@@ -240,7 +215,7 @@ int main(int argc, const char * argv[]) {
         unsigned long totalScore = 0;
         for (int i = 0; i < 10; i++) {
             unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
-            AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 800);
+            AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 500);
             ai.playGame(false, false);
             totalScore += ai.currentState()->score();
             cout << "Score " << i << ": " << ai.currentState()->score() << endl;
@@ -255,9 +230,9 @@ int main(int argc, const char * argv[]) {
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     
     if (playOneGame) {
-        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 10);
+        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 1000);
         time_t start = time(nullptr);
-        ai.playGame(true, true);
+        ai.playGame(true, false);
         time_t end = time(nullptr);
         cout << "Final score: " << ai.currentState()->score() << endl;
         cout << "Time taken: " << end - start << "s" << endl;
