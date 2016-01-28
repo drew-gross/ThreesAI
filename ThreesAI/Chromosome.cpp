@@ -17,6 +17,12 @@ using namespace std;
 
 Chromosome::Chromosome(vector<FuncAndWeight> c) : functions(c) {}
 
+Chromosome::Chromosome(const Chromosome& that) {
+    for (auto&& f : that.functions) {
+        this->functions.push_back(f);
+    }
+}
+
 size_t Chromosome::size() {
     return this->functions.size();
 }
@@ -31,11 +37,8 @@ Chromosome& Chromosome::operator=(Chromosome const& that) {
 }
 
 Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random_engine& rng) {
-    uniform_int_distribution<unsigned long> which_weight(0,c.functions.size());
-    normal_distribution<> how_much(0,20);
-    
-    auto index = which_weight(rng);  //A sequence point is necessary to force the RNG to get used in the right order.
-    float newWeight = how_much(rng);
+    unsigned long index = uniform_int_distribution<unsigned long>(0,c.functions.size() - 1)(rng);
+    float newWeight = normal_distribution<>(0,20)(rng);
     
     this->functions = c.functions;
     this->functions[index].second = newWeight;

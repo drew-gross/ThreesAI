@@ -36,7 +36,6 @@ Direction FixedDepthAI::getDirection() const {
         }
     }
     
-    cout << "Nodes viewed: " << totalNodesViewed << endl;
     debug(scoresForMoves.empty());
     auto d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){
         return left.second < right.second;

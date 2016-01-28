@@ -12,6 +12,32 @@ using namespace std;
 
 Population::Population(std::vector<Chromosome> p) : p(p){};
 
+Population::Population(vector<Heuristic> funcs, unsigned int size) {
+    default_random_engine initial_population_generator;
+    normal_distribution<float> population_dist(0,5);
+    for (int i = 0; i < size; i++) {
+        vector<FuncAndWeight> weights;
+        weights.reserve(funcs.size());
+        for (auto&& func : funcs) {
+            weights.push_back({func, population_dist(initial_population_generator)});
+        }
+        p.emplace_back(weights);
+    }
+}
+
+Population Population::next(default_random_engine& rng) const {
+    vector<Chromosome> next;
+    for (int i = 0; i < this->p.size(); i++) {
+        Chromosome candidate = this->cross(i, int(this->p.size())/2 - 1, rng);
+        next.push_back(candidate);
+    }
+    
+    next.pop_back();
+    next.emplace_back(Chromosome::Mutate(), this->p.front(), rng);
+    
+    return Population(next);
+}
+
 Population& Population::operator=(Population const& other) {
     this->p = other.p;
     return *this;
@@ -33,7 +59,7 @@ void Population::populateScoresAndSort(int averageCount, default_random_engine& 
     });
 }
 
-Chromosome Population::cross(int i1, int i2, default_random_engine& rng) {
+Chromosome Population::cross(int i1, int i2, default_random_engine& rng) const {
     uniform_int_distribution<bool> dist(0,1);
     
     Chromosome pick1(this->p[this->sortResult[i1].second]);

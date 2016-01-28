@@ -205,6 +205,41 @@ TEST(HighestIsOnEdgeHeuristic, MovesFromEdgeToEdge) {
     EXPECT_EQ(e1, Tile::TILE_12);
 }
 
+TEST(TrappedCount, Works) {
+    auto b = makeOutput("0,0,0,12,\
+                        0,0,0,3,\
+                        3,12,0,12,\
+                        0,0,0,0-2");
+    EXPECT_EQ(countTrappedTiles(*b->sneakyState()), 2);
+}
+
+TEST(TrappedCount, DealsWith1sAnd2s) {
+    auto b = makeOutput("0,0,0,2,\
+                        0,0,0,3,\
+                        2,1,0,2,\
+                        0,0,0,1-2");
+    EXPECT_EQ(countTrappedTiles(*b->sneakyState()), 1);
+}
+
+TEST(Mutating, MutatesOneValue) {
+    Chromosome c({
+        {highestIsOnEdge, 0},
+        {highestIsInCorner, 0},
+        {score, 0}
+    });
+    for (int rng_init = 0; rng_init < 1000; rng_init++) {
+        default_random_engine rng(rng_init);
+        Chromosome m(Chromosome::Mutate(), c, rng);
+        int differentCount = 0;
+        for (int i = 0; i < m.size(); i++) {
+            if (m.getFun(i).second != c.getFun(i).second) {
+                differentCount++;
+            }
+        }
+        EXPECT_EQ(differentCount, 1);
+    }
+}
+
 int main(int argc, char * argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

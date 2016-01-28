@@ -201,11 +201,11 @@ int main(int argc, const char * argv[]) {
     initAndPlayIfPossible(hintImages, Chromosome(currentWeights));
     
     bool playOneGame = false;
-    playOneGame = true;
+    //playOneGame = true;
     bool trulyRandom = false;
     trulyRandom = true;
     bool play10Games = false;
-    play10Games = true;
+    //play10Games = true;
     
     random_device trueRandom;
     default_random_engine seededEngine(trulyRandom ? trueRandom() : 0);
@@ -226,11 +226,10 @@ int main(int argc, const char * argv[]) {
         exit(0);
     }
     
-    
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     
     if (playOneGame) {
-        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 1000);
+        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 2000);
         time_t start = time(nullptr);
         ai.playGame(true, false);
         time_t end = time(nullptr);
@@ -239,45 +238,18 @@ int main(int argc, const char * argv[]) {
         exit(0);
     }
     
-    signed int pop_size = 8;
-    std::vector<Chromosome> p;
-    
-    default_random_engine initial_population_generator;
-    normal_distribution<float> population_dist(0,5);
-    for (int i = 0; i < pop_size; i++) {
-        vector<FuncAndWeight> weights;
-        for (auto&& func : currentFuncs) {
-            weights.push_back({func, population_dist(initial_population_generator)});
-        }
-        p.emplace_back(weights);
-    }
-    
-    Population currentGeneration(p);
-    
+    Population p(currentFuncs, 8);
     default_random_engine rng(trueRandom());
-    
     int generationNumber = 0;
-    
     while (true) {
         generationNumber++;
         default_random_engine prng(0);
-        currentGeneration.populateScoresAndSort(5, prng);
+        p.populateScoresAndSort(5, prng);
         
         cout << "Generation #" << generationNumber << endl;
-        cout << currentGeneration << endl;
+        cout << p << endl;
         
-        vector<Chromosome> next_generation;
-        
-        for (int i = 0; i < pop_size / 2; i++) {
-            
-            Chromosome candidate = currentGeneration.cross(i, pop_size/2 - 1, rng);
-            next_generation.push_back(candidate);
-            next_generation.emplace_back(Chromosome::Mutate(), candidate, rng);
-        }
-        
-        next_generation.emplace_back(currentGeneration.get(0));
-        
-        currentGeneration = Population(next_generation);
+        p = p.next(prng);
     }
 
     return 0;

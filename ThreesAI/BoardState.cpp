@@ -362,29 +362,40 @@ unsigned long BoardState::adjacentOffByOneCount() const {
     return count;
 }
 
+using Tile::EMPTY;
+using Tile::TILE_1;
+using Tile::TILE_2;
+using Tile::TILE_3;
+
+bool isBlocked(Tile here, optional<Tile> s1, optional<Tile> s2) {
+    if (here == EMPTY) {
+        return false;
+    }
+    if (s1.value_or(TILE_3) < TILE_3) {
+        return false;
+    }
+    if (s2.value_or(TILE_3) < TILE_3) {
+        return false;
+    }
+    if (here < s2.value_or(Tile::TILE_6144) && here < s1.value_or(Tile::TILE_6144)) {
+        return true;
+    }
+    return false;
+}
+
 unsigned long BoardState::trappedTileCount() const {
     unsigned long count = 0;
     for (BoardIndex i : allIndices) {
-        if (i.left() && i.right()) {
-            if (this->at(i) < this->at(i.left().get()) &&
-                this->at(i) < this->at(i.right().get())) {
-                count++;
-            }
-        } else if (i.left() && this->at(i) < this->at(i.left().get())) {
-            count++;
-        } else if (i.right() && this->at(i) < this->at(i.right().get())) {
+        Tile here = this->at(i);
+        optional<Tile> left = i.left() ? make_optional(this->at(i.left().get())) : none;
+        optional<Tile> right = i.right() ? make_optional(this->at(i.right().get())) : none;
+        optional<Tile> up = i.up() ? make_optional(this->at(i.up().get())) : none;
+        optional<Tile> down = i.down() ? make_optional(this->at(i.down().get())) : none;
+        if (isBlocked(here, up, down)) {
             count++;
         }
-        
-        if (i.up() && i.down()) {
-            if (this->at(i) < this->at(i.up().get()) &&
-                this->at(i) < this->at(i.down().get())) {
-                count++;
-            }
-        } else if (i.up() && this->at(i) < this->at(i.up().get())) {
-            count++;
-        } else if (i.down() && this->at(i) < this->at(i.down().get())) {
-            count++;
+        if (isBlocked(here, left, right)) {
+            count++; //double counting if blocked in both directions is probably a good idea...
         }
     }
     return count;

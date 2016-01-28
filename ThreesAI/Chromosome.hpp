@@ -36,7 +36,7 @@ public:
         Mutate() {};
     };
     
-    explicit Chromosome(const Chromosome& that) {debug();};
+    explicit Chromosome(const Chromosome& that);
     Chromosome(Chromosome&& that) {debug();};
     Chromosome& operator=(Chromosome&& that) {debug();return *this;};
     Chromosome& operator=(Chromosome const& that);
