@@ -240,6 +240,29 @@ TEST(Mutating, MutatesOneValue) {
     }
 }
 
+TEST(Mutating, MutatesEachValueEqually) {
+    Chromosome c({
+        {highestIsOnEdge, 0},
+        {highestIsInCorner, 0},
+        {score, 0}
+    });
+    vector<unsigned int> differentCount;
+    differentCount.resize(c.size());
+    for (int rng_init = 0; rng_init < 1000; rng_init++) {
+        default_random_engine rng(rng_init);
+        Chromosome m(Chromosome::Mutate(), c, rng);
+        for (int i = 0; i < m.size(); i++) {
+            if (m.getFun(i).second != c.getFun(i).second) {
+                differentCount[i]++;
+            }
+        }
+    }
+    EXPECT_EQ(differentCount[0] + differentCount[1] + differentCount[2], 1000);
+    unsigned int max = *max_element(differentCount.begin(), differentCount.end());
+    unsigned int min = *min_element(differentCount.begin(), differentCount.end());
+    EXPECT_LE(max/min, 1.1);
+}
+
 int main(int argc, char * argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
