@@ -45,7 +45,7 @@ public:
     explicit Chromosome(std::vector<FuncAndWeight> weights);
     
     Heuristic to_f() const;
-    BoardState::Score score(unsigned int averageCount, std::default_random_engine& rng) const;
+    BoardState::Score score(unsigned int averageCount, unsigned int rngSeed) const;
 };
 
 std::ostream& operator<<(std::ostream &os, Chromosome const& c);

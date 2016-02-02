@@ -56,13 +56,14 @@ Heuristic Chromosome::to_f() const {
     };
 }
 
-BoardState::Score Chromosome::score(unsigned int averageCount, default_random_engine& rng) const {
+BoardState::Score Chromosome::score(unsigned int averageCount, unsigned int prngSeed) const {
     float totalScore = 0;
+    default_random_engine prng(prngSeed);
     unsigned int origAverageCount = averageCount;
     while (averageCount > 0) {
         averageCount--;
-        auto board = SimulatedBoardOutput::randomBoard(rng);
-        rng.discard(1);
+        auto board = SimulatedBoardOutput::randomBoard(prng);
+        prng.discard(1);
         BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
         FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f(), 0);
         ai.playGame(false, false);

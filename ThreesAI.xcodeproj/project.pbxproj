@@ -84,6 +84,7 @@
 		79F061431C559D3F00F43532 /* libopencv_nonfree.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DC795B1AF728F4003655FF /* libopencv_nonfree.2.4.11.dylib */; };
 		79F061441C559DA000F43532 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F060EF1C559B9000F43532 /* main.cpp */; };
 		79F061471C559DF500F43532 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79F061451C559DED00F43532 /* gtest.framework */; };
+		79F8F68E1C5B578F00401019 /* Population.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511B31C33C6D700E1BC3E /* Population.cpp */; };
 		79F98BB81AA3E95B0043C8BC /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F98BB61AA3E95A0043C8BC /* Debug.cpp */; };
 		94F8477957E562C9745B39E0 /* libPods-ThreesAI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AAB6C1A25A2DAEB3C49D4EE /* libPods-ThreesAI.a */; };
 /* End PBXBuildFile section */
@@ -622,6 +623,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79F8F68E1C5B578F00401019 /* Population.cpp in Sources */,
 				79AC83041C5755E100326284 /* ManyPlayMonteCarloAI.cpp in Sources */,
 				79AC83031C574AA800326284 /* AddedTileInfo.cpp in Sources */,
 				79AC83021C574AA100326284 /* BoardOutput.cpp in Sources */,

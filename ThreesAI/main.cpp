@@ -238,18 +238,17 @@ int main(int argc, const char * argv[]) {
         exit(0);
     }
     
-    Population p(currentFuncs, 8);
+    default_random_engine prng(0);
+    Population p(currentFuncs, 8, 5, prng);
     default_random_engine rng(trueRandom());
     int generationNumber = 0;
     while (true) {
-        generationNumber++;
-        default_random_engine prng(0);
-        p.populateScoresAndSort(5, prng);
+        generationNumber++;;
         
         cout << "Generation #" << generationNumber << endl;
         cout << p << endl;
         
-        p = p.next(prng);
+        p = p.next(5, prng);
     }
 
     return 0;

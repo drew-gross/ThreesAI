@@ -4,6 +4,7 @@
 
 #include "Evaluators.hpp"
 #include "Chromosome.hpp"
+#include "Population.hpp"
 #include "AdaptiveDepthAI.hpp"
 #include "SimulatedBoardOutput.h"
 #include "ManyPlayMonteCarloAI.h"
@@ -261,6 +262,14 @@ TEST(Mutating, MutatesEachValueEqually) {
     unsigned int max = *max_element(differentCount.begin(), differentCount.end());
     unsigned int min = *min_element(differentCount.begin(), differentCount.end());
     EXPECT_LE(max/min, 1.1);
+}
+
+TEST(PopulationsFromChromosomes, SortThemselves) {
+    unsigned int averageCount = 3;
+    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, 3, averageCount, 0);
+    for (int i = 0; i < p.size() - 1; i++) {
+        EXPECT_GT(p.get(i).score(averageCount, 0), p.get(i+1).score(averageCount, 0));
+    }
 }
 
 int main(int argc, char * argv[])

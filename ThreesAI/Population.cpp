@@ -10,9 +10,15 @@
 
 using namespace std;
 
-Population::Population(std::vector<Chromosome> p) : p(p){};
+Population::Population(std::vector<Chromosome> p, unsigned int averageCount, unsigned int prngSeed) : p(p){
+    this->populateScoresAndSort(averageCount, prngSeed);
+};
 
-Population::Population(vector<Heuristic> funcs, unsigned int size) {
+size_t Population::size() {
+    return this->p.size();
+}
+
+Population::Population(vector<Heuristic> funcs, unsigned int size, unsigned int averageCount, unsigned int prngSeed) {
     default_random_engine initial_population_generator;
     normal_distribution<float> population_dist(0,5);
     for (int i = 0; i < size; i++) {
@@ -23,19 +29,21 @@ Population::Population(vector<Heuristic> funcs, unsigned int size) {
         }
         p.emplace_back(weights);
     }
+    this->populateScoresAndSort(averageCount, prngSeed);
 }
 
-Population Population::next(default_random_engine& rng) const {
+Population Population::next(unsigned int averageCount, unsigned int prngSeed) const {
+    default_random_engine prng(prngSeed);
     vector<Chromosome> next;
     for (int i = 0; i < this->p.size(); i++) {
-        Chromosome candidate = this->cross(i, int(this->p.size())/2 - 1, rng);
+        Chromosome candidate = this->cross(i, int(this->p.size())/2 - 1, prng);
         next.push_back(candidate);
     }
     
     next.pop_back();
-    next.emplace_back(Chromosome::Mutate(), this->p.front(), rng);
+    next.emplace_back(Chromosome::Mutate(), this->p.front(), prng);
     
-    return Population(next);
+    return Population(next, averageCount, prngSeed);
 }
 
 Population& Population::operator=(Population const& other) {
@@ -43,11 +51,10 @@ Population& Population::operator=(Population const& other) {
     return *this;
 }
 
-void Population::populateScoresAndSort(int averageCount, default_random_engine& rng) {
+void Population::populateScoresAndSort(int averageCount, unsigned int prngSeed) {
     this->scores.resize(this->p.size());
     for (int i = 0; i < this->p.size(); i++) {
-        this->scores[i] = this->p[i].score(averageCount, rng);
-        rng.discard(1);
+        this->scores[i] = this->p[i].score(averageCount, prngSeed);
     }
     sortResult.resize(this->p.size());
     for (int i = 0; i < this->p.size(); i++) {
