@@ -238,8 +238,10 @@ int main(int argc, const char * argv[]) {
         exit(0);
     }
     
-    default_random_engine prng(0);
-    Population p(currentFuncs, 8, 5, prng);
+    unsigned int pop_size = 8;
+    unsigned int average_count = 5;
+    unsigned int prng_seed = 0;
+    Population p(currentFuncs, pop_size, average_count, prng_seed);
     default_random_engine rng(trueRandom());
     int generationNumber = 0;
     while (true) {
@@ -248,7 +250,7 @@ int main(int argc, const char * argv[]) {
         cout << "Generation #" << generationNumber << endl;
         cout << p << endl;
         
-        p = p.next(5, prng);
+        p = p.next(average_count, generationNumber);
     }
 
     return 0;

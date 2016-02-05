@@ -266,10 +266,56 @@ TEST(Mutating, MutatesEachValueEqually) {
 
 TEST(PopulationsFromChromosomes, SortThemselves) {
     unsigned int averageCount = 3;
-    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, 3, averageCount, 0);
+    unsigned int pop_size = 10;
+    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, pop_size, averageCount, prngSeed(1));
     for (int i = 0; i < p.size() - 1; i++) {
-        EXPECT_GT(p.get(i).score(averageCount, 0), p.get(i+1).score(averageCount, 0));
+        EXPECT_GT(p.get(i).score(averageCount, prngSeed(1)) + 1, p.get(i+1).score(averageCount, prngSeed(1)));
     }
+}
+
+TEST(ChromosomeCross, Crosses) {
+    Chromosome c1({
+        {score, 0},
+        {countEmptyTile, 0},
+        {countAdjacentPair, 0},
+        {countAdjacentOffByOne, 0},
+    });
+    Chromosome c2({
+        {score, 1},
+        {countEmptyTile, 1},
+        {countAdjacentPair, 1},
+        {countAdjacentOffByOne, 1},
+    });
+    
+    default_random_engine prng(0);
+    Chromosome cross = c1.cross(c2, prng);
+    bool has1 = false;
+    bool has0 = false;
+    for (int i = 0; i < c1.size(); i++) {
+        if (cross.getFun(i).second == 0) {
+            has0 = true;
+        }
+        if (cross.getFun(i).second == 1) {
+            has1 = true;
+        }
+    }
+    EXPECT_TRUE(has1);
+    EXPECT_TRUE(has0);
+}
+
+TEST(PopulationNext, MakesSense) {
+    unsigned int averageCount = 3;
+    unsigned int pop_size = 10;
+    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, pop_size, averageCount, prngSeed(1));
+    auto p2 = p.next(3, prngSeed(3));
+    EXPECT_EQ(p.size(), p2.size());
+    auto p3 = p.next(3, prngSeed(3));
+    EXPECT_EQ(p2.size(), p3.size());
+}
+
+TEST(SameChromosomeWithDifferentSeeds, HaveDifferentScores) {
+    Chromosome c({{score,1}});
+    EXPECT_NE(c.score(1,prngSeed(1)), c.score(1,prngSeed(2)));
 }
 
 int main(int argc, char * argv[])

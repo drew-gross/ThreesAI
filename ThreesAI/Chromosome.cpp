@@ -23,17 +23,30 @@ Chromosome::Chromosome(const Chromosome& that) {
     }
 }
 
-size_t Chromosome::size() {
+size_t Chromosome::size() const {
     return this->functions.size();
 }
 
-FuncAndWeight Chromosome::getFun(uint8_t i) {
+FuncAndWeight Chromosome::getFun(uint8_t i) const {
     return this->functions.at(i);
 }
 
 Chromosome& Chromosome::operator=(Chromosome const& that) {
     this->functions = that.functions;
     return *this;
+}
+
+Chromosome Chromosome::cross(Chromosome const& other, default_random_engine& prng) const {
+    uniform_int_distribution<bool> dist(0,1);
+    
+    vector<FuncAndWeight> newFunctions;
+    newFunctions.reserve(other.size());
+    for (int i = 0; i < other.size(); i++) {
+        bool use1 = dist(prng);
+        newFunctions.push_back(use1 ? this->getFun(i) : other.getFun(i));
+    }
+    
+    return Chromosome(newFunctions);
 }
 
 Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random_engine& rng) {
@@ -56,9 +69,9 @@ Heuristic Chromosome::to_f() const {
     };
 }
 
-BoardState::Score Chromosome::score(unsigned int averageCount, unsigned int prngSeed) const {
+BoardState::Score Chromosome::score(unsigned int averageCount, prngSeed prngSeed) const {
     float totalScore = 0;
-    default_random_engine prng(prngSeed);
+    default_random_engine prng(prngSeed.get());
     unsigned int origAverageCount = averageCount;
     while (averageCount > 0) {
         averageCount--;

@@ -10,7 +10,7 @@
 
 using namespace std;
 
-Population::Population(std::vector<Chromosome> p, unsigned int averageCount, unsigned int prngSeed) : p(p){
+Population::Population(std::vector<Chromosome> p, unsigned int averageCount, prngSeed prngSeed) : p(p){
     this->populateScoresAndSort(averageCount, prngSeed);
 };
 
@@ -18,7 +18,7 @@ size_t Population::size() {
     return this->p.size();
 }
 
-Population::Population(vector<Heuristic> funcs, unsigned int size, unsigned int averageCount, unsigned int prngSeed) {
+Population::Population(vector<Heuristic> funcs, unsigned int size, unsigned int averageCount, prngSeed prngSeed) {
     default_random_engine initial_population_generator;
     normal_distribution<float> population_dist(0,5);
     for (int i = 0; i < size; i++) {
@@ -32,16 +32,23 @@ Population::Population(vector<Heuristic> funcs, unsigned int size, unsigned int 
     this->populateScoresAndSort(averageCount, prngSeed);
 }
 
-Population Population::next(unsigned int averageCount, unsigned int prngSeed) const {
-    default_random_engine prng(prngSeed);
+Population Population::next(unsigned int averageCount, prngSeed prngSeed) const {
+    default_random_engine prng(prngSeed.get());
     vector<Chromosome> next;
-    for (int i = 0; i < this->p.size(); i++) {
-        Chromosome candidate = this->cross(i, int(this->p.size())/2 - 1, prng);
-        next.push_back(candidate);
-    }
-    
-    next.pop_back();
     next.emplace_back(Chromosome::Mutate(), this->p.front(), prng);
+    next.push_back(this->p[0]);
+    for (unsigned int i = 0; i < this->p.size(); i++) {
+        unsigned int parent1 = i;
+        unsigned int parent2 = i+1;
+        if (parent2 == this->p.size()) {
+            parent2 = 1;
+        }
+        Chromosome candidate = this->p[parent1].cross(this->p[parent2], prng);
+        next.push_back(candidate);
+        if (this->p.size() == next.size()) {
+            return Population(next, averageCount, prngSeed);
+        }
+    }
     
     return Population(next, averageCount, prngSeed);
 }
@@ -51,7 +58,7 @@ Population& Population::operator=(Population const& other) {
     return *this;
 }
 
-void Population::populateScoresAndSort(int averageCount, unsigned int prngSeed) {
+void Population::populateScoresAndSort(int averageCount, prngSeed prngSeed) {
     this->scores.resize(this->p.size());
     for (int i = 0; i < this->p.size(); i++) {
         this->scores[i] = this->p[i].score(averageCount, prngSeed);
@@ -64,21 +71,6 @@ void Population::populateScoresAndSort(int averageCount, unsigned int prngSeed) 
     sort(sortResult.begin(), sortResult.end(), [](pair<float, int> l, pair<float, int>r){
         return l.first > r.first;
     });
-}
-
-Chromosome Population::cross(int i1, int i2, default_random_engine& rng) const {
-    uniform_int_distribution<bool> dist(0,1);
-    
-    Chromosome pick1(this->p[this->sortResult[i1].second]);
-    Chromosome pick2(this->p[this->sortResult[i2].second]);
-    
-    vector<FuncAndWeight> newFunctions;
-    for (int i = 0; i < pick1.size(); i++) {
-        bool use1 = dist(rng);
-        newFunctions.push_back(use1 ? pick1.getFun(i) : pick2.getFun(i));
-    }
-    
-    return Chromosome(newFunctions);
 }
 
 Chromosome& Population::get(int i) {

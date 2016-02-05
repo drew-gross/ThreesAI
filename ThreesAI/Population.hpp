@@ -19,17 +19,16 @@ class Population {
     std::vector<float> scores;
     std::vector<std::pair<float, int>> sortResult;
     
-    void populateScoresAndSort(int averageCount, unsigned int prngSeed);
+    void populateScoresAndSort(int averageCount, prngSeed prngSeed);
 public:
     
     size_t size();
     friend std::ostream& operator<<(std::ostream &os, const Population d);
-    Population(std::vector<Chromosome> p, unsigned int averageCount, unsigned int prngSeed);
-    Population(std::vector<Heuristic>, unsigned int size, unsigned int averageCount, unsigned int prngSeed);
+    Population(std::vector<Chromosome> p, unsigned int averageCount, prngSeed prngSeed);
+    Population(std::vector<Heuristic>, unsigned int size, unsigned int averageCount, prngSeed prngSeed);
     Population& operator=(Population const& other);
-    Chromosome cross(int index1, int index2, std::default_random_engine& rng) const;
     Chromosome& get(int index);
-    Population next(unsigned int averageCount, unsigned int prngSeed) const;
+    Population next(unsigned int averageCount, prngSeed prngSeed) const;
 };
 
 std::ostream& operator<<(std::ostream &os, const Population d);

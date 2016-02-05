@@ -18,6 +18,18 @@
 
 #define CHROMOSOME_SIZE 8
 
+class prngSeed {
+    int s;
+public:
+    explicit prngSeed(unsigned int val) {
+        if (val == 0) {
+            throw std::exception();
+        }
+        s = val;
+    }
+    unsigned int get() {return this->s;}
+};
+
 typedef std::function<float(BoardState const&)> BoardEvaluator;
 typedef std::pair<BoardEvaluator, float> FuncAndWeight;
 
@@ -28,8 +40,8 @@ class Chromosome {
     
 public:
     ~Chromosome() {}
-    size_t size();
-    FuncAndWeight getFun(uint8_t i);
+    size_t size() const;
+    FuncAndWeight getFun(uint8_t i) const;
     
     class Mutate {
     public:
@@ -40,12 +52,15 @@ public:
     Chromosome(Chromosome&& that) {debug();};
     Chromosome& operator=(Chromosome&& that) {debug();return *this;};
     Chromosome& operator=(Chromosome const& that);
+    
+    //Must cross with chromosome that has same functions in same order
+    Chromosome cross(Chromosome const& other, std::default_random_engine& rng) const;
     Chromosome(Mutate m, Chromosome const& c, std::default_random_engine& rng);
     
     explicit Chromosome(std::vector<FuncAndWeight> weights);
     
     Heuristic to_f() const;
-    BoardState::Score score(unsigned int averageCount, unsigned int rngSeed) const;
+    BoardState::Score score(unsigned int averageCount, prngSeed prngSeed) const;
 };
 
 std::ostream& operator<<(std::ostream &os, Chromosome const& c);
