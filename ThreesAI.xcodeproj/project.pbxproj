@@ -11,7 +11,6 @@
 		79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */; };
 		7908C0B31C43556300A0E8E9 /* FixedDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */; };
 		79301CA01C560FE7000337FC /* Evaluators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79301C9E1C560FE7000337FC /* Evaluators.cpp */; };
-		79301CA41C5611F7000337FC /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79301CA21C5611F7000337FC /* gtest.framework */; };
 		79301CA61C561578000337FC /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A961B373CB6007D8C25 /* libboost_system.dylib */; };
 		79301CA71C561586000337FC /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A941B373C9A007D8C25 /* libboost_filesystem.dylib */; };
 		79301CA81C56185B000337FC /* Evaluators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79301C9E1C560FE7000337FC /* Evaluators.cpp */; };
@@ -238,7 +237,6 @@
 			files = (
 				79F061471C559DF500F43532 /* gtest.framework in Frameworks */,
 				79F0613E1C559D2D00F43532 /* libopencv_core.2.4.11.dylib in Frameworks */,
-				79301CA41C5611F7000337FC /* gtest.framework in Frameworks */,
 				79F0613F1C559D3F00F43532 /* libopencv_features2d.2.4.11.dylib in Frameworks */,
 				79F061401C559D3F00F43532 /* libopencv_flann.2.4.11.dylib in Frameworks */,
 				79F061411C559D3F00F43532 /* libopencv_highgui.2.4.11.dylib in Frameworks */,
@@ -512,7 +510,7 @@
 		7944F8831A732BC300ED690E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = DrewGross;
 				TargetAttributes = {
 					7944F88A1A732BC300ED690E = {

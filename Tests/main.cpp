@@ -267,9 +267,11 @@ TEST(Mutating, MutatesEachValueEqually) {
 TEST(PopulationsFromChromosomes, SortThemselves) {
     unsigned int averageCount = 3;
     unsigned int pop_size = 10;
-    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, pop_size, averageCount, prngSeed(1));
+    unsigned int searchDepth = 0;
+    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, pop_size, averageCount, searchDepth, prngSeed(1));
+    EXPECT_EQ(pop_size, p.size());
     for (int i = 0; i < p.size() - 1; i++) {
-        EXPECT_GT(p.get(i).score(averageCount, prngSeed(1)) + 1, p.get(i+1).score(averageCount, prngSeed(1)));
+        EXPECT_GT(p.get(i)->score(averageCount, 0, prngSeed(1)) + 1, p.get(i+1)->score(averageCount, 0, prngSeed(1)));
     }
 }
 
@@ -288,14 +290,14 @@ TEST(ChromosomeCross, Crosses) {
     });
     
     default_random_engine prng(0);
-    Chromosome cross = c1.cross(c2, prng);
+    auto cross = c1.cross(c2, prng);
     bool has1 = false;
     bool has0 = false;
     for (int i = 0; i < c1.size(); i++) {
-        if (cross.getFun(i).second == 0) {
+        if (cross->getFun(i).second == 0) {
             has0 = true;
         }
-        if (cross.getFun(i).second == 1) {
+        if (cross->getFun(i).second == 1) {
             has1 = true;
         }
     }
@@ -306,16 +308,40 @@ TEST(ChromosomeCross, Crosses) {
 TEST(PopulationNext, MakesSense) {
     unsigned int averageCount = 3;
     unsigned int pop_size = 10;
-    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, pop_size, averageCount, prngSeed(1));
-    auto p2 = p.next(3, prngSeed(3));
+    unsigned int searchDepth = 1;
+    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, pop_size, averageCount, searchDepth, prngSeed(1));
+    auto p2 = p.next(averageCount, searchDepth, prngSeed(3));
     EXPECT_EQ(p.size(), p2.size());
-    auto p3 = p.next(3, prngSeed(3));
+    auto p3 = p.next(averageCount, searchDepth, prngSeed(3));
     EXPECT_EQ(p2.size(), p3.size());
 }
 
 TEST(SameChromosomeWithDifferentSeeds, HaveDifferentScores) {
     Chromosome c({{score,1}});
-    EXPECT_NE(c.score(1,prngSeed(1)), c.score(1,prngSeed(2)));
+    EXPECT_NE(c.score(1,0,prngSeed(1)), c.score(1,0,prngSeed(2)));
+}
+
+TEST(ChromosomeAveraging, GivesBetterResults) {
+    Chromosome c({{score, 1}});
+    EXPECT_NE(c.score(1, 0, prngSeed(1)), c.score(2, 0, prngSeed(1)));
+}
+
+TEST(DifferenctChromosome, GiveDifferentResults) {
+    Chromosome c1({{score, 1}});
+    Chromosome c2({{countEmptyTile, -1}});
+    EXPECT_NE(c1.score(1, 0, prngSeed(1)), c2.score(1, 0, prngSeed(1)));
+    EXPECT_NE(c1.score(1, 0, prngSeed(2)), c2.score(1, 0, prngSeed(2)));
+    EXPECT_NE(c1.score(2, 0, prngSeed(1)), c2.score(2, 0, prngSeed(1)));
+    EXPECT_NE(c1.score(2, 0, prngSeed(2)), c2.score(2, 0, prngSeed(2)));
+}
+
+TEST(PopulationNext, HasDifferentScore) {
+    unsigned int popSize = 4;
+    unsigned int averageCount = 1;
+    unsigned int searchDepth = 2;
+    Population p({score, countEmptyTile}, popSize, averageCount, searchDepth, prngSeed(1));
+    Population p2 = p.next(averageCount, searchDepth, prngSeed(1));
+    EXPECT_NE(p.getScore(1), p2.getScore(1));
 }
 
 int main(int argc, char * argv[])

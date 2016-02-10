@@ -36,7 +36,7 @@ Chromosome& Chromosome::operator=(Chromosome const& that) {
     return *this;
 }
 
-Chromosome Chromosome::cross(Chromosome const& other, default_random_engine& prng) const {
+shared_ptr<Chromosome> Chromosome::cross(Chromosome const& other, default_random_engine& prng) const {
     uniform_int_distribution<bool> dist(0,1);
     
     vector<FuncAndWeight> newFunctions;
@@ -46,7 +46,7 @@ Chromosome Chromosome::cross(Chromosome const& other, default_random_engine& prn
         newFunctions.push_back(use1 ? this->getFun(i) : other.getFun(i));
     }
     
-    return Chromosome(newFunctions);
+    return make_shared<Chromosome>(newFunctions);
 }
 
 Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random_engine& rng) {
@@ -60,7 +60,9 @@ Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random
 Heuristic Chromosome::to_f() const {
     Chromosome const* self = this;
     return [self](const BoardState & board){
-        return accumulate(self->functions.begin(), self->functions.end(), 0, [&board](float prev, FuncAndWeight f){
+        auto begin = self->functions.begin();
+        auto end = self->functions.end();
+        return accumulate(begin, end, 0, [&board](float prev, FuncAndWeight f){
             if (abs(f.second) < 1.f/100000000) {
                 return prev;
             }
@@ -69,7 +71,7 @@ Heuristic Chromosome::to_f() const {
     };
 }
 
-BoardState::Score Chromosome::score(unsigned int averageCount, prngSeed prngSeed) const {
+BoardState::Score Chromosome::score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const {
     float totalScore = 0;
     default_random_engine prng(prngSeed.get());
     unsigned int origAverageCount = averageCount;
@@ -78,7 +80,7 @@ BoardState::Score Chromosome::score(unsigned int averageCount, prngSeed prngSeed
         auto board = SimulatedBoardOutput::randomBoard(prng);
         prng.discard(1);
         BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
-        FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f(), 0);
+        FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f(), searchDepth);
         ai.playGame(false, false);
         totalScore += ai.currentState()->score();
     }

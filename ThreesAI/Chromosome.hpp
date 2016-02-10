@@ -54,13 +54,13 @@ public:
     Chromosome& operator=(Chromosome const& that);
     
     //Must cross with chromosome that has same functions in same order
-    Chromosome cross(Chromosome const& other, std::default_random_engine& rng) const;
+    std::shared_ptr<Chromosome> cross(Chromosome const& other, std::default_random_engine& rng) const;
     Chromosome(Mutate m, Chromosome const& c, std::default_random_engine& rng);
     
     explicit Chromosome(std::vector<FuncAndWeight> weights);
     
     Heuristic to_f() const;
-    BoardState::Score score(unsigned int averageCount, prngSeed prngSeed) const;
+    BoardState::Score score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const;
 };
 
 std::ostream& operator<<(std::ostream &os, Chromosome const& c);

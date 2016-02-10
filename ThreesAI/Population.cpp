@@ -7,50 +7,68 @@
 //
 
 #include "Population.hpp"
+#include "Logging.h"
 
 using namespace std;
 
-Population::Population(std::vector<Chromosome> p, unsigned int averageCount, prngSeed prngSeed) : p(p){
-    this->populateScoresAndSort(averageCount, prngSeed);
+void Population::initializeWithChromosomes(vector<std::shared_ptr<Chromosome>> cs, unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) {
+    this->p.reserve(cs.size());
+    for (auto&& c : cs) {
+        this->p.emplace_back(c, c->score(averageCount, searchDepth, prngSeed));
+    }
+    sort(this->p.begin(), this->p.end(), [](pair<std::shared_ptr<Chromosome>, float> l, pair<std::shared_ptr<Chromosome>, float> r){
+        return l.second > r.second;
+    });
+}
+
+Population::Population(std::vector<std::shared_ptr<Chromosome>> p, unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) {
+    this->initializeWithChromosomes(p, averageCount, searchDepth, prngSeed);
 };
 
 size_t Population::size() {
     return this->p.size();
 }
 
-Population::Population(vector<Heuristic> funcs, unsigned int size, unsigned int averageCount, prngSeed prngSeed) {
+float Population::getScore(int index) const {
+    return this->p[index].second;
+}
+
+Population::Population(vector<Heuristic> funcs, unsigned int size, unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) {
     default_random_engine initial_population_generator;
     normal_distribution<float> population_dist(0,5);
-    for (int i = 0; i < size; i++) {
+    
+    vector<std::shared_ptr<Chromosome>> cs;
+    while (size--) {
         vector<FuncAndWeight> weights;
         weights.reserve(funcs.size());
         for (auto&& func : funcs) {
             weights.push_back({func, population_dist(initial_population_generator)});
         }
-        p.emplace_back(weights);
+        cs.emplace_back(shared_ptr<Chromosome>(new Chromosome(weights)));
     }
-    this->populateScoresAndSort(averageCount, prngSeed);
+    this->initializeWithChromosomes(cs, averageCount, searchDepth, prngSeed);
 }
 
-Population Population::next(unsigned int averageCount, prngSeed prngSeed) const {
+Population Population::next(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const {
     default_random_engine prng(prngSeed.get());
-    vector<Chromosome> next;
-    next.emplace_back(Chromosome::Mutate(), this->p.front(), prng);
-    next.push_back(this->p[0]);
+    vector<shared_ptr<Chromosome>> next;
+    shared_ptr<Chromosome> c = make_shared<Chromosome>(Chromosome::Mutate(), *this->p.front().first, prng);
+    next.push_back(c);
+    next.push_back(this->p[0].first);
     for (unsigned int i = 0; i < this->p.size(); i++) {
         unsigned int parent1 = i;
         unsigned int parent2 = i+1;
         if (parent2 == this->p.size()) {
             parent2 = 1;
         }
-        Chromosome candidate = this->p[parent1].cross(this->p[parent2], prng);
+        auto candidate = this->p[parent1].first->cross(*this->p[parent2].first, prng);
         next.push_back(candidate);
         if (this->p.size() == next.size()) {
-            return Population(next, averageCount, prngSeed);
+            return Population(next, averageCount, searchDepth, prngSeed);
         }
     }
     
-    return Population(next, averageCount, prngSeed);
+    return Population(next, averageCount, searchDepth, prngSeed);
 }
 
 Population& Population::operator=(Population const& other) {
@@ -58,29 +76,13 @@ Population& Population::operator=(Population const& other) {
     return *this;
 }
 
-void Population::populateScoresAndSort(int averageCount, prngSeed prngSeed) {
-    this->scores.resize(this->p.size());
-    for (int i = 0; i < this->p.size(); i++) {
-        this->scores[i] = this->p[i].score(averageCount, prngSeed);
-    }
-    sortResult.resize(this->p.size());
-    for (int i = 0; i < this->p.size(); i++) {
-        sortResult[i] = {this->scores[i], i};
-    };
-    
-    sort(sortResult.begin(), sortResult.end(), [](pair<float, int> l, pair<float, int>r){
-        return l.first > r.first;
-    });
-}
-
-Chromosome& Population::get(int i) {
-    return this->p[this->sortResult[i].second];
+std::shared_ptr<Chromosome> Population::get(int i) {
+    return this->p[i].first;
 }
 
 ostream& operator<<(ostream &os, const Population p){
-    debug(p.sortResult.empty());
-    for (auto&& pair : p.sortResult) {
-        os << "Score: " << p.scores[pair.second] << " " << p.p[pair.second] << endl;
+    for (auto&& pair : p.p) {
+        os << "Score: " << pair.second << " " << pair.second << endl;
     }
     return os;
 }
