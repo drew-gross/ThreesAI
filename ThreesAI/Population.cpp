@@ -82,7 +82,7 @@ std::shared_ptr<Chromosome> Population::get(int i) {
 
 ostream& operator<<(ostream &os, const Population p){
     for (auto&& pair : p.p) {
-        os << "Score: " << pair.second << " " << pair.second << endl;
+        os << "Score: " << pair.second << " " << *pair.first << endl;
     }
     return os;
 }

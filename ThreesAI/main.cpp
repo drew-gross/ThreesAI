@@ -240,14 +240,15 @@ int main(int argc, const char * argv[]) {
     
     unsigned int pop_size = 8;
     unsigned int average_count = 5;
-    Population p(currentFuncs, pop_size, average_count, prngSeed(1));
+    unsigned int searchDepth = 0;
+    Population p(currentFuncs, pop_size, average_count, searchDepth, prngSeed(1));
     default_random_engine rng(trueRandom());
     int generationNumber = 1;
     while (true) {
         cout << "Generation #" << generationNumber << endl;
         cout << p << endl;
         
-        p = p.next(average_count, prngSeed(generationNumber));
+        p = p.next(average_count, searchDepth, prngSeed(generationNumber));
         
         generationNumber++;;
     }
