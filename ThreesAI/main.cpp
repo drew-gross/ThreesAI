@@ -182,15 +182,15 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     vector<FuncAndWeight> currentWeights = {
-        {countEmptyTile, 2},
-        {score, 0.000005},
-        {countAdjacentPair, 2},
-        {countSplitPair, -1},
-        {simScore, 0.00001},
-        {countAdjacentOffByOne, 1},
-        {countTrappedTiles, -5},
-        {highestIsInCorner, 10},
-        {highestIsOnEdge, 5},
+        {countEmptyTile, 28.1723},
+        {score, 5.2787},
+        {countAdjacentPair, 4.61084},
+        {countSplitPair, -34.7435},
+        {simScore, 12.2825},
+        {countAdjacentOffByOne, 14.8465},
+        {countTrappedTiles, -0.220226},
+        {highestIsInCorner, -18.9354},
+        {highestIsOnEdge, 37.042},
     };
     vector<BoardEvaluator> currentFuncs;
     currentFuncs.resize(currentWeights.size());
@@ -201,7 +201,7 @@ int main(int argc, const char * argv[]) {
     initAndPlayIfPossible(hintImages, Chromosome(currentWeights));
     
     bool playOneGame = false;
-    //playOneGame = true;
+    playOneGame = true;
     bool trulyRandom = false;
     trulyRandom = true;
     bool play10Games = false;

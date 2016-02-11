@@ -22,8 +22,7 @@ AdaptiveDepthAI::AdaptiveDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> o
 void AdaptiveDepthAI::receiveState(Direction d, BoardState const & newState) {};
 void AdaptiveDepthAI::prepareDirection() {};
 
-pair<unsigned int, Direction> nodesAndDirectionAtDepth(BoardState const& b, Heuristic h, unsigned int depth) {
-    
+pair<unsigned int, vector<pair<Direction, float>>> openNodesAndScoresAtDepth(BoardState const& b, Heuristic h, unsigned int depth) {
     vector<pair<Direction, float>> scoresForMoves;
     unsigned int openNodeCount = 0;
     
@@ -35,21 +34,30 @@ pair<unsigned int, Direction> nodesAndDirectionAtDepth(BoardState const& b, Heur
             openNodeCount += searchResult.openNodes;
         }
     }
-    debug(scoresForMoves.empty());
-    Direction d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, unsigned int> left, pair<Direction, unsigned int> right){
-        return left.second < right.second;
-    })->first;
-    return {openNodeCount, d};
+    return {openNodeCount, scoresForMoves};
 }
 
 Direction AdaptiveDepthAI::getDirection() const {
     unsigned int depth = 0;
     while (true) {
         depth++;
-        auto result = nodesAndDirectionAtDepth(*this->currentState(), this->heuristic, depth);
+        auto result = openNodesAndScoresAtDepth(*this->currentState(), this->heuristic, depth);
+        sort(result.second.begin(), result.second.end(), [](pair<Direction, float> l, pair<Direction, float> r) {
+            return l.second > r.second;
+        });
+        auto sortedMoves = result.second;
+        if (sortedMoves.size() >= 2) {
+            if (sortedMoves[1].second < 0.0001) {
+                cout << "Only valid: " << sortedMoves[0].first << endl;
+                return sortedMoves[0].first;
+            }
+        }
         unsigned int openNodes = result.first;
         if (openNodes >= this->numNodesForFurtherSearch || openNodes == 0) {
-            return result.second;
+            for (auto&& pair : sortedMoves) {
+                cout << pair.first << " scored " << pair.second << endl;
+            }
+            return result.second[0].first;
         }
     }
 }

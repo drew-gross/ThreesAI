@@ -34,7 +34,7 @@ void ThreesAIBase::playGame(bool printMove, bool inspectMove) {
             getchar();
         }
         start = time(nullptr);
-        this->playTurn();
+        this->playTurn(printMove);
         end = time(nullptr);
     }
     if (printMove) {
