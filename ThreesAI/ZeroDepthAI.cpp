@@ -26,7 +26,7 @@ Direction ZeroDepthAI::getDirection() const {
     
     for (auto&& d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
-            scoresForMoves.push_back({d, this->heuristic(BoardState(BoardState::MoveWithoutAdd(d), *this->currentState()))});
+            scoresForMoves.push_back({d, this->heuristic.f(BoardState(BoardState::MoveWithoutAdd(d), *this->currentState()))});
         }
     }
     debug(scoresForMoves.empty());

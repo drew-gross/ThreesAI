@@ -182,19 +182,20 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     vector<FuncAndWeight> currentWeights = {
-        {countEmptyTile, 28.1723},
-        {score, 5.2787},
-        {countAdjacentPair, 4.61084},
-        {countSplitPair, -34.7435},
-        {simScore, 12.2825},
-        {countAdjacentOffByOne, 14.8465},
-        {countTrappedTiles, -0.220226},
-        {highestIsInCorner, -18.9354},
-        {highestIsOnEdge, 37.042},
+        {makeHeuristic(countEmptyTile), 28.1723},
+        {makeHeuristic(score), 5.2787},
+        {makeHeuristic(countAdjacentPair), 4.61084},
+        {makeHeuristic(countSplitPair), -34.7435},
+        {makeHeuristic(simScore), 12.2825},
+        {makeHeuristic(countAdjacentOffByOne), 14.8465},
+        {makeHeuristic(countTrappedTiles), -0.220226},
+        {makeHeuristic(highestIsInCorner), -18.9354},
+        {makeHeuristic(highestIsOnEdge), 37.042},
     };
-    vector<BoardEvaluator> currentFuncs;
-    currentFuncs.resize(currentWeights.size());
-    transform(currentWeights.begin(), currentWeights.end(), currentFuncs.begin(), [](FuncAndWeight const& b){return b.first;});
+    vector<Heuristic> currentFuncs;
+    for (auto&& b : currentWeights) {
+        currentFuncs.push_back(b.first);
+    }
     Chromosome c(currentWeights); //Must not get destroyed
     Heuristic h = c.to_f();
     

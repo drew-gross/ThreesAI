@@ -30,8 +30,7 @@ public:
     unsigned int get() {return this->s;}
 };
 
-typedef std::function<float(BoardState const&)> BoardEvaluator;
-typedef std::pair<BoardEvaluator, float> FuncAndWeight;
+typedef std::pair<Heuristic, float> FuncAndWeight;
 
 class Chromosome {
     std::vector<FuncAndWeight> functions;

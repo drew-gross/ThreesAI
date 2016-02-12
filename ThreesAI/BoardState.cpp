@@ -28,7 +28,7 @@ SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t 
     for (auto&& info : allAdditions) {
         BoardState potentialBoard(BoardState::AddSpecificTile(d, info.i, info.t), *this, true);
         if (depth == 0) {
-            score += h(potentialBoard)*info.probability;
+            score += h.f(potentialBoard)*info.probability;
             openNodeCount += 1;
         } else {
             vector<pair<Direction, SearchResult>> scoresForMoves;

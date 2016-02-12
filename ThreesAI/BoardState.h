@@ -28,7 +28,14 @@
 
 class BoardState;
 
-typedef std::function<float(BoardState const&)> Heuristic;
+#define makeHeuristic(x) (Heuristic(x, #x))
+
+class Heuristic {
+public:
+    Heuristic(std::function<float(BoardState const&)> f, std::string name) : f(f), name(name) {};
+    std::function<float(BoardState const&)> f;
+    std::string name;
+};
 
 class SearchResult {
 public:

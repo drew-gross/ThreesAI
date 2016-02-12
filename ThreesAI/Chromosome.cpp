@@ -59,16 +59,17 @@ Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random
 
 Heuristic Chromosome::to_f() const {
     Chromosome const* self = this;
-    return [self](const BoardState & board){
+    std::string name = "chromosome";
+    return Heuristic([self](const BoardState & board){
         auto begin = self->functions.begin();
         auto end = self->functions.end();
         return accumulate(begin, end, 0, [&board](float prev, FuncAndWeight f){
             if (abs(f.second) < 1.f/100000000) {
                 return prev;
             }
-            return prev + f.second * f.first(board);
+            return prev + f.second * f.first.f(board);
         });
-    };
+    }, name);
 }
 
 BoardState::Score Chromosome::score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const {
