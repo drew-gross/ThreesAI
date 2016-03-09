@@ -17,6 +17,8 @@
 #include "Debug.h"
 #include "Logging.h"
 
+#include "Heuristic.hpp"
+
 using namespace std;
 using namespace boost;
 
@@ -28,7 +30,7 @@ SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t 
     for (auto&& info : allAdditions) {
         BoardState potentialBoard(BoardState::AddSpecificTile(d, info.i, info.t), *this, true);
         if (depth == 0) {
-            score += h.f(potentialBoard)*info.probability;
+            score += h.evaluateWithoutDescription(potentialBoard)*info.probability;
             openNodeCount += 1;
         } else {
             vector<pair<Direction, SearchResult>> scoresForMoves;

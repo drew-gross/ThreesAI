@@ -26,16 +26,7 @@
 #include "Debug.h"
 #include <functional>
 
-class BoardState;
-
-#define makeHeuristic(x) (Heuristic(x, #x))
-
-class Heuristic {
-public:
-    Heuristic(std::function<float(BoardState const&)> f, std::string name) : f(f), name(name) {};
-    std::function<float(BoardState const&)> f;
-    std::string name;
-};
+class Heuristic;
 
 class SearchResult {
 public:

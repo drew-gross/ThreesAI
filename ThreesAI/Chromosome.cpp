@@ -9,7 +9,6 @@
 #include "Chromosome.hpp"
 
 #include "SimulatedBoardOutput.h"
-#include "ZeroDepthAI.h"
 #include "FixedDepthAI.hpp"
 #include "Logging.h"
 
@@ -59,17 +58,23 @@ Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random
 
 Heuristic Chromosome::to_f() const {
     Chromosome const* self = this;
-    std::string name = "chromosome";
-    return Heuristic([self](const BoardState & board){
+    function<pair<float, string>(BoardState const&)> f = [self](const BoardState & board){
         auto begin = self->functions.begin();
         auto end = self->functions.end();
-        return accumulate(begin, end, 0, [&board](float prev, FuncAndWeight f){
+        pair<float, string> result = accumulate(begin, end, pair<float, string>(0, ""), [&board](pair<float, string> prev, FuncAndWeight f){
             if (abs(f.second) < 1.f/100000000) {
                 return prev;
             }
-            return prev + f.second * f.first.f(board);
+            auto result = f.first.evaluate(board);
+            auto weightedResult = f.second * result.first;
+            float newValue = prev.first + weightedResult;
+            string newDescription = prev.second + result.second + ": " + to_string(weightedResult) + "\n";
+            return pair<float, string>(newValue, newDescription);
         });
-    }, name);
+        result.second = to_string(result.first) + "\n" + result.second;
+        return result;
+    };
+    return Heuristic(f, "chromosome");
 }
 
 BoardState::Score Chromosome::score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const {

@@ -13,10 +13,10 @@
 
 #include "Heuristic.hpp"
 
-class ZeroDepthAI : public ThreesAIBase {
+class DescribeReasoningAI : public ThreesAIBase {
     
 public:
-    ZeroDepthAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, Heuristic h);
+    DescribeReasoningAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, Heuristic h);
     
     void receiveState(Direction d, BoardState const & newState);
     void prepareDirection();

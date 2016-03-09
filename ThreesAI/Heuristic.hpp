@@ -11,6 +11,14 @@
 
 #include "BoardState.h"
 
+#define makeHeuristic(x) (Heuristic([](BoardState const& b){return std::pair<float, std::string>(x(b), #x);}, #x))
 
+class Heuristic {
+public:
+    Heuristic(std::function<std::pair<float, std::string>(BoardState const&)> f, std::string name);
+    std::function<std::pair<float, std::string>(BoardState const&)> evaluate;
+    std::function<float(BoardState const&)> evaluateWithoutDescription;
+    std::string name;
+};
 
 #endif /* Heuristic_hpp */

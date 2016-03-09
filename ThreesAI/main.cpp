@@ -16,7 +16,7 @@
 #include "IMProc.h"
 #include "IMLog.h"
 
-#include "ZeroDepthAI.h"
+#include "DescribeReasoningAI.h"
 #include "ExpectimaxAI.h"
 #include "OnePlayMonteCarloAI.h"
 #include "UCTSearchAI.hpp"
@@ -230,7 +230,7 @@ int main(int argc, const char * argv[]) {
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     
     if (playOneGame) {
-        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h, 2000);
+        DescribeReasoningAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h);
         time_t start = time(nullptr);
         ai.playGame(true, false);
         time_t end = time(nullptr);
