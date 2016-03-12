@@ -403,12 +403,12 @@ unsigned long BoardState::trappedTileCount() const {
     return count;
 }
 
-unsigned long BoardState::splitPairCount() const {
+unsigned long BoardState::splitPairsOfTile(Tile t) const {
     unsigned long count = 0;
-    for (Tile t = Tile::TILE_3; t < Tile::TILE_6144; t = succ(t)) {
-        for (unsigned char i = 0; i < 4; i++) {
-            for (unsigned char j = 0; j < 4; j++) {
-                Tile here = this->at(BoardIndex(i, j));
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 4; j++) {
+            Tile here = this->at(BoardIndex(i, j));
+            if (here == t) {
                 bool hasAdjacent = false;
                 if (i < 3) {
                     Tile below = this->at(BoardIndex(i + 1, j));
@@ -422,11 +422,31 @@ unsigned long BoardState::splitPairCount() const {
                         hasAdjacent = true;
                     }
                 }
+                if (i > 0) {
+                    Tile below = this->at(BoardIndex(i - 1, j));
+                    if (canMerge(here, below)) {
+                        hasAdjacent = true;
+                    }
+                }
+                if (j > 0) {
+                    Tile right = this->at(BoardIndex(i, j - 1));
+                    if (canMerge(here, right)) {
+                        hasAdjacent = true;
+                    }
+                }
                 if (!hasAdjacent && this->countOfTile(t) > 1) {
                     count++;
                 }
             }
         }
+    }
+    return count;
+}
+
+unsigned long BoardState::splitPairCount() const {
+    unsigned long count = 0;
+    for (Tile t = Tile::TILE_3; t < Tile::TILE_6144; t = succ(t)) {
+        count += this->splitPairsOfTile(t);
     }
     return count;
 }

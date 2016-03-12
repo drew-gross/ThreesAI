@@ -8,6 +8,10 @@
 
 #include "Chromosome.hpp"
 
+#include <functional>
+
+#include "Heuristic.hpp"
+#include "Evaluators.hpp"
 #include "SimulatedBoardOutput.h"
 #include "FixedDepthAI.hpp"
 #include "Logging.h"

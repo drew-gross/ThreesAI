@@ -183,10 +183,10 @@ int main(int argc, const char * argv[]) {
     }));
     vector<FuncAndWeight> currentWeights = {
         {makeHeuristic(countEmptyTile), 28.1723},
-        {makeHeuristic(score), 5.2787},
+        //{makeHeuristic(score), 5.2787},
         {makeHeuristic(countAdjacentPair), 4.61084},
         {makeHeuristic(countSplitPair), -34.7435},
-        {makeHeuristic(simScore), 12.2825},
+        //{makeHeuristic(simScore), 12.2825},
         {makeHeuristic(countAdjacentOffByOne), 14.8465},
         {makeHeuristic(countTrappedTiles), -0.220226},
         {makeHeuristic(highestIsInCorner), -18.9354},
@@ -232,7 +232,7 @@ int main(int argc, const char * argv[]) {
     if (playOneGame) {
         DescribeReasoningAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), h);
         time_t start = time(nullptr);
-        ai.playGame(true, false);
+        ai.playGame(true, true);
         time_t end = time(nullptr);
         cout << "Final score: " << ai.currentState()->score() << endl;
         cout << "Time taken: " << end - start << "s" << endl;

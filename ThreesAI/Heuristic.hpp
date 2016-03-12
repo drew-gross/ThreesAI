@@ -11,6 +11,8 @@
 
 #include "BoardState.h"
 
+#include <functional>
+
 #define makeHeuristic(x) (Heuristic([](BoardState const& b){return std::pair<float, std::string>(x(b), #x);}, #x))
 
 class Heuristic {

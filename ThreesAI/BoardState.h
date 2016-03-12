@@ -165,6 +165,7 @@ public:
     unsigned long adjacentPairCount() const;
     unsigned long adjacentOffByOneCount() const;
     unsigned long splitPairCount() const;
+    unsigned long splitPairsOfTile(Tile t) const;
     unsigned long trappedTileCount() const;
     Tile maxTile() const;
     

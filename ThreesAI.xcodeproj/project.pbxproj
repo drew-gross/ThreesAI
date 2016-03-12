@@ -35,6 +35,7 @@
 		7966D0AE1A8ACB1700131B29 /* DescribeReasoningAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7966D0AC1A8ACB1700131B29 /* DescribeReasoningAI.cpp */; };
 		7967865D1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865C1AF07692003DEF6C /* libopencv_highgui.2.4.11.dylib */; };
 		7967865F1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
+		796A83861C916535002A70BF /* Heuristic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B511B01C2F2D5300E1BC3E /* Heuristic.cpp */; };
 		797CB4B11BAAA1D0001A61D2 /* Direction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 797CB4B01BAAA1D0001A61D2 /* Direction.cpp */; };
 		799391941B8078C5000BC4D4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 799391931B8078C5000BC4D4 /* AVFoundation.framework */; };
 		79A0D8F81BF2F729003B78B1 /* EnabledDirections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79A0D8F61BF2F729003B78B1 /* EnabledDirections.cpp */; };
@@ -621,6 +622,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				796A83861C916535002A70BF /* Heuristic.cpp in Sources */,
 				79F8F68E1C5B578F00401019 /* Population.cpp in Sources */,
 				79AC83041C5755E100326284 /* ManyPlayMonteCarloAI.cpp in Sources */,
 				79AC83031C574AA800326284 /* AddedTileInfo.cpp in Sources */,

@@ -17,6 +17,36 @@ unique_ptr<SimulatedBoardOutput> makeOutput(string s) {
     return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<BoardState const>(BoardState::FromString(s)))));
 }
 
+
+TEST(SpliPairCount, Works) {
+    auto b = makeOutput("3,0,0,0,\
+                        3,0,0,0,\
+                        0,0,0,0,\
+                        0,0,0,0-2");
+    EXPECT_EQ(countSplitPair(*b->sneakyState()), 0);
+    b = makeOutput("3,0,0,0,\
+                   0,0,0,0,\
+                   0,0,0,0,\
+                   0,0,0,0-2");
+    EXPECT_EQ(countSplitPair(*b->sneakyState()), 0);
+    b = makeOutput("3,0,0,0,\
+                   1,0,0,0,\
+                   0,0,0,0,\
+                   0,0,0,0-2");
+    EXPECT_EQ(countSplitPair(*b->sneakyState()), 0);
+    
+    b = makeOutput("3,0,0,0,\
+                   0,0,0,0,\
+                   3,0,0,0,\
+                   0,0,0,0-2");
+    EXPECT_EQ(countSplitPair(*b->sneakyState()), 2);
+    b = makeOutput("3,0,3,0,\
+                   3,0,0,0,\
+                   0,0,0,0,\
+                   3,0,3,0-2");
+    EXPECT_EQ(countSplitPair(*b->sneakyState()), 3);
+}
+
 TEST(HighestOnCorner, Works) {
     BoardState b(BoardState::FromString("0,0,1,0,\
                                         0,0,3,0,\
@@ -51,12 +81,16 @@ TEST(AdaptiveDepthAI, CallsHeuristic) {
                                                                             3,0,24,0,\
                                                                             6,3,2,1-2"));
     int callCount = 0;
-    auto incrementer = [&callCount](BoardState const&){
+    std::function<std::pair<float, std::string>(BoardState const&)> incrementer = [&callCount](BoardState const&){
         callCount++;
-        return 0;
+        pair<float, string> result = {0, ""};
+        return result;
     };
-    Chromosome c({{incrementer, 1}});
-    c.to_f()(*b);
+    Heuristic h(incrementer, "incrementer");
+    FuncAndWeight f = {h, 1};
+    std::vector<FuncAndWeight> v = {f};
+    Chromosome c(v);
+    c.to_f().evaluate(*b);
     EXPECT_EQ(callCount, 1);
     AdaptiveDepthAI ai(b, unique_ptr<BoardOutput>(new SimulatedBoardOutput(b)), c.to_f(), 1);
     ai.playTurn();
@@ -137,11 +171,12 @@ TEST(Movement, Works) {
 
 TEST(FixedDepthAI, SearchesTheRightDepth) {
     int callCount = 0;
-    auto incrementer = [&callCount](BoardState const&){
+    std::function<std::pair<float, std::string>(BoardState const&)> incrementer = [&callCount](BoardState const&){
         callCount++;
-        return 0;
+        pair<float, string> result = {0, ""};
+        return result;
     };
-    Chromosome c({{incrementer, 1}});
+    Chromosome c({{Heuristic(incrementer, ""), 1}});
     auto b = makeOutput("0,0,0,0,\
                         0,0,0,0,\
                         0,3,0,0,\
@@ -174,7 +209,7 @@ TEST(HighestInCornerHeuristic, MovesALoneThreeToTheCorner) {
                         0,0,0,0,\
                         12,0,0,0,\
                         0,0,0,0-2");
-    Chromosome c({{highestIsInCorner, 1}});
+    Chromosome c({{makeHeuristic(highestIsInCorner), 1}});
     FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
     aiDepth2.playTurn();
     Tile cornerValue = aiDepth2.currentState()->at(BoardIndex(0,3));
@@ -186,7 +221,7 @@ TEST(HighestIsOnEdgeHeuristic, MovesFromCornerToEdge) {
                         0,0,0,0,\
                         0,0,0,0,\
                         12,0,0,0-2");
-    Chromosome c({{highestIsOnEdge, 1}});
+    Chromosome c({{makeHeuristic(highestIsOnEdge), 1}});
     FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
     ai.playTurn();
     Tile e1 = ai.currentState()->at(BoardIndex(0,2));
@@ -199,7 +234,7 @@ TEST(HighestIsOnEdgeHeuristic, MovesFromEdgeToEdge) {
                         0,0,0,0,\
                         12,0,0,0,\
                         0,0,0,0-2");
-    Chromosome c({{highestIsOnEdge, 1}});
+    Chromosome c({{makeHeuristic(highestIsOnEdge), 1}});
     FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
     ai.playTurn();
     Tile e1 = ai.currentState()->at(BoardIndex(0,1));
@@ -224,9 +259,9 @@ TEST(TrappedCount, DealsWith1sAnd2s) {
 
 TEST(Mutating, MutatesOneValue) {
     Chromosome c({
-        {highestIsOnEdge, 0},
-        {highestIsInCorner, 0},
-        {score, 0}
+        {makeHeuristic(highestIsOnEdge), 0},
+        {makeHeuristic(highestIsInCorner), 0},
+        {makeHeuristic(score), 0}
     });
     for (int rng_init = 0; rng_init < 1000; rng_init++) {
         default_random_engine rng(rng_init);
@@ -243,9 +278,9 @@ TEST(Mutating, MutatesOneValue) {
 
 TEST(Mutating, MutatesEachValueEqually) {
     Chromosome c({
-        {highestIsOnEdge, 0},
-        {highestIsInCorner, 0},
-        {score, 0}
+        {makeHeuristic(highestIsOnEdge), 0},
+        {makeHeuristic(highestIsInCorner), 0},
+        {makeHeuristic(score), 0}
     });
     vector<unsigned int> differentCount;
     differentCount.resize(c.size());
@@ -268,7 +303,13 @@ TEST(PopulationsFromChromosomes, SortThemselves) {
     unsigned int averageCount = 3;
     unsigned int pop_size = 10;
     unsigned int searchDepth = 0;
-    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, pop_size, averageCount, searchDepth, prngSeed(1));
+    Population p({
+        makeHeuristic(score),
+        makeHeuristic(countEmptyTile),
+        makeHeuristic(countAdjacentPair),
+        makeHeuristic(countSplitPair),
+        makeHeuristic(countAdjacentOffByOne)
+    }, pop_size, averageCount, searchDepth, prngSeed(1));
     EXPECT_EQ(pop_size, p.size());
     for (int i = 0; i < p.size() - 1; i++) {
         EXPECT_GT(p.get(i)->score(averageCount, 0, prngSeed(1)) + 1, p.get(i+1)->score(averageCount, 0, prngSeed(1)));
@@ -277,16 +318,16 @@ TEST(PopulationsFromChromosomes, SortThemselves) {
 
 TEST(ChromosomeCross, Crosses) {
     Chromosome c1({
-        {score, 0},
-        {countEmptyTile, 0},
-        {countAdjacentPair, 0},
-        {countAdjacentOffByOne, 0},
+        {makeHeuristic(score), 0},
+        {makeHeuristic(countEmptyTile), 0},
+        {makeHeuristic(countAdjacentPair), 0},
+        {makeHeuristic(countAdjacentOffByOne), 0},
     });
     Chromosome c2({
-        {score, 1},
-        {countEmptyTile, 1},
-        {countAdjacentPair, 1},
-        {countAdjacentOffByOne, 1},
+        {makeHeuristic(score), 1},
+        {makeHeuristic(countEmptyTile), 1},
+        {makeHeuristic(countAdjacentPair), 1},
+        {makeHeuristic(countAdjacentOffByOne), 1},
     });
     
     default_random_engine prng(0);
@@ -309,7 +350,13 @@ TEST(PopulationNext, MakesSense) {
     unsigned int averageCount = 3;
     unsigned int pop_size = 10;
     unsigned int searchDepth = 1;
-    Population p({score, countEmptyTile, countAdjacentPair, countSplitPair, countAdjacentOffByOne}, pop_size, averageCount, searchDepth, prngSeed(1));
+    Population p({
+        makeHeuristic(score),
+        makeHeuristic(countEmptyTile),
+        makeHeuristic(countAdjacentPair),
+        makeHeuristic(countSplitPair),
+        makeHeuristic(countAdjacentOffByOne)
+    }, pop_size, averageCount, searchDepth, prngSeed(1));
     auto p2 = p.next(averageCount, searchDepth, prngSeed(3));
     EXPECT_EQ(p.size(), p2.size());
     auto p3 = p.next(averageCount, searchDepth, prngSeed(3));
@@ -317,18 +364,18 @@ TEST(PopulationNext, MakesSense) {
 }
 
 TEST(SameChromosomeWithDifferentSeeds, HaveDifferentScores) {
-    Chromosome c({{score,1}});
+    Chromosome c({{makeHeuristic(score),1}});
     EXPECT_NE(c.score(1,0,prngSeed(1)), c.score(1,0,prngSeed(2)));
 }
 
 TEST(ChromosomeAveraging, GivesBetterResults) {
-    Chromosome c({{score, 1}});
+    Chromosome c({{makeHeuristic(score), 1}});
     EXPECT_NE(c.score(1, 0, prngSeed(1)), c.score(2, 0, prngSeed(1)));
 }
 
 TEST(DifferenctChromosome, GiveDifferentResults) {
-    Chromosome c1({{score, 1}});
-    Chromosome c2({{countEmptyTile, -1}});
+    Chromosome c1({{makeHeuristic(score), 1}});
+    Chromosome c2({{makeHeuristic(countEmptyTile), -1}});
     EXPECT_NE(c1.score(1, 0, prngSeed(1)), c2.score(1, 0, prngSeed(1)));
     EXPECT_NE(c1.score(1, 0, prngSeed(2)), c2.score(1, 0, prngSeed(2)));
     EXPECT_NE(c1.score(2, 0, prngSeed(1)), c2.score(2, 0, prngSeed(1)));
@@ -339,7 +386,7 @@ TEST(PopulationNext, HasDifferentScore) {
     unsigned int popSize = 4;
     unsigned int averageCount = 1;
     unsigned int searchDepth = 2;
-    Population p({score, countEmptyTile}, popSize, averageCount, searchDepth, prngSeed(1));
+    Population p({makeHeuristic(score), makeHeuristic(countEmptyTile)}, popSize, averageCount, searchDepth, prngSeed(1));
     Population p2 = p.next(averageCount, searchDepth, prngSeed(1));
     EXPECT_NE(p.getScore(1), p2.getScore(1));
 }
