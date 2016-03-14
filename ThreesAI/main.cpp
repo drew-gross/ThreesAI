@@ -182,15 +182,15 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     vector<FuncAndWeight> currentWeights = {
-        {makeHeuristic(countEmptyTile), 28.1723},
+        {makeHeuristic(countEmptyTile), -3.9781},
         //{makeHeuristic(score), 5.2787},
-        {makeHeuristic(countAdjacentPair), 4.61084},
-        {makeHeuristic(countSplitPair), -34.7435},
+        {makeHeuristic(countAdjacentPair), 8.6657},
+        {makeHeuristic(countSplitPair), -2.11706},
         //{makeHeuristic(simScore), 12.2825},
-        {makeHeuristic(countAdjacentOffByOne), 14.8465},
-        {makeHeuristic(countTrappedTiles), -0.220226},
-        {makeHeuristic(highestIsInCorner), -18.9354},
-        {makeHeuristic(highestIsOnEdge), 37.042},
+        {makeHeuristic(countAdjacentOffByOne), 2.57215},
+        {makeHeuristic(countTrappedTiles), -17.305},
+        {makeHeuristic(highestIsInCorner), 4.45171},
+        {makeHeuristic(highestIsOnEdge),  1.76216},
     };
     vector<Heuristic> currentFuncs;
     for (auto&& b : currentWeights) {

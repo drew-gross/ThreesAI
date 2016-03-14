@@ -17,6 +17,28 @@ unique_ptr<SimulatedBoardOutput> makeOutput(string s) {
     return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<BoardState const>(BoardState::FromString(s)))));
 }
 
+TEST(countAdjacentPair, Works) {
+    auto b = makeOutput("3,0,0,0,\
+                        3,0,0,0,\
+                        0,0,0,0,\
+                        0,0,0,0-2");
+    EXPECT_EQ(countAdjacentPair(*b->sneakyState()), 1);
+    b = makeOutput("3,0,0,0,\
+                        2,0,0,0,\
+                        0,0,0,0,\
+                        0,0,0,0-2");
+    EXPECT_EQ(countAdjacentPair(*b->sneakyState()), 0);
+    b = makeOutput("2,0,0,0,\
+                        2,0,0,0,\
+                        0,0,0,0,\
+                        0,0,0,0-2");
+    EXPECT_EQ(countAdjacentPair(*b->sneakyState()), 0);
+    b = makeOutput("2,0,2,1,\
+                        1,0,0,0,\
+                        0,0,1,0,\
+                        12,12,2,0-2");
+    EXPECT_EQ(countAdjacentPair(*b->sneakyState()), 4);
+}
 
 TEST(SpliPairCount, Works) {
     auto b = makeOutput("3,0,0,0,\

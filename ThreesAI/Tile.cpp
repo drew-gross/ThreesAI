@@ -57,9 +57,29 @@ Tile succ(Tile t) {
     }
 }
 
-bool canMerge(Tile here, Tile t2) {
+bool canMergeOrMove(Tile here, Tile t2) {
     switch (here) {
         case Tile::EMPTY: return t2 != Tile::EMPTY;
+        case Tile::TILE_1: return t2 == Tile::TILE_2;
+        case Tile::TILE_2: return t2 == Tile::TILE_1;
+        case Tile::TILE_3: return t2 == Tile::TILE_3;
+        case Tile::TILE_6: return t2 == Tile::TILE_6;
+        case Tile::TILE_12: return t2 == Tile::TILE_12;
+        case Tile::TILE_24: return t2 == Tile::TILE_24;
+        case Tile::TILE_48: return t2 == Tile::TILE_48;
+        case Tile::TILE_96: return t2 == Tile::TILE_96;
+        case Tile::TILE_192: return t2 == Tile::TILE_192;
+        case Tile::TILE_384: return t2 == Tile::TILE_384;
+        case Tile::TILE_768: return t2 == Tile::TILE_768;
+        case Tile::TILE_1536: return t2 == Tile::TILE_1536;
+        case Tile::TILE_3072: return t2 == Tile::TILE_3072;
+        case Tile::TILE_6144: return false;
+    }
+}
+
+bool canMerge(Tile here, Tile t2) {
+    switch (here) {
+        case Tile::EMPTY: return false;
         case Tile::TILE_1: return t2 == Tile::TILE_2;
         case Tile::TILE_2: return t2 == Tile::TILE_1;
         case Tile::TILE_3: return t2 == Tile::TILE_3;

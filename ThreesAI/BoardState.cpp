@@ -103,7 +103,7 @@ void BoardState::move(Direction d) {
             BoardIndex here = countFirst ? BoardIndex(j + (countUp ? 1 : -1), i) : BoardIndex(i, j + (countUp ? 1 : -1));
             Tile targetValue = this->at(target);
             Tile hereValue = this->at(here);
-            if (canMerge(targetValue, hereValue)) {
+            if (canMergeOrMove(targetValue, hereValue)) {
                 Tile newTargetValue = targetValue != Tile::EMPTY ? succ(hereValue) : hereValue;
                 this->set(target, newTargetValue);
                 this->set(here, Tile::EMPTY);
@@ -349,13 +349,13 @@ unsigned long BoardState::adjacentOffByOneCount() const {
             Tile here = this->at(BoardIndex(i, j));
             if (i < 3) {
                 Tile below = this->at(BoardIndex(i + 1, j));
-                if (canMerge(here, succ(below)) || canMerge(here, pred(below))) {
+                if (canMergeOrMove(here, succ(below)) || canMergeOrMove(here, pred(below))) {
                     count++;
                 }
             }
             if (j < 3) {
                 Tile right = this->at(BoardIndex(i, j + 1));
-                if (canMerge(here, succ(right)) || canMerge(here, pred(right))) {
+                if (canMergeOrMove(here, succ(right)) || canMergeOrMove(here, pred(right))) {
                     count++;
                 }
             }
@@ -412,25 +412,25 @@ unsigned long BoardState::splitPairsOfTile(Tile t) const {
                 bool hasAdjacent = false;
                 if (i < 3) {
                     Tile below = this->at(BoardIndex(i + 1, j));
-                    if (canMerge(here, below)) {
+                    if (canMergeOrMove(here, below)) {
                         hasAdjacent = true;
                     }
                 }
                 if (j < 3) {
                     Tile right = this->at(BoardIndex(i, j + 1));
-                    if (canMerge(here, right)) {
+                    if (canMergeOrMove(here, right)) {
                         hasAdjacent = true;
                     }
                 }
                 if (i > 0) {
                     Tile below = this->at(BoardIndex(i - 1, j));
-                    if (canMerge(here, below)) {
+                    if (canMergeOrMove(here, below)) {
                         hasAdjacent = true;
                     }
                 }
                 if (j > 0) {
                     Tile right = this->at(BoardIndex(i, j - 1));
-                    if (canMerge(here, right)) {
+                    if (canMergeOrMove(here, right)) {
                         hasAdjacent = true;
                     }
                 }
@@ -720,21 +720,21 @@ EnabledDirections BoardState::validMoves() const {
     
     this->validMovesCache = EnabledDirections();
     for (unsigned i = 0; i < 4; i++) {
-        if (canMerge(this->at(BoardIndex(i, 0)), this->at(BoardIndex(i, 1)))) {
+        if (canMergeOrMove(this->at(BoardIndex(i, 0)), this->at(BoardIndex(i, 1)))) {
             this->validMovesCache.set(Direction::UP);
             if (this->at(BoardIndex(i,0)) != Tile::EMPTY) {
                 this->validMovesCache.set(Direction::DOWN);
             }
             break;
         }
-        if (canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 2)))) {
+        if (canMergeOrMove(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 2)))) {
             this->validMovesCache.set(Direction::UP);
             if (this->at(BoardIndex(i,1)) != Tile::EMPTY) {
                 this->validMovesCache.set(Direction::DOWN);
             }
             break;
         }
-        if (canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 3)))) {
+        if (canMergeOrMove(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 3)))) {
             this->validMovesCache.set(Direction::UP);
             if (this->at(BoardIndex(i,2)) != Tile::EMPTY) {
                 this->validMovesCache.set(Direction::DOWN);
@@ -744,9 +744,9 @@ EnabledDirections BoardState::validMoves() const {
     }
     if (!this->validMovesCache.isEnabled(Direction::DOWN)) {
         for (unsigned i = 0; i < 4; i++) {
-            if (canMerge(this->at(BoardIndex(i, 3)), this->at(BoardIndex(i, 2))) ||
-                canMerge(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 1))) ||
-                canMerge(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 0)))) {
+            if (canMergeOrMove(this->at(BoardIndex(i, 3)), this->at(BoardIndex(i, 2))) ||
+                canMergeOrMove(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 1))) ||
+                canMergeOrMove(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 0)))) {
                 this->validMovesCache.set(Direction::DOWN);
                 break;
             }
@@ -754,21 +754,21 @@ EnabledDirections BoardState::validMoves() const {
     }
     
     for (unsigned i = 0; i < 4; i++) {
-        if (canMerge(this->at(BoardIndex(0, i)), this->at(BoardIndex(1, i)))) {
+        if (canMergeOrMove(this->at(BoardIndex(0, i)), this->at(BoardIndex(1, i)))) {
             this->validMovesCache.set(Direction::LEFT);
             if (this->at(BoardIndex(0, i)) != Tile::EMPTY) {
                 this->validMovesCache.set(Direction::RIGHT);
             }
             break;
         }
-        if (canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(2, i)))) {
+        if (canMergeOrMove(this->at(BoardIndex(1, i)), this->at(BoardIndex(2, i)))) {
             this->validMovesCache.set(Direction::LEFT);
             if (this->at(BoardIndex(1, i)) != Tile::EMPTY) {
                 this->validMovesCache.set(Direction::RIGHT);
             }
             break;
         }
-        if (canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(3, i)))) {
+        if (canMergeOrMove(this->at(BoardIndex(2, i)), this->at(BoardIndex(3, i)))) {
             this->validMovesCache.set(Direction::LEFT);
             if (this->at(BoardIndex(2, i)) != Tile::EMPTY) {
                 this->validMovesCache.set(Direction::RIGHT);
@@ -778,9 +778,9 @@ EnabledDirections BoardState::validMoves() const {
     }
     if (!this->validMovesCache.isEnabled(Direction::RIGHT)) {
         for (unsigned i = 0; i < 4; i++) {
-            if (canMerge(this->at(BoardIndex(3, i)), this->at(BoardIndex(2, i))) ||
-                canMerge(this->at(BoardIndex(2, i)), this->at(BoardIndex(1, i))) ||
-                canMerge(this->at(BoardIndex(1, i)), this->at(BoardIndex(0, i)))) {
+            if (canMergeOrMove(this->at(BoardIndex(3, i)), this->at(BoardIndex(2, i))) ||
+                canMergeOrMove(this->at(BoardIndex(2, i)), this->at(BoardIndex(1, i))) ||
+                canMergeOrMove(this->at(BoardIndex(1, i)), this->at(BoardIndex(0, i)))) {
                 this->validMovesCache.set(Direction::RIGHT);
                 break;
             }
