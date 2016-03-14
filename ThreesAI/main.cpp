@@ -182,15 +182,15 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     vector<FuncAndWeight> currentWeights = {
-        {makeHeuristic(countEmptyTile), -3.9781},
+        {makeHeuristic(countEmptyTile), 1.82607},
         //{makeHeuristic(score), 5.2787},
-        {makeHeuristic(countAdjacentPair), 8.6657},
-        {makeHeuristic(countSplitPair), -2.11706},
+        {makeHeuristic(countAdjacentPair), 16.9644},
+        {makeHeuristic(countSplitPair), -11.8547},
         //{makeHeuristic(simScore), 12.2825},
-        {makeHeuristic(countAdjacentOffByOne), 2.57215},
-        {makeHeuristic(countTrappedTiles), -17.305},
-        {makeHeuristic(highestIsInCorner), 4.45171},
-        {makeHeuristic(highestIsOnEdge),  1.76216},
+        {makeHeuristic(countAdjacentOffByOne), 3.86886},
+        {makeHeuristic(countTrappedTiles), -31.8987},
+        {makeHeuristic(highestIsInCorner), 17.9534},
+        {makeHeuristic(highestIsOnEdge),  8.90829},
     };
     vector<Heuristic> currentFuncs;
     for (auto&& b : currentWeights) {
@@ -206,7 +206,7 @@ int main(int argc, const char * argv[]) {
     bool trulyRandom = false;
     trulyRandom = true;
     bool play10Games = false;
-    //play10Games = true;
+    play10Games = true;
     
     random_device trueRandom;
     default_random_engine seededEngine(trulyRandom ? trueRandom() : 0);

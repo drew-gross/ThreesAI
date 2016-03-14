@@ -22,21 +22,21 @@ void DescribeReasoningAI::receiveState(Direction d, BoardState const & newState)
 void DescribeReasoningAI::prepareDirection() {};
 
 Direction DescribeReasoningAI::getDirection() const {
-    vector<pair<Direction, pair<float, string>>> scoresForMoves;
+    vector<pair<Direction, EvalutationWithDescription>> scoresForMoves;
     
     for (auto&& d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
-            auto evaluationResult = this->heuristic.evaluate(BoardState(BoardState::MoveWithoutAdd(d), *this->currentState()));
+            auto evaluationResult = this->heuristic.evaluateWithDescription(BoardState(BoardState::MoveWithoutAdd(d), *this->currentState()));
             scoresForMoves.push_back({d, evaluationResult});
         }
     }
     debug(scoresForMoves.empty());
-    auto d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, pair<float, string>> left, pair<Direction, pair<float, string>> right){
-        return left.second.first < right.second.first;
+    auto d = max_element(scoresForMoves.begin(), scoresForMoves.end(), [](pair<Direction, EvalutationWithDescription> left, pair<Direction, EvalutationWithDescription> right){
+        return left.second.score < right.second.score;
     })->first;
     
     for (auto&& result : scoresForMoves) {
-        cout << result.first << ": " << result.second.second << endl;
+        cout << result.first << ": " << result.second.desciption << endl;
     }
     return d;
 }

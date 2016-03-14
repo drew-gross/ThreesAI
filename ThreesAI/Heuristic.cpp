@@ -8,11 +8,15 @@
 
 #include "Heuristic.hpp"
 
-Heuristic::Heuristic(std::function<std::pair<float, std::string>(BoardState const&)> f, std::string name) :
-evaluate(f),
-name(name)
+Heuristic::Heuristic(std::function<EvalutationWithDescription(BoardState const&)> f) :
+f(f)
 {
-    this->evaluateWithoutDescription = [f](const BoardState & board){
-        return f(board).first;
-    };
+}
+
+EvalutationWithDescription Heuristic::evaluateWithDescription(const BoardState & b) const {
+    return this->f(b);
+}
+
+float Heuristic::evaluateWithoutDescription(const BoardState & b) const {
+    return this->f(b).score;
 }

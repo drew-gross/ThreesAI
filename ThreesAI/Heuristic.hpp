@@ -13,14 +13,20 @@
 
 #include <functional>
 
-#define makeHeuristic(x) (Heuristic([](BoardState const& b){return std::pair<float, std::string>(x(b), #x);}, #x))
+#define makeHeuristic(func) (Heuristic([](BoardState const& b){return EvalutationWithDescription({func(b), #func});}))
+
+class EvalutationWithDescription {
+public:
+    float score;
+    std::string desciption;
+};
 
 class Heuristic {
+    std::function<EvalutationWithDescription(BoardState const &)> f;
 public:
-    Heuristic(std::function<std::pair<float, std::string>(BoardState const&)> f, std::string name);
-    std::function<std::pair<float, std::string>(BoardState const&)> evaluate;
-    std::function<float(BoardState const&)> evaluateWithoutDescription;
-    std::string name;
+    Heuristic(std::function<EvalutationWithDescription(BoardState const &)> f);
+    EvalutationWithDescription evaluateWithDescription(BoardState const &b) const;
+    float evaluateWithoutDescription(BoardState const& b) const;
 };
 
 #endif /* Heuristic_hpp */

@@ -94,7 +94,8 @@ void ExpectimaxAI::prepareDirection() {
 }
 
 Direction ExpectimaxAI::getDirection() const {
-    return this->currentBoard->maxChild(this->heuristic.evaluateWithoutDescription).first;
+    const ExpectimaxAI *self = this;
+    return this->currentBoard->maxChild([self](BoardState const&b){return self->heuristic.evaluateWithoutDescription(b);}).first;
 }
 
 void ExpectimaxAI::setCurrentHint(Hint h) {

@@ -22,8 +22,10 @@
 using namespace std;
 using namespace boost;
 
+
 SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, Heuristic h) const {
     //Assume board was moved but hasn't had tile added
+    //TODO: return -INFINITY if all moves lead to death
     auto allAdditions = this->possibleAdditions(d);
     float score = 0;
     unsigned int openNodeCount = 0;

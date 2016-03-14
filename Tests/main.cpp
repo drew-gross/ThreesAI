@@ -103,16 +103,16 @@ TEST(AdaptiveDepthAI, CallsHeuristic) {
                                                                             3,0,24,0,\
                                                                             6,3,2,1-2"));
     int callCount = 0;
-    std::function<std::pair<float, std::string>(BoardState const&)> incrementer = [&callCount](BoardState const&){
+    std::function<EvalutationWithDescription(BoardState const&)> incrementer = [&callCount](BoardState const&){
         callCount++;
-        pair<float, string> result = {0, ""};
+        EvalutationWithDescription result = {0, ""};
         return result;
     };
-    Heuristic h(incrementer, "incrementer");
+    Heuristic h(incrementer);
     FuncAndWeight f = {h, 1};
     std::vector<FuncAndWeight> v = {f};
     Chromosome c(v);
-    c.to_f().evaluate(*b);
+    c.to_f().evaluateWithoutDescription(*b);
     EXPECT_EQ(callCount, 1);
     AdaptiveDepthAI ai(b, unique_ptr<BoardOutput>(new SimulatedBoardOutput(b)), c.to_f(), 1);
     ai.playTurn();
@@ -193,12 +193,12 @@ TEST(Movement, Works) {
 
 TEST(FixedDepthAI, SearchesTheRightDepth) {
     int callCount = 0;
-    std::function<std::pair<float, std::string>(BoardState const&)> incrementer = [&callCount](BoardState const&){
+    std::function<EvalutationWithDescription(BoardState const&)> incrementer = [&callCount](BoardState const&){
         callCount++;
-        pair<float, string> result = {0, ""};
+        EvalutationWithDescription result = {0, ""};
         return result;
     };
-    Chromosome c({{Heuristic(incrementer, ""), 1}});
+    Chromosome c({{Heuristic(incrementer), 1}});
     auto b = makeOutput("0,0,0,0,\
                         0,0,0,0,\
                         0,3,0,0,\

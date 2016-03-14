@@ -22,15 +22,28 @@ AdaptiveDepthAI::AdaptiveDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> o
 void AdaptiveDepthAI::receiveState(Direction d, BoardState const & newState) {};
 void AdaptiveDepthAI::prepareDirection() {};
 
-pair<unsigned int, vector<pair<Direction, float>>> openNodesAndScoresAtDepth(BoardState const& b, Heuristic h, unsigned int depth) {
-    vector<pair<Direction, float>> scoresForMoves;
+class DirectionAndScore {
+public:
+    DirectionAndScore(float score, Direction d) : d(d), score(score) {}
+    float score;
+    Direction d;
+};
+
+class NodeCountAndScores {
+public:
+    unsigned int nodeCount;
+    vector<DirectionAndScore> scores;
+};
+
+NodeCountAndScores openNodesAndScoresAtDepth(BoardState const& b, Heuristic h, unsigned int depth) {
+    vector<DirectionAndScore> scoresForMoves;
     unsigned int openNodeCount = 0;
     
     for (auto&& d : allDirections) {
         if (b.isMoveValid(d)) {
             BoardState movedBoard(BoardState::MoveWithoutAdd(d), b);
             auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, depth, h);
-            scoresForMoves.push_back({d, searchResult.value});
+            scoresForMoves.push_back(DirectionAndScore(searchResult.value, d));
             openNodeCount += searchResult.openNodes;
         }
     }
@@ -42,22 +55,12 @@ Direction AdaptiveDepthAI::getDirection() const {
     while (true) {
         depth++;
         auto result = openNodesAndScoresAtDepth(*this->currentState(), this->heuristic, depth);
-        sort(result.second.begin(), result.second.end(), [](pair<Direction, float> l, pair<Direction, float> r) {
-            return l.second > r.second;
+        sort(result.scores.begin(), result.scores.end(), [](DirectionAndScore l, DirectionAndScore r) {
+            return l.score > r.score;
         });
-        auto sortedMoves = result.second;
-        if (sortedMoves.size() >= 2) {
-            if (sortedMoves[1].second < 0.0001) {
-                cout << "Only valid: " << sortedMoves[0].first << endl;
-                return sortedMoves[0].first;
-            }
-        }
-        unsigned int openNodes = result.first;
+        unsigned int openNodes = result.nodeCount;
         if (openNodes >= this->numNodesForFurtherSearch || openNodes == 0) {
-            for (auto&& pair : sortedMoves) {
-                cout << pair.first << " scored " << pair.second << endl;
-            }
-            return result.second[0].first;
+            return result.scores[0].d;
         }
     }
 }
