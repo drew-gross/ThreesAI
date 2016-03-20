@@ -13,7 +13,7 @@
 
 #include <functional>
 
-#define makeHeuristic(func) (Heuristic([](BoardState const& b){return EvalutationWithDescription({func(b), #func});}))
+#define makeHeuristic(func) (make_shared<Heuristic>([](BoardState const& b){return EvalutationWithDescription({func(b), #func});}))
 
 class EvalutationWithDescription {
 public:
@@ -22,8 +22,20 @@ public:
 };
 
 class Heuristic {
-    std::function<EvalutationWithDescription(BoardState const &)> f;
+    union F {
+        std::function<EvalutationWithDescription(BoardState const &)> fWithDesc;
+        std::function<float(BoardState const &)> fWithOutDesc;
+        F() { memset( this, 0, sizeof( F ) ); }
+        F(F const &f) {debug();}
+        F operator=(F const& f) {debug();return F();}
+        ~F() {}
+    };
+    bool hasDescription;
+    F f;
+    
 public:
+    ~Heuristic();
+    Heuristic(std::function<float(BoardState const &)> f);
     Heuristic(std::function<EvalutationWithDescription(BoardState const &)> f);
     EvalutationWithDescription evaluateWithDescription(BoardState const &b) const;
     float evaluateWithoutDescription(BoardState const& b) const;

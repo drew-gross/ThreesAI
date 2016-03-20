@@ -179,7 +179,7 @@ public:
     Score runRandomSimulation(unsigned int simNumber) const;
     HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
     std::deque<BoardState::AdditionInfo> possibleAdditions(Direction directionMovedToGetHere) const;
-    SearchResult heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, Heuristic h) const;
+    SearchResult heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const;
     
     bool hasNoHint;
 public:

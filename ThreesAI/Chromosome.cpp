@@ -60,25 +60,40 @@ Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random
     this->functions[index].second = newWeight;
 }
 
-Heuristic Chromosome::to_f() const {
+shared_ptr<Heuristic> Chromosome::to_f(bool includeDescription) const {
     Chromosome const* self = this;
-    function<EvalutationWithDescription(BoardState const&)> f = [self](const BoardState & board){
-        auto begin = self->functions.begin();
-        auto end = self->functions.end();
-        EvalutationWithDescription result = accumulate(begin, end, EvalutationWithDescription({0, ""}), [&board](EvalutationWithDescription prev, FuncAndWeight f){
-            if (abs(f.second) < 1.f/100000000) {
-                return prev;
-            }
-            auto result = f.first.evaluateWithDescription(board);
-            auto weightedResult = f.second * result.score;
-            float newValue = prev.score + weightedResult;
-            string newDescription = prev.desciption + result.desciption + ": " + to_string(weightedResult) + "\n";
-            return EvalutationWithDescription({newValue, newDescription});
+    if (includeDescription) {
+        return make_shared<Heuristic>([self](const BoardState & board){
+            auto begin = self->functions.begin();
+            auto end = self->functions.end();
+            EvalutationWithDescription result = accumulate(begin, end, EvalutationWithDescription({0, ""}), [&board](EvalutationWithDescription prev, FuncAndWeight f){
+                if (abs(f.second) < 1.f/100000000) {
+                    return prev;
+                }
+                auto result = f.first->evaluateWithDescription(board);
+                auto weightedResult = f.second * result.score;
+                float newValue = prev.score + weightedResult;
+                string newDescription = prev.desciption + result.desciption + ": " + to_string(weightedResult) + "\n";
+                return EvalutationWithDescription({newValue, newDescription});
+            });
+            result.desciption = to_string(result.score) + "\n" + result.desciption;
+            return result;
         });
-        result.desciption = to_string(result.score) + "\n" + result.desciption;
-        return result;
-    };
-    return Heuristic(f);
+    } else {
+        return make_shared<Heuristic>([self](const BoardState & board){
+            auto begin = self->functions.begin();
+            auto end = self->functions.end();
+            return accumulate(begin, end, 0, [&board](float prev, FuncAndWeight f){
+                if (abs(f.second) < 1.f/100000000) {
+                    return prev;
+                }
+                auto result = f.first->evaluateWithoutDescription(board);
+                auto weightedResult = f.second * result;
+                float newValue = prev + weightedResult;
+                return newValue;
+            });
+        });
+    }
 }
 
 BoardState::Score Chromosome::score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const {
@@ -90,7 +105,7 @@ BoardState::Score Chromosome::score(unsigned int averageCount, unsigned int sear
         auto board = SimulatedBoardOutput::randomBoard(prng);
         prng.discard(1);
         BoardStateCPtr initialState = board->currentState(HiddenBoardState(0,1,1,1));
-        FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f(), searchDepth);
+        FixedDepthAI ai(board->currentState(initialState->hiddenState), std::move(board), this->to_f(false), searchDepth);
         ai.playGame(false, false);
         totalScore += ai.currentState()->score();
     }

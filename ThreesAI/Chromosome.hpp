@@ -30,7 +30,7 @@ public:
     unsigned int get() {return this->s;}
 };
 
-typedef std::pair<Heuristic, float> FuncAndWeight;
+typedef std::pair<std::shared_ptr<Heuristic>, float> FuncAndWeight;
 
 class Chromosome {
     std::vector<FuncAndWeight> functions;
@@ -58,7 +58,7 @@ public:
     
     explicit Chromosome(std::vector<FuncAndWeight> weights);
     
-    Heuristic to_f() const;
+    std::shared_ptr<Heuristic> to_f(bool includeDescription) const;
     BoardState::Score score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const;
 };
 

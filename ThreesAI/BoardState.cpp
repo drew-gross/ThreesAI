@@ -23,7 +23,7 @@ using namespace std;
 using namespace boost;
 
 
-SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, Heuristic h) const {
+SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const {
     //Assume board was moved but hasn't had tile added
     //TODO: return -INFINITY if all moves lead to death
     auto allAdditions = this->possibleAdditions(d);
@@ -32,7 +32,7 @@ SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t 
     for (auto&& info : allAdditions) {
         BoardState potentialBoard(BoardState::AddSpecificTile(d, info.i, info.t), *this, true);
         if (depth == 0) {
-            score += h.evaluateWithoutDescription(potentialBoard)*info.probability;
+            score += h->evaluateWithoutDescription(potentialBoard)*info.probability;
             openNodeCount += 1;
         } else {
             vector<pair<Direction, SearchResult>> scoresForMoves;

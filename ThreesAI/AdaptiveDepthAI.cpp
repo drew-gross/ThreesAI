@@ -17,7 +17,7 @@
 
 using namespace std;
 
-AdaptiveDepthAI::AdaptiveDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, Heuristic heuristic, unsigned int numNodesForFurtherSearch) : ThreesAIBase(move(board), move(output)), heuristic(heuristic), numNodesForFurtherSearch(numNodesForFurtherSearch) {}
+AdaptiveDepthAI::AdaptiveDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, shared_ptr<Heuristic> heuristic, unsigned int numNodesForFurtherSearch) : ThreesAIBase(move(board), move(output)), heuristic(heuristic), numNodesForFurtherSearch(numNodesForFurtherSearch) {}
 
 void AdaptiveDepthAI::receiveState(Direction d, BoardState const & newState) {};
 void AdaptiveDepthAI::prepareDirection() {};
@@ -35,7 +35,7 @@ public:
     vector<DirectionAndScore> scores;
 };
 
-NodeCountAndScores openNodesAndScoresAtDepth(BoardState const& b, Heuristic h, unsigned int depth) {
+NodeCountAndScores openNodesAndScoresAtDepth(BoardState const& b, shared_ptr<Heuristic> h, unsigned int depth) {
     vector<DirectionAndScore> scoresForMoves;
     unsigned int openNodeCount = 0;
     

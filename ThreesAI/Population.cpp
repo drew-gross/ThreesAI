@@ -33,7 +33,7 @@ float Population::getScore(int index) const {
     return this->p[index].second;
 }
 
-Population::Population(vector<Heuristic> funcs, unsigned int size, unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) {
+Population::Population(vector<shared_ptr<Heuristic>> funcs, unsigned int size, unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) {
     default_random_engine initial_population_generator;
     normal_distribution<float> population_dist(0,5);
     

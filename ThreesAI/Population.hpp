@@ -23,7 +23,7 @@ public:
     size_t size();
     friend std::ostream& operator<<(std::ostream &os, const Population d);
     Population(std::vector<std::shared_ptr<Chromosome>> p, unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed);
-    Population(std::vector<Heuristic>, unsigned int size, unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed);
+    Population(std::vector<std::shared_ptr<Heuristic>>, unsigned int size, unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed);
     Population& operator=(Population const& other);
     std::shared_ptr<Chromosome> get(int index);
     float getScore(int index) const;

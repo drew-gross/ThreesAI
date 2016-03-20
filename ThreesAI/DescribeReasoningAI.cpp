@@ -16,7 +16,7 @@
 
 using namespace std;
 
-DescribeReasoningAI::DescribeReasoningAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, Heuristic heuristic) : ThreesAIBase(move(board), move(output)), heuristic(heuristic) {}
+DescribeReasoningAI::DescribeReasoningAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, shared_ptr<Heuristic> heuristic) : ThreesAIBase(move(board), move(output)), heuristic(heuristic) {}
 
 void DescribeReasoningAI::receiveState(Direction d, BoardState const & newState) {};
 void DescribeReasoningAI::prepareDirection() {};
@@ -26,7 +26,7 @@ Direction DescribeReasoningAI::getDirection() const {
     
     for (auto&& d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
-            auto evaluationResult = this->heuristic.evaluateWithDescription(BoardState(BoardState::MoveWithoutAdd(d), *this->currentState()));
+            auto evaluationResult = this->heuristic->evaluateWithDescription(BoardState(BoardState::MoveWithoutAdd(d), *this->currentState()));
             scoresForMoves.push_back({d, evaluationResult});
         }
     }

@@ -108,13 +108,12 @@ TEST(AdaptiveDepthAI, CallsHeuristic) {
         EvalutationWithDescription result = {0, ""};
         return result;
     };
-    Heuristic h(incrementer);
-    FuncAndWeight f = {h, 1};
+    FuncAndWeight f(make_shared<Heuristic>(incrementer), 1);
     std::vector<FuncAndWeight> v = {f};
     Chromosome c(v);
-    c.to_f().evaluateWithoutDescription(*b);
+    c.to_f(false)->evaluateWithoutDescription(*b);
     EXPECT_EQ(callCount, 1);
-    AdaptiveDepthAI ai(b, unique_ptr<BoardOutput>(new SimulatedBoardOutput(b)), c.to_f(), 1);
+    AdaptiveDepthAI ai(b, unique_ptr<BoardOutput>(new SimulatedBoardOutput(b)), c.to_f(false), 1);
     ai.playTurn();
     EXPECT_EQ(callCount, 427);
 }
@@ -198,12 +197,12 @@ TEST(FixedDepthAI, SearchesTheRightDepth) {
         EvalutationWithDescription result = {0, ""};
         return result;
     };
-    Chromosome c({{Heuristic(incrementer), 1}});
+    Chromosome c({{make_shared<Heuristic>(incrementer), 1}});
     auto b = makeOutput("0,0,0,0,\
                         0,0,0,0,\
                         0,3,0,0,\
                         0,0,0,0-2");
-    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
+    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(false), 0);
     ai.playTurn();
     EXPECT_EQ(callCount, 16);
     
@@ -212,7 +211,7 @@ TEST(FixedDepthAI, SearchesTheRightDepth) {
                    0,0,0,0,\
                    0,3,0,0,\
                    0,0,0,0-2");
-    FixedDepthAI aiDepth1(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 1);
+    FixedDepthAI aiDepth1(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(false), 1);
     aiDepth1.playTurn();
     EXPECT_EQ(callCount, 768);
     
@@ -221,7 +220,7 @@ TEST(FixedDepthAI, SearchesTheRightDepth) {
                    0,0,0,0,\
                    0,3,0,0,\
                    0,0,0,0-2");
-    FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 2);
+    FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(false), 2);
     aiDepth2.playTurn();
     EXPECT_EQ(callCount, 36864);
 }
@@ -232,7 +231,7 @@ TEST(HighestInCornerHeuristic, MovesALoneThreeToTheCorner) {
                         12,0,0,0,\
                         0,0,0,0-2");
     Chromosome c({{makeHeuristic(highestIsInCorner), 1}});
-    FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
+    FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(false), 0);
     aiDepth2.playTurn();
     Tile cornerValue = aiDepth2.currentState()->at(BoardIndex(0,3));
     EXPECT_EQ(cornerValue, Tile::TILE_12);
@@ -244,7 +243,7 @@ TEST(HighestIsOnEdgeHeuristic, MovesFromCornerToEdge) {
                         0,0,0,0,\
                         12,0,0,0-2");
     Chromosome c({{makeHeuristic(highestIsOnEdge), 1}});
-    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
+    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(false), 0);
     ai.playTurn();
     Tile e1 = ai.currentState()->at(BoardIndex(0,2));
     Tile e2 = ai.currentState()->at(BoardIndex(1,3));
@@ -257,7 +256,7 @@ TEST(HighestIsOnEdgeHeuristic, MovesFromEdgeToEdge) {
                         12,0,0,0,\
                         0,0,0,0-2");
     Chromosome c({{makeHeuristic(highestIsOnEdge), 1}});
-    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(), 0);
+    FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(false), 0);
     ai.playTurn();
     Tile e1 = ai.currentState()->at(BoardIndex(0,1));
     EXPECT_EQ(e1, Tile::TILE_12);

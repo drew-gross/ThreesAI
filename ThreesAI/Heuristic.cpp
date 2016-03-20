@@ -8,15 +8,40 @@
 
 #include "Heuristic.hpp"
 
-Heuristic::Heuristic(std::function<EvalutationWithDescription(BoardState const&)> f) :
-f(f)
+using namespace std;
+
+Heuristic::~Heuristic() {
+    if (this->hasDescription) {
+        this->f.fWithDesc.~function<EvalutationWithDescription(BoardState const &)>();
+    } else {
+        this->f.fWithOutDesc.~function<float(BoardState const &)>();
+    }
+}
+
+Heuristic::Heuristic(std::function<EvalutationWithDescription(BoardState const&)> f)
 {
+    this->hasDescription = true;
+    this->f.fWithDesc = f;
+}
+
+Heuristic::Heuristic(std::function<float(BoardState const&)> f)
+{
+    this->hasDescription = false;
+    this->f.fWithOutDesc = f;
 }
 
 EvalutationWithDescription Heuristic::evaluateWithDescription(const BoardState & b) const {
-    return this->f(b);
+    if (this->hasDescription) {
+        return this->f.fWithDesc(b);
+    } else {
+        return {this->f.fWithOutDesc(b), "undescribable"};
+    }
 }
 
 float Heuristic::evaluateWithoutDescription(const BoardState & b) const {
-    return this->f(b).score;
+    if (this->hasDescription) {
+        return this->f.fWithDesc(b).score;
+    } else {
+        return this->f.fWithOutDesc(b);
+    }
 }
