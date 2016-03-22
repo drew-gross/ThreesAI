@@ -204,6 +204,23 @@ void playOneGame(default_random_engine &seededEngine, Chromosome& c) {
     cout << "Time taken: " << end - start << "s" << endl;
 }
 
+void evolve(vector<std::shared_ptr<Heuristic>> currentFuncs, random_device& trueRandom) {
+    unsigned int pop_size = 8;
+    unsigned int average_count = 5;
+    unsigned int searchDepth = 0;
+    Population p(currentFuncs, pop_size, average_count, searchDepth, prngSeed(1));
+    default_random_engine rng(trueRandom());
+    int generationNumber = 1;
+    while (true) {
+        cout << "Generation #" << generationNumber << endl;
+        cout << p << endl;
+        
+        p = p.next(average_count, searchDepth, prngSeed(generationNumber));
+        
+        generationNumber++;;
+    }
+}
+
 int main(int argc, const char * argv[]) {
     //testImageProc();\
     debug();
@@ -243,22 +260,8 @@ int main(int argc, const char * argv[]) {
     //playOneGameWithDeepSearch(seededEngine, c);
     //playTenGames(seededEngine, c);
     playOneGame(seededEngine, c);
-    /*
-    unsigned int pop_size = 8;
-    unsigned int average_count = 5;
-    unsigned int searchDepth = 0;
-    Population p(currentFuncs, pop_size, average_count, searchDepth, prngSeed(1));
-    default_random_engine rng(trueRandom());
-    int generationNumber = 1;
-    while (true) {
-        cout << "Generation #" << generationNumber << endl;
-        cout << p << endl;
-        
-        p = p.next(average_count, searchDepth, prngSeed(generationNumber));
-        
-        generationNumber++;;
-    }
-     */
+    evolve(currentFuncs, trueRandom);
+    
     return 0;
 }
 
