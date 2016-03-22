@@ -169,6 +169,41 @@ void initAndPlayIfPossible(std::shared_ptr<HintImages const> hintImages, Chromos
     }
 }
 
+void playOneGameWithDeepSearch(default_random_engine &seededEngine, Chromosome& c) {
+    time_t start = time(nullptr);
+    unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
+    AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), c.to_f(false), 5000);
+    ai.playGame(true, false);
+    cout << "Score " << ": " << ai.currentState()->score() << endl;
+    time_t end = time(nullptr);
+    cout << "Time taken: " << end - start << "s" << endl;
+}
+
+void playTenGames(default_random_engine &seededEngine, Chromosome& c) {
+    time_t start = time(nullptr);
+    unsigned long totalScore = 0;
+    for (int i = 0; i < 10; i++) {
+        unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
+        AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), c.to_f(false), 500);
+        ai.playGame(false, false);
+        totalScore += ai.currentState()->score();
+        cout << "Score " << i << ": " << ai.currentState()->score() << endl;
+    }
+    time_t end = time(nullptr);
+    cout << "Final score: " << totalScore/10 << endl;
+    cout << "Time taken: " << end - start << "s" << endl;
+}
+
+void playOneGame(default_random_engine &seededEngine, Chromosome& c) {
+    unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
+    DescribeReasoningAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), c.to_f(true));
+    time_t start = time(nullptr);
+    ai.playGame(true, true);
+    time_t end = time(nullptr);
+    cout << "Final score: " << ai.currentState()->score() << endl;
+    cout << "Time taken: " << end - start << "s" << endl;
+}
+
 int main(int argc, const char * argv[]) {
     //testImageProc();\
     debug();
@@ -182,80 +217,33 @@ int main(int argc, const char * argv[]) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     }));
     vector<FuncAndWeight> currentWeights = {
-        {makeHeuristic(countEmptyTile), 1.82607},
-        //{makeHeuristic(score), 5.2787},
-        {makeHeuristic(countAdjacentPair), 16.9644},
-        {makeHeuristic(countSplitPair), -11.8547},
-        //{makeHeuristic(simScore), 12.2825},
-        {makeHeuristic(countAdjacentOffByOne), 3.86886},
-        {makeHeuristic(countTrappedTiles), -31.8987},
-        {makeHeuristic(highestIsInCorner), 17.9534},
-        {makeHeuristic(highestIsOnEdge),  8.90829},
+        {makeHeuristic(countEmptyTile), -6.80778},
+        {makeHeuristic(countAdjacentPair), -4.02922},
+        {makeHeuristic(countSplitPair), -6.93102},
+        {makeHeuristic(simScore), 13.8504},
+        {makeHeuristic(countAdjacentOffByOne), 8.83141},
+        {makeHeuristic(countTrappedTiles), -18.6419},
+        {makeHeuristic(highestIsInCorner), 36.2871},
+        {makeHeuristic(highestIsOnEdge),  -12.0674},
     };
     vector<std::shared_ptr<Heuristic>> currentFuncs;
     for (auto&& b : currentWeights) {
         currentFuncs.push_back(b.first);
     }
-    Chromosome c(currentWeights); //Must not get destroyed
+    Chromosome c(currentWeights);
     
     initAndPlayIfPossible(hintImages, Chromosome(currentWeights));
     
-    bool playOneGame = false;
-    playOneGame = true;
     bool trulyRandom = false;
     trulyRandom = true;
-    bool play10Games = false;
-    //play10Games = true;
-    bool play1WithdeepSearch = false;
-    play1WithdeepSearch = true;
     
     random_device trueRandom;
     default_random_engine seededEngine(trulyRandom ? trueRandom() : 0);
     
-    if (play10Games) {
-        time_t start = time(nullptr);
-        unsigned long totalScore = 0;
-        for (int i = 0; i < 10; i++) {
-            unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
-            AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), c.to_f(false), 500);
-            ai.playGame(false, false);
-            totalScore += ai.currentState()->score();
-            cout << "Score " << i << ": " << ai.currentState()->score() << endl;
-        }
-        time_t end = time(nullptr);
-        cout << "Final score: " << totalScore/10 << endl;
-        cout << "Time taken: " << end - start << "s" << endl;
-        exit(0);
-    }
-    
-    unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
-    
-    if (play1WithdeepSearch) {
-        time_t start = time(nullptr);
-        unsigned long totalScore = 0;
-        for (int i = 0; i < 10; i++) {
-            unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
-            AdaptiveDepthAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), c.to_f(false), 500000);
-            ai.playGame(true, false);
-            totalScore += ai.currentState()->score();
-            cout << "Score " << i << ": " << ai.currentState()->score() << endl;
-        }
-        time_t end = time(nullptr);
-        cout << "Final score: " << totalScore/10 << endl;
-        cout << "Time taken: " << end - start << "s" << endl;
-        exit(0);
-    }
-    
-    if (playOneGame) {
-        DescribeReasoningAI ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard), c.to_f(true));
-        time_t start = time(nullptr);
-        ai.playGame(true, true);
-        time_t end = time(nullptr);
-        cout << "Final score: " << ai.currentState()->score() << endl;
-        cout << "Time taken: " << end - start << "s" << endl;
-        exit(0);
-    }
-    
+    //playOneGameWithDeepSearch(seededEngine, c);
+    //playTenGames(seededEngine, c);
+    playOneGame(seededEngine, c);
+    /*
     unsigned int pop_size = 8;
     unsigned int average_count = 5;
     unsigned int searchDepth = 0;
@@ -270,7 +258,7 @@ int main(int argc, const char * argv[]) {
         
         generationNumber++;;
     }
-
+     */
     return 0;
 }
 
