@@ -221,9 +221,9 @@ void evolve(vector<std::shared_ptr<Heuristic>> currentFuncs, random_device& true
     }
 }
 
-void time1000RandomPlay(default_random_engine &seededEngine) {
+void timeNRandomPlays(default_random_engine &seededEngine, unsigned long n) {
     time_t start = time(nullptr);
-    for (int i = 0; i < 1000; i++) {
+    for (unsigned long i = 0; i < n; i++) {
         unique_ptr<BoardOutput> board = SimulatedBoardOutput::randomBoard(seededEngine);
         RandomAI ai(board->sneakyState(), std::move(board));
         ai.playGame(false, false);
@@ -273,7 +273,7 @@ int main(int argc, const char * argv[]) {
     //playTenGames(seededEngine, c);
     //playOneGame(seededEngine, c);
     //evolve(currentFuncs, trueRandom);
-    default_random_engine r;time1000RandomPlay(r);
+    default_random_engine r;timeNRandomPlays(r, 100000);
     
     return 0;
 }

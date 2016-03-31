@@ -269,6 +269,7 @@
 				79DD5C061AE0ABC800CD6359 /* arduino-serial-lib.h */,
 			);
 			name = RealWorldInteraction;
+			path = ThreesAI;
 			sourceTree = "<group>";
 		};
 		7944F8821A732BC300ED690E = {
@@ -284,6 +285,9 @@
 				7944F88C1A732BC300ED690E /* Products */,
 				79E67A931B373C8A007D8C25 /* Boost */,
 				7967865B1AF0703B003DEF6C /* OpenCV */,
+				797D55F01BFB0CCA0099B441 /* GameStateSources */,
+				79085D921B837D92009DA8B1 /* RealWorldInteraction */,
+				798A74401AE0BE140073DAB3 /* ThreesBoard */,
 				7944F88D1A732BC300ED690E /* ThreesAI */,
 				F832BA7A3B49CFD3FF94EE73 /* Pods */,
 				2EF1FD92B4A7586A44BE7BB6 /* Frameworks */,
@@ -302,11 +306,10 @@
 		7944F88D1A732BC300ED690E /* ThreesAI */ = {
 			isa = PBXGroup;
 			children = (
-				797D55F01BFB0CCA0099B441 /* GameStateSources */,
-				79085D921B837D92009DA8B1 /* RealWorldInteraction */,
+				79301C9E1C560FE7000337FC /* Evaluators.cpp */,
+				79301C9F1C560FE7000337FC /* Evaluators.hpp */,
 				79664DB61B29517A002FCF52 /* ThreesPlayer */,
 				79B511AB1C2F29F600E1BC3E /* Genetic */,
-				798A74401AE0BE140073DAB3 /* ThreesBoard */,
 				7944F88E1A732BC300ED690E /* main.cpp */,
 				79D022101B2C0E3D00624854 /* Logging.mm */,
 				7927DD811A8068570049E9BB /* Logging.h */,
@@ -398,13 +401,12 @@
 				79085D9B1B837EF8009DA8B1 /* CameraSource.h */,
 			);
 			name = GameStateSources;
+			path = ThreesAI;
 			sourceTree = "<group>";
 		};
 		798A74401AE0BE140073DAB3 /* ThreesBoard */ = {
 			isa = PBXGroup;
 			children = (
-				79301C9E1C560FE7000337FC /* Evaluators.cpp */,
-				79301C9F1C560FE7000337FC /* Evaluators.hpp */,
 				7953BBF21BB761B40083AC3A /* BoardOutput */,
 				79A7792F1BF077FB00531415 /* BoardIndex.cpp */,
 				79A779301BF077FB00531415 /* BoardIndex.hpp */,
@@ -425,6 +427,7 @@
 				79A0D8F71BF2F729003B78B1 /* EnabledDirections.hpp */,
 			);
 			name = ThreesBoard;
+			path = ThreesAI;
 			sourceTree = "<group>";
 		};
 		79B511AB1C2F29F600E1BC3E /* Genetic */ = {

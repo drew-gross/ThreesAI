@@ -66,5 +66,5 @@ shared_ptr<BoardState const> SimulatedBoardOutput::currentState(HiddenBoardState
 
 void SimulatedBoardOutput::move(Direction d, BoardState const& originalBoard) {
     this->state = make_shared<BoardState>(BoardState::MoveWithAdd(d), *this->currentState(originalBoard.hiddenState));
-    this->doWorkFor(1);
+    this->doWorkFor(0);
 }

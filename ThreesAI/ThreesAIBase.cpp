@@ -33,9 +33,13 @@ void ThreesAIBase::playGame(bool printMove, bool inspectMove) {
         if (inspectMove) {
             getchar();
         }
-        start = time(nullptr);
+        if (printMove) {
+            start = time(nullptr);
+        }
         this->playTurn(printMove);
-        end = time(nullptr);
+        if (printMove) {
+            end = time(nullptr);
+        }
     }
     if (printMove) {
         cout << "--- Currently ---" << endl;
