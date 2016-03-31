@@ -30,8 +30,8 @@ public:
     std::shared_ptr<BoardState const> currentState() const;
     
 protected:
-    virtual void receiveState(Direction d, BoardState const& newState) = 0;
-    virtual void prepareDirection() = 0;
+    virtual void receiveState(Direction d, BoardState const& newState) {};
+    virtual void prepareDirection() {};
     
 private:
     bool print = false;

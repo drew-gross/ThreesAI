@@ -221,6 +221,18 @@ void evolve(vector<std::shared_ptr<Heuristic>> currentFuncs, random_device& true
     }
 }
 
+void time1000RandomPlay(default_random_engine &seededEngine) {
+    time_t start = time(nullptr);
+    for (int i = 0; i < 1000; i++) {
+        unique_ptr<BoardOutput> board = SimulatedBoardOutput::randomBoard(seededEngine);
+        RandomAI ai(board->sneakyState(), std::move(board));
+        ai.playGame(false, false);
+        cout << "Final score: " << ai.currentState()->score() << endl;
+    }
+    time_t end = time(nullptr);
+    cout << "Time taken: " << end - start << "s" << endl;
+}
+
 int main(int argc, const char * argv[]) {
     //testImageProc();\
     debug();
@@ -259,8 +271,9 @@ int main(int argc, const char * argv[]) {
     
     //playOneGameWithDeepSearch(seededEngine, c);
     //playTenGames(seededEngine, c);
-    playOneGame(seededEngine, c);
-    evolve(currentFuncs, trueRandom);
+    //playOneGame(seededEngine, c);
+    //evolve(currentFuncs, trueRandom);
+    default_random_engine r;time1000RandomPlay(r);
     
     return 0;
 }
