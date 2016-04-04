@@ -59,7 +59,7 @@ public:
     explicit Chromosome(std::vector<FuncAndWeight> weights);
     
     std::shared_ptr<Heuristic> to_f(bool includeDescription) const;
-    BoardState::Score score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const;
+    BoardScore score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const;
 };
 
 std::ostream& operator<<(std::ostream &os, Chromosome const& c);

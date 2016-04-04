@@ -13,9 +13,9 @@
 
 using namespace std;
 
-UCTSearchAI::UCTSearchAI(shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output, unsigned int numPlays) : ThreesAIBase(board, move(output)), numPlays(numPlays) {}
+UCTSearchAI::UCTSearchAI(shared_ptr<AboutToMoveBoard const> board, unique_ptr<BoardOutput> output, unsigned int numPlays) : ThreesAIBase(board, move(output)), numPlays(numPlays) {}
 
-void UCTSearchAI::receiveState(Direction d, BoardState const & newState) {};
+void UCTSearchAI::receiveState(Direction d, AboutToMoveBoard const & newState) {};
 void UCTSearchAI::prepareDirection() {};
 
 Direction UCTSearchAI::getDirection() const {
@@ -25,8 +25,8 @@ Direction UCTSearchAI::getDirection() const {
     for (Direction d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
             plays[d] = 1;
-            BoardState boardCopy(BoardState::DifferentFuture(0), *this->currentState());
-            BoardState movedCopy(BoardState::MoveWithAdd(d), boardCopy);
+            AboutToMoveBoard boardCopy(AboutToMoveBoard::DifferentFuture(0), *this->currentState());
+            AboutToMoveBoard movedCopy(AboutToMoveBoard::MoveWithAdd(d), boardCopy);
             means[d] = movedCopy.runRandomSimulation(numPlays);
             numPlays++;
         }
@@ -38,9 +38,9 @@ Direction UCTSearchAI::getDirection() const {
             float rightBound = r.second/plays[r.first] + sqrt(2*log(numPlays)/plays[r.first]);
             return leftBound < rightBound;
         })->first;
-        BoardState boardCopy(BoardState::DifferentFuture(numPlays), *this->currentState());
-        BoardState movedCopy(BoardState::MoveWithAdd(currentBest), boardCopy);
-        BoardState::Score nextScore = movedCopy.runRandomSimulation(numPlays);
+        AboutToMoveBoard boardCopy(AboutToMoveBoard::DifferentFuture(numPlays), *this->currentState());
+        AboutToMoveBoard movedCopy(AboutToMoveBoard::MoveWithAdd(currentBest), boardCopy);
+        BoardScore nextScore = movedCopy.runRandomSimulation(numPlays);
         plays[currentBest]++;
         means[currentBest] += (nextScore - means[currentBest])/plays[currentBest];
     }

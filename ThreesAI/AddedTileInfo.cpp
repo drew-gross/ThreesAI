@@ -14,7 +14,7 @@ AddedTileInfo::AddedTileInfo(Tile newTileValue, BoardIndex newTileLocation) :
 newTileValue(newTileValue),
 newTileLocation(newTileLocation) {}
 
-AddedTileInfo::AddedTileInfo(BoardState const& stateBeforeAdd, BoardState const& stateAfterAdd) : newTileLocation(0,0) {
+AddedTileInfo::AddedTileInfo(AboutToAddTileBoard const& stateBeforeAdd, AboutToMoveBoard const& stateAfterAdd) : newTileLocation(0,0) {
     for (auto&& index : allIndices) {
         if (stateBeforeAdd.at(index) != stateAfterAdd.at(index)) {
             this->newTileValue = stateAfterAdd.at(index);

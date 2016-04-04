@@ -12,9 +12,9 @@
 
 using namespace std;
 
-OnePlayMonteCarloAI::OnePlayMonteCarloAI(shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
+OnePlayMonteCarloAI::OnePlayMonteCarloAI(shared_ptr<AboutToMoveBoard const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
 
-void OnePlayMonteCarloAI::receiveState(Direction d, BoardState const & newState){}
+void OnePlayMonteCarloAI::receiveState(Direction d, AboutToMoveBoard const & newState){}
 void OnePlayMonteCarloAI::prepareDirection(){}
 
 Direction OnePlayMonteCarloAI::getDirection() const {
@@ -22,8 +22,8 @@ Direction OnePlayMonteCarloAI::getDirection() const {
     Direction bestDirection = Direction::LEFT;
     for (Direction d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
-            BoardState moved(BoardState::MoveWithAdd(d), *this->currentState());
-            BoardState::Score score = moved.runRandomSimulation(1);
+            AboutToMoveBoard moved(AboutToMoveBoard::MoveWithAdd(d), *this->currentState());
+            BoardScore score = moved.runRandomSimulation(1);
             if (score > bestScore) {
                 bestDirection = d;
                 bestScore = score;

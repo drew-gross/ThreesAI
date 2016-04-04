@@ -18,6 +18,7 @@
 #include "Hint.h"
 #include "EnabledIndices.hpp"
 #include "EnabledDirections.hpp"
+#include "Board.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -61,15 +62,81 @@ public:
     bool operator==(HiddenBoardState const& other) const;
 };
 
-class BoardState : boost::noncopyable {
+
+class AdditionInfo {
 public:
-    typedef unsigned long Score;
+    Tile t;
+    BoardIndex i;
+    float probability;
+};
+
+class AboutToMoveBoard;
+
+class MoveWithoutAdd {
+public:
+    MoveWithoutAdd(Direction d) : d(d) {};
+    Direction const d;
+};
+
+class AddTile {
+public:
+    AddTile(Direction d) : d(d) {};
+    Direction const d;
+};
+
+class SetHint {
+public:
+    SetHint(Hint h) : h(h) {};
+    Hint h;
+};
+
+class AboutToAddTileBoard {
     
-    class AdditionInfo {
+public:
+    cv::Mat preMoveSourceImage;
+    
+    //TODO: make these non-public
+    Board board;
+    HiddenBoardState hiddenState;
+    EnabledIndices validIndicesForNewTile;
+    std::default_random_engine generator;
+    bool hasNoHint;
+    boost::optional<Tile> upcomingTile;
+    boost::optional<Hint> h;
+    //End TODO
+    
+    AboutToAddTileBoard(MoveWithoutAdd d, AboutToMoveBoard const& other);
+    AboutToAddTileBoard(SetHint h, AboutToAddTileBoard const& other);
+    
+    //TODO: remove this. Taking the score of a board that is waiting for a tile to be added doesn't make sense
+    BoardScore score() const {return this->board.score();};
+    
+    Tile at(BoardIndex const& p) const {return this->board.at(p);};
+    std::deque<std::pair<Tile, float>> possibleNextTiles() const;
+    Hint getHint() const;
+    HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
+    BoardIndex indexForNextTile();
+    Tile genUpcomingTile() const;
+    
+    std::deque<AdditionInfo> possibleAdditions() const;
+};
+
+class AboutToMoveBoard {
+    boost::optional<Tile> upcomingTile;
+    void addTile(Direction d); //Exists to make takeTurnInPlace possible
+public:
+    Board board;// TODO: make this private
+    
+    cv::Mat sourceImage;
+    bool hasNoHint;
+    HiddenBoardState hiddenState;
+    boost::optional<Hint> hint;
+    std::default_random_engine generator;
+    
+    class FromString {
     public:
-        Tile t;
-        BoardIndex i;
-        float probability;
+        FromString(std::string s) : s(s) {};
+        std::string const s;
     };
     
     class AddSpecificTile {
@@ -80,16 +147,10 @@ public:
         Tile const t;
     };
     
-    class AddTile {
+    class DifferentFuture {
     public:
-        AddTile(Direction d) : d(d) {};
-        Direction const d;
-    };
-    
-    class MoveWithoutAdd {
-    public:
-        MoveWithoutAdd(Direction d) : d(d) {};
-        Direction const d;
+        DifferentFuture(unsigned int howDifferent) : howDifferent(howDifferent) {};
+        unsigned int howDifferent;
     };
     
     class MoveWithAdd {
@@ -98,10 +159,10 @@ public:
         Direction const d;
     };
     
-    class FromString {
+    class SetHiddenState {
     public:
-        FromString(std::string s) : s(s) {};
-        std::string const s;
+        SetHiddenState(HiddenBoardState h) : h(h) {};
+        HiddenBoardState h;
     };
     
     class SetHint {
@@ -110,110 +171,61 @@ public:
         Hint h;
     };
     
-    class SetHiddenState {
-    public:
-        SetHiddenState(HiddenBoardState h) : h(h) {};
-        HiddenBoardState h;
-    };
-    
-    class DifferentFuture {
-    public:
-        DifferentFuture(unsigned int howDifferent) : howDifferent(howDifferent) {};
-        unsigned int howDifferent;
-    };
-    
-    typedef std::array<Tile, 16> Board;
-    
-    BoardState(AddSpecificTile t, BoardState const& other, bool hasNoHint);
-    BoardState(MoveWithoutAdd d, BoardState const& other);
-    BoardState(MoveWithAdd m, BoardState const& other);
-    BoardState(AddTile t, BoardState const& other);
-    BoardState(FromString s);
-    BoardState(DifferentFuture, BoardState const& other);
-    BoardState(SetHint h, BoardState const& other);
-    BoardState(SetHiddenState h, BoardState const& other);
-    
-    BoardState(Board b,
+    AboutToMoveBoard(FromString s);
+    AboutToMoveBoard(AddSpecificTile s, AboutToAddTileBoard const & b, bool hasNoHint);
+    AboutToMoveBoard(DifferentFuture, AboutToMoveBoard const& other);
+    AboutToMoveBoard(MoveWithAdd m, AboutToMoveBoard const& other);
+    AboutToMoveBoard(SetHiddenState h, AboutToMoveBoard const& other);
+    AboutToMoveBoard(SetHint h, AboutToMoveBoard const& other);
+    AboutToMoveBoard(AddTile t, AboutToAddTileBoard const& other);
+    AboutToMoveBoard(Board b,
                std::default_random_engine hintGen,
                cv::Mat sourceImage);
     
-    BoardState(Board b,
+    AboutToMoveBoard(Board b,
                HiddenBoardState h,
                std::default_random_engine hintGen,
                cv::Mat sourceImage);
     
-    BoardState(Board b,
+    AboutToMoveBoard(Board b,
                HiddenBoardState h,
                std::default_random_engine gen,
                Hint hint,
                cv::Mat sourceImage);
     
-    HiddenBoardState hiddenState;
+    Tile at(BoardIndex const& p) const {return this->board.at(p);};
+    Hint getHint() const;
+    BoardScore score() const {return this->board.score();};
+    SearchResult heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const;
     
-    Tile at(BoardIndex const& p) const;
-    long countOfTile(Tile t) const;
-    
+    bool isMoveValid(Direction d) const {return this->board.isMoveValid(d);};
     bool isGameOver() const;
-    bool isMoveValid(Direction d) const;
+    
     Direction randomValidMoveFromInternalGenerator() const;
+    BoardScore runRandomSimulation(unsigned int simNumber) const;
+    HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
+    long countOfTile(Tile t) const;
+    bool hasSameTilesAs(AboutToAddTileBoard const& otherBoard) const;
+    bool hasSameTilesAs(AboutToMoveBoard const& otherBoard) const;
     bool canMove(Direction d) const;
-    
-    std::deque<std::pair<Tile, float>> possibleNextTiles() const;
-    EnabledIndices validIndicesForNewTile(Direction movedDirection) const;
-    
-    Score score() const;
     unsigned long adjacentPairCount() const;
     unsigned long adjacentOffByOneCount() const;
     unsigned long splitPairCount() const;
     unsigned long splitPairsOfTile(Tile t) const;
     unsigned long trappedTileCount() const;
-    Tile maxTile() const;
-    
-    bool hasSameTilesAs(BoardState const& otherBoard, EnabledIndices excludedIndices) const;
-    
-    friend std::ostream& operator<<(std::ostream &os, BoardState const& info);
-    Hint getHint() const;
-    
-    cv::Mat sourceImage;
-    
-    Score runRandomSimulation(unsigned int simNumber) const;
-    HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
-    std::deque<BoardState::AdditionInfo> possibleAdditions(Direction directionMovedToGetHere) const;
-    SearchResult heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const;
-    
-    bool hasNoHint;
-public:
-    void takeTurnInPlace(Direction d); //exposed to make monte carlo ai faster
-private:
-    //mutator methods, should only be called inside constructors
-    void set(BoardIndex i, Tile t);
-    BoardIndex indexForNextTile(Direction d);
-    void copy(BoardState const &other);
-    void addTile(Direction d);
-    void move(Direction d);
-
-    //non-mutators that aren't used extarnally
-    EnabledDirections validMoves() const;
-    Tile genUpcomingTile() const;
-    Tile maxBonusTile() const;
-    float nonBonusTileProbability(Tile tile, bool canHaveBonus) const;
     Tile getUpcomingTile() const;
+    Tile genUpcomingTile() const;
     
-    mutable Tile maxTileCache = Tile::TILE_3;
-    mutable unsigned int scoreCache;
-    mutable bool scoreCacheIsValid = false;
-    mutable bool validMovesCacheIsValid = false;
-    mutable EnabledDirections validMovesCache;
-    std::default_random_engine generator;
+    AboutToAddTileBoard moveWithoutAdd(Direction d) const;
     
-    Board board;
-    boost::optional<Tile> upcomingTile;
-    boost::optional<Hint> hint;
+    friend std::ostream& operator<<(std::ostream &os, AboutToMoveBoard const& info);
+    
+    void takeTurnInPlace(Direction d); //exposed to make monte carlo ai faster
 };
 
-typedef std::shared_ptr<BoardState const> BoardStateCPtr;
+typedef std::shared_ptr<AboutToMoveBoard const> BoardStateCPtr;
 
 std::ostream& operator<<(std::ostream &os, const BoardIndex e);
-std::ostream& operator<<(std::ostream &os, BoardState const& info);
+std::ostream& operator<<(std::ostream &os, AboutToMoveBoard const& info);
 
 #endif /* defined(__ThreesAI__BoardState__) */

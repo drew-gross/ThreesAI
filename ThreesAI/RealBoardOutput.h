@@ -15,10 +15,10 @@
 
 class RealBoardOutput : public BoardOutput {
 public:
-    RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, BoardState const& initialState, std::shared_ptr<HintImages const> hintImages);
-    void move(Direction d, BoardState const& originalBoard);
+    RealBoardOutput(std::string port, std::shared_ptr<GameStateSource> source, AboutToMoveBoard const& initialState, std::shared_ptr<HintImages const> hintImages);
+    void move(Direction d, AboutToMoveBoard const& originalBoard);
     BoardStateCPtr currentState(HiddenBoardState otherInfo) const;
-    AddedTileInfo computeChangeFrom(BoardState const& previousState) const;
+    AddedTileInfo computeChangeFrom(AboutToAddTileBoard const& previousState) const;
     BoardStateCPtr sneakyState() const;
     
     void pressWithServo();

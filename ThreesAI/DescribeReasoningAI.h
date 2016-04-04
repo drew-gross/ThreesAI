@@ -18,7 +18,7 @@ class DescribeReasoningAI : public ThreesAIBase {
 public:
     DescribeReasoningAI(BoardStateCPtr board, std::unique_ptr<BoardOutput> output, std::shared_ptr<Heuristic> h);
     
-    void receiveState(Direction d, BoardState const & newState);
+    void receiveState(Direction d, AboutToMoveBoard const & newState);
     void prepareDirection();
     std::shared_ptr<Heuristic> heuristic;
     

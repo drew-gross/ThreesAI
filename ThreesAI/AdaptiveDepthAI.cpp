@@ -19,7 +19,7 @@ using namespace std;
 
 AdaptiveDepthAI::AdaptiveDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, shared_ptr<Heuristic> heuristic, unsigned int numNodesForFurtherSearch) : ThreesAIBase(move(board), move(output)), heuristic(heuristic), numNodesForFurtherSearch(numNodesForFurtherSearch) {}
 
-void AdaptiveDepthAI::receiveState(Direction d, BoardState const & newState) {};
+void AdaptiveDepthAI::receiveState(Direction d, AboutToMoveBoard const & newState) {};
 void AdaptiveDepthAI::prepareDirection() {};
 
 class DirectionAndScore {
@@ -35,16 +35,18 @@ public:
     vector<DirectionAndScore> scores;
 };
 
-NodeCountAndScores openNodesAndScoresAtDepth(BoardState const& b, shared_ptr<Heuristic> h, unsigned int depth) {
+NodeCountAndScores openNodesAndScoresAtDepth(AboutToMoveBoard const& b, shared_ptr<Heuristic> h, unsigned int depth) {
     vector<DirectionAndScore> scoresForMoves;
     unsigned int openNodeCount = 0;
     
     for (auto&& d : allDirections) {
         if (b.isMoveValid(d)) {
-            BoardState movedBoard(BoardState::MoveWithoutAdd(d), b);
-            auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, depth, h);
-            scoresForMoves.push_back(DirectionAndScore(searchResult.value, d));
-            openNodeCount += searchResult.openNodes;
+            AboutToAddTileBoard movedBoard(MoveWithoutAdd(d), b);
+            //TODO: if I use this AI, change this to average children
+            debug();
+            //auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, depth, h);
+            //scoresForMoves.push_back(DirectionAndScore(searchResult.value, d));
+            //openNodeCount += searchResult.openNodes;
         }
     }
     return {openNodeCount, scoresForMoves};

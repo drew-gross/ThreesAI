@@ -36,7 +36,7 @@ public:
     
     Direction getDirection() const;
     void prepareDirection();
-    void receiveState(Direction d, BoardState const& afterMoveState);
+    void receiveState(Direction d, AboutToMoveBoard const& afterMoveState);
     void setCurrentHint(Hint h);
     
     unsigned int depth;

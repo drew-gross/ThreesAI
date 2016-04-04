@@ -23,15 +23,12 @@
 class ExpectimaxNodeBase {
 public:
     static int num_existing_nodes;
-    ExpectimaxNodeBase(std::shared_ptr<BoardState const> board, unsigned int depth);
+    ExpectimaxNodeBase(unsigned int depth);
     
     virtual void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList) = 0;
-    virtual float value(std::function<float(BoardState const&)> heuristic) const = 0;
     virtual void outputDot() const = 0;
     virtual void outputDotEdges(std::ostream& os, float p) const = 0;
     virtual void pruneUnreachableChildren() = 0;
-    
-    std::shared_ptr<BoardState const> board; //Not const to allow for replacing with board with explicit hint once hint is known
     
     const unsigned int depth;
 };
@@ -39,7 +36,7 @@ public:
 template <typename edge_type>
 class ExpectimaxNode : public ExpectimaxNodeBase {
 public:
-    ExpectimaxNode(std::shared_ptr<BoardState const> board, unsigned int depth);
+    ExpectimaxNode(unsigned int depth) : ExpectimaxNodeBase(depth) {};
     
     virtual std::shared_ptr<const ExpectimaxNodeBase> child(edge_type const& edge) const = 0;
     std::map<edge_type, std::shared_ptr<ExpectimaxNodeBase>> children;
@@ -47,9 +44,6 @@ public:
     
     void outputDot() const;
 };
-
-template<typename edge_type>
-ExpectimaxNode<edge_type>::ExpectimaxNode(std::shared_ptr<BoardState const> board, unsigned int depth) : ExpectimaxNodeBase(board, depth) {}
 
 template<typename edge_type>
 bool ExpectimaxNode<edge_type>::childrenAreFilledIn() const {

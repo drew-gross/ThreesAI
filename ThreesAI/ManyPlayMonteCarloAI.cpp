@@ -13,10 +13,7 @@
 
 using namespace std;
 
-ManyPlayMonteCarloAI::ManyPlayMonteCarloAI(shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output, unsigned int numPlays) : ThreesAIBase(board, move(output)), numPlays(numPlays) {}
-
-void ManyPlayMonteCarloAI::receiveState(Direction d, BoardState const & newState) {};
-void ManyPlayMonteCarloAI::prepareDirection() {};
+ManyPlayMonteCarloAI::ManyPlayMonteCarloAI(shared_ptr<AboutToMoveBoard const> board, unique_ptr<BoardOutput> output, unsigned int numPlays) : ThreesAIBase(board, move(output)), numPlays(numPlays) {}
 
 Direction ManyPlayMonteCarloAI::getDirection() const {
     map<Direction, float> scores;
@@ -25,9 +22,9 @@ Direction ManyPlayMonteCarloAI::getDirection() const {
             unsigned int playsRemaining = this->numPlays;
             unsigned long currentDirectionTotalScore = 0;
             while (playsRemaining--) {
-                BoardState boardCopy(BoardState::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
-                BoardState movedCopy(BoardState::MoveWithAdd(d), boardCopy);
-                BoardState::Score newScore = movedCopy.runRandomSimulation(this->numPlays - playsRemaining);
+                AboutToMoveBoard boardCopy(AboutToMoveBoard::DifferentFuture(this->numPlays - playsRemaining), *this->currentState());
+                AboutToMoveBoard movedCopy(AboutToMoveBoard::MoveWithAdd(d), boardCopy);
+                BoardScore newScore = movedCopy.runRandomSimulation(this->numPlays - playsRemaining);
                 currentDirectionTotalScore += newScore;
             }
             scores[d] = float(currentDirectionTotalScore) / this->numPlays;

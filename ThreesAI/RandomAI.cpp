@@ -12,7 +12,7 @@
 
 using namespace std;
 
-RandomAI::RandomAI(shared_ptr<BoardState const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
+RandomAI::RandomAI(shared_ptr<AboutToMoveBoard const> board, unique_ptr<BoardOutput> output) : ThreesAIBase(board, move(output)) {}
 
 Direction RandomAI::getDirection() const {
     return this->currentState()->randomValidMoveFromInternalGenerator();

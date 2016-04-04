@@ -15,9 +15,9 @@
 
 using namespace std;
 
-ThreesAIBase::ThreesAIBase(shared_ptr<BoardState const> new_board, unique_ptr<BoardOutput> output) : boardState(new_board), boardOutput(move(output)) {}
+ThreesAIBase::ThreesAIBase(shared_ptr<AboutToMoveBoard const> new_board, unique_ptr<BoardOutput> output) : boardState(new_board), boardOutput(move(output)) {}
 
-shared_ptr<BoardState const> ThreesAIBase::currentState() const {
+shared_ptr<AboutToMoveBoard const> ThreesAIBase::currentState() const {
     return this->boardState;
 }
 
@@ -54,7 +54,7 @@ void ThreesAIBase::playTurn(bool printMove) {
         cout << "--- Moving: " << d << " ---" << endl;
     }
     this->boardOutput->move(d, *this->boardState);
-    Tile mostRecentlyAddedTile = this->boardOutput->computeChangeFrom(BoardState(BoardState::MoveWithoutAdd(d), *this->boardState)).newTileValue;
+    Tile mostRecentlyAddedTile = this->boardOutput->computeChangeFrom(AboutToAddTileBoard(MoveWithoutAdd(d), *this->boardState)).newTileValue;
     this->boardState = this->boardOutput->currentState(this->currentState()->nextHiddenState(mostRecentlyAddedTile));
     this->receiveState(d, *this->boardState);
 }

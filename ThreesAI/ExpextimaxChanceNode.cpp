@@ -16,7 +16,11 @@
 
 using namespace std;
 
-ExpectimaxChanceNode::ExpectimaxChanceNode(std::shared_ptr<BoardState const> board, Direction d, unsigned int depth) : ExpectimaxNode<AddedTileInfo>(board, depth), directionMovedToGetHere(d){}
+ExpectimaxChanceNode::ExpectimaxChanceNode(std::shared_ptr<AboutToAddTileBoard const> board, Direction d, unsigned int depth) :
+ExpectimaxNode<AddedTileInfo>(depth),
+directionMovedToGetHere(d),
+board(board)
+{}
 
 shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(AddedTileInfo const& t) const {
     auto result = this->children.find(t);
@@ -29,13 +33,13 @@ shared_ptr<const ExpectimaxNodeBase> ExpectimaxChanceNode::child(AddedTileInfo c
     return result->second;
 }
 
-float ExpectimaxChanceNode::value(std::function<float(BoardState const&)> heuristic) const {
+float ExpectimaxChanceNode::value(std::function<float(AboutToMoveBoard const&)> heuristic) const {
     if (!this->childrenAreFilledIn()) {
         return this->board->score();
     }
     float value = accumulate(this->children.begin(), this->children.end(), 0.0f, [this, &heuristic](float acc, pair<AddedTileInfo, shared_ptr<const ExpectimaxNodeBase>> next){
         auto childProbabilityPair = this->childrenProbabilities.find(next.first);
-        float childScore = next.second->value(heuristic);
+        float childScore = dynamic_pointer_cast<const ExpectimaxMoveNode>(next.second)->value(heuristic);
         float childProbability = childProbabilityPair->second;
         return acc + childProbability * childScore;
     });
@@ -49,14 +53,16 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     } else {
         possibleNextTiles = this->board->getHint().possibleTiles();
     }
-    EnabledIndices possibleNextLocations = this->board->validIndicesForNewTile(this->directionMovedToGetHere);
+    //TODO: Fix this if I ever start using Expectimax again
+    debug();
+    EnabledIndices possibleNextLocations({}); // = this->board->validIndicesForNewTile(this->directionMovedToGetHere);
     
     float locationProbability = 1.0f/possibleNextLocations.size();
     
     for (auto&& nextTile : possibleNextTiles) {
         for (BoardIndex i : allIndices) {
             if (possibleNextLocations.isEnabled(i)) {
-                std::shared_ptr<BoardState const> childBoard = make_shared<BoardState const>(BoardState::AddSpecificTile(this->directionMovedToGetHere, i, nextTile.first), *this->board, true);
+                std::shared_ptr<AboutToMoveBoard const> childBoard = make_shared<AboutToMoveBoard const>(AboutToMoveBoard::AddSpecificTile(this->directionMovedToGetHere, i, nextTile.first), *this->board, true);
                 shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
                 AddedTileInfo childIndex(nextTile.first, i);
                 this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});
@@ -91,10 +97,7 @@ void ExpectimaxChanceNode::outputDotEdges(std::ostream& os, float p) const {
         os << "\t" << long(this) << " -> " << long(child.second.get()) << " [label=\"" << child.first << "\"]" << endl;
     }
     os << "\t" << long(this) << " [label=\"";
-    os << *this->board << "\"";
-    if (this->board->isGameOver()) {
-        os << ",style=filled,color=red";
-    }
+    os << this->board << "\"";
     os << "]" << endl;
     for (auto&& child : this->children) {
         child.second->outputDotEdges(os, this->childrenProbabilities.find(child.first)->second);

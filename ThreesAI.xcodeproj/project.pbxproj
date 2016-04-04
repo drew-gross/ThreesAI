@@ -18,6 +18,7 @@
 		793533161B814DA50078E011 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533151B814DA50078E011 /* CoreVideo.framework */; };
 		793533181B815DC60078E011 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533171B815DC60078E011 /* Cocoa.framework */; };
 		7935331A1B8160CC0078E011 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793533191B8160CC0078E011 /* CoreGraphics.framework */; };
+		793AE3711CB0F874001F5520 /* Board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 793AE36F1CB0F874001F5520 /* Board.cpp */; };
 		7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */; };
 		7944C1691BA32398000F0A2C /* BoardState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1671BA32398000F0A2C /* BoardState.cpp */; };
 		7944C1721BA3FAFC000F0A2C /* RealBoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7944C1701BA3FAFC000F0A2C /* RealBoardOutput.cpp */; };
@@ -130,6 +131,8 @@
 		793533151B814DA50078E011 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		793533171B815DC60078E011 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		793533191B8160CC0078E011 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		793AE36F1CB0F874001F5520 /* Board.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Board.cpp; sourceTree = "<group>"; };
+		793AE3701CB0F874001F5520 /* Board.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Board.hpp; sourceTree = "<group>"; };
 		7944C1641BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyPlayMonteCarloAI.cpp; sourceTree = "<group>"; };
 		7944C1651BA26D82000F0A2C /* ManyPlayMonteCarloAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyPlayMonteCarloAI.h; sourceTree = "<group>"; };
 		7944C1671BA32398000F0A2C /* BoardState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoardState.cpp; sourceTree = "<group>"; };
@@ -425,6 +428,8 @@
 				79A7792D1BF076C500531415 /* EnabledIndices.hpp */,
 				79A0D8F61BF2F729003B78B1 /* EnabledDirections.cpp */,
 				79A0D8F71BF2F729003B78B1 /* EnabledDirections.hpp */,
+				793AE36F1CB0F874001F5520 /* Board.cpp */,
+				793AE3701CB0F874001F5520 /* Board.hpp */,
 			);
 			name = ThreesBoard;
 			path = ThreesAI;
@@ -583,6 +588,7 @@
 			files = (
 				79AC83061C5758CD00326284 /* Logging.mm in Sources */,
 				79AC83051C5758BF00326284 /* QuickTimeSource.mm in Sources */,
+				793AE3711CB0F874001F5520 /* Board.cpp in Sources */,
 				7955D3CF1B74848B0034EE4F /* IMLog.cpp in Sources */,
 				79B511B21C2F2D5300E1BC3E /* Heuristic.cpp in Sources */,
 				79B511B51C33C6D700E1BC3E /* Population.cpp in Sources */,

@@ -18,8 +18,8 @@ class ExpectimaxMoveNode;
 
 class ExpectimaxChanceNode : public ExpectimaxNode<AddedTileInfo> {
 public:
-    ExpectimaxChanceNode(std::shared_ptr<BoardState const> board, Direction d, unsigned int depth);
-    float value(std::function<float(BoardState const&)> heuristic) const;
+    ExpectimaxChanceNode(std::shared_ptr<AboutToAddTileBoard const> board, Direction d, unsigned int depth);
+    float value(std::function<float(AboutToMoveBoard const&)> heuristic) const;
     
     std::shared_ptr<const ExpectimaxNodeBase> child(AddedTileInfo const& k) const;
     void fillInChildren(std::list<std::weak_ptr<ExpectimaxNodeBase>> & unfilledList);
@@ -30,6 +30,8 @@ public:
     Direction directionMovedToGetHere;
     
     void outputDotEdges(std::ostream& os, float p) const;
+    
+    std::shared_ptr<AboutToAddTileBoard const> board; //Not const to allow for replacing with board with explicit hint once hint is known
 };
 
 typedef std::shared_ptr<const ExpectimaxChanceNode> ChanceTreePtr;

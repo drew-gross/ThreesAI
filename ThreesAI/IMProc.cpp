@@ -745,7 +745,7 @@ Hint IMProc::getHintFromScreenShot(Mat const& ss, HintImages const& hintImages) 
     return bestMatch.first;
 }
 
-pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss, HiddenBoardState otherInfo, HintImages const& hintImages) {
+pair<std::shared_ptr<AboutToMoveBoard const>, array<MatchResult, 16>> IMProc::boardAndMatchFromScreenShot(Mat const& ss, HiddenBoardState otherInfo, HintImages const& hintImages) {
     Hint hint = getHintFromScreenShot(ss, hintImages);
     auto tileImages = tilesFromScreenImage(ss);
     array<MatchResult, 16> matches;
@@ -754,15 +754,15 @@ pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAnd
         return tileValueFromScreenShot(image, IMProc::canonicalTiles());
     });
     
-    BoardState::Board board;
-    transform(matches.begin(), matches.end(), board.begin(), [](MatchResult m) {
+    std::array<Tile, 16> tiles;
+    transform(matches.begin(), matches.end(), tiles.begin(), [](MatchResult m) {
         return m.tile.value;
     });
     
-    return {make_shared<BoardState const>(board, otherInfo, default_random_engine(0), hint, ss), matches};
+    return {make_shared<AboutToMoveBoard const>(Board(tiles), otherInfo, default_random_engine(0), hint, ss), matches};
 }
 
-pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image, HiddenBoardState otherInfo, HintImages const& hintImages) {
+pair<std::shared_ptr<AboutToMoveBoard const>, array<MatchResult, 16>> IMProc::boardAndMatchFromAnyImage(Mat const& image, HiddenBoardState otherInfo, HintImages const& hintImages) {
     if (image.rows == 2272 && image.cols == 1280) {
         return boardAndMatchFromScreenShot(image, otherInfo, hintImages);
     }
@@ -773,18 +773,18 @@ pair<std::shared_ptr<BoardState const>, array<MatchResult, 16>> IMProc::boardAnd
         return IMProc::tileValue(image, IMProc::canonicalTiles());
     });
     
-    BoardState::Board board;
-    transform(matches.begin(), matches.end(), board.begin(), [](MatchResult m) {
+    std::array<Tile, 16> tiles;
+    transform(matches.begin(), matches.end(), tiles.begin(), [](MatchResult m) {
         return m.tile.value;
     });
     
     optional<MatchResult> hint = IMProc::detect1or2or3orBonusByColor(screenImageToHintImage(screenImage(image)));
     if (hint) {
-        return {make_shared<BoardState const>(board, otherInfo, default_random_engine(0), Hint(hint.value().tile.value), image), matches};
+        return {make_shared<AboutToMoveBoard const>(Board(tiles), otherInfo, default_random_engine(0), Hint(hint.value().tile.value), image), matches};
     } else {
         //TODO: get the real bonus tile hint here instead of passing EMPTY
         debug();
-        return {make_shared<BoardState const>(board, otherInfo, default_random_engine(0), Hint(Tile::EMPTY), image), matches};
+        return {make_shared<AboutToMoveBoard const>(Board(tiles), otherInfo, default_random_engine(0), Hint(Tile::EMPTY), image), matches};
     }
 }
 

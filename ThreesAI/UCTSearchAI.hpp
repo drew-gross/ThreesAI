@@ -19,10 +19,10 @@ class UCTSearchAI : public ThreesAIBase {
     const unsigned int numPlays;
     
 public:
-    UCTSearchAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output, unsigned int numPlays);
+    UCTSearchAI(std::shared_ptr<AboutToMoveBoard const> board, std::unique_ptr<BoardOutput> output, unsigned int numPlays);
     Direction getDirection() const;
     
-    void receiveState(Direction d, BoardState const & newState);
+    void receiveState(Direction d, AboutToMoveBoard const & newState);
     void prepareDirection();
 };
 

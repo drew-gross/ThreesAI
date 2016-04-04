@@ -10,5 +10,4 @@
 
 using namespace std;
 
-ExpectimaxNodeBase::ExpectimaxNodeBase(shared_ptr<BoardState const> board, unsigned int depth) : board(board), depth(depth) {
-}
+ExpectimaxNodeBase::ExpectimaxNodeBase(unsigned int depth) : depth(depth) {}

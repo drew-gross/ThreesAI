@@ -11,14 +11,14 @@
 
 #include "BoardState.h"
 
-float countEmptyTile(BoardState const& b);
-float score(BoardState const& b) ;
-float countAdjacentPair(BoardState const& b) ;
-float countSplitPair(BoardState const& b);
-float simScore(BoardState const& b);
-float countAdjacentOffByOne(BoardState const& b);
-float countTrappedTiles(BoardState const& b);
-float highestIsInCorner(BoardState const& b);
-float highestIsOnEdge(BoardState const& b);
+float countEmptyTile(AboutToMoveBoard const& b);
+float score(AboutToMoveBoard const& b) ;
+float countAdjacentPair(AboutToMoveBoard const& b) ;
+float countSplitPair(AboutToMoveBoard const& b);
+float simScore(AboutToMoveBoard const& b);
+float countAdjacentOffByOne(AboutToMoveBoard const& b);
+float countTrappedTiles(AboutToMoveBoard const& b);
+float highestIsInCorner(AboutToMoveBoard const& b);
+float highestIsOnEdge(AboutToMoveBoard const& b);
 
 #endif /* Evaluators_hpp */

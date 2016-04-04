@@ -16,10 +16,10 @@
 class OnePlayMonteCarloAI : public ThreesAIBase {
     
 public:
-    OnePlayMonteCarloAI(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output);
+    OnePlayMonteCarloAI(std::shared_ptr<AboutToMoveBoard const> board, std::unique_ptr<BoardOutput> output);
     Direction getDirection() const;
     
-    void receiveState(Direction d, BoardState const & newState);
+    void receiveState(Direction d, AboutToMoveBoard const & newState);
     void prepareDirection();
 };
 

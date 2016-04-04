@@ -15,7 +15,7 @@ class QuickTimeSource : public GameStateSource {
 public:
     QuickTimeSource(std::shared_ptr<HintImages const> hintImages);
     
-    std::shared_ptr<BoardState const> getGameState(HiddenBoardState otherInfo);
+    std::shared_ptr<AboutToMoveBoard const> getGameState(HiddenBoardState otherInfo);
 private:
     std::shared_ptr<HintImages const> hintImages;
 };

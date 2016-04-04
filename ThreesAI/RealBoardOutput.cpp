@@ -17,7 +17,7 @@
 using namespace std;
 using namespace chrono;
 
-AddedTileInfo RealBoardOutput::computeChangeFrom(BoardState const& previousBoard) const {
+AddedTileInfo RealBoardOutput::computeChangeFrom(AboutToAddTileBoard const& previousBoard) const {
     return AddedTileInfo(previousBoard, *this->source->getGameState(HiddenBoardState(0,1,1,1)));
 }
 
@@ -50,14 +50,16 @@ void RealBoardOutput::moveStepper(Direction d) {
     }
 }
 
-std::shared_ptr<BoardState const> RealBoardOutput::currentState(HiddenBoardState otherInfo) const {
+std::shared_ptr<AboutToMoveBoard const> RealBoardOutput::currentState(HiddenBoardState otherInfo) const {
     return this->source->getGameState(otherInfo);
 }
 
-bool boardTransitionIsValid(BoardState const& oldBoard, Hint oldHint, Direction d, std::shared_ptr<BoardState const> newBoard) {
-    EnabledIndices unknownIndexes = oldBoard.validIndicesForNewTile(d);
+bool boardTransitionIsValid(AboutToAddTileBoard const& oldBoard, Hint oldHint, std::shared_ptr<AboutToMoveBoard const> newBoard) {
+    debug();
+    //TODO: enable this when I put it on the real iPhone
+    EnabledIndices unknownIndexes = oldBoard.validIndicesForNewTile;
     //Check if any of the moved tiles don't read the same
-    if (!newBoard->hasSameTilesAs(oldBoard, unknownIndexes)) {
+    if (!newBoard->hasSameTilesAs(oldBoard)) {
         return false;
     }
     
@@ -69,21 +71,21 @@ bool boardTransitionIsValid(BoardState const& oldBoard, Hint oldHint, Direction 
     return false;
 }
 
-void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
+void RealBoardOutput::move(Direction d, AboutToMoveBoard const& originalBoard) {
     this->moveStepper(d);
     
-    std::shared_ptr<BoardState const> expectedBoardAfterMove = make_shared<BoardState const>(BoardState::MoveWithoutAdd(d), originalBoard);
+    std::shared_ptr<AboutToAddTileBoard const> expectedBoardAfterMove = make_shared<AboutToAddTileBoard const>(MoveWithoutAdd(d), originalBoard);
     
-    std::shared_ptr<BoardState const> newState = this->source->getGameState(originalBoard.nextHiddenState(boost::none));
+    std::shared_ptr<AboutToMoveBoard const> newState = this->source->getGameState(originalBoard.nextHiddenState(boost::none));
     
-    if (newState->hasSameTilesAs(originalBoard, {})) {
+    if (newState->hasSameTilesAs(originalBoard)) {
         //Movement failed, retry.
         cout << "redo";
         return this->move(d, originalBoard);
     }
     //TODO: Detect if some other move was made accidentally, and just go with it.
     
-    bool ok = boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), d, newState);
+    bool ok = boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), newState);
     
     if (!ok) {
         MYLOG(originalBoard);
@@ -91,22 +93,23 @@ void RealBoardOutput::move(Direction d, BoardState const& originalBoard) {
         MYLOG(*newState);
         MYSHOWSMALL(newState->sourceImage, 4);
         MYLOG(d);
-        MYLOG(*expectedBoardAfterMove);
+        //TODO: Log the real thing
+        MYLOG(&expectedBoardAfterMove->board);
         debug();
         IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState(boost::none), *this->hintImages);
         IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState(boost::none), *this->hintImages);
-        boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), d, newState);
+        boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), newState);
     }
 }
 
-shared_ptr<BoardState const> RealBoardOutput::sneakyState() const {
+shared_ptr<AboutToMoveBoard const> RealBoardOutput::sneakyState() const {
     debug();
     return nullptr;
 }
 
 RealBoardOutput::RealBoardOutput(string port,
                                  shared_ptr<GameStateSource> source,
-                                 BoardState const& initialState,
+                                 AboutToMoveBoard const& initialState,
                                  shared_ptr<HintImages const> hintImages) :
 BoardOutput(),
 source(std::move(source)),

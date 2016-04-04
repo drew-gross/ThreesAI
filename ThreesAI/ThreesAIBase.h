@@ -20,22 +20,22 @@
 
 class ThreesAIBase {
 public:
-    ThreesAIBase(std::shared_ptr<BoardState const> board, std::unique_ptr<BoardOutput> output);
+    ThreesAIBase(std::shared_ptr<AboutToMoveBoard const> board, std::unique_ptr<BoardOutput> output);
     void playTurn(bool printMove=false);
     void playGame(bool printMove=false, bool inspectMove=false);
     
     virtual Direction getDirection() const = 0;
     std::unique_ptr<BoardOutput> boardOutput;
     
-    std::shared_ptr<BoardState const> currentState() const;
+    std::shared_ptr<AboutToMoveBoard const> currentState() const;
     
 protected:
-    virtual void receiveState(Direction d, BoardState const& newState) {};
+    virtual void receiveState(Direction d, AboutToMoveBoard const& newState) {};
     virtual void prepareDirection() {};
     
 private:
     bool print = false;
-    std::shared_ptr<BoardState const> boardState;
+    std::shared_ptr<AboutToMoveBoard const> boardState;
     
 };
 

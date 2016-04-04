@@ -19,20 +19,22 @@ using namespace std;
 
 FixedDepthAI::FixedDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, shared_ptr<Heuristic> heuristic, uint8_t depth) : ThreesAIBase(move(board), move(output)), heuristic(heuristic), depth(depth) {}
 
-void FixedDepthAI::receiveState(Direction d, BoardState const & newState) {};
+void FixedDepthAI::receiveState(Direction d, AboutToMoveBoard const & newState) {};
 void FixedDepthAI::prepareDirection() {};
 
 Direction FixedDepthAI::getDirection() const {
     vector<pair<Direction, float>> scoresForMoves;
     
-    unsigned int totalNodesViewed = 0;
+    //unsigned int totalNodesViewed = 0;
     
     for (auto&& d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
-            BoardState movedBoard(BoardState::MoveWithoutAdd(d), *this->currentState());
-            auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, this->depth, this->heuristic);
-            totalNodesViewed += searchResult.openNodes;
-            scoresForMoves.push_back({d, searchResult.value});
+            AboutToAddTileBoard movedBoard(MoveWithoutAdd(d), *this->currentState());
+            debug();
+            //TODO: If I use fixedDepthAI again, fix this by searching chilren
+            //auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, this->depth, this->heuristic);
+            //totalNodesViewed += searchResult.openNodes;
+            scoresForMoves.push_back({d, 0});//searchResult.value});
         }
     }
     

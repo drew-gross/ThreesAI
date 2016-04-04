@@ -22,15 +22,37 @@
 using namespace std;
 using namespace boost;
 
+float nonBonusTileProbability(HiddenBoardState hiddenState, Tile tile, bool canHaveBonus) {
+    unsigned int count = 0;
+    switch (tile) {
+        case Tile::TILE_1:
+            count = hiddenState.onesInStack;
+            break;
+        case Tile::TILE_2:
+            count = hiddenState.twosInStack;
+            break;
+        case Tile::TILE_3:
+            count = hiddenState.threesInStack;
+            break;
+        default:
+            debug();
+    }
+    float nonBonusProbability = float(count)/hiddenState.stackSize();
+    if (canHaveBonus) {
+        nonBonusProbability *= float(20)/21;
+    }
+    return nonBonusProbability;
+}
 
-SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const {
+SearchResult AboutToMoveBoard::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const {
     //Assume board was moved but hasn't had tile added
     //TODO: return -INFINITY if all moves lead to death
-    auto allAdditions = this->possibleAdditions(d);
+    AboutToAddTileBoard b(MoveWithoutAdd(d), *this);
+    auto allAdditions = b.possibleAdditions();
     float score = 0;
     unsigned int openNodeCount = 0;
     for (auto&& info : allAdditions) {
-        BoardState potentialBoard(BoardState::AddSpecificTile(d, info.i, info.t), *this, true);
+        AboutToMoveBoard potentialBoard(AboutToMoveBoard::AddSpecificTile(d, info.i, info.t), b, true);
         if (depth == 0) {
             score += h->evaluateWithoutDescription(potentialBoard)*info.probability;
             openNodeCount += 1;
@@ -38,8 +60,10 @@ SearchResult BoardState::heuristicSearchIfMovedInDirection(Direction d, uint8_t 
             vector<pair<Direction, SearchResult>> scoresForMoves;
             for (auto&& d : allDirections) {
                 if (potentialBoard.isMoveValid(d)) {
-                    BoardState movedBoard(BoardState::MoveWithoutAdd(d), potentialBoard);
-                    scoresForMoves.push_back({d, movedBoard.heuristicSearchIfMovedInDirection(d, depth - 1, h)});
+                    AboutToAddTileBoard movedBoard(MoveWithoutAdd(d), potentialBoard);
+                    debug();
+                    //TODO: take average of all childre
+                    //scoresForMoves.push_back({d, movedBoard.heuristicSearchIfMovedInDirection(d, depth - 1, h)});
                 }
             }
             if (scoresForMoves.empty()) {
@@ -64,81 +88,157 @@ bool HiddenBoardState::operator==(HiddenBoardState const& other) const {
         this->threesInStack == other.threesInStack;
 }
 
-void BoardState::set(BoardIndex i, Tile t) {
-    this->board[i.toRegularIndex()] = t;
-    this->maxTileCache = std::max(t, this->maxTileCache);
-}
-
-void BoardState::takeTurnInPlace(Direction d) {
-    this->upcomingTile = this->getUpcomingTile(); //Must get upcoming tile before moving, as moveing can change which tile is added for a given generator state.
-    this->move(d);
-    this->addTile(d);
-    this->scoreCacheIsValid = false;
+void Board::set(BoardIndex i, Tile t) {
+    this->tiles[i.toRegularIndex()] = t;
+    this->maxTile = std::max(t, this->maxTile);
     this->validMovesCacheIsValid = false;
+    this->scoreCacheIsValid = false;
 }
 
-void BoardState::move(Direction d) {
-    bool successfulMerge = false;
-    bool countUp;
-    bool countFirst;
-    switch (d) {
-        case Direction::UP:
-            countUp = true;
-            countFirst = false;
-            break;
-        case Direction::DOWN:
-            countUp = false;
-            countFirst = false;
-            break;
-        case Direction::LEFT:
-            countUp = true;
-            countFirst = true;
-            break;
-        case Direction::RIGHT:
-            countUp = false;
-            countFirst = true;
-            break;
-    }
+void AboutToMoveBoard::takeTurnInPlace(Direction d) {
+    this->upcomingTile = this->getUpcomingTile(); //Must get upcoming tile before moving, as moveing can change which tile is added for a given generator state.
+    this->board.move(d);
+    this->addTile(d);
+}
+
+EnabledIndices Board::moveUp() {
+    EnabledIndices movedColumns({});
+    EnabledIndices mergedColumns({});
+    
     for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = countUp ? 0 : 3; (countUp && j < 3) || (!countUp && j > 0); j += countUp? 1 : -1) {
-            BoardIndex target = countFirst ? BoardIndex(j, i) : BoardIndex(i, j);
-            BoardIndex here = countFirst ? BoardIndex(j + (countUp ? 1 : -1), i) : BoardIndex(i, j + (countUp ? 1 : -1));
-            Tile targetValue = this->at(target);
-            Tile hereValue = this->at(here);
-            if (canMergeOrMove(targetValue, hereValue)) {
-                Tile newTargetValue = targetValue != Tile::EMPTY ? succ(hereValue) : hereValue;
-                this->set(target, newTargetValue);
-                this->set(here, Tile::EMPTY);
-                successfulMerge = true;
+        for (unsigned char j = 0; j < 3; j++) {
+            Tile target = this->at(BoardIndex(i, j));
+            Tile here = this->at(BoardIndex(i, j + 1));
+            if (canMergeOrMove(target, here)) {
+                movedColumns.set(BoardIndex(i, 3));
+            }
+            auto result = mergeResult(here, target);
+            if (result) {
+                mergedColumns.set(BoardIndex(i, 3));
+                this->set(BoardIndex(i, j), result.get());
             }
         }
     }
-    if (__builtin_expect(!successfulMerge, 0)) {
+    
+    if (__builtin_expect(movedColumns.size() == 0, 0)) {
         throw InvalidMoveException();
+    }
+    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
+}
+
+EnabledIndices Board::moveDown() {
+    EnabledIndices movedColumns({});
+    EnabledIndices mergedColumns({});
+    
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 3; j > 0; j--) {
+            Tile target = this->at(BoardIndex(i, j));
+            Tile here = this->at(BoardIndex(i, j - 1));
+            if (canMergeOrMove(target, here)) {
+                movedColumns.set(BoardIndex(i, 0));
+            }
+            auto result = mergeResult(here, target);
+            if (result) {
+                mergedColumns.set(BoardIndex(i, 0));
+                this->set(BoardIndex(i, j), result.get());
+            }
+        }
+    }
+    
+    if (__builtin_expect(movedColumns.size() == 0, 0)) {
+        throw InvalidMoveException();
+    }
+    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
+}
+
+EnabledIndices Board::moveLeft() {
+    EnabledIndices movedColumns({});
+    EnabledIndices mergedColumns({});
+    
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 3; j > 0; j--) {
+            Tile target = this->at(BoardIndex(j, i));
+            Tile here = this->at(BoardIndex(j - 1, i));
+            if (canMergeOrMove(target, here)) {
+                movedColumns.set(BoardIndex(0, i));
+            }
+            auto result = mergeResult(here, target);
+            if (result) {
+                mergedColumns.set(BoardIndex(0, i));
+                this->set(BoardIndex(j, i), result.get());
+            }
+        }
+    }
+    
+    if (__builtin_expect(movedColumns.size() == 0, 0)) {
+        throw InvalidMoveException();
+    }
+    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
+}
+
+
+EnabledIndices Board::moveRight() {
+    EnabledIndices movedColumns({});
+    EnabledIndices mergedColumns({});
+    
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 3; j--) {
+            Tile target = this->at(BoardIndex(i, j));
+            Tile here = this->at(BoardIndex(i, j + 1));
+            if (canMergeOrMove(target, here)) {
+                movedColumns.set(BoardIndex(3, i));
+            }
+            auto result = mergeResult(here, target);
+            if (result) {
+                mergedColumns.set(BoardIndex(3, i));
+                this->set(BoardIndex(j, i), result.get());
+            }
+        }
+    }
+    
+    if (__builtin_expect(movedColumns.size() == 0, 0)) {
+        throw InvalidMoveException();
+    }
+    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
+}
+
+EnabledIndices Board::move(Direction d) {
+    switch (d) {
+        case Direction::UP: return this->moveUp();
+        case Direction::DOWN: return this->moveDown();
+        case Direction::LEFT: return this->moveLeft();
+        case Direction::RIGHT: return this->moveRight();
     }
 }
 
-BoardState::BoardState(BoardState::MoveWithoutAdd m, BoardState const& other) : hiddenState(other.hiddenState) {
-    this->copy(other);
-    this->move(m.d);
+AboutToAddTileBoard::AboutToAddTileBoard(MoveWithoutAdd m, AboutToMoveBoard const& other) :
+board(other.board),
+hiddenState(other.hiddenState),
+validIndicesForNewTile({}),
+generator(other.generator),
+h(other.hint)
+{
+    this->validIndicesForNewTile = this->board.move(m.d);
 }
 
-BoardState::BoardState(BoardState::AddSpecificTile t, BoardState const& other, bool hasNoHint) : hiddenState(other.nextHiddenState(t.t)) {
-    this->copy(other);
-    this->indexForNextTile(t.d); //force RNG to advance the same number of times as if the tile had been added the natural way.
+AboutToMoveBoard::AboutToMoveBoard(AboutToMoveBoard::AddSpecificTile t, AboutToAddTileBoard const& other, bool hasNoHint) :
+board(other.board),
+hiddenState(other.nextHiddenState(t.t))
+{
+    //TODO: bring this back this->copy(other);
+    //TODO: Figure out how to replicate this behaviour indexForNextTile(t.d); //force RNG to advance the same number of times as if the tile had been added the natural way.
     this->upcomingTile = none;
     this->hint = none;
-    this->set(t.i, t.t);
+    this->board.set(t.i, t.t);
     this->hasNoHint = true;
 }
 
-BoardIndex BoardState::indexForNextTile(Direction d) {
-    EnabledIndices validIndexes = this->validIndicesForNewTile(d);
-    debug(validIndexes.size() == 0);
-    uniform_int_distribution<unsigned long> dist(0,validIndexes.size() - 1);
+BoardIndex AboutToAddTileBoard::indexForNextTile() {
+    debug(this->validIndicesForNewTile.size() == 0);
+    uniform_int_distribution<unsigned long> dist(0, this->validIndicesForNewTile.size() - 1);
     unsigned long indexWithinValid = dist(this->generator);
     for (auto&& i : allIndices) {
-        if (validIndexes.isEnabled(i)) {
+        if (this->validIndicesForNewTile.isEnabled(i)) {
             if (indexWithinValid > 0) {
                 indexWithinValid--;
             } else {
@@ -150,41 +250,44 @@ BoardIndex BoardState::indexForNextTile(Direction d) {
     return BoardIndex(0,0);
 }
 
-void BoardState::addTile(Direction d) {
+void AboutToMoveBoard::addTile(Direction d) {
     Tile t = this->getUpcomingTile(); //Note: getUpcomingTile changes the generator, so this must be retrieved before the index.
-    BoardIndex i = this->indexForNextTile(d);
-    this->set(i, t);
+    AboutToAddTileBoard moved(MoveWithoutAdd(d), *this);
+    BoardIndex i = moved.indexForNextTile();
+    this->board.set(i, t);
     this->hiddenState = this->nextHiddenState(t);
     this->upcomingTile = none;
     this->hint = none;
 }
 
-BoardState::BoardState(BoardState::AddTile t, BoardState const& other) : hiddenState(other.hiddenState) {
-    this->copy(other);
+AboutToMoveBoard::AboutToMoveBoard(AddTile t, AboutToAddTileBoard const& other) :
+board(other.board),
+hiddenState(other.hiddenState),
+generator(other.generator),
+upcomingTile(other.upcomingTile)
+{
     this->addTile(t.d);
 }
 
-BoardState::BoardState(BoardState::MoveWithAdd m, BoardState const& other) : hiddenState(other.hiddenState) {
-    this->copy(other);
+AboutToMoveBoard::AboutToMoveBoard(MoveWithAdd m, AboutToMoveBoard const& other) :
+hiddenState(other.hiddenState),
+board(other.board),
+generator(other.generator),
+upcomingTile(other.upcomingTile),
+hint(other.hint)
+{
     this->takeTurnInPlace(m.d);
 }
 
-void BoardState::copy(BoardState const &other) {
-    this->sourceImage = other.sourceImage;
-    this->generator = other.generator;
-    this->board = other.board;
-    this->upcomingTile = other.upcomingTile;
-    this->hint = other.hint;
-    this->hasNoHint = other.hasNoHint;
-    this->maxTileCache = other.maxTileCache;
-}
+AboutToMoveBoard::AboutToMoveBoard(AboutToMoveBoard::DifferentFuture d, AboutToMoveBoard const& other) :
+hiddenState(other.hiddenState),
+board(other.board),
+generator(d.howDifferent),
+upcomingTile(other.upcomingTile),
+hint(other.hint)
+{}
 
-BoardState::BoardState(BoardState::DifferentFuture d, BoardState const& other) : hiddenState(other.hiddenState) {
-    this->copy(other);
-    this->generator = default_random_engine(d.howDifferent);
-}
-
-BoardState::BoardState(Board b,
+AboutToMoveBoard::AboutToMoveBoard(Board b,
                        HiddenBoardState h,
                        std::default_random_engine gen,
                        Hint hint,
@@ -196,7 +299,7 @@ hasNoHint(false),
 generator(gen),
 hiddenState(h) {}
 
-BoardState::BoardState(Board b,
+AboutToMoveBoard::AboutToMoveBoard(Board b,
                        HiddenBoardState h,
                        default_random_engine hintGen,
                        cv::Mat sourceImage) :
@@ -207,12 +310,59 @@ hasNoHint(false),
 hint(none),
 hiddenState(h) {}
 
+Board boardFromString(std::string const s) {
+    vector<string> splitName;
+    split(splitName, s, is_any_of("-"));
+    
+    deque<string> nums;
+    split(nums, splitName[0], is_any_of(","));
+    debug(nums.size() != 16);
+    
+    deque<string> nextTileHintStrings;
+    split(nextTileHintStrings, splitName[1], is_any_of(","));
+    debug(nextTileHintStrings.size() > 3);
+    
+    std::array<Tile, 16> tileList;
+    transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
+        return tileFromString(s);
+    });
+    
+    return tileList;
+}
 
-BoardState::BoardState(FromString s) :
-generator(0),
+Tile maxTileFromString(std::string const s) {
+    vector<string> splitName;
+    split(splitName, s, is_any_of("-"));
+    
+    deque<string> nums;
+    split(nums, splitName[0], is_any_of(","));
+    debug(nums.size() != 16);
+    
+    deque<string> nextTileHintStrings;
+    split(nextTileHintStrings, splitName[1], is_any_of(","));
+    debug(nextTileHintStrings.size() > 3);
+    
+    std::array<Tile, 16> tileList;
+    transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
+        return tileFromString(s);
+    });
+    
+    deque<Tile> hint(nextTileHintStrings.size());
+    transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), hint.begin(), [](string s) {
+        return tileFromString(s);
+    });
+    
+    return *max_element(tileList.begin(), tileList.end());
+}
+
+//use for FromString
+AboutToMoveBoard::AboutToMoveBoard(FromString s) :
+board(boardFromString(s.s)),
 hiddenState(0,4,4,4),
+generator(0),
 hasNoHint(false)
 {
+    
     vector<string> splitName;
     split(splitName, s.s, is_any_of("-"));
     
@@ -245,24 +395,22 @@ hasNoHint(false)
         this->board = tileList;
         this->hint = Hint(hint[0], hint[1], hint[2]);
     }
-    this->maxTileCache = *max_element(tileList.begin(), tileList.end());
 }
 
-Tile BoardState::genUpcomingTile() const {
+Tile AboutToMoveBoard::genUpcomingTile() const {
     //This function contains an inlined version of possibleNextTiles, for performance reasons (to avoid creating a deque)
     
     // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
     // which means if a 1 is generated for tileFinder, we get here. In this case, use 6,
     // which would have been returned had there been no floating point error.
     debug(this->hint != none);
-    Tile maxBoardTile = this->maxTile();
-    bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
+    bool canHaveBonus = this->board.maxTile >= Tile::TILE_48;
     default_random_engine genCopy = this->generator;
     uniform_real_distribution<> r(0,1);
     float tileFinder = r(genCopy);
     
     if (this->hiddenState.onesInStack > 0) {
-        float pOne = this->nonBonusTileProbability(Tile::TILE_1, canHaveBonus);
+        float pOne = nonBonusTileProbability(this->hiddenState, Tile::TILE_1, canHaveBonus);
         if (tileFinder < pOne) {
             return Tile::TILE_1;
         } else {
@@ -271,7 +419,7 @@ Tile BoardState::genUpcomingTile() const {
     }
     
     if (this->hiddenState.twosInStack > 0) {
-        float pTwo = this->nonBonusTileProbability(Tile::TILE_2, canHaveBonus);
+        float pTwo = nonBonusTileProbability(this->hiddenState,Tile::TILE_2, canHaveBonus);
         if (tileFinder < pTwo) {
             return Tile::TILE_2;
         } else {
@@ -280,7 +428,66 @@ Tile BoardState::genUpcomingTile() const {
     }
     
     if (this->hiddenState.threesInStack > 0) {
-        float pThree = this->nonBonusTileProbability(Tile::TILE_3, canHaveBonus);
+        float pThree = nonBonusTileProbability(this->hiddenState,Tile::TILE_3, canHaveBonus);
+        if (tileFinder < pThree) {
+            return Tile::TILE_3;
+        } else {
+            tileFinder -= pThree;
+        }
+    }
+    
+    Tile currentBonus = pred(pred(pred(this->board.maxTile)));
+    Tile possibleBonusCounter = currentBonus;
+    unsigned int numPossibleBonusTiles = 0;
+    while (possibleBonusCounter > Tile::TILE_3) {
+        possibleBonusCounter = pred(possibleBonusCounter);
+        numPossibleBonusTiles++;
+    }
+    while (currentBonus >= Tile::TILE_6) {
+        float pThisBonus = float(1)/numPossibleBonusTiles/21;
+        if (tileFinder < pThisBonus) {
+            return currentBonus;
+        } else {
+            tileFinder -= pThisBonus;
+            currentBonus = pred(currentBonus);
+        }
+    }
+    return Tile::TILE_6;
+}
+
+Tile AboutToAddTileBoard::genUpcomingTile() const {
+    //This function contains an inlined version of possibleNextTiles, for performance reasons (to avoid creating a deque)
+    
+    // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
+    // which means if a 1 is generated for tileFinder, we get here. In this case, use 6,
+    // which would have been returned had there been no floating point error.
+    debug(this->h != none);
+    Tile maxBoardTile = this->board.maxTile;
+    bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
+    default_random_engine genCopy = this->generator;
+    uniform_real_distribution<> r(0,1);
+    float tileFinder = r(genCopy);
+    
+    if (this->hiddenState.onesInStack > 0) {
+        float pOne = nonBonusTileProbability(this->hiddenState, Tile::TILE_1, canHaveBonus);
+        if (tileFinder < pOne) {
+            return Tile::TILE_1;
+        } else {
+            tileFinder -= pOne;
+        }
+    }
+    
+    if (this->hiddenState.twosInStack > 0) {
+        float pTwo = nonBonusTileProbability(this->hiddenState,Tile::TILE_2, canHaveBonus);
+        if (tileFinder < pTwo) {
+            return Tile::TILE_2;
+        } else {
+            tileFinder -= pTwo;
+        }
+    }
+    
+    if (this->hiddenState.threesInStack > 0) {
+        float pThree = nonBonusTileProbability(this->hiddenState,Tile::TILE_3, canHaveBonus);
         if (tileFinder < pThree) {
             return Tile::TILE_3;
         } else {
@@ -307,22 +514,38 @@ Tile BoardState::genUpcomingTile() const {
     return Tile::TILE_6;
 }
 
-BoardState::BoardState(SetHint h, BoardState const& other) : hiddenState(other.hiddenState) {
-    this->copy(other);
-    debug(!this->hasNoHint);
-    this->hasNoHint = false;
-    this->hint = make_optional(h.h);
+AboutToMoveBoard::AboutToMoveBoard(SetHint h, AboutToMoveBoard const& other) :
+hiddenState(other.hiddenState),
+board(other.board),
+generator(other.generator),
+upcomingTile(other.upcomingTile),
+hint(make_optional(h.h)),
+hasNoHint(false)
+{}
+
+AboutToAddTileBoard::AboutToAddTileBoard(SetHint h, AboutToAddTileBoard const& other) :
+validIndicesForNewTile(other.validIndicesForNewTile),
+hiddenState(other.hiddenState),
+board(other.board),
+generator(other.generator),
+upcomingTile(other.upcomingTile),
+h(make_optional(h.h)),
+hasNoHint(false)
+{}
+
+AboutToMoveBoard::AboutToMoveBoard(SetHiddenState h, AboutToMoveBoard const& other) :
+hiddenState(h.h),
+board(other.board),
+generator(other.generator),
+upcomingTile(other.upcomingTile),
+hint(other.hint)
+{}
+
+long AboutToMoveBoard::countOfTile(Tile t) const {
+    return count(this->board.tiles.begin(), this->board.tiles.end(), t);
 }
 
-BoardState::BoardState(SetHiddenState h, BoardState const& other) : hiddenState(h.h) {
-    this->copy(other);
-}
-
-long BoardState::countOfTile(Tile t) const {
-    return count(this->board.begin(), this->board.end(), t);
-}
-
-unsigned long BoardState::adjacentPairCount() const {
+unsigned long AboutToMoveBoard::adjacentPairCount() const {
     unsigned long count = 0;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
@@ -344,7 +567,7 @@ unsigned long BoardState::adjacentPairCount() const {
     return count;
 }
 
-unsigned long BoardState::adjacentOffByOneCount() const {
+unsigned long AboutToMoveBoard::adjacentOffByOneCount() const {
     unsigned long count = 0;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
@@ -387,7 +610,7 @@ bool isBlocked(Tile here, optional<Tile> s1, optional<Tile> s2) {
     return false;
 }
 
-unsigned long BoardState::trappedTileCount() const {
+unsigned long AboutToMoveBoard::trappedTileCount() const {
     unsigned long count = 0;
     for (BoardIndex i : allIndices) {
         Tile here = this->at(i);
@@ -405,7 +628,7 @@ unsigned long BoardState::trappedTileCount() const {
     return count;
 }
 
-unsigned long BoardState::splitPairsOfTile(Tile t) const {
+unsigned long AboutToMoveBoard::splitPairsOfTile(Tile t) const {
     unsigned long count = 0;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
@@ -445,7 +668,7 @@ unsigned long BoardState::splitPairsOfTile(Tile t) const {
     return count;
 }
 
-unsigned long BoardState::splitPairCount() const {
+unsigned long AboutToMoveBoard::splitPairCount() const {
     unsigned long count = 0;
     for (Tile t = Tile::TILE_3; t < Tile::TILE_6144; t = succ(t)) {
         count += this->splitPairsOfTile(t);
@@ -453,7 +676,7 @@ unsigned long BoardState::splitPairCount() const {
     return count;
 }
 
-Hint BoardState::getHint() const {
+Hint AboutToMoveBoard::getHint() const {
     debug(this->hasNoHint);
     if (this->hint) {
         return this->hint.value();
@@ -467,7 +690,7 @@ Hint BoardState::getHint() const {
         if (actualTile <= Tile::TILE_3) {
             return Hint(actualTile);
         } else {
-            Tile maxBonusTile = this->maxBonusTile();
+            Tile maxBonusTile = this->board.maxBonusTile();
             //Add tiles that could show up
             if (pred(pred(actualTile)) >= Tile::TILE_6) {
                 inRangeTiles[tilesIndexEnd] = pred(pred(actualTile));
@@ -522,7 +745,77 @@ Hint BoardState::getHint() const {
     }
 }
 
-Tile BoardState::getUpcomingTile() const {
+
+Hint AboutToAddTileBoard::getHint() const {
+    debug(this->hasNoHint);
+    if (this->h) {
+        return this->h.value();
+    } else {
+        array<Tile, 5> inRangeTiles;
+        unsigned char tilesIndexEnd = 0;
+        Tile hint1 = Tile::EMPTY;
+        Tile hint2 = Tile::EMPTY;
+        Tile hint3 = Tile::EMPTY;
+        Tile actualTile = this->upcomingTile.value_or(this->genUpcomingTile());
+        if (actualTile <= Tile::TILE_3) {
+            return Hint(actualTile);
+        } else {
+            Tile maxBonusTile = this->board.maxBonusTile();
+            //Add tiles that could show up
+            if (pred(pred(actualTile)) >= Tile::TILE_6) {
+                inRangeTiles[tilesIndexEnd] = pred(pred(actualTile));
+                tilesIndexEnd++;
+            }
+            if (pred(actualTile) >= Tile::TILE_6) {
+                inRangeTiles[tilesIndexEnd] = pred(actualTile);
+                tilesIndexEnd++;
+            }
+            inRangeTiles[tilesIndexEnd] = actualTile;
+            tilesIndexEnd++;
+            if (succ(actualTile) <= maxBonusTile) {
+                inRangeTiles[tilesIndexEnd] = succ(actualTile);
+                tilesIndexEnd++;
+            }
+            if (succ(succ(actualTile)) <= maxBonusTile) {
+                inRangeTiles[tilesIndexEnd] = succ(succ(actualTile));
+                tilesIndexEnd++;
+            }
+            
+            unsigned char tilesIndexBegin = 0;
+            default_random_engine rngCopy = this->generator;
+            //Trim list down to 3
+            while (tilesIndexEnd - tilesIndexBegin > 3) {
+                if (upcomingTile == inRangeTiles[tilesIndexEnd-1]) {
+                    tilesIndexBegin++;
+                } else if (upcomingTile == inRangeTiles[tilesIndexBegin]) {
+                    tilesIndexEnd--;
+                } else if (uniform_int_distribution<>(0,1)(rngCopy) == 1) {
+                    tilesIndexEnd--;
+                } else {
+                    tilesIndexBegin++;
+                }
+            }
+            
+            if (tilesIndexEnd - tilesIndexBegin == 3) {
+                hint3 = inRangeTiles[tilesIndexBegin + 2];
+            }
+            if (tilesIndexEnd - tilesIndexBegin >= 2) {
+                hint2 = inRangeTiles[tilesIndexBegin + 1];
+            }
+            hint1 = inRangeTiles[tilesIndexBegin];
+        }
+        
+        Hint result(hint1, hint2, hint3);
+        debug(!result.contains(actualTile));
+        debug(hint1 > Tile::TILE_6144);
+        debug(hint2 > Tile::TILE_6144);
+        debug(hint3 > Tile::TILE_6144);
+        
+        return result;
+    }
+}
+
+Tile AboutToMoveBoard::getUpcomingTile() const {
     if (this->upcomingTile) {
         return this->upcomingTile.value();
     } else {
@@ -537,23 +830,31 @@ ostream& operator<<(ostream &os, const BoardIndex i){
     return os;
 }
 
-Tile BoardState::at(BoardIndex const& p) const {
-    return this->board[p.toRegularIndex()];
+bool AboutToMoveBoard::isGameOver() const {
+    return this->board.validMoves().empty();
 }
 
-bool BoardState::isGameOver() const {
-    return this->validMoves().empty();
+bool AboutToMoveBoard::canMove(Direction d) const {
+    return this->board.validMoves().isEnabled(d);
 }
 
-bool BoardState::canMove(Direction d) const {
-    return this->validMoves().isEnabled(d);
+Tile Board::maxBonusTile() const {
+    return pred(pred(pred(this->maxTile)));
 }
 
-Tile BoardState::maxBonusTile() const {
-    return pred(pred(pred(this->maxTile())));
+bool AboutToMoveBoard::hasSameTilesAs(AboutToMoveBoard const& otherBoard) const {
+    for (BoardIndex i : allIndices) {
+        Tile tile = this->at(i);
+        Tile otherTile = otherBoard.at(i);
+        if (tile != otherTile) {
+            return false;
+        }
+    }
+    return true;
 }
 
-bool BoardState::hasSameTilesAs(BoardState const& otherBoard, EnabledIndices excludedIndices) const {
+bool AboutToMoveBoard::hasSameTilesAs(AboutToAddTileBoard const& otherBoard) const {
+    EnabledIndices excludedIndices = otherBoard.validIndicesForNewTile;
     for (BoardIndex i : allIndices) {
         if (!excludedIndices.isEnabled(i)) {
             Tile tile = this->at(i);
@@ -566,12 +867,14 @@ bool BoardState::hasSameTilesAs(BoardState const& otherBoard, EnabledIndices exc
     return true;
 }
 
-HiddenBoardState BoardState::nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const {
+HiddenBoardState AboutToAddTileBoard::nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const {
     unsigned int newOnes = this->hiddenState.onesInStack;
     unsigned int newTwos = this->hiddenState.twosInStack;
     unsigned int newThrees = this->hiddenState.threesInStack;
     
-    switch (mostRecentlyAddedTile.value_or_eval([this](){return this->getUpcomingTile();})) {
+    Tile addedTile = mostRecentlyAddedTile.value_or(this->upcomingTile.get());
+    
+    switch (addedTile) {
         case Tile::TILE_1:
             newOnes--;
             break;
@@ -587,73 +890,43 @@ HiddenBoardState BoardState::nextHiddenState(boost::optional<Tile> mostRecentlyA
     return HiddenBoardState(this->hiddenState.numTurns + 1, newOnes, newTwos, newThrees);
 }
 
-static std::array<BoardIndex, 4> leftEdge = {BoardIndex(3,0),BoardIndex(3,1),BoardIndex(3,2),BoardIndex(3,3)};
-static std::array<BoardIndex, 4> rightEdge = {BoardIndex(0,0),BoardIndex(0,1),BoardIndex(0,2),BoardIndex(0,3)};
-static std::array<BoardIndex, 4> upEdge = {BoardIndex(0,3),BoardIndex(1,3),BoardIndex(2,3),BoardIndex(3,3)};
-static std::array<BoardIndex, 4> downEdge = {BoardIndex(0,0),BoardIndex(1,0),BoardIndex(2,0),BoardIndex(3,0)};
-EnabledIndices BoardState::validIndicesForNewTile(Direction movedDirection) const {
-    std::array<BoardIndex, 4>* indices;
-    switch (movedDirection) {
-        case Direction::LEFT:
-            indices = &leftEdge;
-            break;
-        case Direction::RIGHT:
-            indices = &rightEdge;
-            break;
-        case Direction::UP:
-            indices = &upEdge;
-            break;
-        case Direction::DOWN:
-            indices = &downEdge;
-            break;
-        default:
-            break;
-    }
-    EnabledIndices result({});
-    for (auto&& index : *indices) {
-        if (this->at(index) == Tile::EMPTY) {
-            result.set(index);
-        }
-    }
-    return result;
-}
-
-float BoardState::nonBonusTileProbability(Tile tile, bool canHaveBonus) const {
-    unsigned int count = 0;
-    switch (tile) {
+HiddenBoardState AboutToMoveBoard::nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const {
+    unsigned int newOnes = this->hiddenState.onesInStack;
+    unsigned int newTwos = this->hiddenState.twosInStack;
+    unsigned int newThrees = this->hiddenState.threesInStack;
+    
+    Tile addedTile = mostRecentlyAddedTile.value_or(this->upcomingTile.get());
+    
+    switch (addedTile) {
         case Tile::TILE_1:
-            count = this->hiddenState.onesInStack;
+            newOnes--;
             break;
         case Tile::TILE_2:
-            count = this->hiddenState.twosInStack;
+            newTwos--;
             break;
         case Tile::TILE_3:
-            count = this->hiddenState.threesInStack;
+            newThrees--;
             break;
         default:
-            debug();
+            break;
     }
-    float nonBonusProbability = float(count)/this->hiddenState.stackSize();
-    if (canHaveBonus) {
-        nonBonusProbability *= float(20)/21;
-    }
-    return nonBonusProbability;
+    return HiddenBoardState(this->hiddenState.numTurns + 1, newOnes, newTwos, newThrees);
 }
 
-deque<pair<Tile, float>> BoardState::possibleNextTiles() const {
-    debug(this->hint == none && !this->hasNoHint);
-    Tile maxBoardTile = this->maxTile();
+deque<pair<Tile, float>> AboutToAddTileBoard::possibleNextTiles() const {
+    debug(this->h == none && !this->hasNoHint);
+    Tile maxBoardTile = this->board.maxTile;
     bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
     deque<pair<Tile, float>> result;
     //should be able to only add 1,2,3 if they are in the stack
     if (this->hiddenState.onesInStack > 0) {
-        result.push_back({Tile::TILE_1, this->nonBonusTileProbability(Tile::TILE_1, canHaveBonus)});
+        result.push_back({Tile::TILE_1, nonBonusTileProbability(this->hiddenState, Tile::TILE_1, canHaveBonus)});
     }
     if (this->hiddenState.twosInStack > 0) {
-        result.push_back({Tile::TILE_2, this->nonBonusTileProbability(Tile::TILE_2, canHaveBonus)});
+        result.push_back({Tile::TILE_2, nonBonusTileProbability(this->hiddenState, Tile::TILE_2, canHaveBonus)});
     }
     if (this->hiddenState.threesInStack > 0) {
-        result.push_back({Tile::TILE_3, this->nonBonusTileProbability(Tile::TILE_3, canHaveBonus)});
+        result.push_back({Tile::TILE_3, nonBonusTileProbability(this->hiddenState, Tile::TILE_3, canHaveBonus)});
     }
     Tile possibleBonusTileCounter = pred(pred(pred(maxBoardTile)));
     unsigned int numPossibleBonusTiles = 0;
@@ -670,8 +943,8 @@ deque<pair<Tile, float>> BoardState::possibleNextTiles() const {
     return result;
 }
 
-deque<BoardState::AdditionInfo> BoardState::possibleAdditions(Direction directionMovedToGetHere) const {
-    deque<BoardState::AdditionInfo> results;
+deque<AdditionInfo> AboutToAddTileBoard::possibleAdditions() const {
+    deque<AdditionInfo> results;
     
     deque<pair<Tile, float>> possibleNextTiles;
     if (this->hasNoHint) {
@@ -679,7 +952,7 @@ deque<BoardState::AdditionInfo> BoardState::possibleAdditions(Direction directio
     } else {
         possibleNextTiles = this->getHint().possibleTiles();
     }
-    EnabledIndices possibleNextLocations = this->validIndicesForNewTile(directionMovedToGetHere);
+    EnabledIndices possibleNextLocations = this->validIndicesForNewTile;
     
     float locationProbability = 1.0f/possibleNextLocations.size();
     
@@ -693,7 +966,7 @@ deque<BoardState::AdditionInfo> BoardState::possibleAdditions(Direction directio
     return results;
 }
 
-ostream& operator<<(ostream &os, BoardState const& board) {
+ostream& operator<<(ostream &os, AboutToMoveBoard const& board) {
     if (board.hasNoHint) {
         os << "No Hint" << endl;
     } else {
@@ -703,19 +976,19 @@ ostream& operator<<(ostream &os, BoardState const& board) {
     os << "Score: " << board.score() << endl;
     os << "Stack: " << board.hiddenState.onesInStack << " " << board.hiddenState.twosInStack << " " << board.hiddenState.threesInStack << endl;
     os << "---------------------" << endl;
-    os << "|" << board.board[0] << "|" << board.board[1] << "|" << board.board[2] << "|" << board.board[3] << "|" << endl;
-    os << "|" << board.board[4] << "|" << board.board[5] << "|" << board.board[6] << "|" << board.board[7] << "|" << endl;
-    os << "|" << board.board[8] << "|" << board.board[9] << "|" << board.board[10] << "|" << board.board[11] << "|" << endl;
-    os << "|" << board.board[12] << "|" << board.board[13] << "|" << board.board[14] << "|" << board.board[15] << "|" << endl;
+    os << "|" << board.board.tiles[0] << "|" << board.board.tiles[1] << "|" << board.board.tiles[2] << "|" << board.board.tiles[3] << "|" << endl;
+    os << "|" << board.board.tiles[4] << "|" << board.board.tiles[5] << "|" << board.board.tiles[6] << "|" << board.board.tiles[7] << "|" << endl;
+    os << "|" << board.board.tiles[8] << "|" << board.board.tiles[9] << "|" << board.board.tiles[10] << "|" << board.board.tiles[11] << "|" << endl;
+    os << "|" << board.board.tiles[12] << "|" << board.board.tiles[13] << "|" << board.board.tiles[14] << "|" << board.board.tiles[15] << "|" << endl;
     os << "---------------------";
     return os;
 }
 
-bool BoardState::isMoveValid(Direction d) const {
+bool Board::isMoveValid(Direction d) const {
     return this->validMoves().isEnabled(d);
 }
 
-EnabledDirections BoardState::validMoves() const {
+EnabledDirections Board::validMoves() const {
     if (this->validMovesCacheIsValid) {
         return this->validMovesCache;
     }
@@ -792,8 +1065,8 @@ EnabledDirections BoardState::validMoves() const {
     return this->validMovesCache;
 }
 
-Direction BoardState::randomValidMoveFromInternalGenerator() const {
-    EnabledDirections moves = this->validMoves();
+Direction AboutToMoveBoard::randomValidMoveFromInternalGenerator() const {
+    EnabledDirections moves = this->board.validMoves();
     default_random_engine genCopy = this->generator;
     int index = uniform_int_distribution<>(0,int(moves.size() - 1))(genCopy);
     for (Direction d : allDirections) {
@@ -809,8 +1082,8 @@ Direction BoardState::randomValidMoveFromInternalGenerator() const {
     return Direction::LEFT;
 }
 
-BoardState::Score BoardState::runRandomSimulation(unsigned int simNumber) const {
-    BoardState copy(BoardState::DifferentFuture(simNumber), *this);
+BoardScore AboutToMoveBoard::runRandomSimulation(unsigned int simNumber) const {
+    AboutToMoveBoard copy(AboutToMoveBoard::DifferentFuture(simNumber), *this);
     copy.hasNoHint = false;
     while (!copy.isGameOver()) {
         try {
@@ -827,20 +1100,4 @@ BoardState::Score BoardState::runRandomSimulation(unsigned int simNumber) const 
 default_random_engine getGenerator() {
     static default_random_engine metaGenerator;
     return default_random_engine(metaGenerator());
-}
-
-Tile BoardState::maxTile() const {
-    return this->maxTileCache;
-}
-
-BoardState::Score BoardState::score() const {
-    if (this->scoreCacheIsValid) {
-        return this->scoreCache;
-    } else {
-        this->scoreCacheIsValid = true;
-        this->scoreCache = accumulate(this->board.begin(), this->board.end(), 0, [](unsigned int acc, Tile tile){
-            return acc + tileScore(tile);
-        });
-        return this->scoreCache;
-    }
 }

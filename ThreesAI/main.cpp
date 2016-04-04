@@ -55,7 +55,7 @@ unsigned int testImage(path p) {
         {Hint(Tile::TILE_6), screenImageToBonusHintImage(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Hint-6.png", 0))},
     });
     unsigned int failures = 0;
-    BoardState expectedBoard(BoardState::FromString(p.stem().string()));
+    AboutToMoveBoard expectedBoard(AboutToMoveBoard::FromString(p.stem().string()));
 
     vector<string> splitName;
     split(splitName, p.stem().string(), is_any_of("-"));
@@ -233,6 +233,13 @@ void timeNRandomPlays(default_random_engine &seededEngine, unsigned long n) {
     cout << "Time taken: " << end - start << "s" << endl;
 }
 
+void humanPlayGame(default_random_engine &seededEngine) {
+    unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
+    HumanPlayer ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard));
+    ai.playGame(true, true);
+    cout << "Final score: " << ai.currentState()->score() << endl;
+}
+
 int main(int argc, const char * argv[]) {
     //testImageProc();\
     debug();
@@ -273,7 +280,8 @@ int main(int argc, const char * argv[]) {
     //playTenGames(seededEngine, c);
     //playOneGame(seededEngine, c);
     //evolve(currentFuncs, trueRandom);
-    default_random_engine r;timeNRandomPlays(r, 100000);
+    //default_random_engine r;timeNRandomPlays(r, 100000);
+    humanPlayGame(seededEngine);
     
     return 0;
 }

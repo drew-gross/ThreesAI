@@ -63,7 +63,7 @@ Chromosome::Chromosome(Chromosome::Mutate m, Chromosome const& c, default_random
 shared_ptr<Heuristic> Chromosome::to_f(bool includeDescription) const {
     Chromosome const* self = this;
     if (includeDescription) {
-        return make_shared<Heuristic>([self](const BoardState & board){
+        return make_shared<Heuristic>([self](const AboutToMoveBoard & board){
             auto begin = self->functions.begin();
             auto end = self->functions.end();
             EvalutationWithDescription result = accumulate(begin, end, EvalutationWithDescription({0, ""}), [&board](EvalutationWithDescription prev, FuncAndWeight f){
@@ -80,7 +80,7 @@ shared_ptr<Heuristic> Chromosome::to_f(bool includeDescription) const {
             return result;
         });
     } else {
-        return make_shared<Heuristic>([self](const BoardState & board){
+        return make_shared<Heuristic>([self](const AboutToMoveBoard & board){
             auto begin = self->functions.begin();
             auto end = self->functions.end();
             return accumulate(begin, end, 0, [&board](float prev, FuncAndWeight f){
@@ -96,7 +96,7 @@ shared_ptr<Heuristic> Chromosome::to_f(bool includeDescription) const {
     }
 }
 
-BoardState::Score Chromosome::score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const {
+BoardScore Chromosome::score(unsigned int averageCount, unsigned int searchDepth, prngSeed prngSeed) const {
     float totalScore = 0;
     default_random_engine prng(prngSeed.get());
     unsigned int origAverageCount = averageCount;

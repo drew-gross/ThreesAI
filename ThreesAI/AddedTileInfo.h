@@ -13,7 +13,7 @@
 
 class AddedTileInfo {
 public:
-    AddedTileInfo(BoardState const& stateBeforeAdd, BoardState const& stateAfterAdd);
+    AddedTileInfo(AboutToAddTileBoard const& stateBeforeAdd, AboutToMoveBoard const& stateAfterAdd);
     AddedTileInfo(Tile newTileValue, BoardIndex newTileLocation);
     
     Tile newTileValue;

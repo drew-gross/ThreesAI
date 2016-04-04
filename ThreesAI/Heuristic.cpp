@@ -12,25 +12,25 @@ using namespace std;
 
 Heuristic::~Heuristic() {
     if (this->hasDescription) {
-        this->f.fWithDesc.~function<EvalutationWithDescription(BoardState const &)>();
+        this->f.fWithDesc.~function<EvalutationWithDescription(AboutToMoveBoard const &)>();
     } else {
-        this->f.fWithOutDesc.~function<float(BoardState const &)>();
+        this->f.fWithOutDesc.~function<float(AboutToMoveBoard const &)>();
     }
 }
 
-Heuristic::Heuristic(std::function<EvalutationWithDescription(BoardState const&)> f)
+Heuristic::Heuristic(std::function<EvalutationWithDescription(AboutToMoveBoard const&)> f)
 {
     this->hasDescription = true;
     this->f.fWithDesc = f;
 }
 
-Heuristic::Heuristic(std::function<float(BoardState const&)> f)
+Heuristic::Heuristic(std::function<float(AboutToMoveBoard const&)> f)
 {
     this->hasDescription = false;
     this->f.fWithOutDesc = f;
 }
 
-EvalutationWithDescription Heuristic::evaluateWithDescription(const BoardState & b) const {
+EvalutationWithDescription Heuristic::evaluateWithDescription(const AboutToMoveBoard & b) const {
     if (this->hasDescription) {
         return this->f.fWithDesc(b);
     } else {
@@ -38,7 +38,7 @@ EvalutationWithDescription Heuristic::evaluateWithDescription(const BoardState &
     }
 }
 
-float Heuristic::evaluateWithoutDescription(const BoardState & b) const {
+float Heuristic::evaluateWithoutDescription(const AboutToMoveBoard & b) const {
     if (this->hasDescription) {
         return this->f.fWithDesc(b).score;
     } else {
