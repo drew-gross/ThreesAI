@@ -74,9 +74,9 @@ bool boardTransitionIsValid(AboutToAddTileBoard const& oldBoard, Hint oldHint, s
 void RealBoardOutput::move(Direction d, AboutToMoveBoard const& originalBoard) {
     this->moveStepper(d);
     
-    std::shared_ptr<AboutToAddTileBoard const> expectedBoardAfterMove = make_shared<AboutToAddTileBoard const>(MoveWithoutAdd(d), originalBoard);
+    std::shared_ptr<AboutToAddTileBoard const> expectedBoardAfterMove = make_shared<AboutToAddTileBoard const>(originalBoard.moveWithoutAdd(d));
     
-    std::shared_ptr<AboutToMoveBoard const> newState = this->source->getGameState(originalBoard.nextHiddenState(boost::none));
+    std::shared_ptr<AboutToMoveBoard const> newState = this->source->getGameState(expectedBoardAfterMove->hiddenState);
     
     if (newState->hasSameTilesAs(originalBoard)) {
         //Movement failed, retry.
@@ -96,8 +96,8 @@ void RealBoardOutput::move(Direction d, AboutToMoveBoard const& originalBoard) {
         //TODO: Log the real thing
         MYLOG(&expectedBoardAfterMove->board);
         debug();
-        IMProc::boardFromAnyImage(originalBoard.sourceImage, originalBoard.nextHiddenState(boost::none), *this->hintImages);
-        IMProc::boardFromAnyImage(newState->sourceImage, originalBoard.nextHiddenState(boost::none), *this->hintImages);
+        IMProc::boardFromAnyImage(originalBoard.sourceImage, expectedBoardAfterMove->hiddenState, *this->hintImages);
+        IMProc::boardFromAnyImage(newState->sourceImage, expectedBoardAfterMove->hiddenState, *this->hintImages);
         boardTransitionIsValid(*expectedBoardAfterMove, originalBoard.getHint(), newState);
     }
 }

@@ -75,6 +75,7 @@
 		79E67A951B373C9A007D8C25 /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A941B373C9A007D8C25 /* libboost_filesystem.dylib */; };
 		79E67A971B373CB6007D8C25 /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A961B373CB6007D8C25 /* libboost_system.dylib */; };
 		79E797FC1C1AB7310000B9DB /* BoardOutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79E797FB1C1AB7310000B9DB /* BoardOutput.cpp */; };
+		79E953301CB20C44004C9134 /* Board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 793AE36F1CB0F874001F5520 /* Board.cpp */; };
 		79EFBE351AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79EFBE341AF88FC000BFBD69 /* libopencv_flann.2.4.11.dylib */; };
 		79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79F037051BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp */; };
 		79F0613E1C559D2D00F43532 /* libopencv_core.2.4.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7967865E1AF20B46003DEF6C /* libopencv_core.2.4.11.dylib */; };
@@ -631,6 +632,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79E953301CB20C44004C9134 /* Board.cpp in Sources */,
 				796A83861C916535002A70BF /* Heuristic.cpp in Sources */,
 				79F8F68E1C5B578F00401019 /* Population.cpp in Sources */,
 				79AC83041C5755E100326284 /* ManyPlayMonteCarloAI.cpp in Sources */,

@@ -19,6 +19,7 @@
 #include "EnabledIndices.hpp"
 #include "EnabledDirections.hpp"
 #include "Board.hpp"
+#include "AddedTileInfo.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -51,6 +52,8 @@ public:
             this->threesInStack = 4;
         }
     }
+    
+    HiddenBoardState nextTurnStateWithAddedTile(Tile t) const;
     unsigned int stackSize() const {
         return this->onesInStack + this->twosInStack + this->threesInStack;
     }
@@ -63,20 +66,13 @@ public:
 };
 
 
-class AdditionInfo {
+class AddedTileInfoWithProbability {
 public:
-    Tile t;
-    BoardIndex i;
+    AddedTileInfo i;
     float probability;
 };
 
 class AboutToMoveBoard;
-
-class MoveWithoutAdd {
-public:
-    MoveWithoutAdd(Direction d) : d(d) {};
-    Direction const d;
-};
 
 class AddTile {
 public:
@@ -105,8 +101,8 @@ public:
     boost::optional<Hint> h;
     //End TODO
     
-    AboutToAddTileBoard(MoveWithoutAdd d, AboutToMoveBoard const& other);
     AboutToAddTileBoard(SetHint h, AboutToAddTileBoard const& other);
+    AboutToAddTileBoard(Board b, EnabledIndices i, HiddenBoardState h, std::default_random_engine g, Hint hint);
     
     //TODO: remove this. Taking the score of a board that is waiting for a tile to be added doesn't make sense
     BoardScore score() const {return this->board.score();};
@@ -114,11 +110,12 @@ public:
     Tile at(BoardIndex const& p) const {return this->board.at(p);};
     std::deque<std::pair<Tile, float>> possibleNextTiles() const;
     Hint getHint() const;
-    HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
     BoardIndex indexForNextTile();
     Tile genUpcomingTile() const;
+    AboutToMoveBoard addSpecificTile(AddedTileInfo tile) const;
     
-    std::deque<AdditionInfo> possibleAdditions() const;
+    std::deque<AddedTileInfoWithProbability> possibleAdditionsWithProbability() const;
+    std::deque<AddedTileInfo> possibleAdditions() const;
 };
 
 class AboutToMoveBoard {
@@ -132,12 +129,6 @@ public:
     HiddenBoardState hiddenState;
     boost::optional<Hint> hint;
     std::default_random_engine generator;
-    
-    class FromString {
-    public:
-        FromString(std::string s) : s(s) {};
-        std::string const s;
-    };
     
     class AddSpecificTile {
     public:
@@ -171,8 +162,9 @@ public:
         Hint h;
     };
     
-    AboutToMoveBoard(FromString s);
-    AboutToMoveBoard(AddSpecificTile s, AboutToAddTileBoard const & b, bool hasNoHint);
+    AboutToMoveBoard(Board b, HiddenBoardState h);
+    
+    AboutToMoveBoard(std::string s);
     AboutToMoveBoard(DifferentFuture, AboutToMoveBoard const& other);
     AboutToMoveBoard(MoveWithAdd m, AboutToMoveBoard const& other);
     AboutToMoveBoard(SetHiddenState h, AboutToMoveBoard const& other);
@@ -203,7 +195,6 @@ public:
     
     Direction randomValidMoveFromInternalGenerator() const;
     BoardScore runRandomSimulation(unsigned int simNumber) const;
-    HiddenBoardState nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const;
     long countOfTile(Tile t) const;
     bool hasSameTilesAs(AboutToAddTileBoard const& otherBoard) const;
     bool hasSameTilesAs(AboutToMoveBoard const& otherBoard) const;

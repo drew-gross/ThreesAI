@@ -38,12 +38,11 @@ void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unf
     debug(this->childrenAreFilledIn());
     for (Direction d : allDirections) {
         if (this->board->isMoveValid(d)) {
-            std::shared_ptr<AboutToAddTileBoard const> childBoard = make_shared<AboutToAddTileBoard const>(MoveWithoutAdd(d), *this->board);
+            std::shared_ptr<AboutToAddTileBoard const> childBoard = make_shared<AboutToAddTileBoard const>(this->board->moveWithoutAdd(d));
             shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d, this->depth+1);
             bool test = false;
             if (test) {
-                MYLOG((!this->board->hasNoHint && this->board->getHint().contains(Tile::TILE_2) && this->board->hiddenState.twosInStack == 0));
-                make_shared<AboutToAddTileBoard const>(MoveWithoutAdd(d), *this->board);
+                make_shared<AboutToAddTileBoard const>(this->board->moveWithoutAdd(d));
             }
             this->children.insert({d, child});
             unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));

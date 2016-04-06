@@ -54,7 +54,8 @@ void ThreesAIBase::playTurn(bool printMove) {
         cout << "--- Moving: " << d << " ---" << endl;
     }
     this->boardOutput->move(d, *this->boardState);
-    Tile mostRecentlyAddedTile = this->boardOutput->computeChangeFrom(AboutToAddTileBoard(MoveWithoutAdd(d), *this->boardState)).newTileValue;
-    this->boardState = this->boardOutput->currentState(this->currentState()->nextHiddenState(mostRecentlyAddedTile));
+    AboutToAddTileBoard movedBoard = this->boardState->moveWithoutAdd(d);
+    AddedTileInfo mostRecentlyAddedTile = this->boardOutput->computeChangeFrom(movedBoard);
+    this->boardState = make_shared<AboutToMoveBoard const>(movedBoard.addSpecificTile(mostRecentlyAddedTile));
     this->receiveState(d, *this->boardState);
 }

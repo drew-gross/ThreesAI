@@ -44,15 +44,41 @@ float nonBonusTileProbability(HiddenBoardState hiddenState, Tile tile, bool canH
     return nonBonusProbability;
 }
 
+AboutToMoveBoard::AboutToMoveBoard(Board b, HiddenBoardState h) :
+board(b),
+hiddenState(h),
+hasNoHint(true)
+{}
+
+HiddenBoardState HiddenBoardState::nextTurnStateWithAddedTile(Tile t) const {
+    unsigned int newTurns = this->numTurns + 1;
+    if (t <= Tile::TILE_3 && this->onesInStack + this->twosInStack + this->threesInStack - 1 == 0) {
+        return HiddenBoardState(newTurns, 4, 4, 4);
+    }
+    switch (t) {
+        case Tile::TILE_1: return HiddenBoardState(newTurns, this->onesInStack - 1, this->twosInStack, this->threesInStack);
+        case Tile::TILE_2: return HiddenBoardState(newTurns, this->onesInStack, this->twosInStack - 1, this->threesInStack);
+        case Tile::TILE_3: return HiddenBoardState(newTurns, this->onesInStack, this->twosInStack, this->threesInStack - 1);
+        default: return HiddenBoardState(newTurns, this->onesInStack, this->twosInStack, this->threesInStack);
+    }
+}
+
+AboutToMoveBoard AboutToAddTileBoard::addSpecificTile(AddedTileInfo info) const {
+    auto result = AboutToMoveBoard(this->board, this->hiddenState.nextTurnStateWithAddedTile(info.newTileValue));
+    result.board.set(info.newTileLocation, info.newTileValue);
+    return result;
+}
+
 SearchResult AboutToMoveBoard::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const {
     //Assume board was moved but hasn't had tile added
     //TODO: return -INFINITY if all moves lead to death
-    AboutToAddTileBoard b(MoveWithoutAdd(d), *this);
-    auto allAdditions = b.possibleAdditions();
+    AboutToAddTileBoard b = this->moveWithoutAdd(d);
+    auto allAdditions = b.possibleAdditionsWithProbability();
     float score = 0;
     unsigned int openNodeCount = 0;
     for (auto&& info : allAdditions) {
-        AboutToMoveBoard potentialBoard(AboutToMoveBoard::AddSpecificTile(d, info.i, info.t), b, true);
+        
+        AboutToMoveBoard potentialBoard = b.addSpecificTile(info.i);
         if (depth == 0) {
             score += h->evaluateWithoutDescription(potentialBoard)*info.probability;
             openNodeCount += 1;
@@ -60,7 +86,7 @@ SearchResult AboutToMoveBoard::heuristicSearchIfMovedInDirection(Direction d, ui
             vector<pair<Direction, SearchResult>> scoresForMoves;
             for (auto&& d : allDirections) {
                 if (potentialBoard.isMoveValid(d)) {
-                    AboutToAddTileBoard movedBoard(MoveWithoutAdd(d), potentialBoard);
+                    AboutToAddTileBoard movedBoard = potentialBoard.moveWithoutAdd(d);
                     debug();
                     //TODO: take average of all childre
                     //scoresForMoves.push_back({d, movedBoard.heuristicSearchIfMovedInDirection(d, depth - 1, h)});
@@ -210,7 +236,7 @@ EnabledIndices Board::move(Direction d) {
         case Direction::RIGHT: return this->moveRight();
     }
 }
-
+/*
 AboutToAddTileBoard::AboutToAddTileBoard(MoveWithoutAdd m, AboutToMoveBoard const& other) :
 board(other.board),
 hiddenState(other.hiddenState),
@@ -220,17 +246,19 @@ h(other.hint)
 {
     this->validIndicesForNewTile = this->board.move(m.d);
 }
+*/
 
-AboutToMoveBoard::AboutToMoveBoard(AboutToMoveBoard::AddSpecificTile t, AboutToAddTileBoard const& other, bool hasNoHint) :
-board(other.board),
-hiddenState(other.nextHiddenState(t.t))
-{
-    //TODO: bring this back this->copy(other);
-    //TODO: Figure out how to replicate this behaviour indexForNextTile(t.d); //force RNG to advance the same number of times as if the tile had been added the natural way.
-    this->upcomingTile = none;
-    this->hint = none;
-    this->board.set(t.i, t.t);
-    this->hasNoHint = true;
+AboutToAddTileBoard::AboutToAddTileBoard(Board b, EnabledIndices i, HiddenBoardState h, default_random_engine g, Hint hint):
+board(b),
+validIndicesForNewTile(i),
+hiddenState(h),
+generator(g),
+h(hint) {}
+
+AboutToAddTileBoard AboutToMoveBoard::moveWithoutAdd(Direction d) const {
+    Board b = this->board;
+    auto indices = b.move(d);
+    return AboutToAddTileBoard(b, indices, this->hiddenState, this->generator, this->getHint());
 }
 
 BoardIndex AboutToAddTileBoard::indexForNextTile() {
@@ -252,10 +280,10 @@ BoardIndex AboutToAddTileBoard::indexForNextTile() {
 
 void AboutToMoveBoard::addTile(Direction d) {
     Tile t = this->getUpcomingTile(); //Note: getUpcomingTile changes the generator, so this must be retrieved before the index.
-    AboutToAddTileBoard moved(MoveWithoutAdd(d), *this);
+    AboutToAddTileBoard moved = this->moveWithoutAdd(d);
     BoardIndex i = moved.indexForNextTile();
     this->board.set(i, t);
-    this->hiddenState = this->nextHiddenState(t);
+    this->hiddenState = this->hiddenState.nextTurnStateWithAddedTile(t);
     this->upcomingTile = none;
     this->hint = none;
 }
@@ -356,15 +384,15 @@ Tile maxTileFromString(std::string const s) {
 }
 
 //use for FromString
-AboutToMoveBoard::AboutToMoveBoard(FromString s) :
-board(boardFromString(s.s)),
+AboutToMoveBoard::AboutToMoveBoard(string s) :
+board(boardFromString(s)),
 hiddenState(0,4,4,4),
 generator(0),
 hasNoHint(false)
 {
     
     vector<string> splitName;
-    split(splitName, s.s, is_any_of("-"));
+    split(splitName, s, is_any_of("-"));
     
     deque<string> nums;
     split(nums, splitName[0], is_any_of(","));
@@ -867,52 +895,6 @@ bool AboutToMoveBoard::hasSameTilesAs(AboutToAddTileBoard const& otherBoard) con
     return true;
 }
 
-HiddenBoardState AboutToAddTileBoard::nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const {
-    unsigned int newOnes = this->hiddenState.onesInStack;
-    unsigned int newTwos = this->hiddenState.twosInStack;
-    unsigned int newThrees = this->hiddenState.threesInStack;
-    
-    Tile addedTile = mostRecentlyAddedTile.value_or(this->upcomingTile.get());
-    
-    switch (addedTile) {
-        case Tile::TILE_1:
-            newOnes--;
-            break;
-        case Tile::TILE_2:
-            newTwos--;
-            break;
-        case Tile::TILE_3:
-            newThrees--;
-            break;
-        default:
-            break;
-    }
-    return HiddenBoardState(this->hiddenState.numTurns + 1, newOnes, newTwos, newThrees);
-}
-
-HiddenBoardState AboutToMoveBoard::nextHiddenState(boost::optional<Tile> mostRecentlyAddedTile) const {
-    unsigned int newOnes = this->hiddenState.onesInStack;
-    unsigned int newTwos = this->hiddenState.twosInStack;
-    unsigned int newThrees = this->hiddenState.threesInStack;
-    
-    Tile addedTile = mostRecentlyAddedTile.value_or(this->upcomingTile.get());
-    
-    switch (addedTile) {
-        case Tile::TILE_1:
-            newOnes--;
-            break;
-        case Tile::TILE_2:
-            newTwos--;
-            break;
-        case Tile::TILE_3:
-            newThrees--;
-            break;
-        default:
-            break;
-    }
-    return HiddenBoardState(this->hiddenState.numTurns + 1, newOnes, newTwos, newThrees);
-}
-
 deque<pair<Tile, float>> AboutToAddTileBoard::possibleNextTiles() const {
     debug(this->h == none && !this->hasNoHint);
     Tile maxBoardTile = this->board.maxTile;
@@ -943,8 +925,8 @@ deque<pair<Tile, float>> AboutToAddTileBoard::possibleNextTiles() const {
     return result;
 }
 
-deque<AdditionInfo> AboutToAddTileBoard::possibleAdditions() const {
-    deque<AdditionInfo> results;
+deque<AddedTileInfoWithProbability> AboutToAddTileBoard::possibleAdditionsWithProbability() const {
+    deque<AddedTileInfoWithProbability> results;
     
     deque<pair<Tile, float>> possibleNextTiles;
     if (this->hasNoHint) {
@@ -959,7 +941,27 @@ deque<AdditionInfo> AboutToAddTileBoard::possibleAdditions() const {
     for (auto&& nextTile : possibleNextTiles) {
         for (BoardIndex i : allIndices) {
             if (possibleNextLocations.isEnabled(i)) {
-                results.push_back({nextTile.first, i, nextTile.second*locationProbability});
+                results.push_back({{nextTile.first, i}, nextTile.second*locationProbability});
+            }
+        }
+    }
+    return results;
+}
+
+deque<AddedTileInfo> AboutToAddTileBoard::possibleAdditions() const {
+    deque<AddedTileInfo> results;
+    
+    deque<pair<Tile, float>> possibleNextTiles;
+    if (this->hasNoHint) {
+        possibleNextTiles = this->possibleNextTiles();
+    } else {
+        possibleNextTiles = this->getHint().possibleTiles();
+    }
+    
+    for (auto&& nextTile : possibleNextTiles) {
+        for (BoardIndex i : allIndices) {
+            if (this->validIndicesForNewTile.isEnabled(i)) {
+                results.push_back({nextTile.first, i});
             }
         }
     }

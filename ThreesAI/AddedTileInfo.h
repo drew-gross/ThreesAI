@@ -9,7 +9,11 @@
 #ifndef __ThreesAI__ChanceNodeEdge__
 #define __ThreesAI__ChanceNodeEdge__
 
-#include "BoardState.h"
+#include "Tile.hpp"
+#include "BoardIndex.hpp"
+
+class AboutToAddTileBoard;
+class AboutToMoveBoard;
 
 class AddedTileInfo {
 public:

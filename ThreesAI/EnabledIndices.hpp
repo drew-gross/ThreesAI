@@ -22,10 +22,10 @@ private:
     
 public:
     EnabledIndices(std::initializer_list<BoardIndex> indices);
-    bool isEnabled(BoardIndex i);
+    bool isEnabled(BoardIndex i) const;
     void set(BoardIndex i);
 
-    size_t size();
+    size_t size() const;
 };
 
 #endif /* EnabledIndices_hpp */

@@ -14,7 +14,7 @@ using namespace std;
 using namespace boost;
 
 unique_ptr<SimulatedBoardOutput> makeOutput(string s) {
-    return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<BoardState const>(BoardState::FromString(s)))));
+    return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<AboutToMoveBoard const>(s))));
 }
 
 TEST(countAdjacentPair, Works) {
@@ -70,26 +70,26 @@ TEST(SpliPairCount, Works) {
 }
 
 TEST(HighestOnCorner, Works) {
-    BoardState b(BoardState::FromString("0,0,1,0,\
+    AboutToMoveBoard b("0,0,1,0,\
                                         0,0,3,0,\
                                         96,0,24,0,\
-                                        6,12,2,1-2"));
-    BoardState ul(BoardState::FromString("96,0,1,0,\
+                                        6,12,2,1-2");
+    AboutToMoveBoard ul("96,0,1,0,\
                                          0,0,3,0,\
                                          96,0,24,0,\
-                                         6,12,2,1-2"));
-    BoardState ur(BoardState::FromString("0,0,1,192,\
+                                         6,12,2,1-2");
+    AboutToMoveBoard ur("0,0,1,192,\
                                          0,0,3,0,\
                                          96,0,24,0,\
-                                         6,12,2,1-2"));
-    BoardState ll(BoardState::FromString("0,0,1,0,\
+                                         6,12,2,1-2");
+    AboutToMoveBoard ll("0,0,1,0,\
                                          0,0,3,0,\
                                          96,0,24,0,\
-                                         1536,12,2,1-2"));
-    BoardState lr(BoardState::FromString("0,0,1,0,\
+                                         1536,12,2,1-2");
+    AboutToMoveBoard lr("0,0,1,0,\
                                          0,0,3,0,\
                                          96,0,24,0,\
-                                         6,12,2,192-2"));
+                                         6,12,2,192-2");
     EXPECT_FALSE(highestIsInCorner(b));
     EXPECT_TRUE(highestIsInCorner(ul));
     EXPECT_TRUE(highestIsInCorner(ur));
@@ -98,12 +98,12 @@ TEST(HighestOnCorner, Works) {
 }
 
 TEST(AdaptiveDepthAI, CallsHeuristic) {
-    BoardStateCPtr b = make_shared<BoardState const>(BoardState::FromString("0,0,1,0,\
+    BoardStateCPtr b = make_shared<AboutToMoveBoard const>("0,0,1,0,\
                                                                             0,0,3,0,\
                                                                             3,0,24,0,\
-                                                                            6,3,2,1-2"));
+                                                                            6,3,2,1-2");
     int callCount = 0;
-    std::function<EvalutationWithDescription(BoardState const&)> incrementer = [&callCount](BoardState const&){
+    std::function<EvalutationWithDescription(AboutToMoveBoard const&)> incrementer = [&callCount](AboutToMoveBoard const&){
         callCount++;
         EvalutationWithDescription result = {0, ""};
         return result;
@@ -128,16 +128,16 @@ TEST(MonteCarloAI, PicksDown) {
 }
 
 TEST(MovementAndFinding, Work) {
-    BoardState preMove(BoardState::FromString("0,0,1,0,\
+    AboutToMoveBoard preMove("0,0,1,0,\
                                               0,0,3,0,\
                                               96,0,24,0,\
-                                              6,12,2,1-2"));
-    BoardState postMove(BoardState::MoveWithoutAdd(Direction::LEFT), preMove);
-    BoardState expected(BoardState::FromString("0,1,0,0,\
+                                              6,12,2,1-2");
+    AboutToAddTileBoard postMove = preMove.moveWithoutAdd(Direction::LEFT);
+    AboutToMoveBoard expected("0,1,0,0,\
                                                0,3,0,0,\
                                                96,24,0,0,\
-                                               6,12,3,0-3"));
-    EXPECT_TRUE(postMove.hasSameTilesAs(expected, {}));
+                                               6,12,3,0-3");
+    EXPECT_TRUE(expected.hasSameTilesAs(postMove));
     BoardIndex i(1,2);
     EXPECT_EQ(postMove.at(i), Tile::TILE_24);
     EXPECT_EQ(postMove.at(i.left().get()), Tile::TILE_96);
@@ -152,47 +152,39 @@ TEST(MovementAndFinding, Work) {
 
 
 TEST(Movement, Works) {
-    BoardState b1(BoardState::FromString("0,0,1,1,\
+    AboutToMoveBoard b1("0,0,1,1,\
                                          0,0,1,1,\
                                          0,0,0,0,\
-                                         0,0,0,0-1"));
-    BoardState b2(BoardState::MoveWithoutAdd(Direction::LEFT), b1);
-    EXPECT_TRUE(b2.hasSameTilesAs(BoardState::FromString("0,1,1,0,\
-                                                    0,1,1,0,\
-                                                    0,0,0,0,\
-                                                    0,0,0,0-1"), {}));
-    BoardState b3(BoardState::MoveWithoutAdd(Direction::DOWN), b2);
-    EXPECT_TRUE(b3.hasSameTilesAs(BoardState::FromString("0,0,0,0,\
-                                                    0,1,1,0,\
-                                                    0,1,1,0,\
-                                                    0,0,0,0-1"), {}));
-    BoardState b4(BoardState::MoveWithoutAdd(Direction::RIGHT), b3);
-    EXPECT_TRUE(b4.hasSameTilesAs(BoardState::FromString("0,0,0,0,\
-                                                    0,0,1,1,\
-                                                    0,0,1,1,\
-                                                    0,0,0,0-1"), {}));
-    BoardState b5(BoardState::MoveWithoutAdd(Direction::UP), b4);
-    EXPECT_TRUE(b5.hasSameTilesAs(BoardState::FromString("0,0,1,1,\
-                                                    0,0,1,1,\
-                                                    0,0,0,0,\
-                                                    0,0,0,0-1"), {}));
-    
-    
-    BoardState x(BoardState::FromString("6,0,0,0,\
-                                        0,0,1,0,\
-                                        0,0,6,0,\
-                                        0,6,0,0-1"));
-    
-    BoardState y(BoardState::FromString("3,0,0,0,\
-                                        0,0,1,0,\
-                                        0,0,3,0,\
-                                        0,0,2,0-1"));
-    EXPECT_TRUE(x.hasSameTilesAs(y, {{0,0}, {1,3}, {2,2}, {2,3}}));
+                                         0,0,0,0-1");
+    AboutToAddTileBoard b2 = b1.moveWithoutAdd(Direction::LEFT);
+    AboutToMoveBoard expected("0,1,1,0,\
+                              0,1,1,0,\
+                              0,0,0,0,\
+                              0,0,0,0-1");
+    EXPECT_TRUE(expected.hasSameTilesAs(b2));
+    AboutToAddTileBoard b3 = expected.moveWithoutAdd(Direction::DOWN);
+    expected = AboutToMoveBoard("0,0,0,0,\
+                                0,1,1,0,\
+                                0,1,1,0,\
+                                0,0,0,0-1");
+    EXPECT_TRUE(expected.hasSameTilesAs(b3));
+    AboutToAddTileBoard b4 = expected.moveWithoutAdd(Direction::RIGHT);
+    expected = AboutToMoveBoard("0,0,0,0,\
+                                 0,0,1,1,\
+                                 0,0,1,1,\
+                                 0,0,0,0-1");
+    EXPECT_TRUE(expected.hasSameTilesAs(b4));
+    AboutToAddTileBoard b5 = expected.moveWithoutAdd(Direction::UP);
+    expected = AboutToMoveBoard("0,0,1,1,\
+                                0,0,1,1,\
+                                0,0,0,0,\
+                                0,0,0,0-1");
+    EXPECT_TRUE(expected.hasSameTilesAs(b5));
 }
 
 TEST(FixedDepthAI, SearchesTheRightDepth) {
     int callCount = 0;
-    std::function<EvalutationWithDescription(BoardState const&)> incrementer = [&callCount](BoardState const&){
+    std::function<EvalutationWithDescription(AboutToMoveBoard const&)> incrementer = [&callCount](AboutToMoveBoard const&){
         callCount++;
         EvalutationWithDescription result = {0, ""};
         return result;

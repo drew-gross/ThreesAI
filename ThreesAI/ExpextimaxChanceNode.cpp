@@ -62,7 +62,7 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
     for (auto&& nextTile : possibleNextTiles) {
         for (BoardIndex i : allIndices) {
             if (possibleNextLocations.isEnabled(i)) {
-                std::shared_ptr<AboutToMoveBoard const> childBoard = make_shared<AboutToMoveBoard const>(AboutToMoveBoard::AddSpecificTile(this->directionMovedToGetHere, i, nextTile.first), *this->board, true);
+                std::shared_ptr<AboutToMoveBoard const> childBoard = make_shared<AboutToMoveBoard const>(this->board->addSpecificTile(AddedTileInfo(nextTile.first, i)));
                 shared_ptr<ExpectimaxMoveNode> child = make_shared<ExpectimaxMoveNode>(childBoard, this->depth+1);
                 AddedTileInfo childIndex(nextTile.first, i);
                 this->childrenProbabilities.insert({childIndex, nextTile.second*locationProbability});

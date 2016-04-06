@@ -16,7 +16,7 @@ EnabledIndices::EnabledIndices(std::initializer_list<BoardIndex> indices) : data
     }
 }
 
-bool EnabledIndices::isEnabled(BoardIndex i) {
+bool EnabledIndices::isEnabled(BoardIndex i) const {
     return this->data.test(i.toRegularIndex());
 }
 
@@ -24,6 +24,6 @@ void EnabledIndices::set(BoardIndex i) {
     this->data.set(i.toRegularIndex());
 }
 
-size_t EnabledIndices::size() {
+size_t EnabledIndices::size() const {
     return this->data.count();
 }

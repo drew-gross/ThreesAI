@@ -8,6 +8,8 @@
 
 #include "AddedTileInfo.h"
 
+#include "BoardState.h"
+
 using namespace std;
 
 AddedTileInfo::AddedTileInfo(Tile newTileValue, BoardIndex newTileLocation) :

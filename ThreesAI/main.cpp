@@ -236,7 +236,7 @@ void timeNRandomPlays(default_random_engine &seededEngine, unsigned long n) {
 void humanPlayGame(default_random_engine &seededEngine) {
     unique_ptr<BoardOutput> trulyRandomBoard = SimulatedBoardOutput::randomBoard(seededEngine);
     HumanPlayer ai(trulyRandomBoard->sneakyState(), std::move(trulyRandomBoard));
-    ai.playGame(true, true);
+    ai.playGame(false, false);
     cout << "Final score: " << ai.currentState()->score() << endl;
 }
 

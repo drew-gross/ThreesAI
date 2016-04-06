@@ -41,12 +41,13 @@ NodeCountAndScores openNodesAndScoresAtDepth(AboutToMoveBoard const& b, shared_p
     
     for (auto&& d : allDirections) {
         if (b.isMoveValid(d)) {
-            AboutToAddTileBoard movedBoard(MoveWithoutAdd(d), b);
-            //TODO: if I use this AI, change this to average children
-            debug();
-            //auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, depth, h);
-            //scoresForMoves.push_back(DirectionAndScore(searchResult.value, d));
-            //openNodeCount += searchResult.openNodes;
+            AboutToAddTileBoard movedBoard = b.moveWithoutAdd(d);
+            for (auto&& additionInfo : movedBoard.possibleAdditions()) {
+                auto nextTurnBoard = movedBoard.addSpecificTile(additionInfo);
+                auto searchResult = nextTurnBoard.heuristicSearchIfMovedInDirection(d, depth, h);
+                scoresForMoves.push_back(DirectionAndScore(searchResult.value, d));
+                openNodeCount += searchResult.openNodes;
+            }
         }
     }
     return {openNodeCount, scoresForMoves};
