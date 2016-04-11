@@ -338,26 +338,6 @@ hasNoHint(false),
 hint(none),
 hiddenState(h) {}
 
-Board boardFromString(std::string const s) {
-    vector<string> splitName;
-    split(splitName, s, is_any_of("-"));
-    
-    deque<string> nums;
-    split(nums, splitName[0], is_any_of(","));
-    debug(nums.size() != 16);
-    
-    deque<string> nextTileHintStrings;
-    split(nextTileHintStrings, splitName[1], is_any_of(","));
-    debug(nextTileHintStrings.size() > 3);
-    
-    std::array<Tile, 16> tileList;
-    transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
-        return tileFromString(s);
-    });
-    
-    return tileList;
-}
-
 Tile maxTileFromString(std::string const s) {
     vector<string> splitName;
     split(splitName, s, is_any_of("-"));
@@ -383,9 +363,8 @@ Tile maxTileFromString(std::string const s) {
     return *max_element(tileList.begin(), tileList.end());
 }
 
-//use for FromString
 AboutToMoveBoard::AboutToMoveBoard(string s) :
-board(boardFromString(s)),
+board(s),
 hiddenState(0,4,4,4),
 generator(0),
 hasNoHint(false)
@@ -413,14 +392,11 @@ hasNoHint(false)
     });
     
     if (hint.size() == 1) {
-        this->board = tileList;
         this->hint = Hint(hint[0]);
     } else if (hint.size() == 2) {
-        this->board = tileList;
         this->hint = Hint(hint[0], hint[1]);
     } else {
         debug(hint.size() != 3);
-        this->board = tileList;
         this->hint = Hint(hint[0], hint[1], hint[2]);
     }
 }

@@ -29,13 +29,16 @@ class Board {
     mutable BoardScore scoreCache;
     mutable bool scoreCacheIsValid = false;
     
+    void initWithTileList(std::array<Tile, 16> tiles);
+    
 public:
     
     std::array<Tile, 16> tiles;
     Tile maxTile;
     
     EnabledIndices move(Direction d); //TODO: make this private
-    Board(std::array<Tile, 16> tiles) : tiles(tiles) {};
+    explicit Board(std::array<Tile, 16> tiles);
+    explicit Board(std::string s);
     
     void set(BoardIndex i, Tile t);
     Tile at(BoardIndex const& p) const;
