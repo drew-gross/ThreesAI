@@ -10,6 +10,10 @@
 		79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D931B837E0E009DA8B1 /* GameStateSource.cpp */; };
 		79085D9C1B837EF8009DA8B1 /* CameraSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79085D9A1B837EF8009DA8B1 /* CameraSource.cpp */; };
 		7908C0B31C43556300A0E8E9 /* FixedDepthAI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */; };
+		7929FE4C1CBE1DE50096E57B /* UpcomingTileGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7929FE4A1CBE1DE50096E57B /* UpcomingTileGenerator.cpp */; };
+		7929FE4F1CBE1E5E0096E57B /* HiddenBoardState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7929FE4D1CBE1E5E0096E57B /* HiddenBoardState.cpp */; };
+		7929FE501CBE20DD0096E57B /* UpcomingTileGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7929FE4A1CBE1DE50096E57B /* UpcomingTileGenerator.cpp */; };
+		7929FE511CBE20E10096E57B /* HiddenBoardState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7929FE4D1CBE1E5E0096E57B /* HiddenBoardState.cpp */; };
 		79301CA01C560FE7000337FC /* Evaluators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79301C9E1C560FE7000337FC /* Evaluators.cpp */; };
 		79301CA61C561578000337FC /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A961B373CB6007D8C25 /* libboost_system.dylib */; };
 		79301CA71C561586000337FC /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79E67A941B373C9A007D8C25 /* libboost_filesystem.dylib */; };
@@ -124,6 +128,10 @@
 		7908C0B11C43556300A0E8E9 /* FixedDepthAI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FixedDepthAI.cpp; sourceTree = "<group>"; };
 		7908C0B21C43556300A0E8E9 /* FixedDepthAI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FixedDepthAI.hpp; sourceTree = "<group>"; };
 		7927DD811A8068570049E9BB /* Logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
+		7929FE4A1CBE1DE50096E57B /* UpcomingTileGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UpcomingTileGenerator.cpp; sourceTree = "<group>"; };
+		7929FE4B1CBE1DE50096E57B /* UpcomingTileGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UpcomingTileGenerator.hpp; sourceTree = "<group>"; };
+		7929FE4D1CBE1E5E0096E57B /* HiddenBoardState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HiddenBoardState.cpp; sourceTree = "<group>"; };
+		7929FE4E1CBE1E5E0096E57B /* HiddenBoardState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HiddenBoardState.hpp; sourceTree = "<group>"; };
 		79301C9E1C560FE7000337FC /* Evaluators.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Evaluators.cpp; sourceTree = "<group>"; };
 		79301C9F1C560FE7000337FC /* Evaluators.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Evaluators.hpp; sourceTree = "<group>"; };
 		79301CA21C5611F7000337FC /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = gtest.framework; sourceTree = "<group>"; };
@@ -431,6 +439,10 @@
 				79A0D8F71BF2F729003B78B1 /* EnabledDirections.hpp */,
 				793AE36F1CB0F874001F5520 /* Board.cpp */,
 				793AE3701CB0F874001F5520 /* Board.hpp */,
+				7929FE4A1CBE1DE50096E57B /* UpcomingTileGenerator.cpp */,
+				7929FE4B1CBE1DE50096E57B /* UpcomingTileGenerator.hpp */,
+				7929FE4D1CBE1E5E0096E57B /* HiddenBoardState.cpp */,
+				7929FE4E1CBE1E5E0096E57B /* HiddenBoardState.hpp */,
 			);
 			name = ThreesBoard;
 			path = ThreesAI;
@@ -606,12 +618,14 @@
 				79085D951B837E0E009DA8B1 /* GameStateSource.cpp in Sources */,
 				7944C1661BA26D82000F0A2C /* ManyPlayMonteCarloAI.cpp in Sources */,
 				7908C0B31C43556300A0E8E9 /* FixedDepthAI.cpp in Sources */,
+				7929FE4C1CBE1DE50096E57B /* UpcomingTileGenerator.cpp in Sources */,
 				7944C1761BA8E0F3000F0A2C /* SimulatedBoardOutput.cpp in Sources */,
 				79A779341BF0FC6600531415 /* UCTSearchAI.cpp in Sources */,
 				7963F4EC1AA040E20081BEC8 /* ExpectimaxMoveNode.cpp in Sources */,
 				79DD5C071AE0ABC800CD6359 /* arduino-serial-lib.cpp in Sources */,
 				79AD0BBA1C4B3F88006590B0 /* AdaptiveDepthAI.cpp in Sources */,
 				7963F4E51AA0404F0081BEC8 /* ExpextimaxChanceNode.cpp in Sources */,
+				7929FE4F1CBE1E5E0096E57B /* HiddenBoardState.cpp in Sources */,
 				79F037071BA1D5E500E3AB94 /* OnePlayMonteCarloAI.cpp in Sources */,
 				79A0D8F81BF2F729003B78B1 /* EnabledDirections.cpp in Sources */,
 				7960E4441A883278000622BC /* ThreesAIBase.cpp in Sources */,
@@ -632,6 +646,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7929FE511CBE20E10096E57B /* HiddenBoardState.cpp in Sources */,
+				7929FE501CBE20DD0096E57B /* UpcomingTileGenerator.cpp in Sources */,
 				79E953301CB20C44004C9134 /* Board.cpp in Sources */,
 				796A83861C916535002A70BF /* Heuristic.cpp in Sources */,
 				79F8F68E1C5B578F00401019 /* Population.cpp in Sources */,

@@ -1,0 +1,82 @@
+//
+//  UpcomingTileGenerator.cpp
+//  ThreesAI
+//
+//  Created by Drew Gross on 4/12/16.
+//  Copyright © 2016 DrewGross. All rights reserved.
+//
+
+#include "UpcomingTileGenerator.hpp"
+
+#include <array>
+
+using namespace std;
+
+Hint UpcomingTileGenerator::generateHint(Tile backupTile, Tile maxBonusTile, default_random_engine rng) const {
+    debug(!this->upcomingTile && !this->hint);
+    if (this->hint) return this->hint.get();
+    
+    array<Tile, 5> inRangeTiles;
+    unsigned char tilesIndexEnd = 0;
+    Tile hint1 = Tile::EMPTY;
+    Tile hint2 = Tile::EMPTY;
+    Tile hint3 = Tile::EMPTY;
+    Tile actualTile = this->upcomingTile.value_or(backupTile);
+    if (actualTile <= Tile::TILE_3) {
+        return Hint(actualTile);
+    } else {
+        //Add tiles that could show up
+        if (pred(pred(actualTile)) >= Tile::TILE_6) {
+            inRangeTiles[tilesIndexEnd] = pred(pred(actualTile));
+            tilesIndexEnd++;
+        }
+        if (pred(actualTile) >= Tile::TILE_6) {
+            inRangeTiles[tilesIndexEnd] = pred(actualTile);
+            tilesIndexEnd++;
+        }
+        inRangeTiles[tilesIndexEnd] = actualTile;
+        tilesIndexEnd++;
+        if (succ(actualTile) <= maxBonusTile) {
+            inRangeTiles[tilesIndexEnd] = succ(actualTile);
+            tilesIndexEnd++;
+        }
+        if (succ(succ(actualTile)) <= maxBonusTile) {
+            inRangeTiles[tilesIndexEnd] = succ(succ(actualTile));
+            tilesIndexEnd++;
+        }
+        
+        unsigned char tilesIndexBegin = 0;
+        //Trim list down to 3
+        while (tilesIndexEnd - tilesIndexBegin > 3) {
+            if (upcomingTile == inRangeTiles[tilesIndexEnd-1]) {
+                tilesIndexBegin++;
+            } else if (upcomingTile == inRangeTiles[tilesIndexBegin]) {
+                tilesIndexEnd--;
+            } else if (uniform_int_distribution<>(0,1)(rng) == 1) {
+                tilesIndexEnd--;
+            } else {
+                tilesIndexBegin++;
+            }
+        }
+        
+        if (tilesIndexEnd - tilesIndexBegin == 3) {
+            hint3 = inRangeTiles[tilesIndexBegin + 2];
+        }
+        if (tilesIndexEnd - tilesIndexBegin >= 2) {
+            hint2 = inRangeTiles[tilesIndexBegin + 1];
+        }
+        hint1 = inRangeTiles[tilesIndexBegin];
+    }
+    
+    Hint result(hint1, hint2, hint3);
+    debug(!result.contains(actualTile));
+    debug(hint1 > Tile::TILE_6144);
+    debug(hint2 > Tile::TILE_6144);
+    debug(hint3 > Tile::TILE_6144);
+    
+    return result;
+}
+
+bool UpcomingTileGenerator::hasNoHint() const {
+    return !this->upcomingTile && !this->hint;
+}

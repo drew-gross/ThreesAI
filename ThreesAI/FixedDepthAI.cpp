@@ -29,7 +29,7 @@ Direction FixedDepthAI::getDirection() const {
     
     for (auto&& d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
-            AboutToAddTileBoard movedBoard = this->currentState()->moveWithoutAdd(d);
+            AboutToAddTileBoard movedBoard = this->currentState()->moveWithoutAdd(d, true);
             debug();
             //TODO: If I use fixedDepthAI again, fix this by searching chilren
             //auto searchResult = movedBoard.heuristicSearchIfMovedInDirection(d, this->depth, this->heuristic);

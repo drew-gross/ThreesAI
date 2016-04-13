@@ -44,6 +44,63 @@ float nonBonusTileProbability(HiddenBoardState hiddenState, Tile tile, bool canH
     return nonBonusProbability;
 }
 
+Tile UpcomingTileGenerator::generateTile(std::default_random_engine rng, Tile maxBoardTile, HiddenBoardState hiddenState) const {
+    if (this->upcomingTile) return this->upcomingTile.get();
+    if (this->hint) {
+        return this->hint.get().actualTile(rng);
+    };
+    
+    bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
+    
+    std::uniform_real_distribution<> r(0,1);
+    float tileFinder = r(rng);
+    
+    if (hiddenState.onesInStack > 0) {
+        float pOne = nonBonusTileProbability(hiddenState, Tile::TILE_1, canHaveBonus);
+        if (tileFinder < pOne) {
+            return Tile::TILE_1;
+        } else {
+            tileFinder -= pOne;
+        }
+    }
+    
+    if (hiddenState.twosInStack > 0) {
+        float pTwo = nonBonusTileProbability(hiddenState,Tile::TILE_2, canHaveBonus);
+        if (tileFinder < pTwo) {
+            return Tile::TILE_2;
+        } else {
+            tileFinder -= pTwo;
+        }
+    }
+    
+    if (hiddenState.threesInStack > 0) {
+        float pThree = nonBonusTileProbability(hiddenState,Tile::TILE_3, canHaveBonus);
+        if (tileFinder < pThree) {
+            return Tile::TILE_3;
+        } else {
+            tileFinder -= pThree;
+        }
+    }
+    
+    Tile currentBonus = pred(pred(pred(maxBoardTile)));
+    Tile possibleBonusCounter = currentBonus;
+    unsigned int numPossibleBonusTiles = 0;
+    while (possibleBonusCounter > Tile::TILE_3) {
+        possibleBonusCounter = pred(possibleBonusCounter);
+        numPossibleBonusTiles++;
+    }
+    while (currentBonus >= Tile::TILE_6) {
+        float pThisBonus = float(1)/numPossibleBonusTiles/21;
+        if (tileFinder < pThisBonus) {
+            return currentBonus;
+        } else {
+            tileFinder -= pThisBonus;
+            currentBonus = pred(currentBonus);
+        }
+    }
+    return Tile::TILE_6;
+}
+
 AboutToMoveBoard::AboutToMoveBoard(Board b, HiddenBoardState h) :
 board(b),
 hiddenState(h),
@@ -72,11 +129,11 @@ AboutToMoveBoard AboutToAddTileBoard::addSpecificTile(AddedTileInfo info) const 
 SearchResult AboutToMoveBoard::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const {
     //Assume board was moved but hasn't had tile added
     //TODO: return -INFINITY if all moves lead to death
-    AboutToAddTileBoard b = this->moveWithoutAdd(d);
-    auto allAdditions = b.possibleAdditionsWithProbability();
+    AboutToAddTileBoard b = this->moveWithoutAdd(d, true);
+    deque<AddedTileInfoWithProbability> allAdditions = b.possibleAdditionsWithProbability();
     float score = 0;
     unsigned int openNodeCount = 0;
-    for (auto&& info : allAdditions) {
+    for (AddedTileInfoWithProbability info : allAdditions) {
         
         AboutToMoveBoard potentialBoard = b.addSpecificTile(info.i);
         if (depth == 0) {
@@ -86,7 +143,7 @@ SearchResult AboutToMoveBoard::heuristicSearchIfMovedInDirection(Direction d, ui
             vector<pair<Direction, SearchResult>> scoresForMoves;
             for (auto&& d : allDirections) {
                 if (potentialBoard.isMoveValid(d)) {
-                    AboutToAddTileBoard movedBoard = potentialBoard.moveWithoutAdd(d);
+                    AboutToAddTileBoard movedBoard = potentialBoard.moveWithoutAdd(d, true);
                     debug();
                     //TODO: take average of all childre
                     //scoresForMoves.push_back({d, movedBoard.heuristicSearchIfMovedInDirection(d, depth - 1, h)});
@@ -236,29 +293,18 @@ EnabledIndices Board::move(Direction d) {
         case Direction::RIGHT: return this->moveRight();
     }
 }
-/*
-AboutToAddTileBoard::AboutToAddTileBoard(MoveWithoutAdd m, AboutToMoveBoard const& other) :
-board(other.board),
-hiddenState(other.hiddenState),
-validIndicesForNewTile({}),
-generator(other.generator),
-h(other.hint)
-{
-    this->validIndicesForNewTile = this->board.move(m.d);
-}
-*/
 
 AboutToAddTileBoard::AboutToAddTileBoard(Board b, EnabledIndices i, HiddenBoardState h, default_random_engine g, Hint hint):
 board(b),
 validIndicesForNewTile(i),
 hiddenState(h),
 generator(g),
-h(hint) {}
+upcomingTileGenerator(hint) {}
 
-AboutToAddTileBoard AboutToMoveBoard::moveWithoutAdd(Direction d) const {
+AboutToAddTileBoard AboutToMoveBoard::moveWithoutAdd(Direction d, bool exploratory) const {
     Board b = this->board;
     auto indices = b.move(d);
-    return AboutToAddTileBoard(b, indices, this->hiddenState, this->generator, this->getHint());
+    return AboutToAddTileBoard(b, indices, this->hiddenState, this->generator, this->getHint(exploratory));
 }
 
 BoardIndex AboutToAddTileBoard::indexForNextTile() {
@@ -280,7 +326,7 @@ BoardIndex AboutToAddTileBoard::indexForNextTile() {
 
 void AboutToMoveBoard::addTile(Direction d) {
     Tile t = this->getUpcomingTile(); //Note: getUpcomingTile changes the generator, so this must be retrieved before the index.
-    AboutToAddTileBoard moved = this->moveWithoutAdd(d);
+    AboutToAddTileBoard moved = this->moveWithoutAdd(d, true);
     BoardIndex i = moved.indexForNextTile();
     this->board.set(i, t);
     this->hiddenState = this->hiddenState.nextTurnStateWithAddedTile(t);
@@ -291,8 +337,7 @@ void AboutToMoveBoard::addTile(Direction d) {
 AboutToMoveBoard::AboutToMoveBoard(AddTile t, AboutToAddTileBoard const& other) :
 board(other.board),
 hiddenState(other.hiddenState),
-generator(other.generator),
-upcomingTile(other.upcomingTile)
+generator(other.generator)
 {
     this->addTile(t.d);
 }
@@ -465,57 +510,7 @@ Tile AboutToAddTileBoard::genUpcomingTile() const {
     // Due to floating point error, the sum of the probabilities for each tile may not add to 1,
     // which means if a 1 is generated for tileFinder, we get here. In this case, use 6,
     // which would have been returned had there been no floating point error.
-    debug(this->h != none);
-    Tile maxBoardTile = this->board.maxTile;
-    bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
-    default_random_engine genCopy = this->generator;
-    uniform_real_distribution<> r(0,1);
-    float tileFinder = r(genCopy);
-    
-    if (this->hiddenState.onesInStack > 0) {
-        float pOne = nonBonusTileProbability(this->hiddenState, Tile::TILE_1, canHaveBonus);
-        if (tileFinder < pOne) {
-            return Tile::TILE_1;
-        } else {
-            tileFinder -= pOne;
-        }
-    }
-    
-    if (this->hiddenState.twosInStack > 0) {
-        float pTwo = nonBonusTileProbability(this->hiddenState,Tile::TILE_2, canHaveBonus);
-        if (tileFinder < pTwo) {
-            return Tile::TILE_2;
-        } else {
-            tileFinder -= pTwo;
-        }
-    }
-    
-    if (this->hiddenState.threesInStack > 0) {
-        float pThree = nonBonusTileProbability(this->hiddenState,Tile::TILE_3, canHaveBonus);
-        if (tileFinder < pThree) {
-            return Tile::TILE_3;
-        } else {
-            tileFinder -= pThree;
-        }
-    }
-    
-    Tile currentBonus = pred(pred(pred(maxBoardTile)));
-    Tile possibleBonusCounter = currentBonus;
-    unsigned int numPossibleBonusTiles = 0;
-    while (possibleBonusCounter > Tile::TILE_3) {
-        possibleBonusCounter = pred(possibleBonusCounter);
-        numPossibleBonusTiles++;
-    }
-    while (currentBonus >= Tile::TILE_6) {
-        float pThisBonus = float(1)/numPossibleBonusTiles/21;
-        if (tileFinder < pThisBonus) {
-            return currentBonus;
-        } else {
-            tileFinder -= pThisBonus;
-            currentBonus = pred(currentBonus);
-        }
-    }
-    return Tile::TILE_6;
+    return this->upcomingTileGenerator.generateTile(this->generator, this->board.maxTile, this->hiddenState);
 }
 
 AboutToMoveBoard::AboutToMoveBoard(SetHint h, AboutToMoveBoard const& other) :
@@ -532,10 +527,7 @@ validIndicesForNewTile(other.validIndicesForNewTile),
 hiddenState(other.hiddenState),
 board(other.board),
 generator(other.generator),
-upcomingTile(other.upcomingTile),
-h(make_optional(h.h)),
-hasNoHint(false)
-{}
+upcomingTileGenerator(h.h) {}
 
 AboutToMoveBoard::AboutToMoveBoard(SetHiddenState h, AboutToMoveBoard const& other) :
 hiddenState(h.h),
@@ -680,80 +672,10 @@ unsigned long AboutToMoveBoard::splitPairCount() const {
     return count;
 }
 
-Hint AboutToMoveBoard::getHint() const {
-    debug(this->hasNoHint);
+Hint AboutToMoveBoard::getHint(bool exploratory) const {
+    debug(this->hasNoHint && !exploratory);
     if (this->hint) {
         return this->hint.value();
-    } else {
-        array<Tile, 5> inRangeTiles;
-        unsigned char tilesIndexEnd = 0;
-        Tile hint1 = Tile::EMPTY;
-        Tile hint2 = Tile::EMPTY;
-        Tile hint3 = Tile::EMPTY;
-        Tile actualTile = this->upcomingTile.value_or(this->genUpcomingTile());
-        if (actualTile <= Tile::TILE_3) {
-            return Hint(actualTile);
-        } else {
-            Tile maxBonusTile = this->board.maxBonusTile();
-            //Add tiles that could show up
-            if (pred(pred(actualTile)) >= Tile::TILE_6) {
-                inRangeTiles[tilesIndexEnd] = pred(pred(actualTile));
-                tilesIndexEnd++;
-            }
-            if (pred(actualTile) >= Tile::TILE_6) {
-                inRangeTiles[tilesIndexEnd] = pred(actualTile);
-                tilesIndexEnd++;
-            }
-            inRangeTiles[tilesIndexEnd] = actualTile;
-            tilesIndexEnd++;
-            if (succ(actualTile) <= maxBonusTile) {
-                inRangeTiles[tilesIndexEnd] = succ(actualTile);
-                tilesIndexEnd++;
-            }
-            if (succ(succ(actualTile)) <= maxBonusTile) {
-                inRangeTiles[tilesIndexEnd] = succ(succ(actualTile));
-                tilesIndexEnd++;
-            }
-            
-            unsigned char tilesIndexBegin = 0;
-            default_random_engine rngCopy = this->generator;
-            //Trim list down to 3
-            while (tilesIndexEnd - tilesIndexBegin > 3) {
-                if (upcomingTile == inRangeTiles[tilesIndexEnd-1]) {
-                    tilesIndexBegin++;
-                } else if (upcomingTile == inRangeTiles[tilesIndexBegin]) {
-                    tilesIndexEnd--;
-                } else if (uniform_int_distribution<>(0,1)(rngCopy) == 1) {
-                    tilesIndexEnd--;
-                } else {
-                    tilesIndexBegin++;
-                }
-            }
-            
-            if (tilesIndexEnd - tilesIndexBegin == 3) {
-                hint3 = inRangeTiles[tilesIndexBegin + 2];
-            }
-            if (tilesIndexEnd - tilesIndexBegin >= 2) {
-                hint2 = inRangeTiles[tilesIndexBegin + 1];
-            }
-            hint1 = inRangeTiles[tilesIndexBegin];
-        }
-        
-        Hint result(hint1, hint2, hint3);
-        debug(!result.contains(actualTile));
-        debug(hint1 > Tile::TILE_6144);
-        debug(hint2 > Tile::TILE_6144);
-        debug(hint3 > Tile::TILE_6144);
-        
-        return result;
-    }
-}
-
-
-Hint AboutToAddTileBoard::getHint() const {
-    debug(this->hasNoHint);
-    if (this->h) {
-        return this->h.value();
     } else {
         array<Tile, 5> inRangeTiles;
         unsigned char tilesIndexEnd = 0;
@@ -872,7 +794,6 @@ bool AboutToMoveBoard::hasSameTilesAs(AboutToAddTileBoard const& otherBoard) con
 }
 
 deque<pair<Tile, float>> AboutToAddTileBoard::possibleNextTiles() const {
-    debug(this->h == none && !this->hasNoHint);
     Tile maxBoardTile = this->board.maxTile;
     bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
     deque<pair<Tile, float>> result;
@@ -905,10 +826,10 @@ deque<AddedTileInfoWithProbability> AboutToAddTileBoard::possibleAdditionsWithPr
     deque<AddedTileInfoWithProbability> results;
     
     deque<pair<Tile, float>> possibleNextTiles;
-    if (this->hasNoHint) {
+    if (this->upcomingTileGenerator.hasNoHint()) {
         possibleNextTiles = this->possibleNextTiles();
     } else {
-        possibleNextTiles = this->getHint().possibleTiles();
+        possibleNextTiles = this->upcomingTileGenerator.generateHint(this->genUpcomingTile(), this->board.maxBonusTile(), this->generator).possibleTiles();
     }
     EnabledIndices possibleNextLocations = this->validIndicesForNewTile;
     
@@ -928,10 +849,10 @@ deque<AddedTileInfo> AboutToAddTileBoard::possibleAdditions() const {
     deque<AddedTileInfo> results;
     
     deque<pair<Tile, float>> possibleNextTiles;
-    if (this->hasNoHint) {
+    if (this->upcomingTileGenerator.hasNoHint()) {
         possibleNextTiles = this->possibleNextTiles();
     } else {
-        possibleNextTiles = this->getHint().possibleTiles();
+        possibleNextTiles = this->upcomingTileGenerator.generateHint(this->genUpcomingTile(), this->board.maxBonusTile(), this->generator).possibleTiles();
     }
     
     for (auto&& nextTile : possibleNextTiles) {

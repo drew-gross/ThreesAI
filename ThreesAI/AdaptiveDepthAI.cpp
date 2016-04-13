@@ -41,7 +41,7 @@ NodeCountAndScores openNodesAndScoresAtDepth(AboutToMoveBoard const& b, shared_p
     
     for (auto&& d : allDirections) {
         if (b.isMoveValid(d)) {
-            AboutToAddTileBoard movedBoard = b.moveWithoutAdd(d);
+            AboutToAddTileBoard movedBoard = b.moveWithoutAdd(d, true);
             for (auto&& additionInfo : movedBoard.possibleAdditions()) {
                 auto nextTurnBoard = movedBoard.addSpecificTile(additionInfo);
                 auto searchResult = nextTurnBoard.heuristicSearchIfMovedInDirection(d, depth, h);

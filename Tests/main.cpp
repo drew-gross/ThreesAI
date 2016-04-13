@@ -132,7 +132,7 @@ TEST(MovementAndFinding, Work) {
                                               0,0,3,0,\
                                               96,0,24,0,\
                                               6,12,2,1-2");
-    AboutToAddTileBoard postMove = preMove.moveWithoutAdd(Direction::LEFT);
+    AboutToAddTileBoard postMove = preMove.moveWithoutAdd(Direction::LEFT, false);
     AboutToMoveBoard expected("0,1,0,0,\
                                                0,3,0,0,\
                                                96,24,0,0,\
@@ -156,25 +156,25 @@ TEST(Movement, Works) {
                                          0,0,1,1,\
                                          0,0,0,0,\
                                          0,0,0,0-1");
-    AboutToAddTileBoard b2 = b1.moveWithoutAdd(Direction::LEFT);
+    AboutToAddTileBoard b2 = b1.moveWithoutAdd(Direction::LEFT, false);
     AboutToMoveBoard expected("0,1,1,0,\
                               0,1,1,0,\
                               0,0,0,0,\
                               0,0,0,0-1");
     EXPECT_TRUE(expected.hasSameTilesAs(b2));
-    AboutToAddTileBoard b3 = expected.moveWithoutAdd(Direction::DOWN);
+    AboutToAddTileBoard b3 = expected.moveWithoutAdd(Direction::DOWN, false);
     expected = AboutToMoveBoard("0,0,0,0,\
                                 0,1,1,0,\
                                 0,1,1,0,\
                                 0,0,0,0-1");
     EXPECT_TRUE(expected.hasSameTilesAs(b3));
-    AboutToAddTileBoard b4 = expected.moveWithoutAdd(Direction::RIGHT);
+    AboutToAddTileBoard b4 = expected.moveWithoutAdd(Direction::RIGHT, false);
     expected = AboutToMoveBoard("0,0,0,0,\
                                  0,0,1,1,\
                                  0,0,1,1,\
                                  0,0,0,0-1");
     EXPECT_TRUE(expected.hasSameTilesAs(b4));
-    AboutToAddTileBoard b5 = expected.moveWithoutAdd(Direction::UP);
+    AboutToAddTileBoard b5 = expected.moveWithoutAdd(Direction::UP, false);
     expected = AboutToMoveBoard("0,0,1,1,\
                                 0,0,1,1,\
                                 0,0,0,0,\

@@ -20,6 +20,7 @@
 #include "EnabledDirections.hpp"
 #include "Board.hpp"
 #include "AddedTileInfo.h"
+#include "UpcomingTileGenerator.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -35,36 +36,6 @@ public:
     float value;
     unsigned int openNodes;
 };
-
-class HiddenBoardState {
-public:
-    HiddenBoardState(unsigned int numTurns, unsigned int onesInStack, unsigned int twosInStack, unsigned int threesInStack) :
-    numTurns(numTurns) {
-        debug(onesInStack > 4);
-        debug(twosInStack > 4);
-        debug(threesInStack > 4);
-        this->onesInStack = onesInStack;
-        this->twosInStack = twosInStack;
-        this->threesInStack = threesInStack;
-        if (this->onesInStack == 0 && this->twosInStack == 0 && this->threesInStack == 0) {
-            this->onesInStack = 4;
-            this->twosInStack = 4;
-            this->threesInStack = 4;
-        }
-    }
-    
-    HiddenBoardState nextTurnStateWithAddedTile(Tile t) const;
-    unsigned int stackSize() const {
-        return this->onesInStack + this->twosInStack + this->threesInStack;
-    }
-    unsigned int numTurns;
-    unsigned int onesInStack:3;
-    unsigned int twosInStack:3;
-    unsigned int threesInStack:3;
-    
-    bool operator==(HiddenBoardState const& other) const;
-};
-
 
 class AddedTileInfoWithProbability {
 public:
@@ -87,6 +58,7 @@ public:
 };
 
 class AboutToAddTileBoard {
+    UpcomingTileGenerator upcomingTileGenerator;
     
 public:
     cv::Mat preMoveSourceImage;
@@ -96,9 +68,6 @@ public:
     HiddenBoardState hiddenState;
     EnabledIndices validIndicesForNewTile;
     std::default_random_engine generator;
-    bool hasNoHint;
-    boost::optional<Tile> upcomingTile;
-    boost::optional<Hint> h;
     //End TODO
     
     AboutToAddTileBoard(SetHint h, AboutToAddTileBoard const& other);
@@ -109,7 +78,6 @@ public:
     
     Tile at(BoardIndex const& p) const {return this->board.at(p);};
     std::deque<std::pair<Tile, float>> possibleNextTiles() const;
-    Hint getHint() const;
     BoardIndex indexForNextTile();
     Tile genUpcomingTile() const;
     AboutToMoveBoard addSpecificTile(AddedTileInfo tile) const;
@@ -186,7 +154,7 @@ public:
                cv::Mat sourceImage);
     
     Tile at(BoardIndex const& p) const {return this->board.at(p);};
-    Hint getHint() const;
+    Hint getHint(bool exploratory = false) const;
     BoardScore score() const {return this->board.score();};
     SearchResult heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const;
     
@@ -207,7 +175,7 @@ public:
     Tile getUpcomingTile() const;
     Tile genUpcomingTile() const;
     
-    AboutToAddTileBoard moveWithoutAdd(Direction d) const;
+    AboutToAddTileBoard moveWithoutAdd(Direction d, bool exploratory) const;
     
     friend std::ostream& operator<<(std::ostream &os, AboutToMoveBoard const& info);
     
