@@ -7,8 +7,10 @@
 //
 
 #include "Board.hpp"
+#include "InvalidMoveException.h"
 #include <boost/algorithm/string.hpp>
 #include "Debug.h"
+#include "Logging.h"
 
 #include <numeric>
 #include <vector>
@@ -60,4 +62,124 @@ Board::Board(std::string const s) {
     });
     
     this->initWithTileList(tileList);
+}
+
+ostream& operator<<(ostream &os, Board const& board) {
+    os << "---------------------" << endl;
+    os << "|" << board.tiles[0] << "|" << board.tiles[1] << "|" << board.tiles[2] << "|" << board.tiles[3] << "|" << endl;
+    os << "|" << board.tiles[4] << "|" << board.tiles[5] << "|" << board.tiles[6] << "|" << board.tiles[7] << "|" << endl;
+    os << "|" << board.tiles[8] << "|" << board.tiles[9] << "|" << board.tiles[10] << "|" << board.tiles[11] << "|" << endl;
+    os << "|" << board.tiles[12] << "|" << board.tiles[13] << "|" << board.tiles[14] << "|" << board.tiles[15] << "|" << endl;
+    os << "---------------------";
+    return os;
+}
+
+
+EnabledIndices Board::moveUp() {
+    EnabledIndices movedColumns({});
+    EnabledIndices mergedColumns({});
+    
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 3; j++) {
+            Tile target = this->at(BoardIndex(i, j));
+            Tile here = this->at(BoardIndex(i, j + 1));
+            if (canMergeOrMove(target, here)) {
+                movedColumns.set(BoardIndex(i, 3));
+            }
+            auto result = mergeResult(here, target);
+            if (result) {
+                mergedColumns.set(BoardIndex(i, 3));
+                this->set(BoardIndex(i, j), result.get());
+            }
+        }
+    }
+    
+    if (__builtin_expect(movedColumns.size() == 0, 0)) {
+        throw InvalidMoveException();
+    }
+    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
+}
+
+EnabledIndices Board::moveDown() {
+    EnabledIndices movedColumns({});
+    EnabledIndices mergedColumns({});
+    
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 3; j > 0; j--) {
+            Tile target = this->at(BoardIndex(i, j));
+            Tile here = this->at(BoardIndex(i, j - 1));
+            if (canMergeOrMove(target, here)) {
+                movedColumns.set(BoardIndex(i, 0));
+            }
+            auto result = mergeResult(here, target);
+            if (result) {
+                mergedColumns.set(BoardIndex(i, 0));
+                this->set(BoardIndex(i, j), result.get());
+            }
+        }
+    }
+    
+    if (__builtin_expect(movedColumns.size() == 0, 0)) {
+        throw InvalidMoveException();
+    }
+    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
+}
+
+EnabledIndices Board::moveLeft() {
+    EnabledIndices movedColumns({});
+    EnabledIndices mergedColumns({});
+    
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 3; j > 0; j--) {
+            Tile target = this->at(BoardIndex(j, i));
+            Tile here = this->at(BoardIndex(j - 1, i));
+            if (canMergeOrMove(target, here)) {
+                movedColumns.set(BoardIndex(0, i));
+            }
+            auto result = mergeResult(here, target);
+            if (result) {
+                mergedColumns.set(BoardIndex(0, i));
+                this->set(BoardIndex(j, i), result.get());
+            }
+        }
+    }
+    
+    if (__builtin_expect(movedColumns.size() == 0, 0)) {
+        throw InvalidMoveException();
+    }
+    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
+}
+
+EnabledIndices Board::moveRight() {
+    EnabledIndices movedColumns({});
+    EnabledIndices mergedColumns({});
+    
+    for (unsigned char i = 0; i < 4; i++) {
+        for (unsigned char j = 0; j < 3; j++) {
+            Tile target = this->at(BoardIndex(i, j));
+            Tile here = this->at(BoardIndex(i, j + 1));
+            if (canMergeOrMove(target, here)) {
+                movedColumns.set(BoardIndex(3, i));
+            }
+            auto result = mergeResult(here, target);
+            if (result) {
+                mergedColumns.set(BoardIndex(3, i));
+                this->set(BoardIndex(j, i), result.get());
+            }
+        }
+    }
+    
+    if (__builtin_expect(movedColumns.size() == 0, 0)) {
+        throw InvalidMoveException();
+    }
+    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
+}
+
+EnabledIndices Board::move(Direction d) {
+    switch (d) {
+        case Direction::UP: return this->moveUp();
+        case Direction::DOWN: return this->moveDown();
+        case Direction::LEFT: return this->moveLeft();
+        case Direction::RIGHT: return this->moveRight();
+    }
 }

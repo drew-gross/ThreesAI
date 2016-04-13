@@ -47,4 +47,5 @@ public:
     EnabledDirections validMoves() const;
     Tile maxBonusTile() const;
 };
+std::ostream& operator<<(std::ostream &os, Board const& board);
 #endif /* Board_hpp */

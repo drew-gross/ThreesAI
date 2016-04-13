@@ -115,7 +115,7 @@ TEST(AdaptiveDepthAI, CallsHeuristic) {
     EXPECT_EQ(callCount, 1);
     AdaptiveDepthAI ai(b, unique_ptr<BoardOutput>(new SimulatedBoardOutput(b)), c.to_f(false), 1);
     ai.playTurn();
-    EXPECT_EQ(callCount, 427);
+    EXPECT_EQ(callCount, 236);
 }
 
 TEST(MonteCarloAI, PicksDown) {

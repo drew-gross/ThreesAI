@@ -180,116 +180,6 @@ void AboutToMoveBoard::takeTurnInPlace(Direction d) {
     this->addTile(d);
 }
 
-EnabledIndices Board::moveUp() {
-    EnabledIndices movedColumns({});
-    EnabledIndices mergedColumns({});
-    
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 0; j < 3; j++) {
-            Tile target = this->at(BoardIndex(i, j));
-            Tile here = this->at(BoardIndex(i, j + 1));
-            if (canMergeOrMove(target, here)) {
-                movedColumns.set(BoardIndex(i, 3));
-            }
-            auto result = mergeResult(here, target);
-            if (result) {
-                mergedColumns.set(BoardIndex(i, 3));
-                this->set(BoardIndex(i, j), result.get());
-            }
-        }
-    }
-    
-    if (__builtin_expect(movedColumns.size() == 0, 0)) {
-        throw InvalidMoveException();
-    }
-    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
-}
-
-EnabledIndices Board::moveDown() {
-    EnabledIndices movedColumns({});
-    EnabledIndices mergedColumns({});
-    
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 3; j > 0; j--) {
-            Tile target = this->at(BoardIndex(i, j));
-            Tile here = this->at(BoardIndex(i, j - 1));
-            if (canMergeOrMove(target, here)) {
-                movedColumns.set(BoardIndex(i, 0));
-            }
-            auto result = mergeResult(here, target);
-            if (result) {
-                mergedColumns.set(BoardIndex(i, 0));
-                this->set(BoardIndex(i, j), result.get());
-            }
-        }
-    }
-    
-    if (__builtin_expect(movedColumns.size() == 0, 0)) {
-        throw InvalidMoveException();
-    }
-    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
-}
-
-EnabledIndices Board::moveLeft() {
-    EnabledIndices movedColumns({});
-    EnabledIndices mergedColumns({});
-    
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 3; j > 0; j--) {
-            Tile target = this->at(BoardIndex(j, i));
-            Tile here = this->at(BoardIndex(j - 1, i));
-            if (canMergeOrMove(target, here)) {
-                movedColumns.set(BoardIndex(0, i));
-            }
-            auto result = mergeResult(here, target);
-            if (result) {
-                mergedColumns.set(BoardIndex(0, i));
-                this->set(BoardIndex(j, i), result.get());
-            }
-        }
-    }
-    
-    if (__builtin_expect(movedColumns.size() == 0, 0)) {
-        throw InvalidMoveException();
-    }
-    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
-}
-
-
-EnabledIndices Board::moveRight() {
-    EnabledIndices movedColumns({});
-    EnabledIndices mergedColumns({});
-    
-    for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 0; j < 3; j--) {
-            Tile target = this->at(BoardIndex(i, j));
-            Tile here = this->at(BoardIndex(i, j + 1));
-            if (canMergeOrMove(target, here)) {
-                movedColumns.set(BoardIndex(3, i));
-            }
-            auto result = mergeResult(here, target);
-            if (result) {
-                mergedColumns.set(BoardIndex(3, i));
-                this->set(BoardIndex(j, i), result.get());
-            }
-        }
-    }
-    
-    if (__builtin_expect(movedColumns.size() == 0, 0)) {
-        throw InvalidMoveException();
-    }
-    return mergedColumns.size() > 0 ? mergedColumns : movedColumns;
-}
-
-EnabledIndices Board::move(Direction d) {
-    switch (d) {
-        case Direction::UP: return this->moveUp();
-        case Direction::DOWN: return this->moveDown();
-        case Direction::LEFT: return this->moveLeft();
-        case Direction::RIGHT: return this->moveRight();
-    }
-}
-
 AboutToAddTileBoard::AboutToAddTileBoard(Board b, EnabledIndices i, HiddenBoardState h, default_random_engine g, Hint hint):
 board(b),
 validIndicesForNewTile(i),
@@ -870,12 +760,7 @@ ostream& operator<<(ostream &os, AboutToMoveBoard const& board) {
     os << "Turns: " << board.hiddenState.numTurns << endl;
     os << "Score: " << board.score() << endl;
     os << "Stack: " << board.hiddenState.onesInStack << " " << board.hiddenState.twosInStack << " " << board.hiddenState.threesInStack << endl;
-    os << "---------------------" << endl;
-    os << "|" << board.board.tiles[0] << "|" << board.board.tiles[1] << "|" << board.board.tiles[2] << "|" << board.board.tiles[3] << "|" << endl;
-    os << "|" << board.board.tiles[4] << "|" << board.board.tiles[5] << "|" << board.board.tiles[6] << "|" << board.board.tiles[7] << "|" << endl;
-    os << "|" << board.board.tiles[8] << "|" << board.board.tiles[9] << "|" << board.board.tiles[10] << "|" << board.board.tiles[11] << "|" << endl;
-    os << "|" << board.board.tiles[12] << "|" << board.board.tiles[13] << "|" << board.board.tiles[14] << "|" << board.board.tiles[15] << "|" << endl;
-    os << "---------------------";
+    os << board.board;
     return os;
 }
 
@@ -982,11 +867,11 @@ BoardScore AboutToMoveBoard::runRandomSimulation(unsigned int simNumber) const {
     copy.hasNoHint = false;
     while (!copy.isGameOver()) {
         try {
-        copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());
+            copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());
         } catch (std::exception e) {
             debug();
             MYLOG(copy);
-            copy.randomValidMoveFromInternalGenerator();
+            copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());
         }
     }
     return copy.score();
