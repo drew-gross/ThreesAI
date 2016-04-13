@@ -129,24 +129,20 @@ AboutToMoveBoard AboutToAddTileBoard::addSpecificTile(AddedTileInfo info) const 
 SearchResult AboutToMoveBoard::heuristicSearchIfMovedInDirection(Direction d, uint8_t depth, std::shared_ptr<Heuristic> h) const {
     //Assume board was moved but hasn't had tile added
     //TODO: return -INFINITY if all moves lead to death
-    AboutToAddTileBoard b = this->moveWithoutAdd(d, true);
-    deque<AddedTileInfoWithProbability> allAdditions = b.possibleAdditionsWithProbability();
+    AboutToAddTileBoard board = this->moveWithoutAdd(d, true);
     float score = 0;
     unsigned int openNodeCount = 0;
-    for (AddedTileInfoWithProbability info : allAdditions) {
-        
-        AboutToMoveBoard potentialBoard = b.addSpecificTile(info.i);
+    for (AddedTileInfoWithProbability additionInfo : board.possibleAdditionsWithProbability()) {
+        AboutToMoveBoard potentialBoard = board.addSpecificTile(additionInfo.i);
         if (depth == 0) {
-            score += h->evaluateWithoutDescription(potentialBoard)*info.probability;
+            score += h->evaluateWithoutDescription(potentialBoard)*additionInfo.probability;
             openNodeCount += 1;
         } else {
             vector<pair<Direction, SearchResult>> scoresForMoves;
             for (auto&& d : allDirections) {
                 if (potentialBoard.isMoveValid(d)) {
                     AboutToAddTileBoard movedBoard = potentialBoard.moveWithoutAdd(d, true);
-                    debug();
-                    //TODO: take average of all childre
-                    //scoresForMoves.push_back({d, movedBoard.heuristicSearchIfMovedInDirection(d, depth - 1, h)});
+                    scoresForMoves.push_back({d, potentialBoard.heuristicSearchIfMovedInDirection(d, depth - 1, h)});
                 }
             }
             if (scoresForMoves.empty()) {
