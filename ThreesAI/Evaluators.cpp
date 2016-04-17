@@ -9,7 +9,7 @@
 #include "Evaluators.hpp"
 
 float countEmptyTile(AboutToMoveBoard const& b) {
-    return b.countOfTile(Tile::EMPTY);
+    return b.countOfTile(T::EMPTY);
 }
 
 float score(AboutToMoveBoard const& b) {

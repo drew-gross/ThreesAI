@@ -16,32 +16,38 @@ Hint UpcomingTileGenerator::generateHint(Tile backupTile, Tile maxBonusTile, def
     debug(!this->upcomingTile && !this->hint);
     if (this->hint) return this->hint.get();
     
-    array<Tile, 5> inRangeTiles;
+    array<Tile, 5> inRangeTiles({
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY
+    });
     unsigned char tilesIndexEnd = 0;
-    Tile hint1 = Tile::EMPTY;
-    Tile hint2 = Tile::EMPTY;
-    Tile hint3 = Tile::EMPTY;
+    Tile hint1 = T::EMPTY;
+    Tile hint2 = T::EMPTY;
+    Tile hint3 = T::EMPTY;
     Tile actualTile = this->upcomingTile.value_or(backupTile);
-    if (actualTile <= Tile::TILE_3) {
+    if (actualTile <= T::_3) {
         return Hint(actualTile);
     } else {
         //Add tiles that could show up
-        if (pred(pred(actualTile)) >= Tile::TILE_6) {
-            inRangeTiles[tilesIndexEnd] = pred(pred(actualTile));
+        if (actualTile.pred().pred() >= Tile(T::_6)) {
+            inRangeTiles[tilesIndexEnd] = actualTile.pred().pred();
             tilesIndexEnd++;
         }
-        if (pred(actualTile) >= Tile::TILE_6) {
-            inRangeTiles[tilesIndexEnd] = pred(actualTile);
+        if (actualTile.pred() >= T::_6) {
+            inRangeTiles[tilesIndexEnd] = actualTile.pred();
             tilesIndexEnd++;
         }
         inRangeTiles[tilesIndexEnd] = actualTile;
         tilesIndexEnd++;
-        if (succ(actualTile) <= maxBonusTile) {
-            inRangeTiles[tilesIndexEnd] = succ(actualTile);
+        if (actualTile.succ() <= maxBonusTile) {
+            inRangeTiles[tilesIndexEnd] = actualTile.succ();
             tilesIndexEnd++;
         }
-        if (succ(succ(actualTile)) <= maxBonusTile) {
-            inRangeTiles[tilesIndexEnd] = succ(succ(actualTile));
+        if (actualTile.succ().succ() <= maxBonusTile) {
+            inRangeTiles[tilesIndexEnd] = actualTile.succ().succ();
             tilesIndexEnd++;
         }
         
@@ -70,9 +76,9 @@ Hint UpcomingTileGenerator::generateHint(Tile backupTile, Tile maxBonusTile, def
     
     Hint result(hint1, hint2, hint3);
     debug(!result.contains(actualTile));
-    debug(hint1 > Tile::TILE_6144);
-    debug(hint2 > Tile::TILE_6144);
-    debug(hint3 > Tile::TILE_6144);
+    debug(hint1 > Tile(T::_6144));
+    debug(hint2 > T::_6144);
+    debug(hint3 > T::_6144);
     
     return result;
 }

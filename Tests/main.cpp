@@ -17,6 +17,20 @@ unique_ptr<SimulatedBoardOutput> makeOutput(string s) {
     return std::move(std::unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(std::make_shared<AboutToMoveBoard const>(s))));
 }
 
+TEST(takeTurnInPlace, Works) {
+    AboutToMoveBoard b("3,0,0,0,\
+                       3,0,0,0,\
+                       0,1,0,0,\
+                       0,0,0,0-2");
+    AboutToMoveBoard b2("0,0,0,0,\
+                       3,0,0,0,\
+                       3,0,0,0,\
+                       0,1,0,0-2");
+    b.takeTurnInPlace(Direction::DOWN);
+    EXPECT_TRUE(b.hasSameTilesAs(b2));
+    
+}
+
 TEST(countAdjacentPair, Works) {
     auto b = makeOutput("3,0,0,0,\
                         3,0,0,0,\
@@ -139,11 +153,11 @@ TEST(MovementAndFinding, Work) {
                                                6,12,3,0-3");
     EXPECT_TRUE(expected.hasSameTilesAs(postMove));
     BoardIndex i(1,2);
-    EXPECT_EQ(postMove.at(i), Tile::TILE_24);
-    EXPECT_EQ(postMove.at(i.left().get()), Tile::TILE_96);
-    EXPECT_EQ(postMove.at(i.up().get()), Tile::TILE_3);
-    EXPECT_EQ(postMove.at(i.down().get()), Tile::TILE_12);
-    EXPECT_EQ(postMove.at(i.right().get()), Tile::EMPTY);
+    EXPECT_EQ(postMove.at(i), T::_24);
+    EXPECT_EQ(postMove.at(i.left().get()), T::_96);
+    EXPECT_EQ(postMove.at(i.up().get()), T::_3);
+    EXPECT_EQ(postMove.at(i.down().get()), T::_12);
+    EXPECT_EQ(postMove.at(i.right().get()), T::EMPTY);
     EXPECT_EQ(BoardIndex(0,0).left(), none);
     EXPECT_EQ(BoardIndex(0,0).up(), none);
     EXPECT_EQ(BoardIndex(3,3).right(), none);
@@ -226,7 +240,7 @@ TEST(HighestInCornerHeuristic, MovesALoneThreeToTheCorner) {
     FixedDepthAI aiDepth2(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(false), 0);
     aiDepth2.playTurn();
     Tile cornerValue = aiDepth2.currentState()->at(BoardIndex(0,3));
-    EXPECT_EQ(cornerValue, Tile::TILE_12);
+    EXPECT_EQ(cornerValue, T::_12);
 }
 
 TEST(HighestIsOnEdgeHeuristic, MovesFromCornerToEdge) {
@@ -239,7 +253,7 @@ TEST(HighestIsOnEdgeHeuristic, MovesFromCornerToEdge) {
     ai.playTurn();
     Tile e1 = ai.currentState()->at(BoardIndex(0,2));
     Tile e2 = ai.currentState()->at(BoardIndex(1,3));
-    EXPECT_TRUE(e1 == Tile::TILE_12 || e2 == Tile::TILE_12);
+    EXPECT_TRUE(e1 == T::_12 || e2 == T::_12);
 }
 
 TEST(HighestIsOnEdgeHeuristic, MovesFromEdgeToEdge) {
@@ -251,7 +265,7 @@ TEST(HighestIsOnEdgeHeuristic, MovesFromEdgeToEdge) {
     FixedDepthAI ai(b->currentState(HiddenBoardState(0,4,4,3)), std::move(b), c.to_f(false), 0);
     ai.playTurn();
     Tile e1 = ai.currentState()->at(BoardIndex(0,1));
-    EXPECT_EQ(e1, Tile::TILE_12);
+    EXPECT_EQ(e1, T::_12);
 }
 
 TEST(TrappedCount, Works) {

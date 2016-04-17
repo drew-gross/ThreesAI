@@ -13,7 +13,7 @@
 
 using namespace std;
 
-ManyPlayMonteCarloAI::ManyPlayMonteCarloAI(shared_ptr<AboutToMoveBoard const> board, unique_ptr<BoardOutput> output, unsigned int numPlays) : ThreesAIBase(board, move(output)), numPlays(numPlays) {}
+ManyPlayMonteCarloAI::ManyPlayMonteCarloAI(std::shared_ptr<AboutToMoveBoard const> board, unique_ptr<BoardOutput> output, unsigned int numPlays) : ThreesAIBase(board, std::move(output)), numPlays(numPlays) {}
 
 Direction ManyPlayMonteCarloAI::getDirection() const {
     map<Direction, float> scores;

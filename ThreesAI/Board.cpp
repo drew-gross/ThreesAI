@@ -25,7 +25,7 @@ BoardScore Board::score() const {
     } else {
         this->scoreCacheIsValid = true;
         this->scoreCache = accumulate(this->tiles.begin(), this->tiles.end(), 0, [](unsigned int acc, Tile tile){
-            return acc + tileScore(tile);
+            return acc + tile.tileScore();
         });
         return this->scoreCache;
     }
@@ -40,11 +40,32 @@ void Board::initWithTileList(std::array<Tile, 16> tiles) {
     this->maxTile = *max_element(tiles.begin(), tiles.end());
 }
 
-Board::Board(std::array<Tile, 16> tiles) {
+Board::Board(std::array<Tile, 16> tiles) :
+tiles(tiles),
+maxTile(T::EMPTY) {
     this->initWithTileList(tiles);
 }
 
-Board::Board(std::string const s) {
+Board::Board(std::string const s) :
+tiles({
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY),
+    Tile(T::EMPTY)
+}),
+maxTile(T::EMPTY) {
     vector<string> splitName;
     split(splitName, s, is_any_of("-"));
     
@@ -56,7 +77,24 @@ Board::Board(std::string const s) {
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
     
-    std::array<Tile, 16> tileList;
+    std::array<Tile, 16> tileList({
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY)
+    });
     transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
         return tileFromString(s);
     });
@@ -83,10 +121,10 @@ EnabledIndices Board::moveUp() {
         for (unsigned char j = 0; j < 3; j++) {
             Tile target = this->at(BoardIndex(i, j));
             Tile here = this->at(BoardIndex(i, j + 1));
-            if (canMergeOrMove(target, here)) {
+            if (here.canMergeOrMove(target)) {
                 movedColumns.set(BoardIndex(i, 3));
             }
-            auto result = mergeResult(here, target);
+            auto result = here.mergeResult(target);
             if (result) {
                 mergedColumns.set(BoardIndex(i, 3));
                 this->set(BoardIndex(i, j), result.get());
@@ -108,10 +146,10 @@ EnabledIndices Board::moveDown() {
         for (unsigned char j = 3; j > 0; j--) {
             Tile target = this->at(BoardIndex(i, j));
             Tile here = this->at(BoardIndex(i, j - 1));
-            if (canMergeOrMove(target, here)) {
+            if (here.canMergeOrMove(here)) {
                 movedColumns.set(BoardIndex(i, 0));
             }
-            auto result = mergeResult(here, target);
+            auto result = here.mergeResult(target);
             if (result) {
                 mergedColumns.set(BoardIndex(i, 0));
                 this->set(BoardIndex(i, j), result.get());
@@ -133,10 +171,10 @@ EnabledIndices Board::moveLeft() {
         for (unsigned char j = 3; j > 0; j--) {
             Tile target = this->at(BoardIndex(j, i));
             Tile here = this->at(BoardIndex(j - 1, i));
-            if (canMergeOrMove(target, here)) {
+            if (here.canMergeOrMove(here)) {
                 movedColumns.set(BoardIndex(0, i));
             }
-            auto result = mergeResult(here, target);
+            auto result = here.mergeResult(target);
             if (result) {
                 mergedColumns.set(BoardIndex(0, i));
                 this->set(BoardIndex(j, i), result.get());
@@ -158,10 +196,10 @@ EnabledIndices Board::moveRight() {
         for (unsigned char j = 0; j < 3; j++) {
             Tile target = this->at(BoardIndex(i, j));
             Tile here = this->at(BoardIndex(i, j + 1));
-            if (canMergeOrMove(target, here)) {
+            if (here.canMergeOrMove(here)) {
                 movedColumns.set(BoardIndex(3, i));
             }
-            auto result = mergeResult(here, target);
+            auto result = here.mergeResult(target);
             if (result) {
                 mergedColumns.set(BoardIndex(3, i));
                 this->set(BoardIndex(j, i), result.get());

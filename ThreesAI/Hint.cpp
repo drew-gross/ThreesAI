@@ -15,23 +15,23 @@
 using namespace std;
 
 bool Hint::isNonBonus() const {
-    return this->contains(Tile(1)) || this->contains(Tile(2)) || this->contains(Tile(3));
+    return this->contains(Tile(T::_1)) || this->contains(Tile(T::_2)) || this->contains(Tile(T::_3));
 }
 
 deque<pair<Tile, float>> Hint::possibleTiles() const {
     float probability;
-    if (this->hint3 != Tile::EMPTY) {
+    if (this->hint3 != T::EMPTY) {
         probability = 1.0f/3.0f;
-    } else if (this->hint2 != Tile::EMPTY) {
+    } else if (this->hint2 != T::EMPTY) {
         probability = 1.0f/2.0f;
     } else {
         probability = 1;
     }
     deque<pair<Tile, float>> result;
-    if (this->hint3 != Tile::EMPTY) {
+    if (this->hint3 != T::EMPTY) {
         result.push_front({this->hint3, probability});
     }
-    if (this->hint2 != Tile::EMPTY) {
+    if (this->hint2 != T::EMPTY) {
         result.push_front({this->hint2, probability});
     }
     result.push_front({this->hint1, probability});
@@ -40,9 +40,9 @@ deque<pair<Tile, float>> Hint::possibleTiles() const {
 
 Tile Hint::actualTile(default_random_engine gen) const {
     int num_options = 0;
-    if (this->hint3 != Tile::EMPTY) {
+    if (this->hint3 != T::EMPTY) {
         num_options = 3;
-    } else if (this->hint2 != Tile::EMPTY) {
+    } else if (this->hint2 != T::EMPTY) {
         num_options = 2;
     } else {
         num_options = 1;
@@ -53,7 +53,7 @@ Tile Hint::actualTile(default_random_engine gen) const {
         case 2: return this->hint2;
         case 3: return this->hint3;
     }
-    return Tile::EMPTY;
+    return T::EMPTY;
 }
 
 bool Hint::operator!=(Hint const& other) const {
@@ -70,7 +70,7 @@ bool Hint::operator!=(Hint const& other) const {
 }
 
 bool Hint::contains(Tile query) const {
-    if (query == Tile::EMPTY) {
+    if (query == T::EMPTY) {
         return false;
     }
     if (query == this->hint1) {
@@ -89,31 +89,28 @@ ostream& operator<<(ostream &os, Hint const& h) {
     return h.print(os);
 }
 
-Hint::Hint(Tile hint) {
-    this->hint1 = hint;
-    this->hint2 = Tile::EMPTY;
-    this->hint3 = Tile::EMPTY;
-};
+Hint::Hint(Tile hint) :
+hint1(hint),
+hint2(T::EMPTY),
+hint3(T::EMPTY) {};
 
-Hint::Hint(Tile hint1, Tile hint2) {
-    this->hint1 = hint1;
-    this->hint2 = hint2;
-    this->hint3 = Tile::EMPTY;
-};
+Hint::Hint(Tile hint1, Tile hint2) :
+hint1(hint1),
+hint2(hint2),
+hint3(T::EMPTY) {};
 
-Hint::Hint(Tile hint1, Tile hint2, Tile hint3) {
-    this->hint1 = hint1;
-    this->hint2 = hint2;
-    this->hint3 = hint3;
-};
+Hint::Hint(Tile hint1, Tile hint2, Tile hint3)  :
+hint1(hint1),
+hint2(hint2),
+hint3(hint3) {};
 
 
 ostream& Hint::print(ostream& os) const {
     os << this->hint1;
-    if (this->hint2 > Tile::EMPTY) {
+    if (this->hint2 > T::EMPTY) {
         os << " " << this->hint2;
     }
-    if (this->hint3 > Tile::EMPTY) {
+    if (this->hint3 > T::EMPTY) {
         os << " " << this->hint3;
     }
     return os;

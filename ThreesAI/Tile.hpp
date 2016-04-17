@@ -13,31 +13,50 @@
 
 #include <boost/optional/optional.hpp>
 
-enum class Tile {
+class HiddenBoardState;
+
+enum class T {
     EMPTY,
-    TILE_1,
-    TILE_2,
-    TILE_3,
-    TILE_6,
-    TILE_12,
-    TILE_24,
-    TILE_48,
-    TILE_96,
-    TILE_192,
-    TILE_384,
-    TILE_768,
-    TILE_1536,
-    TILE_3072,
-    TILE_6144
+    _1,
+    _2,
+    _3,
+    _6,
+    _12,
+    _24,
+    _48,
+    _96,
+    _192,
+    _384,
+    _768,
+    _1536,
+    _3072,
+    _6144
 };
 
-Tile pred(Tile t);
-Tile succ(Tile t);
-unsigned int tileScore(Tile t);
+class Tile {
+    T value;
+    Tile(){}
+public:
+    Tile(T v) : value(v) {}
+    bool operator <=(Tile const& other) const { return this->value <= other.value; };
+    bool operator >=(Tile const& other) const { return this->value >= other.value; };
+    bool operator >(Tile const& other) const { return this->value > other.value; };
+    bool operator <(Tile const& other) const { return this->value < other.value; };
+    bool operator ==(Tile const& other) const { return this->value == other.value; };
+    bool operator !=(Tile const& other) const { return this->value != other.value; };
+    Tile pred() const;
+    Tile succ() const;
+    bool canMergeOrMove(Tile target) const;
+    bool canMerge(Tile target) const;
+    boost::optional<Tile> mergeResult(Tile t2) const;
+    unsigned int tileScore() const;
+    friend std::ostream& operator<<(std::ostream &os, Tile t);
+    //TODO: Make this a member
+    friend float nonBonusTileProbability(HiddenBoardState const& hiddenState, Tile tile, bool canHaveBonus);
+    friend HiddenBoardState;
+};
+
 Tile tileFromString(std::string s);
-boost::optional<Tile> mergeResult(Tile t1, Tile t2);
-bool canMerge(Tile here, Tile t2);
-bool canMergeOrMove(Tile t1, Tile t2);
 
 std::ostream& operator<<(std::ostream &os, Tile t);
 

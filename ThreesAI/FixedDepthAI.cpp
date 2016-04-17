@@ -17,7 +17,7 @@
 
 using namespace std;
 
-FixedDepthAI::FixedDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, shared_ptr<Heuristic> heuristic, uint8_t depth) : ThreesAIBase(move(board), move(output)), heuristic(heuristic), depth(depth) {}
+FixedDepthAI::FixedDepthAI(BoardStateCPtr board, unique_ptr<BoardOutput> output, std::shared_ptr<Heuristic> heuristic, uint8_t depth) : ThreesAIBase(move(board), move(output)), heuristic(heuristic), depth(depth) {}
 
 void FixedDepthAI::receiveState(Direction d, AboutToMoveBoard const & newState) {};
 void FixedDepthAI::prepareDirection() {};

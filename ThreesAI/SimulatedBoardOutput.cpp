@@ -38,22 +38,22 @@ AddedTileInfo SimulatedBoardOutput::computeChangeFrom(AboutToAddTileBoard const&
 
 unique_ptr<SimulatedBoardOutput> SimulatedBoardOutput::randomBoard(default_random_engine& shuffler) {
     std::array<Tile, 16> initialTiles = {
-        Tile::TILE_3,
-        Tile::TILE_3,
-        Tile::TILE_3,
-        Tile::TILE_2,
-        Tile::TILE_2,
-        Tile::TILE_2,
-        Tile::TILE_1,
-        Tile::TILE_1,
-        Tile::TILE_1,
-        Tile::EMPTY,
-        Tile::EMPTY,
-        Tile::EMPTY,
-        Tile::EMPTY,
-        Tile::EMPTY,
-        Tile::EMPTY,
-        Tile::EMPTY
+        T::_3,
+        T::_3,
+        T::_3,
+        T::_2,
+        T::_2,
+        T::_2,
+        T::_1,
+        T::_1,
+        T::_1,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY
     };
     shuffle(initialTiles.begin(), initialTiles.end(), shuffler);
     return unique_ptr<SimulatedBoardOutput>(new SimulatedBoardOutput(Board(initialTiles), shuffler, 1, 1, 1));

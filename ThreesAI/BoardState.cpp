@@ -22,16 +22,16 @@
 using namespace std;
 using namespace boost;
 
-float nonBonusTileProbability(HiddenBoardState hiddenState, Tile tile, bool canHaveBonus) {
+float nonBonusTileProbability(HiddenBoardState const& hiddenState, Tile tile, bool canHaveBonus) {
     unsigned int count = 0;
-    switch (tile) {
-        case Tile::TILE_1:
+    switch (tile.value) {
+        case T::_1:
             count = hiddenState.onesInStack;
             break;
-        case Tile::TILE_2:
+        case T::_2:
             count = hiddenState.twosInStack;
             break;
-        case Tile::TILE_3:
+        case T::_3:
             count = hiddenState.threesInStack;
             break;
         default:
@@ -50,55 +50,55 @@ Tile UpcomingTileGenerator::generateTile(std::default_random_engine rng, Tile ma
         return this->hint.get().actualTile(rng);
     };
     
-    bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
+    bool canHaveBonus = maxBoardTile >= T::_48;
     
     std::uniform_real_distribution<> r(0,1);
     float tileFinder = r(rng);
     
     if (hiddenState.onesInStack > 0) {
-        float pOne = nonBonusTileProbability(hiddenState, Tile::TILE_1, canHaveBonus);
+        float pOne = nonBonusTileProbability(hiddenState, T::_1, canHaveBonus);
         if (tileFinder < pOne) {
-            return Tile::TILE_1;
+            return T::_1;
         } else {
             tileFinder -= pOne;
         }
     }
     
     if (hiddenState.twosInStack > 0) {
-        float pTwo = nonBonusTileProbability(hiddenState,Tile::TILE_2, canHaveBonus);
+        float pTwo = nonBonusTileProbability(hiddenState,T::_2, canHaveBonus);
         if (tileFinder < pTwo) {
-            return Tile::TILE_2;
+            return T::_2;
         } else {
             tileFinder -= pTwo;
         }
     }
     
     if (hiddenState.threesInStack > 0) {
-        float pThree = nonBonusTileProbability(hiddenState,Tile::TILE_3, canHaveBonus);
+        float pThree = nonBonusTileProbability(hiddenState,T::_3, canHaveBonus);
         if (tileFinder < pThree) {
-            return Tile::TILE_3;
+            return T::_3;
         } else {
             tileFinder -= pThree;
         }
     }
     
-    Tile currentBonus = pred(pred(pred(maxBoardTile)));
+    Tile currentBonus = maxBoardTile.pred().pred().pred();
     Tile possibleBonusCounter = currentBonus;
     unsigned int numPossibleBonusTiles = 0;
-    while (possibleBonusCounter > Tile::TILE_3) {
-        possibleBonusCounter = pred(possibleBonusCounter);
+    while (possibleBonusCounter > T::_3) {
+        possibleBonusCounter = possibleBonusCounter.pred();
         numPossibleBonusTiles++;
     }
-    while (currentBonus >= Tile::TILE_6) {
+    while (currentBonus >= T::_6) {
         float pThisBonus = float(1)/numPossibleBonusTiles/21;
         if (tileFinder < pThisBonus) {
             return currentBonus;
         } else {
             tileFinder -= pThisBonus;
-            currentBonus = pred(currentBonus);
+            currentBonus = currentBonus.pred();
         }
     }
-    return Tile::TILE_6;
+    return T::_6;
 }
 
 AboutToMoveBoard::AboutToMoveBoard(Board b, HiddenBoardState h) :
@@ -109,13 +109,13 @@ hasNoHint(true)
 
 HiddenBoardState HiddenBoardState::nextTurnStateWithAddedTile(Tile t) const {
     unsigned int newTurns = this->numTurns + 1;
-    if (t <= Tile::TILE_3 && this->onesInStack + this->twosInStack + this->threesInStack - 1 == 0) {
+    if (t <= T::_3 && this->onesInStack + this->twosInStack + this->threesInStack - 1 == 0) {
         return HiddenBoardState(newTurns, 4, 4, 4);
     }
-    switch (t) {
-        case Tile::TILE_1: return HiddenBoardState(newTurns, this->onesInStack - 1, this->twosInStack, this->threesInStack);
-        case Tile::TILE_2: return HiddenBoardState(newTurns, this->onesInStack, this->twosInStack - 1, this->threesInStack);
-        case Tile::TILE_3: return HiddenBoardState(newTurns, this->onesInStack, this->twosInStack, this->threesInStack - 1);
+    switch (t.value) {
+        case T::_1: return HiddenBoardState(newTurns, this->onesInStack - 1, this->twosInStack, this->threesInStack);
+        case T::_2: return HiddenBoardState(newTurns, this->onesInStack, this->twosInStack - 1, this->threesInStack);
+        case T::_3: return HiddenBoardState(newTurns, this->onesInStack, this->twosInStack, this->threesInStack - 1);
         default: return HiddenBoardState(newTurns, this->onesInStack, this->twosInStack, this->threesInStack);
     }
 }
@@ -281,15 +281,32 @@ Tile maxTileFromString(std::string const s) {
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
     
-    std::array<Tile, 16> tileList;
+    std::array<Tile, 16> tileList({
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY)
+    });
     transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
         return tileFromString(s);
     });
     
-    deque<Tile> hint(nextTileHintStrings.size());
-    transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), hint.begin(), [](string s) {
-        return tileFromString(s);
-    });
+    deque<Tile> hint;
+    for (auto&& s : nextTileHintStrings) {
+        hint.push_back(tileFromString(s));
+    }
     
     return *max_element(tileList.begin(), tileList.end());
 }
@@ -312,15 +329,32 @@ hasNoHint(false)
     split(nextTileHintStrings, splitName[1], is_any_of(","));
     debug(nextTileHintStrings.size() > 3);
     
-    std::array<Tile, 16> tileList;
+    std::array<Tile, 16> tileList({
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY),
+        Tile(T::EMPTY)
+    });
     transform(nums.begin(), nums.end(), tileList.begin(), [](string s){
         return tileFromString(s);
     });
     
-    deque<Tile> hint(nextTileHintStrings.size());
-    transform(nextTileHintStrings.begin(), nextTileHintStrings.end(), hint.begin(), [](string s) {
-        return tileFromString(s);
-    });
+    deque<Tile> hint;
+    for (auto&& s : nextTileHintStrings) {
+        hint.push_back(tileFromString(s));
+    }
     
     if (hint.size() == 1) {
         this->hint = Hint(hint[0]);
@@ -339,55 +373,55 @@ Tile AboutToMoveBoard::genUpcomingTile() const {
     // which means if a 1 is generated for tileFinder, we get here. In this case, use 6,
     // which would have been returned had there been no floating point error.
     debug(this->hint != none);
-    bool canHaveBonus = this->board.maxTile >= Tile::TILE_48;
+    bool canHaveBonus = this->board.maxTile >= T::_48;
     default_random_engine genCopy = this->generator;
     uniform_real_distribution<> r(0,1);
     float tileFinder = r(genCopy);
     
     if (this->hiddenState.onesInStack > 0) {
-        float pOne = nonBonusTileProbability(this->hiddenState, Tile::TILE_1, canHaveBonus);
+        float pOne = nonBonusTileProbability(this->hiddenState, T::_1, canHaveBonus);
         if (tileFinder < pOne) {
-            return Tile::TILE_1;
+            return T::_1;
         } else {
             tileFinder -= pOne;
         }
     }
     
     if (this->hiddenState.twosInStack > 0) {
-        float pTwo = nonBonusTileProbability(this->hiddenState,Tile::TILE_2, canHaveBonus);
+        float pTwo = nonBonusTileProbability(this->hiddenState,T::_2, canHaveBonus);
         if (tileFinder < pTwo) {
-            return Tile::TILE_2;
+            return T::_2;
         } else {
             tileFinder -= pTwo;
         }
     }
     
     if (this->hiddenState.threesInStack > 0) {
-        float pThree = nonBonusTileProbability(this->hiddenState,Tile::TILE_3, canHaveBonus);
+        float pThree = nonBonusTileProbability(this->hiddenState,T::_3, canHaveBonus);
         if (tileFinder < pThree) {
-            return Tile::TILE_3;
+            return T::_3;
         } else {
             tileFinder -= pThree;
         }
     }
     
-    Tile currentBonus = pred(pred(pred(this->board.maxTile)));
+    Tile currentBonus = this->board.maxTile.pred().pred().pred();
     Tile possibleBonusCounter = currentBonus;
     unsigned int numPossibleBonusTiles = 0;
-    while (possibleBonusCounter > Tile::TILE_3) {
-        possibleBonusCounter = pred(possibleBonusCounter);
+    while (possibleBonusCounter > T::_3) {
+        possibleBonusCounter = possibleBonusCounter.pred();
         numPossibleBonusTiles++;
     }
-    while (currentBonus >= Tile::TILE_6) {
+    while (currentBonus >= T::_6) {
         float pThisBonus = float(1)/numPossibleBonusTiles/21;
         if (tileFinder < pThisBonus) {
             return currentBonus;
         } else {
             tileFinder -= pThisBonus;
-            currentBonus = pred(currentBonus);
+            currentBonus = currentBonus.pred();
         }
     }
-    return Tile::TILE_6;
+    return T::_6;
 }
 
 Tile AboutToAddTileBoard::genUpcomingTile() const {
@@ -434,13 +468,13 @@ unsigned long AboutToMoveBoard::adjacentPairCount() const {
             Tile here = this->at(BoardIndex(i, j));
             if (i < 3) {
                 Tile below = this->at(BoardIndex(i + 1, j));
-                if (canMerge(here, below)) {
+                if (here.canMerge(below)) {
                     count++;
                 }
             }
             if (j < 3) {
                 Tile right = this->at(BoardIndex(i, j + 1));
-                if (canMerge(here, right)) {
+                if (here.canMerge(right)) {
                     count++;
                 }
             }
@@ -456,13 +490,13 @@ unsigned long AboutToMoveBoard::adjacentOffByOneCount() const {
             Tile here = this->at(BoardIndex(i, j));
             if (i < 3) {
                 Tile below = this->at(BoardIndex(i + 1, j));
-                if (canMergeOrMove(here, succ(below)) || canMergeOrMove(here, pred(below))) {
+                if (here.canMergeOrMove(below.succ()) || here.canMergeOrMove(below.pred())) {
                     count++;
                 }
             }
             if (j < 3) {
                 Tile right = this->at(BoardIndex(i, j + 1));
-                if (canMergeOrMove(here, succ(right)) || canMergeOrMove(here, pred(right))) {
+                if (here.canMergeOrMove(right.succ()) || here.canMergeOrMove(right.pred())) {
                     count++;
                 }
             }
@@ -471,22 +505,18 @@ unsigned long AboutToMoveBoard::adjacentOffByOneCount() const {
     return count;
 }
 
-using Tile::EMPTY;
-using Tile::TILE_1;
-using Tile::TILE_2;
-using Tile::TILE_3;
 
 bool isBlocked(Tile here, optional<Tile> s1, optional<Tile> s2) {
-    if (here == EMPTY) {
+    if (here == T::EMPTY) {
         return false;
     }
-    if (s1.value_or(TILE_3) < TILE_3) {
+    if (s1.value_or(T::_3) < T::_3) {
         return false;
     }
-    if (s2.value_or(TILE_3) < TILE_3) {
+    if (s2.value_or(T::_3) < T::_3) {
         return false;
     }
-    if (here < s2.value_or(Tile::TILE_6144) && here < s1.value_or(Tile::TILE_6144)) {
+    if (here < s2.value_or(T::_6144) && here < s1.value_or(T::_6144)) {
         return true;
     }
     return false;
@@ -519,25 +549,25 @@ unsigned long AboutToMoveBoard::splitPairsOfTile(Tile t) const {
                 bool hasAdjacent = false;
                 if (i < 3) {
                     Tile below = this->at(BoardIndex(i + 1, j));
-                    if (canMergeOrMove(here, below)) {
+                    if (here.canMergeOrMove(below)) {
                         hasAdjacent = true;
                     }
                 }
                 if (j < 3) {
                     Tile right = this->at(BoardIndex(i, j + 1));
-                    if (canMergeOrMove(here, right)) {
+                    if (here.canMergeOrMove(right)) {
                         hasAdjacent = true;
                     }
                 }
                 if (i > 0) {
                     Tile below = this->at(BoardIndex(i - 1, j));
-                    if (canMergeOrMove(here, below)) {
+                    if (here.canMergeOrMove(below)) {
                         hasAdjacent = true;
                     }
                 }
                 if (j > 0) {
                     Tile right = this->at(BoardIndex(i, j - 1));
-                    if (canMergeOrMove(here, right)) {
+                    if (here.canMergeOrMove(right)) {
                         hasAdjacent = true;
                     }
                 }
@@ -552,7 +582,7 @@ unsigned long AboutToMoveBoard::splitPairsOfTile(Tile t) const {
 
 unsigned long AboutToMoveBoard::splitPairCount() const {
     unsigned long count = 0;
-    for (Tile t = Tile::TILE_3; t < Tile::TILE_6144; t = succ(t)) {
+    for (Tile t = T::_3; t < T::_6144; t = t.succ()) {
         count += this->splitPairsOfTile(t);
     }
     return count;
@@ -563,33 +593,33 @@ Hint AboutToMoveBoard::getHint(bool exploratory) const {
     if (this->hint) {
         return this->hint.value();
     } else {
-        array<Tile, 5> inRangeTiles;
+        array<Tile, 5> inRangeTiles({T::EMPTY,T::EMPTY,T::EMPTY,T::EMPTY,T::EMPTY});
         unsigned char tilesIndexEnd = 0;
-        Tile hint1 = Tile::EMPTY;
-        Tile hint2 = Tile::EMPTY;
-        Tile hint3 = Tile::EMPTY;
+        Tile hint1 = T::EMPTY;
+        Tile hint2 = T::EMPTY;
+        Tile hint3 = T::EMPTY;
         Tile actualTile = this->upcomingTile.value_or(this->genUpcomingTile());
-        if (actualTile <= Tile::TILE_3) {
+        if (actualTile <= T::   _3) {
             return Hint(actualTile);
         } else {
             Tile maxBonusTile = this->board.maxBonusTile();
             //Add tiles that could show up
-            if (pred(pred(actualTile)) >= Tile::TILE_6) {
-                inRangeTiles[tilesIndexEnd] = pred(pred(actualTile));
+            if (actualTile.pred().pred() >= T::_6) {
+                inRangeTiles[tilesIndexEnd] = actualTile.pred().pred();
                 tilesIndexEnd++;
             }
-            if (pred(actualTile) >= Tile::TILE_6) {
-                inRangeTiles[tilesIndexEnd] = pred(actualTile);
+            if (actualTile.pred() >= T::_6) {
+                inRangeTiles[tilesIndexEnd] = actualTile.pred();
                 tilesIndexEnd++;
             }
             inRangeTiles[tilesIndexEnd] = actualTile;
             tilesIndexEnd++;
-            if (succ(actualTile) <= maxBonusTile) {
-                inRangeTiles[tilesIndexEnd] = succ(actualTile);
+            if (actualTile.succ() <= maxBonusTile) {
+                inRangeTiles[tilesIndexEnd] = actualTile.succ();
                 tilesIndexEnd++;
             }
-            if (succ(succ(actualTile)) <= maxBonusTile) {
-                inRangeTiles[tilesIndexEnd] = succ(succ(actualTile));
+            if (actualTile.succ().succ() <= maxBonusTile) {
+                inRangeTiles[tilesIndexEnd] = actualTile.succ().succ();
                 tilesIndexEnd++;
             }
             
@@ -619,9 +649,9 @@ Hint AboutToMoveBoard::getHint(bool exploratory) const {
         
         Hint result(hint1, hint2, hint3);
         debug(!result.contains(actualTile));
-        debug(hint1 > Tile::TILE_6144);
-        debug(hint2 > Tile::TILE_6144);
-        debug(hint3 > Tile::TILE_6144);
+        debug(hint1 > T::_6144);
+        debug(hint2 > T::_6144);
+        debug(hint3 > T::_6144);
         
         return result;
     }
@@ -651,7 +681,7 @@ bool AboutToMoveBoard::canMove(Direction d) const {
 }
 
 Tile Board::maxBonusTile() const {
-    return pred(pred(pred(this->maxTile)));
+    return this->maxTile.pred().pred().pred();
 }
 
 bool AboutToMoveBoard::hasSameTilesAs(AboutToMoveBoard const& otherBoard) const {
@@ -681,29 +711,29 @@ bool AboutToMoveBoard::hasSameTilesAs(AboutToAddTileBoard const& otherBoard) con
 
 deque<pair<Tile, float>> AboutToAddTileBoard::possibleNextTiles() const {
     Tile maxBoardTile = this->board.maxTile;
-    bool canHaveBonus = maxBoardTile >= Tile::TILE_48;
+    bool canHaveBonus = maxBoardTile >= T::_48;
     deque<pair<Tile, float>> result;
     //should be able to only add 1,2,3 if they are in the stack
     if (this->hiddenState.onesInStack > 0) {
-        result.push_back({Tile::TILE_1, nonBonusTileProbability(this->hiddenState, Tile::TILE_1, canHaveBonus)});
+        result.push_back({T::_1, nonBonusTileProbability(this->hiddenState, T::_1, canHaveBonus)});
     }
     if (this->hiddenState.twosInStack > 0) {
-        result.push_back({Tile::TILE_2, nonBonusTileProbability(this->hiddenState, Tile::TILE_2, canHaveBonus)});
+        result.push_back({T::_2, nonBonusTileProbability(this->hiddenState, T::_2, canHaveBonus)});
     }
     if (this->hiddenState.threesInStack > 0) {
-        result.push_back({Tile::TILE_3, nonBonusTileProbability(this->hiddenState, Tile::TILE_3, canHaveBonus)});
+        result.push_back({T::_3, nonBonusTileProbability(this->hiddenState, T::_3, canHaveBonus)});
     }
-    Tile possibleBonusTileCounter = pred(pred(pred(maxBoardTile)));
+    Tile possibleBonusTileCounter = maxBoardTile.pred().pred().pred();
     unsigned int numPossibleBonusTiles = 0;
-    while (possibleBonusTileCounter > Tile::TILE_3) {
-        possibleBonusTileCounter = pred(possibleBonusTileCounter);
+    while (possibleBonusTileCounter > T::_3) {
+        possibleBonusTileCounter = possibleBonusTileCounter.pred();
         numPossibleBonusTiles++;
     }
     
-    Tile availableBonusTile = pred(pred(pred(maxBoardTile)));
-    while (availableBonusTile > Tile::TILE_3) {
+    Tile availableBonusTile = maxBoardTile.pred().pred().pred();
+    while (availableBonusTile > T::_3) {
         result.push_back({availableBonusTile, float(1)/numPossibleBonusTiles/21});
-        availableBonusTile = pred(availableBonusTile);
+        availableBonusTile = availableBonusTile.pred();
     }
     return result;
 }
@@ -775,23 +805,23 @@ EnabledDirections Board::validMoves() const {
     
     this->validMovesCache = EnabledDirections();
     for (unsigned i = 0; i < 4; i++) {
-        if (canMergeOrMove(this->at(BoardIndex(i, 0)), this->at(BoardIndex(i, 1)))) {
+        if (this->at(BoardIndex(i, 0)).canMergeOrMove(this->at(BoardIndex(i, 1)))) {
             this->validMovesCache.set(Direction::UP);
-            if (this->at(BoardIndex(i,0)) != Tile::EMPTY) {
+            if (this->at(BoardIndex(i,0)) != T::EMPTY) {
                 this->validMovesCache.set(Direction::DOWN);
             }
             break;
         }
-        if (canMergeOrMove(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 2)))) {
+        if (this->at(BoardIndex(i, 1)).canMergeOrMove(this->at(BoardIndex(i, 2)))) {
             this->validMovesCache.set(Direction::UP);
-            if (this->at(BoardIndex(i,1)) != Tile::EMPTY) {
+            if (this->at(BoardIndex(i,1)) != T::EMPTY) {
                 this->validMovesCache.set(Direction::DOWN);
             }
             break;
         }
-        if (canMergeOrMove(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 3)))) {
+        if (this->at(BoardIndex(i, 2)).canMergeOrMove(this->at(BoardIndex(i, 3)))) {
             this->validMovesCache.set(Direction::UP);
-            if (this->at(BoardIndex(i,2)) != Tile::EMPTY) {
+            if (this->at(BoardIndex(i,2)) != T::EMPTY) {
                 this->validMovesCache.set(Direction::DOWN);
             }
             break;
@@ -799,9 +829,9 @@ EnabledDirections Board::validMoves() const {
     }
     if (!this->validMovesCache.isEnabled(Direction::DOWN)) {
         for (unsigned i = 0; i < 4; i++) {
-            if (canMergeOrMove(this->at(BoardIndex(i, 3)), this->at(BoardIndex(i, 2))) ||
-                canMergeOrMove(this->at(BoardIndex(i, 2)), this->at(BoardIndex(i, 1))) ||
-                canMergeOrMove(this->at(BoardIndex(i, 1)), this->at(BoardIndex(i, 0)))) {
+            if (this->at(BoardIndex(i, 3)).canMergeOrMove(this->at(BoardIndex(i, 2))) ||
+                this->at(BoardIndex(i, 2)).canMergeOrMove(this->at(BoardIndex(i, 1))) ||
+                this->at(BoardIndex(i, 1)).canMergeOrMove(this->at(BoardIndex(i, 0)))) {
                 this->validMovesCache.set(Direction::DOWN);
                 break;
             }
@@ -809,23 +839,23 @@ EnabledDirections Board::validMoves() const {
     }
     
     for (unsigned i = 0; i < 4; i++) {
-        if (canMergeOrMove(this->at(BoardIndex(0, i)), this->at(BoardIndex(1, i)))) {
+        if (this->at(BoardIndex(0, i)).canMergeOrMove(this->at(BoardIndex(1, i)))) {
             this->validMovesCache.set(Direction::LEFT);
-            if (this->at(BoardIndex(0, i)) != Tile::EMPTY) {
+            if (this->at(BoardIndex(0, i)) != T::EMPTY) {
                 this->validMovesCache.set(Direction::RIGHT);
             }
             break;
         }
-        if (canMergeOrMove(this->at(BoardIndex(1, i)), this->at(BoardIndex(2, i)))) {
+        if (this->at(BoardIndex(1, i)).canMergeOrMove(this->at(BoardIndex(2, i)))) {
             this->validMovesCache.set(Direction::LEFT);
-            if (this->at(BoardIndex(1, i)) != Tile::EMPTY) {
+            if (this->at(BoardIndex(1, i)) != T::EMPTY) {
                 this->validMovesCache.set(Direction::RIGHT);
             }
             break;
         }
-        if (canMergeOrMove(this->at(BoardIndex(2, i)), this->at(BoardIndex(3, i)))) {
+        if (this->at(BoardIndex(2, i)).canMergeOrMove(this->at(BoardIndex(3, i)))) {
             this->validMovesCache.set(Direction::LEFT);
-            if (this->at(BoardIndex(2, i)) != Tile::EMPTY) {
+            if (this->at(BoardIndex(2, i)) != T::EMPTY) {
                 this->validMovesCache.set(Direction::RIGHT);
             }
             break;
@@ -833,9 +863,9 @@ EnabledDirections Board::validMoves() const {
     }
     if (!this->validMovesCache.isEnabled(Direction::RIGHT)) {
         for (unsigned i = 0; i < 4; i++) {
-            if (canMergeOrMove(this->at(BoardIndex(3, i)), this->at(BoardIndex(2, i))) ||
-                canMergeOrMove(this->at(BoardIndex(2, i)), this->at(BoardIndex(1, i))) ||
-                canMergeOrMove(this->at(BoardIndex(1, i)), this->at(BoardIndex(0, i)))) {
+            if (this->at(BoardIndex(3, i)).canMergeOrMove(this->at(BoardIndex(2, i))) ||
+                this->at(BoardIndex(2, i)).canMergeOrMove(this->at(BoardIndex(1, i))) ||
+                this->at(BoardIndex(1, i)).canMergeOrMove(this->at(BoardIndex(0, i)))) {
                 this->validMovesCache.set(Direction::RIGHT);
                 break;
             }
