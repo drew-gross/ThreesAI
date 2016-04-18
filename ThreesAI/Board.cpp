@@ -123,11 +123,14 @@ EnabledIndices Board::moveUp() {
             Tile here = this->at(BoardIndex(i, j + 1));
             if (here.canMergeOrMove(target)) {
                 movedColumns.set(BoardIndex(i, 3));
-            }
-            auto result = here.mergeResult(target);
-            if (result) {
-                mergedColumns.set(BoardIndex(i, 3));
-                this->set(BoardIndex(i, j), result.get());
+                auto result = here.mergeResult(target);
+                if (result) {
+                    mergedColumns.set(BoardIndex(i, 3));
+                    this->set(BoardIndex(i, j), result.get());
+                } else {
+                    this->set(BoardIndex(i, j), here);
+                    this->set(BoardIndex(i, j + 1), target);
+                }
             }
         }
     }
@@ -141,18 +144,20 @@ EnabledIndices Board::moveUp() {
 EnabledIndices Board::moveDown() {
     EnabledIndices movedColumns({});
     EnabledIndices mergedColumns({});
-    
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 3; j > 0; j--) {
             Tile target = this->at(BoardIndex(i, j));
             Tile here = this->at(BoardIndex(i, j - 1));
-            if (here.canMergeOrMove(here)) {
+            if (here.canMergeOrMove(target)) {
                 movedColumns.set(BoardIndex(i, 0));
-            }
-            auto result = here.mergeResult(target);
-            if (result) {
-                mergedColumns.set(BoardIndex(i, 0));
-                this->set(BoardIndex(i, j), result.get());
+                auto result = here.mergeResult(target);
+                if (result) {
+                    mergedColumns.set(BoardIndex(i, 0));
+                    this->set(BoardIndex(i, j), result.get());
+                } else {
+                    this->set(BoardIndex(i, j), here);
+                    this->set(BoardIndex(i, j - 1), T::EMPTY);
+                }
             }
         }
     }
@@ -171,13 +176,16 @@ EnabledIndices Board::moveLeft() {
         for (unsigned char j = 3; j > 0; j--) {
             Tile target = this->at(BoardIndex(j, i));
             Tile here = this->at(BoardIndex(j - 1, i));
-            if (here.canMergeOrMove(here)) {
+            if (here.canMergeOrMove(target)) {
                 movedColumns.set(BoardIndex(0, i));
-            }
-            auto result = here.mergeResult(target);
-            if (result) {
-                mergedColumns.set(BoardIndex(0, i));
-                this->set(BoardIndex(j, i), result.get());
+                auto result = here.mergeResult(target);
+                if (result) {
+                    mergedColumns.set(BoardIndex(0, i));
+                    this->set(BoardIndex(j, i), result.get());
+                } else {
+                    this->set(BoardIndex(j, i), here);
+                    this->set(BoardIndex(j - 1, i), target);
+                }
             }
         }
     }
@@ -194,15 +202,18 @@ EnabledIndices Board::moveRight() {
     
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 3; j++) {
-            Tile target = this->at(BoardIndex(i, j));
-            Tile here = this->at(BoardIndex(i, j + 1));
-            if (here.canMergeOrMove(here)) {
+            Tile target = this->at(BoardIndex(j, i));
+            Tile here = this->at(BoardIndex(j + 1, i));
+            if (here.canMergeOrMove(target)) {
                 movedColumns.set(BoardIndex(3, i));
-            }
-            auto result = here.mergeResult(target);
-            if (result) {
-                mergedColumns.set(BoardIndex(3, i));
-                this->set(BoardIndex(j, i), result.get());
+                auto result = here.mergeResult(target);
+                if (result) {
+                    mergedColumns.set(BoardIndex(3, i));
+                    this->set(BoardIndex(j, i), result.get());
+                } else {
+                    this->set(BoardIndex(j, i), here);
+                    this->set(BoardIndex(j + 1, i), target);
+                }
             }
         }
     }

@@ -10,6 +10,8 @@
 #include "ManyPlayMonteCarloAI.h"
 #include "FixedDepthAI.hpp"
 
+#include "Logging.h"
+
 using namespace std;
 using namespace boost;
 
@@ -22,7 +24,7 @@ TEST(takeTurnInPlace, Works) {
                        3,0,0,0,\
                        0,1,0,0,\
                        0,0,0,0-2");
-    AboutToMoveBoard b2("0,0,0,0,\
+    AboutToMoveBoard b2("0,2,0,0,\
                        3,0,0,0,\
                        3,0,0,0,\
                        0,1,0,0-2");
@@ -54,7 +56,7 @@ TEST(countAdjacentPair, Works) {
     EXPECT_EQ(countAdjacentPair(*b->sneakyState()), 4);
 }
 
-TEST(SpliPairCount, Works) {
+TEST(SplitPairCount, Works) {
     auto b = makeOutput("3,0,0,0,\
                         3,0,0,0,\
                         0,0,0,0,\

@@ -58,6 +58,7 @@ Tile Tile::succ() const {
 }
 
 bool Tile::canMergeOrMove(Tile t2) const {
+    if (this->value != T::EMPTY && t2 == T::EMPTY) return true;
     switch (this->value) {
         case T::EMPTY: return t2 != T::EMPTY;
         case T::_1: return t2 == T::_2;

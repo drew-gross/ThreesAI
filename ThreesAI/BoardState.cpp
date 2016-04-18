@@ -175,9 +175,12 @@ void Board::set(BoardIndex i, Tile t) {
 }
 
 void AboutToMoveBoard::takeTurnInPlace(Direction d) {
-    this->upcomingTile = this->getUpcomingTile(); //Must get upcoming tile before moving, as moveing can change which tile is added for a given generator state.
-    this->board.move(d);
-    this->addTile(d);
+    AboutToMoveBoard newBoard = this->moveWithAdd(d);
+    this->board = newBoard.board;
+    this->hiddenState = newBoard.hiddenState;
+    this->generator = newBoard.generator;
+    this->upcomingTile = none;
+    this->hint = none;
 }
 
 AboutToAddTileBoard::AboutToAddTileBoard(Board b, EnabledIndices i, HiddenBoardState h, default_random_engine g, Hint hint):
@@ -228,14 +231,14 @@ generator(other.generator)
     this->addTile(t.d);
 }
 
-AboutToMoveBoard::AboutToMoveBoard(MoveWithAdd m, AboutToMoveBoard const& other) :
-hiddenState(other.hiddenState),
-board(other.board),
-generator(other.generator),
-upcomingTile(other.upcomingTile),
-hint(other.hint)
-{
-    this->takeTurnInPlace(m.d);
+AboutToMoveBoard AboutToMoveBoard::moveWithAdd(Direction d) const {
+    Board newBoard = this->board;
+    newBoard.move(d);
+    AboutToMoveBoard aboutToMove(newBoard, this->hiddenState);
+    aboutToMove.hint = this->hint;
+    aboutToMove.hasNoHint = false;
+    aboutToMove.addTile(d);
+    return aboutToMove;
 }
 
 AboutToMoveBoard::AboutToMoveBoard(AboutToMoveBoard::DifferentFuture d, AboutToMoveBoard const& other) :
@@ -541,6 +544,9 @@ unsigned long AboutToMoveBoard::trappedTileCount() const {
 }
 
 unsigned long AboutToMoveBoard::splitPairsOfTile(Tile t) const {
+    if (this->countOfTile(t) <= 1) {
+        return 0;
+    }
     unsigned long count = 0;
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 4; j++) {
@@ -549,29 +555,29 @@ unsigned long AboutToMoveBoard::splitPairsOfTile(Tile t) const {
                 bool hasAdjacent = false;
                 if (i < 3) {
                     Tile below = this->at(BoardIndex(i + 1, j));
-                    if (here.canMergeOrMove(below)) {
+                    if (here.canMerge(below)) {
                         hasAdjacent = true;
                     }
                 }
                 if (j < 3) {
                     Tile right = this->at(BoardIndex(i, j + 1));
-                    if (here.canMergeOrMove(right)) {
+                    if (here.canMerge(right)) {
                         hasAdjacent = true;
                     }
                 }
                 if (i > 0) {
                     Tile below = this->at(BoardIndex(i - 1, j));
-                    if (here.canMergeOrMove(below)) {
+                    if (here.canMerge(below)) {
                         hasAdjacent = true;
                     }
                 }
                 if (j > 0) {
                     Tile right = this->at(BoardIndex(i, j - 1));
-                    if (here.canMergeOrMove(right)) {
+                    if (here.canMerge(right)) {
                         hasAdjacent = true;
                     }
                 }
-                if (!hasAdjacent && this->countOfTile(t) > 1) {
+                if (!hasAdjacent) {
                     count++;
                 }
             }

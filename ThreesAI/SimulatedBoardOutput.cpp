@@ -65,6 +65,6 @@ shared_ptr<AboutToMoveBoard const> SimulatedBoardOutput::currentState(HiddenBoar
 }
 
 void SimulatedBoardOutput::move(Direction d, AboutToMoveBoard const& originalBoard) {
-    this->state = make_shared<AboutToMoveBoard>(AboutToMoveBoard::MoveWithAdd(d), *this->currentState(originalBoard.hiddenState));
+    this->state = make_shared<AboutToMoveBoard>(this->currentState(originalBoard.hiddenState)->moveWithAdd(d));
     this->doWorkFor(0);
 }

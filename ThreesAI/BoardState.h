@@ -112,12 +112,6 @@ public:
         unsigned int howDifferent;
     };
     
-    class MoveWithAdd {
-    public:
-        MoveWithAdd(Direction d) : d(d) {};
-        Direction const d;
-    };
-    
     class SetHiddenState {
     public:
         SetHiddenState(HiddenBoardState h) : h(h) {};
@@ -134,7 +128,6 @@ public:
     
     AboutToMoveBoard(std::string s);
     AboutToMoveBoard(DifferentFuture, AboutToMoveBoard const& other);
-    AboutToMoveBoard(MoveWithAdd m, AboutToMoveBoard const& other);
     AboutToMoveBoard(SetHiddenState h, AboutToMoveBoard const& other);
     AboutToMoveBoard(SetHint h, AboutToMoveBoard const& other);
     AboutToMoveBoard(AddTile t, AboutToAddTileBoard const& other);
@@ -152,6 +145,8 @@ public:
                std::default_random_engine gen,
                Hint hint,
                cv::Mat sourceImage);
+    
+    AboutToMoveBoard moveWithAdd(Direction d) const;
     
     Tile at(BoardIndex const& p) const {return this->board.at(p);};
     Hint getHint(bool exploratory = false) const;
