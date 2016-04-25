@@ -48,11 +48,8 @@ float ExpectimaxChanceNode::value(std::function<float(AboutToMoveBoard const&)> 
 
 void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unfilledList) {
     deque<pair<Tile, float>> possibleNextTiles;
-    if (this->board->hasNoHint) {
-        possibleNextTiles = this->board->possibleNextTiles();
-    } else {
-        possibleNextTiles = this->board->getHint().possibleTiles();
-    }
+    //TODO: only use the tiles that the hint says might come if I ever start using expectimax again
+    possibleNextTiles = this->board->possibleNextTiles();
     //TODO: Fix this if I ever start using Expectimax again
     debug();
     EnabledIndices possibleNextLocations({}); // = this->board->validIndicesForNewTile(this->directionMovedToGetHere);
@@ -77,12 +74,14 @@ void ExpectimaxChanceNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & u
 
 void ExpectimaxChanceNode::pruneUnreachableChildren() {
     float lostProbability = 0;
-    Hint currentHint = this->board->getHint();
+    //TODO: reimplement this if I ever use Expectimax again
+    debug();
+    //Hint currentHint = this->board->getHint();
     for (auto it = this->children.cbegin(); it != this->children.cend();) {
-        if (!currentHint.contains(it->first.newTileValue)) {
-            lostProbability += this->childrenProbabilities[it->first];
-            this->childrenProbabilities.erase(it->first);
-            this->children.erase(it++);
+        if (false){//(!currentHint.contains(it->first.newTileValue)) {
+            //lostProbability += this->childrenProbabilities[it->first];
+            //this->childrenProbabilities.erase(it->first);
+            //this->children.erase(it++);
         } else {
             ++it;
         }

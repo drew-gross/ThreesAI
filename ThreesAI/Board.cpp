@@ -119,17 +119,18 @@ EnabledIndices Board::moveUp() {
     
     for (unsigned char i = 0; i < 4; i++) {
         for (unsigned char j = 0; j < 3; j++) {
-            Tile target = this->at(BoardIndex(i, j));
-            Tile here = this->at(BoardIndex(i, j + 1));
+            Tile target = this->at(BoardIndex(i, j + 1));
+            Tile here = this->at(BoardIndex(i, j));
             if (here.canMergeOrMove(target)) {
                 movedColumns.set(BoardIndex(i, 3));
                 auto result = here.mergeResult(target);
                 if (result) {
                     mergedColumns.set(BoardIndex(i, 3));
-                    this->set(BoardIndex(i, j), result.get());
+                    this->set(BoardIndex(i, j), T::EMPTY);
+                    this->set(BoardIndex(i, j + 1), result.get());
                 } else {
-                    this->set(BoardIndex(i, j), here);
-                    this->set(BoardIndex(i, j + 1), target);
+                    this->set(BoardIndex(i, j), T::EMPTY);
+                    this->set(BoardIndex(i, j + 1), here);
                 }
             }
         }
@@ -173,18 +174,19 @@ EnabledIndices Board::moveLeft() {
     EnabledIndices mergedColumns({});
     
     for (unsigned char i = 0; i < 4; i++) {
-        for (unsigned char j = 3; j > 0; j--) {
-            Tile target = this->at(BoardIndex(j, i));
-            Tile here = this->at(BoardIndex(j - 1, i));
+        for (unsigned char j = 1; j < 4; j--) {
+            Tile target = this->at(BoardIndex(j - 1, i));
+            Tile here = this->at(BoardIndex(j, i));
             if (here.canMergeOrMove(target)) {
                 movedColumns.set(BoardIndex(0, i));
                 auto result = here.mergeResult(target);
                 if (result) {
                     mergedColumns.set(BoardIndex(0, i));
                     this->set(BoardIndex(j, i), result.get());
+                    this->set(BoardIndex(j - 1, i), T::EMPTY);
                 } else {
                     this->set(BoardIndex(j, i), here);
-                    this->set(BoardIndex(j - 1, i), target);
+                    this->set(BoardIndex(j - 1, i), T::EMPTY);
                 }
             }
         }

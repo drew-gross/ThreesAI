@@ -64,7 +64,7 @@ bool boardTransitionIsValid(AboutToAddTileBoard const& oldBoard, Hint oldHint, s
     }
     
     for (BoardIndex i : allIndices) {
-        if (unknownIndexes.isEnabled(i) && newBoard->at(i) != Tile::EMPTY) {
+        if (unknownIndexes.isEnabled(i) && newBoard->at(i) != T::EMPTY) {
             return oldHint.contains(newBoard->at(i));
         }
     }
@@ -74,7 +74,7 @@ bool boardTransitionIsValid(AboutToAddTileBoard const& oldBoard, Hint oldHint, s
 void RealBoardOutput::move(Direction d, AboutToMoveBoard const& originalBoard) {
     this->moveStepper(d);
     
-    std::shared_ptr<AboutToAddTileBoard const> expectedBoardAfterMove = make_shared<AboutToAddTileBoard const>(originalBoard.moveWithoutAdd(d));
+    std::shared_ptr<AboutToAddTileBoard const> expectedBoardAfterMove = make_shared<AboutToAddTileBoard const>(originalBoard.moveWithoutAdd(d, false));
     
     std::shared_ptr<AboutToMoveBoard const> newState = this->source->getGameState(expectedBoardAfterMove->hiddenState);
     

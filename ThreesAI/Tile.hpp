@@ -54,6 +54,7 @@ public:
     //TODO: Make this a member
     friend float nonBonusTileProbability(HiddenBoardState const& hiddenState, Tile tile, bool canHaveBonus);
     friend HiddenBoardState;
+    T getValue() {return this->value;}
 };
 
 Tile tileFromString(std::string s);

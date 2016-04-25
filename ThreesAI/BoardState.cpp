@@ -902,12 +902,15 @@ BoardScore AboutToMoveBoard::runRandomSimulation(unsigned int simNumber) const {
     AboutToMoveBoard copy(AboutToMoveBoard::DifferentFuture(simNumber), *this);
     copy.hasNoHint = false;
     while (!copy.isGameOver()) {
+        auto d = copy.randomValidMoveFromInternalGenerator();
         try {
-            copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());
-        } catch (std::exception e) {
-            debug();
             MYLOG(copy);
-            copy.takeTurnInPlace(copy.randomValidMoveFromInternalGenerator());
+            MYLOG(d);
+            copy.takeTurnInPlace(d);
+        } catch (std::exception e) {
+            MYLOG(copy);
+            debug();
+            copy.takeTurnInPlace(d);
         }
     }
     return copy.score();

@@ -22,7 +22,7 @@
 
 class TileInfo {
 public:
-    TileInfo();
+    TileInfo() : value(T::EMPTY) {};
     TileInfo(cv::Mat image, Tile value, const cv::SIFT& sifter);
     
     cv::Mat image;
@@ -36,7 +36,7 @@ public:
 
 class MatchResult {
 public:
-    MatchResult();
+    MatchResult() {};
     MatchResult(TileInfo t, cv::Mat image, bool calculate=true);
     
     cv::Mat knnDrawing();

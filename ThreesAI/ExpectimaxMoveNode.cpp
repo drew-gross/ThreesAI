@@ -22,7 +22,7 @@ using namespace std;
 ExpectimaxMoveNode::ExpectimaxMoveNode(std::shared_ptr<AboutToMoveBoard const> board, unsigned int depth) :
 ExpectimaxNode<Direction>(depth),
 board(board) {
-    debug(!this->board->hasNoHint && this->board->getHint().contains(Tile::TILE_2) && this->board->hiddenState.twosInStack == 0);
+    debug(!this->board->hasNoHint && this->board->getHint().contains(T::_2) && this->board->hiddenState.twosInStack == 0);
 }
 
 pair<Direction, shared_ptr<const ExpectimaxNodeBase>> ExpectimaxMoveNode::maxChild(std::function<float(AboutToMoveBoard const&)> heuristic) const {
@@ -38,12 +38,8 @@ void ExpectimaxMoveNode::fillInChildren(list<weak_ptr<ExpectimaxNodeBase>> & unf
     debug(this->childrenAreFilledIn());
     for (Direction d : allDirections) {
         if (this->board->isMoveValid(d)) {
-            std::shared_ptr<AboutToAddTileBoard const> childBoard = make_shared<AboutToAddTileBoard const>(this->board->moveWithoutAdd(d));
+            std::shared_ptr<AboutToAddTileBoard const> childBoard = make_shared<AboutToAddTileBoard const>(this->board->moveWithoutAdd(d, true));
             shared_ptr<ExpectimaxChanceNode> child = make_shared<ExpectimaxChanceNode>(childBoard, d, this->depth+1);
-            bool test = false;
-            if (test) {
-                make_shared<AboutToAddTileBoard const>(this->board->moveWithoutAdd(d));
-            }
             this->children.insert({d, child});
             unfilledList.push_back(weak_ptr<ExpectimaxChanceNode>(child));
         }

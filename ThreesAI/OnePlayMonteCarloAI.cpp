@@ -22,7 +22,7 @@ Direction OnePlayMonteCarloAI::getDirection() const {
     Direction bestDirection = Direction::LEFT;
     for (Direction d : allDirections) {
         if (this->currentState()->isMoveValid(d)) {
-            AboutToMoveBoard moved(AboutToMoveBoard::MoveWithAdd(d), *this->currentState());
+            AboutToMoveBoard moved = this->currentState()->moveWithAdd(d);
             BoardScore score = moved.runRandomSimulation(1);
             if (score > bestScore) {
                 bestDirection = d;

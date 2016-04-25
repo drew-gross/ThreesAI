@@ -24,7 +24,7 @@ using namespace cv;
 using namespace IMLog;
 using namespace boost;
 
-TileInfo::TileInfo(cv::Mat image, Tile value, const SIFT& sifter) {
+TileInfo::TileInfo(cv::Mat image, Tile value, const SIFT& sifter) : value(value){
     this->image = image;
     this->value = value;
     sifter.detect(image, this->keypoints);
@@ -261,7 +261,7 @@ const map<Tile, TileInfo>* loadCanonicalTiles() {
     warpPerspective(image, boardImage, transform, Size(800,600));
     
     
-    const std::array<Tile, 12> indexToTile = {Tile::TILE_3,Tile::TILE_6,Tile::TILE_12,Tile::TILE_24,Tile::TILE_48,Tile::TILE_96,Tile::TILE_192,Tile::TILE_384,Tile::TILE_768,Tile::TILE_1536,Tile::TILE_3072,Tile::EMPTY};//TODO: empty is only empty until I get a 6144 tile
+    const std::array<Tile, 12> indexToTile = {T::_3,T::_6,T::_12,T::_24,T::_48,T::_96,T::_192,T::_384,T::_768,T::_1536,T::_3072,T::EMPTY};//TODO: empty is only empty until I get a 6144 tile
     
     for (unsigned char i = 0; i < 3; i++) {
         for (unsigned char j = 0; j < 4; j++) {
@@ -323,10 +323,6 @@ Mat MatchResult::noDupeDrawing() {
     return drawing;
 }
 
-TileInfo::TileInfo(){};
-
-MatchResult::MatchResult() : tile() {};
-
 MatchResult::MatchResult(TileInfo candidate, Mat colorImage, bool calculate) : tile(candidate), queryImage(), queryKeypoints(), knnMatches(), ratioPassMatches(), noDupeMatches(), averageDistance(INFINITY), matchingKeypointFraction(-INFINITY) {
     
     cvtColor(colorImage, this->queryImage, CV_RGB2GRAY);
@@ -368,7 +364,7 @@ MatchResult::MatchResult(TileInfo candidate, Mat colorImage, bool calculate) : t
     for (auto&& queryMatch : this->ratioPassMatches) {
         bool passes = true;
         for (auto&& otherMatch : this->ratioPassMatches) {
-            if (candidate.value == Tile::TILE_96 && queryMatch.trainIdx == otherMatch.trainIdx && queryMatch.distance < otherMatch.distance) {
+            if (candidate.value == T::_96 && queryMatch.trainIdx == otherMatch.trainIdx && queryMatch.distance < otherMatch.distance) {
                 //96 might legitimately have 2 matches from candidate tile to photo because 9 looks like 6.
                 passes = false;
             } else if ((queryMatch.queryIdx == otherMatch.queryIdx || queryMatch.trainIdx == otherMatch.trainIdx) && queryMatch.distance < otherMatch.distance) {
@@ -423,13 +419,13 @@ bool mustDetect6vs96vs192(deque<MatchResult> matches) {
     auto end_it = matches.begin()+numElemsToCheck;
     
     bool no6 = !(find_if(matches.begin(), end_it, [](MatchResult m){
-        return m.tile.value == Tile::TILE_6;
+        return m.tile.value == T::_6;
     }) != end_it);
     bool no96 = !(find_if(matches.begin(), end_it, [](MatchResult m){
-        return m.tile.value == Tile::TILE_96;
+        return m.tile.value == T::_96;
     }) != end_it);
     bool no192 = !(find_if(matches.begin(), end_it, [](MatchResult m){
-        return m.tile.value == Tile::TILE_192;
+        return m.tile.value == T::_192;
     }) != end_it);
     
     if ((no6 && no96) || (no6 && no192) || (no96 && no192)) {
@@ -504,9 +500,9 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const CanonicalTiles& c
         Rect chopSides(10,10,140,140);
         meanStdDev(greyTileImage(chopSides), mean, stdDev);
         if (stdDev[0] < Paramater::zeroOrOneStdDevThreshold) {
-            return MatchResult(TileInfo(canonicalTiles.at(Tile::EMPTY).image, Tile::EMPTY, IMProc::imageSifter()), colorTileImage, false);
+            return MatchResult(TileInfo(canonicalTiles.at(T::EMPTY).image, T::EMPTY, IMProc::imageSifter()), colorTileImage, false);
         } else {
-            return MatchResult(TileInfo(canonicalTiles.at(Tile::TILE_1).image, Tile::TILE_1, IMProc::imageSifter()), colorTileImage, false);
+            return MatchResult(TileInfo(canonicalTiles.at(T::_1).image, T::_1, IMProc::imageSifter()), colorTileImage, false);
         }
     }
     
@@ -533,7 +529,7 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const CanonicalTiles& c
     
     if (goodMatchResults.empty()) {
         // If none of the matches are good, use the best of the shitty ones. But not tile 0.
-        if (matchResults[0].tile.value == Tile::EMPTY) {
+        if (matchResults[0].tile.value == T::EMPTY) {
             return matchResults[1];
         } else {
             return matchResults[0];
@@ -545,8 +541,8 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const CanonicalTiles& c
     }
     
     //If we think it's a 1 or 2, double check against the color of tile
-    if (goodMatchResults[0].tile.value == Tile::TILE_1 ||
-        goodMatchResults[0].tile.value == Tile::TILE_2)
+    if (goodMatchResults[0].tile.value == T::_1 ||
+        goodMatchResults[0].tile.value == T::_2)
     {
         Rect flatRegionRect = Rect(0,0,40,100);
         optional<MatchResult> result = detect1or2or3orBonusByColor(colorTileImage(flatRegionRect));
@@ -571,12 +567,12 @@ MatchResult IMProc::tileValue(const Mat& colorTileImage, const CanonicalTiles& c
 }
 
 const TileInfo TileInfo::Tile1Info() {
-    static TileInfo i = TileInfo(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Only.png"), Tile::TILE_1, IMProc::canonicalSifter());
+    static TileInfo i = TileInfo(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample1Only.png"), T::_1, IMProc::canonicalSifter());
     return i;
 }
 
 const TileInfo TileInfo::Tile2Info() {
-    static TileInfo i = TileInfo(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Only.png"), Tile::TILE_2, IMProc::canonicalSifter());
+    static TileInfo i = TileInfo(imread("/Users/drewgross/Projects/ThreesAI/SampleData/Sample2Only.png"), T::_2, IMProc::canonicalSifter());
     return i;
 }
 
@@ -629,7 +625,7 @@ optional<MatchResult> IMProc::detect1or2or3orBonusByColor(Mat const &input) {
         if (nonBonusResult) {
             return nonBonusResult;
         } else {
-            return make_optional(MatchResult(canonicalTiles().at(Tile::TILE_3), input));
+            return make_optional(MatchResult(canonicalTiles().at(T::_3), input));
         }
     }
 }
@@ -673,13 +669,13 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, const CanonicalTi
     Scalar stdDev;
     meanStdDev(tileSS(Rect(50,50,100,100)), mean, stdDev);
     if (stdDev[0] <= 1) {
-        return MatchResult(canonicalTiles.at(Tile::EMPTY), tileSS);
+        return MatchResult(canonicalTiles.at(T::EMPTY), tileSS);
     }
     optional<MatchResult> colorDetectionResult = IMProc::detect1or2orHigherByColor(tileSS);
     if (colorDetectionResult) {
-        switch (colorDetectionResult.value().tile.value) {
-            case Tile::TILE_1: return MatchResult(TileInfo::Tile1Info(), tileSS);
-            case Tile::TILE_2: return MatchResult(TileInfo::Tile2Info(), tileSS);
+        switch (colorDetectionResult.value().tile.value.getValue()) {
+            case T::_1: return MatchResult(TileInfo::Tile1Info(), tileSS);
+            case T::_2: return MatchResult(TileInfo::Tile2Info(), tileSS);
             default: break;
         }
     }
@@ -707,10 +703,10 @@ MatchResult IMProc::tileValueFromScreenShot(Mat const& tileSS, const CanonicalTi
         
         return minShiftedMean(tileSSwithFaceChoppedOff, tileLwithFaceChoppedOff) < minShiftedMean(tileSSwithFaceChoppedOff, tileRwithFaceChoppedOff);
     });
-    if (bestMatch.second.value == Tile::TILE_768 || bestMatch.second.value == Tile::TILE_384) {
+    if (bestMatch.second.value == T::_768 || bestMatch.second.value == T::_384) {
         MatchResult SIFTresult = IMProc::tileValue(tileSS, canonicalTiles);
         //768 and 384 get confused less often in the SIFT scheme.
-        if (SIFTresult.tile.value == Tile::TILE_768 || SIFTresult.tile.value == Tile::TILE_384) {
+        if (SIFTresult.tile.value == T::_768 || SIFTresult.tile.value == T::_384) {
             return SIFTresult;
         }
     }
@@ -754,7 +750,24 @@ pair<std::shared_ptr<AboutToMoveBoard const>, array<MatchResult, 16>> IMProc::bo
         return tileValueFromScreenShot(image, IMProc::canonicalTiles());
     });
     
-    std::array<Tile, 16> tiles;
+    std::array<Tile, 16> tiles = {
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY
+    };
     transform(matches.begin(), matches.end(), tiles.begin(), [](MatchResult m) {
         return m.tile.value;
     });
@@ -773,7 +786,24 @@ pair<std::shared_ptr<AboutToMoveBoard const>, array<MatchResult, 16>> IMProc::bo
         return IMProc::tileValue(image, IMProc::canonicalTiles());
     });
     
-    std::array<Tile, 16> tiles;
+    std::array<Tile, 16> tiles = {
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY,
+        T::EMPTY
+    };
     transform(matches.begin(), matches.end(), tiles.begin(), [](MatchResult m) {
         return m.tile.value;
     });
@@ -784,7 +814,7 @@ pair<std::shared_ptr<AboutToMoveBoard const>, array<MatchResult, 16>> IMProc::bo
     } else {
         //TODO: get the real bonus tile hint here instead of passing EMPTY
         debug();
-        return {make_shared<AboutToMoveBoard const>(Board(tiles), otherInfo, default_random_engine(0), Hint(Tile::EMPTY), image), matches};
+        return {make_shared<AboutToMoveBoard const>(Board(tiles), otherInfo, default_random_engine(0), Hint(T::EMPTY), image), matches};
     }
 }
 
